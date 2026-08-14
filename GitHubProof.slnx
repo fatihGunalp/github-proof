@@ -3,4 +3,7 @@
     <Project Path="src/GitHubProof.Application/GitHubProof.Application.csproj" />
     <Project Path="src/GitHubProof.Domain/GitHubProof.Domain.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -10,6 +10,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | Date | Topic | Result | Model Route | Session | Base HEAD |
 |---|---|---|---|---|---|
 | 2026-08-15 | Domain primitives | PASS | Terra / low | [001](./sessions/2026-08-15-001-domain-primitives.md) | 7d5c406 |
+| 2026-08-15 | RepositorySnapshot domain model | PASS | Sol / medium | [002](./sessions/2026-08-15-002-repository-snapshot.md) | d20f76c |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
