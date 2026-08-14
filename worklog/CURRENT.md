@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 1 — Analysis Model / Domain Foundation
-Focus: RepositorySnapshot normalized domain model is implemented and verified.
+Focus: CategoryResult domain model is implemented and verified.
 ```
 
 ---
@@ -51,53 +51,51 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare the CategoryResult task and run its mandatory model gate before implementation.
+Prepare the next domain-model task and run its mandatory model gate before implementation.
 ```
 
 ## Working Set
 
 ```text
 Modified:
-- GitHubProof.slnx
+- src/GitHubProof.Domain/Analysis/Models/SignalResult.cs
 - worklog/CURRENT.md
 - worklog/INDEX.md
 
 Untracked:
-- src/GitHubProof.Domain/Analysis/Models/RepositorySnapshot.cs
-- src/GitHubProof.Domain/Analysis/Models/RepositorySnapshotData.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/RepositorySnapshotTests.cs
-- tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj
-- worklog/sessions/2026-08-15-002-repository-snapshot.md
+- src/GitHubProof.Domain/Analysis/Models/CategoryResult.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/CategoryResultTests.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/SignalResultTests.cs
+- worklog/sessions/2026-08-15-003-category-result.md
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: d20f76c
-Last verified working tree: completed Session 002 changes listed above
+Last verified HEAD: f40515f
+Last verified working tree: completed Session 003 changes listed above
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 002 — RepositorySnapshot domain model: PASS
+Session 003 — CategoryResult domain model: PASS
 
-- Added the complete normalized snapshot aggregate and source-data records.
-- Kept GitHub API/HTTP/serialization concerns outside Domain.
-- Added pagination completeness and per-section availability semantics.
-- Added five focused invariant tests and the Domain test project.
+- Added a contract-derived category aggregate with derived raw, maximum, normalized scores, and status.
+- Excluded unscored signal statuses from category normalization and preserved composite category inclusion.
+- Closed the SignalResult Missing-score invariant and added eight focused domain tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test GitHubProof.slnx --no-restore: PASS — 5 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 13 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: only completed Session 002 changes
+git status --short: only completed Session 003 changes
 ```
 
 ## Critical Invariants

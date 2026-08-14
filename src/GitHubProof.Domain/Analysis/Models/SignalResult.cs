@@ -149,6 +149,14 @@ public sealed record SignalResult
         }
 
         if (Status == SignalStatus.Missing
+            && Score != 0)
+        {
+            throw new ArgumentException(
+                "Missing results must have a score of zero.",
+                nameof(Score));
+        }
+
+        if (Status == SignalStatus.Missing
             && Evidence.Count == 0)
         {
             throw new ArgumentException(
