@@ -22,8 +22,8 @@ SignalDefinition
 ├── EvaluationRules
 ├── StatusRules
 ├── EvidenceRules
-├── Explanation
-├── Recommendation
+├── ExplanationTemplate
+├── RecommendationTemplate
 ├── Limitations
 ├── IncludeInOverallScore
 └── Version
@@ -41,17 +41,30 @@ UnavailableEvidence
 RequiresHumanReview
 ~~~
 
-### Ortak kurallar
+### Ortak puan sözleşmesi
 
+- Sinyal skorları yalnızca tam sayı olabilir.
+- `Strong`, `Present`, `Partial` ve `Missing` puanlanabilir durumlardır.
 - `Missing` yalnızca gerekli veri başarıyla alındığında kullanılabilir.
-- Veri alınamadığında `UnavailableEvidence` kullanılmalıdır.
-- Sinyal repository türü için anlamsızsa `NotApplicable` kullanılmalıdır.
-- Belirsiz otomatik sonuçlarda `RequiresHumanReview` kullanılmalıdır.
-- Her sonuç gözlemlenebilir bir kanıta bağlanmalıdır.
+- `Missing` için `Score: 0` üretilir.
+- `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` için `Score: null` üretilir.
+- Bu üç puanlanamayan durum numerator ve denominator hesabına dahil edilmez.
+- Her evaluator aşağıdaki deterministik kurallardan tek bir puan üretmelidir.
+- Serbest puan aralığı seçimi yapılamaz.
+- Aynı snapshot, aynı sinyal sürümü ve aynı kural seti aynı sonucu üretmelidir.
+- Her sonuç gözlemlenebilir kanıta bağlanmalıdır.
 - Her eksik veya kısmi sonuç uygulanabilir bir öneri taşımalıdır.
-- `IncludeInOverallScore`, sinyalin toplam görünür kanıt skoruna katkı yapıp yapmayacağını belirtmelidir.
-- Toplam skora dahil edilmeyen bileşik sinyaller kategori özeti ve rapor açıklaması için kullanılabilir.
+- `IncludeInOverallScore`, yalnızca genel toplam görünür kanıt skoruna katkıyı belirler.
+- `IncludeInOverallScore: false` olan sinyaller kendi kategori skorunda kullanılabilir.
 - Hiçbir sinyal geliştirici seviyesi, işe alınabilirlik veya AI kullanımı hakkında hüküm üretmemelidir.
+
+### İlk sürüm kuralı
+
+Bu belge kodlama öncesindeki ilk uygulanabilir sözleşmeyi kilitler.
+
+Henüz yayımlanmış bir analyzer bulunmadığı için mevcut `Version: 1` tanımları MVP v1'in başlangıç sürümüdür.
+
+Bundan sonraki semantik sinyal değişikliklerinde ilgili `Version` artırılmalıdır.
 
 ---
 
@@ -193,11 +206,12 @@ run locally
 
 ### Değerlendirme
 
-- Açık kurulum başlığı ve en az bir uygulanabilir adım varsa: `Present`, 8 puan
-- Kurulumla ilgili metin var ancak adımlar eksik veya belirsizse: `Partial`, 3–6 puan
+- Strong koşulları sağlanıyorsa: `Strong`, 8 puan
+- Açık kurulum başlığı ve en az bir uygulanabilir adım varsa ancak Strong koşulları sağlanmıyorsa: `Present`, 8 puan
+- Kurulumla ilgili metin var ancak uygulanabilir adım yoksa: `Partial`, 4 puan
 - İçerik başarıyla incelendi ancak kurulum kanıtı yoksa: `Missing`, 0 puan
-- README alınamadıysa: `UnavailableEvidence`
-- Otomatik eşleşme güveni düşükse: `RequiresHumanReview`
+- README alınamadıysa: `UnavailableEvidence`, `Score: null`
+- Otomatik eşleşme güveni düşükse: `RequiresHumanReview`, `Score: null`
 
 ### Strong koşulu
 
@@ -292,11 +306,11 @@ Repository sonucunun veya kullanım biçiminin görünür bir örnekle sunulup s
 
 ### Değerlendirme
 
-- En az bir açık ve bağlama uygun kullanım örneği varsa: `Present`, 5 puan
 - Hem kullanım örneği hem demo veya görsel varsa: `Strong`, 7 puan
-- Yalnızca belirsiz ekran görüntüsü veya kırılgan bağlantı varsa: `Partial`, 2–4 puan
+- En az bir açık ve bağlama uygun kullanım örneği varsa: `Present`, 5 puan
+- Yalnızca belirsiz ekran görüntüsü veya kırılgan bağlantı varsa: `Partial`, 4 puan
 - İçerik incelendi ancak örnek bulunamadıysa: `Missing`, 0 puan
-- İçerik alınamadıysa: `UnavailableEvidence`
+- İçerik alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Öneri
 
@@ -334,11 +348,13 @@ Repository'nin tek bir nihai dosya yüklemesi dışında görünür geliştirme 
 ### Değerlendirme
 
 - 10 veya daha fazla commit: `Strong`, 7 puan
-- 3–9 commit: `Present`, 4–6 puan
+- 7–9 commit: `Present`, 6 puan
+- 5–6 commit: `Present`, 5 puan
+- 3–4 commit: `Present`, 4 puan
 - 2 commit: `Partial`, 2 puan
 - 1 commit: `Partial`, 1 puan
 - Commit verisi başarıyla incelendi ancak commit yoksa: `Missing`, 0 puan
-- Commit geçmişi alınamadıysa: `UnavailableEvidence`
+- Commit geçmişi alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Öneri
 
@@ -374,17 +390,21 @@ Geliştirme faaliyetinin farklı günlere veya dönemlere yayılıp yayılmadı�
 
 ### Değerlendirme
 
-- En az 8 aktif gün ve en az 14 günlük aralık: `Strong`, 8 puan
-- En az 4 aktif gün: `Present`, 5–7 puan
-- 2–3 aktif gün: `Partial`, 2–4 puan
-- Tek aktif gün: `Partial`, 1 puan
-- Commit verisi yoksa: `Missing`
-- Tarihler eksikse: `UnavailableEvidence`
+- Repository yaşı 14 günden azsa: `NotApplicable`, `Score: null`
+- En az 8 aktif gün ve en az 14 günlük ilk-son commit aralığı varsa: `Strong`, 8 puan
+- Strong koşulu sağlanmıyor ancak 6 veya daha fazla aktif gün varsa: `Present`, 7 puan
+- 5 aktif gün varsa: `Present`, 6 puan
+- 4 aktif gün varsa: `Present`, 5 puan
+- 3 aktif gün varsa: `Partial`, 4 puan
+- 2 aktif gün varsa: `Partial`, 2 puan
+- Tek aktif gün varsa: `Partial`, 1 puan
+- Commit verisi başarıyla incelendi ancak commit yoksa: `Missing`, 0 puan
+- Commit tarihleri veya repository oluşturulma zamanı alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Bağlam kuralları
 
-- Çok yeni repository'lerde otomatik düşük hüküm verilmemelidir.
-- Tek amaçlı küçük araçlarda sınırlı dağılım normal olabilir.
+- Repository yaşı 14 günden azsa bu sinyal `NotApplicable` olur ve puanlamaya katılmaz.
+- Tek amaçlı küçük araçlarda sınırlı dağılım normal olabilir; bu durum puan kuralını değiştirmez ancak rapor sınırlaması olarak gösterilebilir.
 - Import edilmiş repository ihtimali rapor sınırlaması olarak gösterilmelidir.
 
 ### Öneri
@@ -421,10 +441,11 @@ Hata, görev veya geliştirme ihtiyaçlarının repository üzerinde görünür 
 ### Değerlendirme
 
 - Birden fazla anlamlı issue varsa: `Present`, 5 puan
-- Tek issue varsa: `Partial`, 2–3 puan
+- Tek anlamlı issue varsa: `Partial`, 2 puan
 - Issue verisi başarıyla alındı ancak issue yoksa: `Missing`, 0 puan
-- Issues özelliği kapalıysa: `NotApplicable` veya bağlama göre `RequiresHumanReview`
-- API verisi alınamadıysa: `UnavailableEvidence`
+- GitHub Issues özelliği kapalıysa: `NotApplicable`, `Score: null`
+- API verisi alınamadıysa: `UnavailableEvidence`, `Score: null`
+- Repository'nin küçük olması tek başına `NotApplicable` üretmez
 
 ### Uygulanabilirlik sınırı
 
@@ -464,10 +485,11 @@ Değişikliklerin ayrı bir birleştirme veya inceleme akışından geçtiğine 
 ### Değerlendirme
 
 - Birden fazla merged pull request varsa: `Strong`, 6 puan
-- En az bir pull request varsa: `Present`, 4 puan
-- Yalnızca açık veya kapanmış ancak birleşmemiş PR varsa: `Partial`, 1–3 puan
+- Tam olarak bir merged pull request varsa: `Present`, 4 puan
+- Yalnızca açık veya kapanmış ancak birleşmemiş pull request varsa: `Partial`, 2 puan
 - PR verisi incelendi ancak PR yoksa: `Missing`, 0 puan
-- Veri alınamadıysa: `UnavailableEvidence`
+- Veri alınamadıysa: `UnavailableEvidence`, `Score: null`
+- Repository'nin küçük veya tek geliştiricili olması tek başına `NotApplicable` üretmez
 
 ### Uygulanabilirlik sınırı
 
@@ -507,14 +529,19 @@ Repository'nin belirli sürüm veya teslim noktalarının görünür olup olmad�
 ### Değerlendirme
 
 - En az bir published release ve açıklayıcı release notu varsa: `Present`, 6 puan
-- Tag var ancak release yoksa: `Partial`, 2–3 puan
-- Draft release varsa: `Partial`, 2 puan
+- Published release var ancak açıklayıcı release notu yoksa: `Partial`, 4 puan
+- Tag var ancak published release yoksa: `Partial`, 3 puan
+- Yalnızca draft release varsa: `Partial`, 2 puan
 - Veri incelendi ancak release veya tag yoksa: `Missing`, 0 puan
-- Veri alınamadıysa: `UnavailableEvidence`
+- Veri alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Uygulanabilirlik sınırı
 
-Eğitim repository'si, dokümantasyon deposu veya erken deneysel çalışma için release sinyali `NotApplicable` olabilir.
+MVP v1 repository amacını güvenilir ve teknoloji bağımsız biçimde otomatik sınıflandırmaz.
+
+Bu nedenle repository küçük, eğitim, dokümantasyon veya deneysel olduğu tahmin edilerek release sinyali otomatik `NotApplicable` yapılmaz.
+
+Bu bağlam gerekirse rapor sınırlaması olarak gösterilir.
 
 ### Öneri
 
@@ -569,12 +596,12 @@ build.gradle içinde test dependency
 
 ### Değerlendirme
 
-- Açık test projesi veya test framework kanıtı varsa: `Present`, 7–9 puan
 - Birden fazla test türü veya anlamlı test organizasyonu varsa: `Strong`, 10 puan
-- Yalnızca isim benzerliği taşıyan belirsiz dosyalar varsa: `RequiresHumanReview`
-- Sınırlı test dosyası varsa: `Partial`, 2–6 puan
+- Açık test projesi veya test framework kanıtı varsa: `Present`, 8 puan
+- Sınırlı test dosyası varsa: `Partial`, 4 puan
+- Yalnızca isim benzerliği taşıyan belirsiz dosyalar varsa: `RequiresHumanReview`, `Score: null`
 - File tree başarıyla incelendi ancak test kanıtı yoksa: `Missing`, 0 puan
-- File tree alınamadıysa: `UnavailableEvidence`
+- File tree alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Öneri
 
@@ -608,13 +635,13 @@ Build, test veya başka doğrulamaların otomatikleştirilmesine yönelik görü
 
 ### Değerlendirme
 
-- En az bir workflow build veya test adımı içeriyorsa: `Present`, 6 puan
 - Build ve test birlikte çalıştırılıyorsa: `Strong`, 8 puan
-- Workflow var ancak amacı doğrulanamıyorsa: `Partial`, 2–4 puan
+- En az bir workflow build veya test adımı içeriyorsa: `Present`, 6 puan
 - Yalnızca deploy workflow'u varsa: `Partial`, 3 puan
+- Workflow var ancak amacı doğrulanamıyorsa: `Partial`, 2 puan
 - Workflow dizini incelendi ancak dosya yoksa: `Missing`, 0 puan
-- İçerik alınamadıysa: `UnavailableEvidence`
-- YAML yorumlama güvenilir değilse: `RequiresHumanReview`
+- İçerik alınamadıysa: `UnavailableEvidence`, `Score: null`
+- YAML yorumlama güvenilir değilse: `RequiresHumanReview`, `Score: null`
 
 ### Öneri
 
@@ -657,9 +684,10 @@ Bütün public repository'lerde uygulanır.
 ### Değerlendirme
 
 - Üç veya daha fazla topic varsa: `Strong`, 4 puan
-- Bir veya iki topic varsa: `Present`, 2–3 puan
+- İki topic varsa: `Present`, 3 puan
+- Bir topic varsa: `Present`, 2 puan
 - Topics verisi başarıyla alındı ancak topic yoksa: `Missing`, 0 puan
-- Metadata alınamadıysa: `UnavailableEvidence`
+- Metadata alınamadıysa: `UnavailableEvidence`, `Score: null`
 
 ### Kanıt örneği
 
@@ -765,9 +793,11 @@ Aşağıdaki sinyal sonuçları veya eşdeğer kanıtlar:
 
 - Beş koşulun tamamı sağlanıyorsa: `Strong`, 5 puan
 - Dört koşul sağlanıyorsa: `Present`, 4 puan
-- İki veya üç koşul sağlanıyorsa: `Partial`, 2–3 puan
-- Sıfır veya bir koşul sağlanıyorsa: `Missing`, 0–1 puan
-- Gerekli alt verilerden biri erişilemiyorsa: `UnavailableEvidence`
+- Üç koşul sağlanıyorsa: `Partial`, 3 puan
+- İki koşul sağlanıyorsa: `Partial`, 2 puan
+- Bir koşul sağlanıyorsa: `Partial`, 1 puan
+- Hiçbir koşul sağlanmıyorsa: `Missing`, 0 puan
+- Gerekli alt verilerden biri erişilemiyorsa: `UnavailableEvidence`, `Score: null`
 
 ### Toplam skor davranışı
 
@@ -847,19 +877,28 @@ Repository Sunum Bütünlüğü:
 
 ---
 
-## 19. Açık Kararlar
+## 19. Contract Lock v1
 
-Aşağıdaki kararlar sonraki Faz 1 adımlarında kesinleştirilmelidir:
+MVP v1 kodlaması için aşağıdaki kararlar kesindir:
 
-- Sinyal skorları yalnızca tam sayı mı olacak?
-- Partial puanları sabit tabloyla mı, kural adımlarıyla mı üretilecek?
-- Çok yeni repository için zaman dağılımı nasıl normalize edilecek?
-- Küçük repository bağlamı nasıl belirlenecek?
-- Issue ve pull request sinyallerinde `NotApplicable` kararı nasıl verilecek?
-- README içerik analizinde hangi diller desteklenecek?
-- Kırık demo bağlantıları MVP'de doğrulanacak mı?
-- Workflow dosyalarının gerçek çalışma durumu GitHub Actions API üzerinden kontrol edilecek mi?
-- Toplam skora dahil edilmeyen bileşik sinyal kategori skorunda nasıl gösterilecek?
+1. Sinyal skorları yalnızca tam sayıdır.
+2. Puan aralığı bırakılmaz; her gözlemlenebilir durum deterministik olarak tek bir puan üretir.
+3. `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` için `Score: null` üretilir.
+4. Bu üç durum numerator ve denominator hesabından çıkarılır.
+5. `Missing` yalnızca gerekli veri başarıyla incelendiyse kullanılabilir; `Score: 0` olur ve denominator'a dahil edilir.
+6. Repository yaşı 14 günden azsa `process.commit-distribution` `NotApplicable` olur.
+7. Repository'nin küçük, tek geliştiricili, eğitim veya deneysel olduğu tahmin edilerek issue, pull request veya release sinyalleri otomatik `NotApplicable` yapılmaz.
+8. Issue sinyali yalnız GitHub Issues özelliği kapalıysa otomatik `NotApplicable` olabilir.
+9. README ve indekslenebilir dokümantasyon başlık eşleştirmesinde MVP v1 Türkçe ve İngilizce adayları destekler.
+10. Demo veya homepage bağlantılarının gerçek erişilebilirliği MVP v1'de zorunlu olarak doğrulanmaz.
+11. GitHub Actions workflow dosyasının gerçek run durumu MVP v1'de Actions API üzerinden doğrulanmaz.
+12. `portfolio.presentation-completeness` Portföy Sunumu kategori skoruna dahil edilir.
+13. `portfolio.presentation-completeness` genel toplam görünür kanıt skoruna dahil edilmez.
+14. Kategori ve genel normalize skorları en yakın tam sayıya yuvarlanır.
+15. Tam `.5` durumunda yukarı yuvarlama kullanılır.
+16. Genel toplam hesaplama yöntemi `RawApplicableScoreNormalization` olarak kilitlenmiştir.
+
+Bu kararlar doğrulama repository setindeki bulgular nedeniyle değiştirilecekse ilgili sinyal `Version` veya `RuleSetVersion` artırılmalıdır.
 
 Portföy Sunumu kategorisinin korunması ve üç sinyalle desteklenmesi ADR 001 ile karara bağlanmıştır.
 

@@ -70,9 +70,9 @@ README, demo, description ve release gibi mevcut sinyaller portföy görünümü
 
 ---
 
-### Seçenek C — Portföy kategorisini bağımsız sinyallerle korumak
+### Seçenek C — Portföy kategorisini üç MVP sinyaliyle korumak
 
-Portföy sunumu kategorisine üç bağımsız MVP sinyali eklenir.
+Portföy sunumu kategorisine üç MVP sinyali eklenir.
 
 #### Avantajlar
 
@@ -94,13 +94,15 @@ Portföy sunumu kategorisine üç bağımsız MVP sinyali eklenir.
 
 Portföy sunumu kategorisi korunacaktır.
 
-MVP analiz çekirdeği en az 12 sinyal yerine **15 bağımsız sinyal** içerecektir.
+MVP analiz çekirdeği en az 12 sinyal yerine **15 MVP sinyali** içerecektir.
 
 Portföy sunumu kategorisine aşağıdaki üç sinyal eklenecektir:
 
 1. GitHub Topics
 2. Homepage veya canlı demo bağlantısı
 3. Repository sunum bütünlüğü
+
+`Repository sunum bütünlüğü`, diğer görünür sunum parçalarından türetilen bileşik bir sinyaldir ve genel toplam skora dahil edilmez.
 
 Her sinyal yalnızca Portföy Sunumu kategorisine ait olacaktır.
 

@@ -255,11 +255,14 @@ SignalDefinition
 ├── Category
 ├── Description
 ├── MaximumScore
+├── RequiredData
 ├── ApplicabilityRules
 ├── EvaluationRules
-├── EvidenceRequirements
+├── StatusRules
+├── EvidenceRules
 ├── ExplanationTemplate
 ├── RecommendationTemplate
+├── Limitations
 ├── IncludeInOverallScore
 └── Version
 ~~~
@@ -267,18 +270,22 @@ SignalDefinition
 ### Sorumlulukları
 
 - Sinyalin hangi kategoriye ait olduğunu tanımlamak
-- Hangi repository türlerinde uygulanabilir olduğunu belirtmek
-- Gerekli kanıtları tanımlamak
+- Değerlendirme için gerekli veri anahtarlarını tanımlamak
+- Hangi repository bağlamında uygulanabilir olduğunu belirtmek
+- Deterministik değerlendirme kurallarını tanımlamak
+- Status üretme kurallarını tanımlamak
+- Kanıt üretme kurallarını tanımlamak
 - Maksimum puanı sabitlemek
-- Açıklama ve öneri çerçevesini belirlemek
-- Sinyalin toplam görünür kanıt skoruna dahil edilip edilmeyeceğini belirtmek
+- Açıklama, öneri ve sınırlama çerçevesini belirlemek
+- Sinyalin genel toplam görünür kanıt skoruna dahil edilip edilmeyeceğini belirtmek
 - Kural sürümünü taşımak
 
-### Kural
+### Kurallar
 
-Bir sinyal tanımı değiştiğinde `Version` değeri de değişmelidir.
-
----
+- `MaximumScore` tam sayıdır.
+- Aynı snapshot ve aynı sinyal `Version` değeri aynı sonucu üretmelidir.
+- Bir sinyalin semantik değerlendirme kuralı değişirse `Version` artırılmalıdır.
+- MVP v1 kodlanmadan önce yapılan bu contract lock, mevcut `Version: 1` tanımlarının ilk uygulanabilir sürümüdür.
 
 ## 9. SignalResult
 
@@ -299,6 +306,41 @@ SignalResult
 └── EvaluatedAt
 ~~~
 
+### Score davranışı
+
+`Score`, nullable tam sayıdır.
+
+Aşağıdaki status değerlerinde sayısal puan zorunludur:
+
+~~~text
+Strong
+Present
+Partial
+Missing
+~~~
+
+`Missing` için:
+
+~~~text
+Score: 0
+~~~
+
+olmalıdır.
+
+Aşağıdaki status değerlerinde:
+
+~~~text
+NotApplicable
+UnavailableEvidence
+RequiresHumanReview
+~~~
+
+şu sonuç üretilir:
+
+~~~text
+Score: null
+~~~
+
 ### Status değerleri
 
 ~~~text
@@ -313,15 +355,15 @@ RequiresHumanReview
 
 ### Kurallar
 
-- `Score`, sıfırdan küçük olamaz.
-- `Score`, `MaximumScore` değerini aşamaz.
-- `NotApplicable` toplam maksimum puana dahil edilmez.
-- `UnavailableEvidence` otomatik olarak sıfır puan değildir.
+- Sayısal `Score`, sıfırdan küçük olamaz.
+- Sayısal `Score`, `MaximumScore` değerini aşamaz.
+- `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` numerator ve denominator hesabına dahil edilmez.
 - `Missing` yalnızca gerekli veri başarıyla incelendiyse kullanılabilir.
+- `Missing`, denominator'a dahil edilir ve `Score: 0` üretir.
+- `UnavailableEvidence`, eksik kanıt anlamına gelmez.
 - Her sonuç en az bir açıklama taşımalıdır.
 - `Partial`, `Missing` ve `RequiresHumanReview` mümkünse uygulanabilir öneri taşımalıdır.
-
----
+- `EvaluatedAt` UTC tutulmalıdır.
 
 ## 10. CategoryResult
 
@@ -357,11 +399,35 @@ InsufficientData
 NotEvaluated
 ~~~
 
-### Kural
+### Kategori puanı
 
-Kategori sonucu kendi sinyal sonuçlarından türetilmelidir. Ayrı ve bağımsız bir kara kutu puan üretmemelidir.
+Kategori skoru, kategoriye ait puanlanabilir sinyal sonuçlarından türetilir.
 
----
+Puanlanabilir status değerleri:
+
+~~~text
+Strong
+Present
+Partial
+Missing
+~~~
+
+`IncludeInOverallScore`, kategori skorunu etkilemez.
+
+Bu nedenle `portfolio.presentation-completeness` Portföy Sunumu kategori skoruna dahil edilir ancak genel toplam görünür kanıt skoruna dahil edilmez.
+
+`NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` kategori numerator ve denominator hesabından çıkarılır.
+
+### Status kuralı
+
+- Bütün uygulanabilir sonuçlar puanlanabiliyorsa: `Completed`
+- En az bir puanlanabilir sonuçla birlikte `UnavailableEvidence` veya `RequiresHumanReview` varsa: `Partial`
+- Uygulanabilir sinyaller bulunmasına rağmen hiç puanlanabilir sonuç üretilemediyse: `InsufficientData`
+- Kategori için uygulanabilir sinyal kalmadıysa veya kategori değerlendirilmediyse: `NotEvaluated`
+
+Kategori sonucu kendi sinyal sonuçlarından türetilmelidir.
+
+Ayrı ve bağımsız bir kara kutu puan üretmemelidir.
 
 ## 11. ScoreBreakdown
 
@@ -381,25 +447,42 @@ ScoreBreakdown
 
 ### CalculationMethod
 
-MVP için:
+MVP için kesin yöntem:
 
 ~~~text
 RawApplicableScoreNormalization
 ~~~
 
-### Kural
+### Genel toplam kuralı
 
-Toplam skor şu yöntemle hesaplanır:
+Genel toplam yalnızca:
+
+- `IncludeInOverallScore: true`
+- ve status değeri `Strong`, `Present`, `Partial` veya `Missing`
+
+olan sinyalleri kullanır.
+
+`NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` numerator ve denominator hesabından çıkarılır.
+
+`IncludeInOverallScore: false` olan sinyaller `ExcludedFromOverallScoreSignals` içerisinde görünür tutulur.
+
+Toplam skor:
 
 ~~~text
 Toplam skor =
-Uygulanabilir sinyallerden kazanılan puan
+Genel skora dahil puanlanabilir sinyallerden kazanılan puan
 /
-Uygulanabilir sinyallerin maksimum puanı
+Aynı sinyallerin uygulanabilir maksimum puanı
 × 100
 ~~~
 
----
+Normalize skor en yakın tam sayıya yuvarlanır.
+
+Tam `.5` durumunda yukarı yuvarlama kullanılır.
+
+`ApplicableMaximumScore` sıfırsa sahte skor üretilmez.
+
+Bu durumda `NormalizedScore` boş bırakılır ve analiz durumu veri bağlamına göre `InsufficientData` veya `Partial` olur.
 
 ## 12. AnalysisHighlight
 

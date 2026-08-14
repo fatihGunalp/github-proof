@@ -37,17 +37,30 @@ SignalResult
 └── EvaluatedAt
 ~~~
 
-### Status değerleri
+### Score türü
+
+`Score`, nullable tam sayıdır.
+
+Aşağıdaki status değerlerinde sayısal puan zorunludur:
 
 ~~~text
 Strong
 Present
 Partial
 Missing
+~~~
+
+`Missing` için `Score: 0` olmalıdır.
+
+Aşağıdaki status değerlerinde:
+
+~~~text
 NotApplicable
 UnavailableEvidence
 RequiresHumanReview
 ~~~
+
+`Score: null` üretilir.
 
 ### Status açıklamaları
 
@@ -61,25 +74,33 @@ Sinyal için yeterli bir kanıt bulunmaktadır.
 
 #### Partial
 
-Sinyal mevcuttur ancak eksik, sınırlı veya belirsizdir.
+Sinyal mevcuttur ancak eksik, sınırlı veya sınıra yakın kanıt taşımaktadır.
 
 #### Missing
 
 Gerekli veri başarıyla incelenmiştir ancak sinyal için görünür kanıt bulunamamıştır.
 
+`Score: 0` olur ve sinyal maksimum puanı denominator'a dahil edilir.
+
 #### NotApplicable
 
-Sinyal repository türü veya teknoloji bağlamı için anlamlı değildir.
+Sinyal repository bağlamında uygulanabilir değildir.
+
+`Score: null` olur ve numerator ile denominator hesabından çıkarılır.
 
 #### UnavailableEvidence
 
 Sinyalin değerlendirilmesi için gereken veri teknik veya erişim kaynaklı bir nedenle alınamamıştır.
 
-Bu durum görünür kanıtın eksik olduğu anlamına gelmez ve otomatik olarak sıfır puan olarak değerlendirilmemelidir.
+`Score: null` olur.
+
+Bu durum görünür kanıtın eksik olduğu anlamına gelmez.
 
 #### RequiresHumanReview
 
-Otomatik analiz güvenilir bir sonuç üretememiştir ve insan değerlendirmesi gerekmektedir.
+Otomatik analiz deterministik ve güvenilir bir sonuç üretememiştir.
+
+`Score: null` olur ve çözülene kadar numerator ile denominator hesabından çıkarılır.
 
 ---
 
@@ -103,87 +124,116 @@ MVP'de serbest metin yorumu veya LLM çıktısı doğrudan puan üretmemelidir.
 
 ---
 
-## 4. NotApplicable Davranışı
+## 4. Puanlanamayan Durumların Davranışı
 
-`NotApplicable` durumundaki sinyaller toplam maksimum puandan çıkarılmalıdır.
-
-Örnek:
+Aşağıdaki üç status sayısal puan üretmez:
 
 ~~~text
-Toplam kazanılan puan: 42
-Uygulanabilir maksimum puan: 60
-
-Normalize skor:
-42 / 60 = 70 / 100
+NotApplicable
+UnavailableEvidence
+RequiresHumanReview
 ~~~
 
-Bu yaklaşım, farklı teknoloji ve repository türlerinin ilgisiz sinyaller nedeniyle cezalandırılmasını önler.
+Bu sonuçlarda `Score: null` olur.
+
+İlgili sinyal numerator ve denominator hesabına katılmaz.
+
+`Missing` bu gruba dahil değildir.
+
+Gerekli veri başarıyla incelenmiş ve kanıt bulunamamışsa:
+
+~~~text
+Status: Missing
+Score: 0
+~~~
+
+üretilir.
+
+Bu sinyal maksimum puanı denominator'a dahil edilir.
+
+Bu ayrım, eksik mühendislik kanıtı ile eksik veya kararsız veri durumunun birbirine karıştırılmasını engeller.
 
 ---
 
 ## 5. Kategori Skoru
 
-Her kategori skoru, o kategoriye bağlı uygulanabilir sinyallerin normalize edilmiş sonucudur.
+Her kategori skoru, kategoriye ait puanlanabilir sinyal sonuçlarından türetilir.
 
-MVP kategorileri:
+Puanlanabilir status değerleri:
 
-1. Repository anlaşılabilirliği
-2. Geliştirme süreci görünürlüğü
-3. Doğrulama ve kullanılabilirlik
-4. Portföy sunumu
+~~~text
+Strong
+Present
+Partial
+Missing
+~~~
 
 Kategori hesabı:
 
 ~~~text
 Kategori skoru =
-Kazanılan kategori puanı
+Puanlanabilir kategori sinyallerinden kazanılan puan
 /
-Uygulanabilir maksimum kategori puanı
+Aynı sinyallerin maksimum puanı
 × 100
 ~~~
 
-Kategori içerisinde uygulanabilir sinyal yoksa:
+`NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` kategori numerator ve denominator hesabından çıkarılır.
 
-~~~text
-Kategori sonucu: Değerlendirilemedi
-~~~
+`IncludeInOverallScore` kategori skorunu etkilemez.
 
-olarak gösterilmelidir.
+Bu nedenle `portfolio.presentation-completeness` Portföy Sunumu kategori skoruna dahil edilir ve genel toplam görünür kanıt skoruna dahil edilmez.
+
+Kategori normalize skoru en yakın tam sayıya yuvarlanır.
+
+Tam `.5` durumunda yukarı yuvarlanır.
+
+Kategori için uygulanabilir sinyal kalmadıysa `CategoryStatus: NotEvaluated` kullanılır.
+
+Uygulanabilir sinyaller bulunmasına rağmen hiç puanlanabilir sonuç üretilemediyse `CategoryStatus: InsufficientData` kullanılır.
+
+Puanlanabilir sonuçlarla birlikte `UnavailableEvidence` veya `RequiresHumanReview` bulunuyorsa `CategoryStatus: Partial` kullanılır.
 
 ---
 
 ## 6. Toplam Görünür Kanıt Skoru
 
-Toplam skor, dört kategori skorunun basit ortalaması olmak zorunda değildir.
+MVP için kesin hesaplama yöntemi:
 
-MVP'de iki seçenekten biri ürün sözleşmesinde sabitlenmelidir.
+~~~text
+RawApplicableScoreNormalization
+~~~
 
-### Seçenek A — Ham puan normalizasyonu
+Genel toplam yalnızca:
+
+- `IncludeInOverallScore: true`
+- ve status değeri `Strong`, `Present`, `Partial` veya `Missing`
+
+olan sinyalleri kullanır.
+
+Hesap:
 
 ~~~text
 Toplam skor =
-Tüm uygulanabilir sinyallerden kazanılan puan
+Genel skora dahil puanlanabilir sinyallerden kazanılan puan
 /
-Tüm uygulanabilir sinyallerin maksimum puanı
+Aynı sinyallerin maksimum puanı
 × 100
 ~~~
 
-### Seçenek B — Kategori ağırlıklı puan
+`NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` numerator ile denominator hesabından çıkarılır.
 
-~~~text
-Repository anlaşılabilirliği: %25
-Geliştirme süreci görünürlüğü: %25
-Doğrulama ve kullanılabilirlik: %30
-Portföy sunumu: %20
-~~~
+`IncludeInOverallScore: false` olan bileşik sinyaller genel toplamdan çıkarılır ancak raporda ve kendi kategori skorunda gösterilebilir.
 
-MVP için varsayılan tercih:
+Normalize toplam skor en yakın tam sayıya yuvarlanır.
 
-> Ham puan normalizasyonu
+Tam `.5` durumunda yukarı yuvarlanır.
 
-Bu yöntem, erken aşamada gereksiz ürün varsayımlarını azaltır.
+Uygulanabilir maksimum puan `0` ise sahte toplam skor üretilmez.
 
-Kategori ağırlıkları ancak gerçek kullanıcı doğrulaması sonrasında değiştirilebilir.
+Kategori ağırlıklı puanlama MVP v1 kapsamında kullanılmaz.
+
+Böyle bir değişiklik yalnız doğrulama sonrasında yeni bir `RuleSetVersion` ile yapılabilir.
 
 ---
 

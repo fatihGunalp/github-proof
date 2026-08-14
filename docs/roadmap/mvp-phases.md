@@ -123,13 +123,13 @@ Toplam skor tek başına gösterilmemelidir. Her puan, kanıtı ve açıklaması
 README bulundu: +5
 Kurulum adımı bulunamadı: +0
 Lisans bulundu: +3
-Test yapısı bulundu: +10
+Test yapısı bulundu: +8
 Release bulunamadı: +0
 ```
 
 ### Çıkış kriteri
 
-En az 10 farklı public repository elle değerlendirilir ve sistem sonuçları insan değerlendirmesiyle karşılaştırılır.
+Domain modeli ve 15 sinyal sözleşmesi kodlanabilir kesinlikte kilitlenir. İlk otomatik repository karşılaştırmaları Signal Engine tamamlandıktan sonra doğrulama seti üzerinde yürütülür.
 
 ---
 

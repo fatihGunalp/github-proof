@@ -15,7 +15,7 @@ Sistem yalnızca analiz edilen repository içerisinde erişilebilen veriler üze
 Bir geliştirici GitHub üzerinde proje yayınlamış olabilir; ancak repository dışarıdan incelendiğinde şu soruların cevapları görünmeyebilir:
 
 - Proje hangi problemi çözüyor?
-- Başka biri projeyi çalıştırabilir mi?
+- Başka birinin projeyi kurup çalıştırmasına yardımcı olacak görünür talimatlar var mı?
 - Geliştirme süreci repository üzerinde görülebiliyor mu?
 - Test, doğrulama ve otomasyon sinyalleri mevcut mu?
 - Repository portföy amacıyla anlaşılır biçimde sunulmuş mu?
@@ -67,11 +67,11 @@ Commit, issue, pull request ve release gibi geliştirme süreci sinyalleri gör�
 
 ### 5.3 Doğrulama ve Kullanılabilirlik
 
-Başka bir geliştirici projeyi çalıştırabilir, doğrulayabilir ve geliştirmeye devam edebilir mi?
+Kod davranışlarının otomatik doğrulanmasına yönelik test ve Continuous Integration yapısı repository üzerinde görünür mü?
 
 ### 5.4 Portföy Sunumu
 
-Repository, yapılan üretimi anlaşılır ve profesyonel biçimde sunabiliyor mu?
+Repository, yapılan üretimi dışarıdan inceleyen bir kişiye açık ve anlamlı biçimde sunabiliyor mu?
 
 ---
 

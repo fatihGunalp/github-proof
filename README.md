@@ -2,35 +2,26 @@
 
 > **GitHub reponuz yalnızca kod içermez.**
 >
-> Nasıl düşündüğünüzü, nasıl ürettiğinizi ve bir yazılım geliştiricisi olarak neyi gerçekten kanıtlayabildiğinizi de gösterir.
+> Dışarıdan bakıldığında hangi mühendislik kanıtlarının görünür olduğunu da gösterir.
 
-GitHub Proof, public bir GitHub repository'sini analiz ederek dışarıdan gözlemlenebilen mühendislik sinyallerini görünür hâle getiren açık kaynak bir analiz platformudur.
+GitHub Proof, public bir GitHub repository'sini analiz ederek dışarıdan gözlemlenebilen mühendislik kanıtlarını açıklanabilir sinyaller hâlinde görünür kılan açık kaynak bir analiz platformudur.
 
 Projenin amacı geliştiricileri puanlamak değildir.
 
-Amaç, **bir repository'nin gerçekten neyi kanıtlayabildiğini açıklanabilir kanıtlarla göstermektir.**
+Amaç, **analiz edilen repository'nin hangi kanıtları görünür biçimde taşıdığını ve hangi alanların geliştirilebileceğini göstermektir.**
 
 ---
 
 ## Problem
 
-Bugün çok sayıda geliştiricinin GitHub hesabında projeler bulunuyor. Ancak bir recruiter, teknik lider veya mentor repository'yi açtığında çoğu zaman şu sorunun cevabını net biçimde göremiyor:
+Bir geliştirici GitHub üzerinde proje yayınlamış olabilir; ancak repository dışarıdan incelendiğinde şu soruların cevapları görünmeyebilir:
 
-> **Bu repository bana geliştirici ve üretim süreci hakkında gerçekten ne söylüyor?**
+- Projenin amacı, kurulumu ve kullanım biçimi anlaşılabiliyor mu?
+- Commit, issue, pull request ve release gibi geliştirme süreci kanıtları görünür mü?
+- Test ve Continuous Integration yapısı görünür mü?
+- Repository topics, homepage/demo ve temel sunum parçalarıyla anlaşılır biçimde sunulmuş mu?
 
-Bir projenin çalışması önemlidir; fakat tek başına yeterli bir mühendislik kanıtı değildir.
-
-Bir repository aynı zamanda şu alanlarda da sinyal üretir:
-
-- Üretim disiplini
-- Teknik iletişim
-- Geliştirme sürecinin görünürlüğü
-- Doğrulama yaklaşımı
-- Bakım kültürü
-- Sahiplenme
-- Portföy sunumu
-
-GitHub Proof bu sinyalleri toplayarak anlaşılır ve geliştirilebilir bir rapora dönüştürür.
+GitHub Proof bu sorulara yalnızca repository içerisinde gözlemlenebilen kanıtlar üzerinden cevap vermeyi amaçlar.
 
 ---
 
@@ -145,45 +136,41 @@ GitHub Proof:
 
 iddiasında bulunmaz.
 
-Bunun yerine insan değerlendirmesi gerektiren görünür sinyalleri gösterir:
+MVP yalnızca tanımlı repository sinyallerini değerlendirir; örneğin:
 
-- Tek seferde oluşmuş büyük commitler
-- Açıklanmayan teknik kararlar
-- Generic dokümantasyon
-- Eksik doğrulama
-- Görünmeyen mimari kararlar
+- Commit geçmişi ve zamana yayılımı
+- Dokümantasyon ve kullanım kanıtları
+- Test ve Continuous Integration yapısı
+- Issue, pull request ve release kullanımı
+- Topics, homepage/demo ve repository sunum bütünlüğü
 
-Bunlar AI tespiti değildir.
-
-Bunlar **mühendislik kanıtlarının görünürlüğüyle ilgili sinyallerdir.**
+Bu sinyallerin hiçbiri tek başına veya birlikte AI kullanıldığını, kodun kopyalandığını ya da geliştiricinin yetkinlik seviyesini kanıtlamaz.
 
 ---
 
 ## Örnek Rapor
 
-```text
+~~~text
 Repository Kanıt Profili
 
-Toplam görünür kanıt: 74 / 100
+Toplam görünür kanıt: 56 / 100
+Etiket: Gelişen görünür kanıt
 
-Güçlü alanlar
+Kategori sonuçları
 
-✓ Repository yapısı
-✓ Commit geçmişi
-✓ Gelişim sinyalleri
-
-Geliştirilmeli
-
-✗ Kurulum dokümantasyonu
-✗ Release kullanımı
-✗ Teknik karar görünürlüğü
+Repository anlaşılabilirliği: 59 / 100
+Geliştirme süreci görünürlüğü: 66 / 100
+Doğrulama ve kullanılabilirlik: 44 / 100
+Portföy sunumu: 57 / 100
 
 Öncelikli adımlar
 
-1. README içerisine kurulum ve kullanım bölümü ekle.
-2. İlk anlamlı release'i yayınla.
-3. Kritik teknik kararları docs/decisions altında belgele.
-```
+1. Kurulum sürecini belgeleyin.
+2. Test doğrulamasını CI ile otomatikleştirin.
+3. İlk anlamlı release'i yayınlayın.
+~~~
+
+Bu örnek temsilîdir ve [Örnek MVP Analiz Raporu](docs/product/sample-analysis-report.md) ile aynı puanlama sözleşmesini kullanır.
 
 Toplam skor karşılaştırma veya geliştirici sıralaması için kullanılmamalıdır.
 

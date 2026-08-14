@@ -25,7 +25,9 @@ Doğrulama repository seti şu sorulara cevap vermelidir:
 
 ## 2. İlk Doğrulama Setinin Büyüklüğü
 
-Faz 0 ve Faz 1 sırasında en az 10 repository kullanılmalıdır.
+İlk Signal Engine doğrulama turundan önce en az 10 repository sabitlenmelidir.
+
+Bu liste Domain foundation kodlamasını bloklamaz; ancak ilk evaluator kalibrasyonu ve karşılaştırması başlamadan önce commit SHA değerleriyle kaydedilmiş olmalıdır.
 
 MVP doğrulama aşamasında bu set en az 20 repository'ye çıkarılmalıdır.
 
@@ -107,35 +109,37 @@ ValidationRepository
 
 Her repository otomatik analizden önce veya bağımsız olarak en az bir insan tarafından incelenmelidir.
 
-Manuel değerlendirme şu alanları içermelidir:
+Manuel değerlendirme otomatik sinyal sözleşmesini değiştirmez.
+
+Amaç, otomatik sonuçların bağlama uygunluğunu karşılaştırmaktır.
 
 ### Repository anlaşılabilirliği
 
 - Projenin amacı anlaşılabiliyor mu?
 - Kurulum adımları bulunuyor mu?
-- Kullanım örneği mevcut mu?
-- Lisans ve katkı koşulları görünür mü?
+- Kullanım örneği veya demo mevcut mu?
+- Lisans görünür mü?
 
 ### Geliştirme süreci görünürlüğü
 
-- Commit geçmişi anlamlı bir süreç gösteriyor mu?
+- Commit geçmişi bağlama uygun bir süreç gösteriyor mu?
+- Commitlerin zamana yayılımı doğru yorumlanıyor mu?
 - Issue veya pull request kullanımı bağlama uygun mu?
-- Release eksikliği gerçekten önemli mi?
+- Release eksikliği yanıltıcı veya bağlam dışı sonuç üretiyor mu?
 - Repository sonradan tek seferde taşınmış olabilir mi?
 
 ### Doğrulama ve kullanılabilirlik
 
-- Projenin çalıştırılması için yeterli bilgi var mı?
-- Test yapısı gerçekten test amacı taşıyor mu?
-- CI workflow dosyası anlamlı bir doğrulama yapıyor mu?
-- Configuration örnekleri yeterli mi?
+- Test yapısı gerçekten otomatik test amacı taşıyor mu?
+- CI workflow dosyası build veya test doğrulaması yapıyor mu?
+- Otomatik analiz belirsiz dosyaları yanlışlıkla test veya CI kanıtı sayıyor mu?
 
 ### Portföy sunumu
 
-- Repository dışarıdan incelendiğinde amacı ve sonucu görünür mü?
-- Demo veya görsel gerçekten gerekli mi?
-- Repository'nin küçük olması kullanım amacına uygun mu?
-- Arşiv durumu doğru yorumlanıyor mu?
+- GitHub Topics repository'nin alanını görünür kılıyor mu?
+- Homepage veya demo bağlantısının amacı doğru yorumlanıyor mu?
+- Repository sunum bütünlüğü kontrol listesi gözlemlenebilir verilerle uyuşuyor mu?
+- Bileşik sunum sinyali genel toplam skorda ikinci kez sayılıyor mu?
 
 ---
 
@@ -308,7 +312,7 @@ Bu dosya ilk aşamada aşağıdaki alanları taşımalıdır:
 ]
 ~~~
 
-Gerçek repository'ler Faz 1 başlamadan önce seçilmeli ve commit SHA değerleri sabitlenmelidir.
+Gerçek repository'ler ilk Signal Engine doğrulama turu başlamadan önce seçilmeli ve commit SHA değerleri sabitlenmelidir. Domain foundation kodlaması bu listenin tamamlanmasını beklemek zorunda değildir.
 
 ---
 
