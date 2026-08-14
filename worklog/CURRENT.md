@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 1 — Analysis Model / Domain Foundation
-Focus: CategoryResult domain model is implemented and verified.
+Focus: ScoreBreakdown domain model is implemented and verified.
 ```
 
 ---
@@ -51,51 +51,50 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare the next domain-model task and run its mandatory model gate before implementation.
+Prepare the AnalysisHighlight domain-model task and run its mandatory model gate before implementation.
 ```
 
 ## Working Set
 
 ```text
 Modified:
-- src/GitHubProof.Domain/Analysis/Models/SignalResult.cs
 - worklog/CURRENT.md
 - worklog/INDEX.md
 
 Untracked:
-- src/GitHubProof.Domain/Analysis/Models/CategoryResult.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/CategoryResultTests.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/SignalResultTests.cs
-- worklog/sessions/2026-08-15-003-category-result.md
+- src/GitHubProof.Domain/Analysis/Enums/ScoreCalculationMethod.cs
+- src/GitHubProof.Domain/Analysis/Models/ScoreBreakdown.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/ScoreBreakdownTests.cs
+- worklog/sessions/2026-08-15-004-score-breakdown.md
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: f40515f
-Last verified working tree: completed Session 003 changes listed above
+Last verified HEAD: c3a5192
+Last verified working tree: completed Session 004 changes listed above
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 003 — CategoryResult domain model: PASS
+Session 004 — ScoreBreakdown domain model: PASS
 
-- Added a contract-derived category aggregate with derived raw, maximum, normalized scores, and status.
-- Excluded unscored signal statuses from category normalization and preserved composite category inclusion.
-- Closed the SignalResult Missing-score invariant and added eight focused domain tests.
+- Added the overall scoring aggregate and calculation-method enum.
+- Explicitly retained unscored and overall-excluded signals for report transparency.
+- Added four focused normalization, exclusion, zero-maximum, and duplicate-category tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test GitHubProof.slnx --no-restore: PASS — 13 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 17 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: only completed Session 003 changes
+git status --short: only completed Session 004 changes
 ```
 
 ## Critical Invariants
