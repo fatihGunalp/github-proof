@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 1 — Analysis Model / Domain Foundation
-Focus: ScoreBreakdown domain model is implemented and verified.
+Focus: AnalysisHighlight domain model is implemented and verified.
 ```
 
 ---
@@ -51,7 +51,7 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare the AnalysisHighlight domain-model task and run its mandatory model gate before implementation.
+Prepare the ImprovementAction domain-model task and run its mandatory model gate before implementation.
 ```
 
 ## Working Set
@@ -62,39 +62,38 @@ Modified:
 - worklog/INDEX.md
 
 Untracked:
-- src/GitHubProof.Domain/Analysis/Enums/ScoreCalculationMethod.cs
-- src/GitHubProof.Domain/Analysis/Models/ScoreBreakdown.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/ScoreBreakdownTests.cs
-- worklog/sessions/2026-08-15-004-score-breakdown.md
+- src/GitHubProof.Domain/Analysis/Models/AnalysisHighlight.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/AnalysisHighlightTests.cs
+- worklog/sessions/2026-08-15-005-analysis-highlight.md
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: c3a5192
-Last verified working tree: completed Session 004 changes listed above
+Last verified HEAD: d144a81
+Last verified working tree: completed Session 005 changes listed above
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 004 — ScoreBreakdown domain model: PASS
+Session 005 — AnalysisHighlight domain model: PASS
 
-- Added the overall scoring aggregate and calculation-method enum.
-- Explicitly retained unscored and overall-excluded signals for report transparency.
-- Added four focused normalization, exclusion, zero-maximum, and duplicate-category tests.
+- Added an immutable highlight model tied to a signal and evidence references.
+- Normalized required report text and evidence references without applying report-selection policy.
+- Added five focused invariant tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test GitHubProof.slnx --no-restore: PASS — 17 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 22 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: only completed Session 004 changes
+git status --short: only completed Session 005 changes
 ```
 
 ## Critical Invariants
