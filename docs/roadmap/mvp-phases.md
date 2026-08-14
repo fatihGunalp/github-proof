@@ -6,7 +6,7 @@ Bu doküman, GitHub Proof projesinin MVP'ye ulaşması için izlenecek geliştir
 
 GitHub Proof MVP'si:
 
-> Public bir GitHub repository URL'si alan, en az 12 açıklanabilir sinyali analiz eden, dört kategoride sonuç ve üç öncelikli geliştirme önerisi üreten çalışan bir web uygulamasıdır.
+> Public bir GitHub repository URL'si alan, 15 açıklanabilir MVP sinyalini analiz eden, dört kategoride sonuç ve üç öncelikli geliştirme önerisi üreten çalışan bir web uygulamasıdır.
 
 MVP'nin temel kullanıcı akışı:
 
@@ -84,48 +84,43 @@ RepositoryAnalysis
 └── ImprovementPlan
 ```
 
-### İlk sinyaller
+### Kesin MVP sinyalleri
 
 #### Repository anlaşılabilirliği
 
-- README var mı?
-- README yeterli içerik taşıyor mu?
-- Proje açıklaması var mı?
-- Lisans var mı?
-- Kurulum bölümü var mı?
-- Kullanım örneği, ekran görüntüsü veya demo bağlantısı var mı?
+- README varlığı
+- Proje açıklaması
+- Kurulum talimatı
+- Lisans
+- Kullanım örneği veya demo
 
 #### Geliştirme süreci görünürlüğü
 
-- Commit sayısı
+- Commit geçmişi
 - Commitlerin zamana yayılımı
-- Tek büyük başlangıç commit'i
 - Issue kullanımı
 - Pull request kullanımı
-- Release varlığı
+- Release kullanımı
 
 #### Doğrulama ve kullanılabilirlik
 
-- Test projesi veya test klasörü var mı?
-- Build tanımı bulunuyor mu?
-- CI workflow var mı?
-- Ortam değişkenleri örneklenmiş mi?
-- Dependency dosyaları mevcut mu?
+- Test yapısı
+- Continuous Integration
 
 #### Portföy sunumu
 
-- Repository adı ve açıklaması anlaşılır mı?
-- Topics kullanılmış mı?
-- Demo veya canlı bağlantı var mı?
-- Repository arşivlenmiş mi?
-- Varsayılan branch sağlıklı mı?
+- GitHub Topics
+- Homepage veya canlı demo bağlantısı
+- Repository sunum bütünlüğü
+
+`Repository sunum bütünlüğü` bileşik sinyaldir ve toplam görünür kanıt skoruna yeniden dahil edilmez.
 
 ### Puanlama ilkesi
 
 Toplam skor tek başına gösterilmemelidir. Her puan, kanıtı ve açıklamasıyla birlikte sunulmalıdır.
 
 ```text
-README bulundu: +8
+README bulundu: +5
 Kurulum adımı bulunamadı: +0
 Lisans bulundu: +3
 Test yapısı bulundu: +10
@@ -194,60 +189,70 @@ Toplanan repository verilerinden açıklanabilir analiz sonuçları üretmek.
 
 ### İlk sinyal yapısı
 
-```text
+~~~text
 Signals/
 ├── ReadmeExistsSignal
+├── RepositoryDescriptionSignal
 ├── InstallationGuideSignal
 ├── LicenseSignal
+├── UsageOrDemoSignal
+├── CommitHistorySignal
 ├── CommitDistributionSignal
-├── LargeInitialCommitSignal
 ├── IssueUsageSignal
 ├── PullRequestUsageSignal
-├── ReleaseSignal
-├── TestPresenceSignal
+├── ReleaseUsageSignal
+├── TestStructureSignal
 ├── ContinuousIntegrationSignal
-├── EnvironmentExampleSignal
-└── DemoVisibilitySignal
-```
+├── TopicsSignal
+├── HomepageOrLiveDemoSignal
+└── PresentationCompletenessSignal
+~~~
 
 ### Her sinyalin çıktısı
 
-```text
+~~~text
 SignalResult
-├── Key
+├── SignalKey
+├── SignalVersion
+├── Category
 ├── Status
 ├── Score
 ├── MaximumScore
 ├── Evidence
 ├── Explanation
-└── Recommendation
-```
+├── Recommendation
+├── Limitations
+└── EvaluatedAt
+~~~
 
 ### Örnek sinyal sonucu
 
-```text
+~~~text
 Sinyal: Kurulum Talimatı
 
-Durum: Eksik
-Puan: 0 / 8
+SignalKey: documentation.installation-guide
+SignalVersion: 1
+Category: RepositoryUnderstandability
+Status: Missing
+Score: 0
+MaximumScore: 8
 
 Kanıt:
 README içerisinde installation, setup veya kurulum bölümü bulunamadı.
 
-Neden önemli:
-Projeyi inceleyen kişi uygulamayı tekrar çalıştıramıyor.
-
 Öneri:
 README dosyasına bağımlılıkları, yapılandırmayı ve çalıştırma komutlarını ekleyin.
-```
+~~~
 
 ### Tasarım kuralı
 
-LLM veya kara kutu karar mekanizması, MVP puanlamasının temelini oluşturmamalıdır.
+MVP puanlaması deterministik, sürümlenmiş ve gözlemlenebilir kanıta dayalı olmalıdır.
+
+LLM veya başka bir kara kutu karar mekanizması doğrudan puan üretmemelidir.
 
 ### Çıkış kriteri
 
-Rapor üzerindeki her puanın hangi gözlemlenebilir kanıta dayanarak verildiği açıklanabilmelidir.
+Rapor üzerindeki her puanın hangi gözlemlenebilir kanıta ve hangi sinyal sürümüne dayanarak verildiği açıklanabilmelidir.
 
 ---
 
@@ -508,7 +513,7 @@ MVP tamamlanmış sayılır when:
 
 - Public GitHub repository URL'si kabul edilebiliyor.
 - Repository verileri GitHub API üzerinden toplanabiliyor.
-- En az 12 açıklanabilir sinyal değerlendiriliyor.
+- 15 açıklanabilir MVP sinyali değerlendiriliyor.
 - Sonuçlar dört kategori altında gösteriliyor.
 - Her skorun dayandığı kanıt açıklanıyor.
 - Kullanıcıya üç öncelikli geliştirme önerisi sunuluyor.

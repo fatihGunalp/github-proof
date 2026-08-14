@@ -65,7 +65,7 @@ Dört kategoride sonuç üret
 MVP tamamlandığında sistem:
 
 - Public GitHub repository URL'si kabul edecek.
-- En az 12 açıklanabilir sinyal analiz edecek.
+- 15 açıklanabilir MVP sinyalini analiz edecek.
 - Sonuçları dört kategori altında gösterecek.
 - Her puanın dayandığı kanıtı açıklayacak.
 - Üç öncelikli geliştirme önerisi sunacak.
@@ -96,48 +96,46 @@ MVP'nin ürün sınırları, analiz kuralları ve raporlama yaklaşımı aşağ�
 
 Repository ilk bakışta anlaşılabiliyor mu?
 
-- README
+MVP sinyalleri:
+
+- README varlığı
 - Proje açıklaması
-- Kurulum adımları
-- Kullanım örneği
+- Kurulum talimatı
 - Lisans
-- Demo veya ekran görüntüsü
-- Repository yapısı
+- Kullanım örneği veya demo
 
 ### 2. Geliştirme Süreci Görünürlüğü
 
-Gerçek geliştirme süreci repository üzerinde görülebiliyor mu?
+Geliştirme sürecine ait gözlemlenebilir kanıtlar repository üzerinde görülebiliyor mu?
+
+MVP sinyalleri:
 
 - Commit geçmişi
-- Commit dağılımı
+- Commitlerin zamana yayılımı
 - Issue kullanımı
 - Pull request kullanımı
-- Release geçmişi
-- Branch ve version sinyalleri
+- Release kullanımı
 
 ### 3. Doğrulama ve Kullanılabilirlik
 
-Başka bir geliştirici projeyi çalıştırabilir ve doğrulayabilir mi?
+Kod davranışlarının otomatik olarak doğrulanmasına yönelik görünür yapı bulunuyor mu?
 
-- Build tanımı
-- Dependency dosyaları
+MVP sinyalleri:
+
 - Test yapısı
-- CI workflow
-- Ortam değişkeni örneği
-- Configuration açıklığı
+- Continuous Integration
 
 ### 4. Portföy Sunumu
 
-Repository dışarıdan bakıldığında profesyonel ve anlaşılır bir üretim kanıtı sunuyor mu?
+Repository, yapılan üretimi dışarıdan inceleyen bir kişiye açık ve anlamlı biçimde sunabiliyor mu?
 
-- Repository adı ve açıklaması
-- Topics
-- Demo bağlantısı
-- Düzenli sunum
-- Bakım sinyalleri
-- Kullanıcıya açık amaç
+MVP sinyalleri:
 
----
+- GitHub Topics
+- Homepage veya canlı demo bağlantısı
+- Repository sunum bütünlüğü
+
+`Repository sunum bütünlüğü` bileşik bir sinyaldir ve toplam görünür kanıt skoruna yeniden dahil edilmez.
 
 ## AI Hakkındaki Yaklaşım
 

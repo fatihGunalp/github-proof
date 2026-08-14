@@ -36,7 +36,7 @@ AnalysisStatus: Completed
 ## Genel Sonuç
 
 ~~~text
-Toplam Görünür Kanıt Skoru: 68 / 100
+Toplam Görünür Kanıt Skoru: 56 / 100
 Etiket: Gelişen görünür kanıt
 ~~~
 
@@ -50,33 +50,16 @@ Geliştiricinin genel yetkinliğini, kıdemini veya işe alınabilirliğini tems
 
 | Kategori | Skor | Kısa değerlendirme |
 |---|---:|---|
-| Repository anlaşılabilirliği | 76 / 100 | Projenin amacı görünür, kurulum bilgileri kısmen eksik |
-| Geliştirme süreci görünürlüğü | 71 / 100 | Commit geçmişi güçlü, issue ve release kullanımı sınırlı |
-| Doğrulama ve kullanılabilirlik | 54 / 100 | Test yapısı var, CI ve ortam örneği bulunamadı |
-| Portföy sunumu | 72 / 100 | Açıklama ve topics mevcut, demo bağlantısı eksik |
+| Repository anlaşılabilirliği | 59 / 100 | README ve açıklama mevcut, kurulum talimatı eksik |
+| Geliştirme süreci görünürlüğü | 66 / 100 | Commit geçmişi güçlü, issue ve release kullanımı sınırlı |
+| Doğrulama ve kullanılabilirlik | 44 / 100 | Test yapısı mevcut, CI kanıtı bulunamadı |
+| Portföy sunumu | 57 / 100 | Topics ve temel sunum parçaları mevcut, canlı demo bağlantısı eksik |
 
 ---
 
 ## Güçlü Sinyaller
 
-### 1. README mevcut ve proje amacı açıklanmış
-
-**Durum:** Strong  
-**Puan:** 5 / 5
-
-**Kanıt**
-
-Repository kökünde `README.md` bulundu.
-
-README içerisinde projenin amacı, kullanılan teknolojiler ve temel özellikler açıklanmış.
-
-**Neden önemli?**
-
-Repository'yi ilk kez açan kişi projenin ne yaptığını hızlı biçimde anlayabilir.
-
----
-
-### 2. Commit geçmişi zamana yayılmış
+### 1. Commit geçmişi zamana yayılmış
 
 **Durum:** Strong  
 **Puan:** 8 / 8
@@ -87,9 +70,30 @@ Son 45 gün içerisinde 27 commit bulundu.
 
 Commitler 11 farklı güne yayılmış.
 
+İlk ve son commit arasında en az 14 günlük zaman aralığı bulunmaktadır.
+
 **Neden önemli?**
 
-Repository, tek seferlik dosya yüklemesinden daha görünür bir geliştirme geçmişi sunmaktadır.
+Repository, tek seferlik dosya yüklemesinin ötesinde zamana yayılmış görünür bir geliştirme geçmişi sunmaktadır.
+
+---
+
+### 2. Commit geçmişi güçlü
+
+**Durum:** Strong  
+**Puan:** 7 / 7
+
+**Kanıt**
+
+Default branch üzerinde 27 commit bulundu.
+
+**Neden önemli?**
+
+Repository yalnızca nihai kod durumunu değil, değişiklik geçmişini de görünür hâle getirmektedir.
+
+**Sınır**
+
+Commit sayısı commit kalitesini, özgün üretimi veya geliştirici seviyesini kanıtlamaz.
 
 ---
 
@@ -185,17 +189,15 @@ Repository anlaşılabilirliği ve kullanılabilirliği artar.
 
 **İlgili sinyaller**
 
-- InstallationGuideSignal
-- BuildRunDefinitionSignal
-- EnvironmentExampleSignal
+- `documentation.installation-guide`
 
 ---
 
-### Öncelik 2 — Build ve test doğrulamasını otomatikleştirin
+### Öncelik 2 — Test doğrulamasını CI ile otomatikleştirin
 
 **Neden?**
 
-Test yapısı bulunmasına rağmen değişikliklerin otomatik doğrulandığına dair kanıt yok.
+Test yapısı bulunmasına rağmen değişikliklerin otomatik doğrulandığına dair görünür CI kanıtı yok.
 
 **Beklenen etki**
 
@@ -203,8 +205,8 @@ Doğrulama süreci görünür ve tekrarlanabilir hâle gelir.
 
 **İlgili sinyaller**
 
-- TestPresenceSignal
-- ContinuousIntegrationSignal
+- `validation.test-structure`
+- `validation.continuous-integration`
 
 ---
 
@@ -216,12 +218,11 @@ Repository'nin kararlı teslim noktaları görünür değil.
 
 **Beklenen etki**
 
-Proje gelişimi, sürüm geçmişi ve kullanıcıya sunulan değişiklikler daha anlaşılır olur.
+Proje gelişimi ve kullanıcıya sunulan teslim noktaları daha anlaşılır olur.
 
 **İlgili sinyaller**
 
-- ReleaseUsageSignal
-- VersionVisibilitySignal
+- `process.release-usage`
 
 ---
 
@@ -229,24 +230,21 @@ Proje gelişimi, sürüm geçmişi ve kullanıcıya sunulan değişiklikler daha
 
 | Sinyal | Durum | Puan |
 |---|---|---:|
-| README varlığı | Strong | 5 / 5 |
+| README varlığı | Present | 5 / 5 |
 | Proje açıklaması | Present | 4 / 4 |
 | Kurulum talimatı | Missing | 0 / 8 |
-| Kullanım örneği | Partial | 4 / 7 |
 | Lisans | Present | 3 / 3 |
-| Demo veya görsel kanıt | Partial | 3 / 6 |
+| Kullanım örneği veya demo | Partial | 4 / 7 |
 | Commit geçmişi | Strong | 7 / 7 |
 | Commitlerin zamana yayılımı | Strong | 8 / 8 |
 | Issue kullanımı | Partial | 2 / 5 |
 | Pull request kullanımı | Present | 4 / 6 |
 | Release kullanımı | Missing | 0 / 6 |
-| Dependency tanımı | Present | 5 / 5 |
-| Build tanımı | Present | 5 / 6 |
 | Test yapısı | Present | 8 / 10 |
 | Continuous Integration | Missing | 0 / 8 |
-| Ortam değişkeni örneği | Missing | 0 / 5 |
-| GitHub Topics | Present | 3 / 3 |
-| Homepage veya demo bağlantısı | Missing | 0 / 5 |
+| GitHub Topics | Present | 3 / 4 |
+| Homepage veya canlı demo bağlantısı | Missing | 0 / 5 |
+| Repository sunum bütünlüğü | Strong | 5 / 5 — toplam skora dahil değil |
 
 ---
 

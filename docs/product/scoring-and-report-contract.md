@@ -24,14 +24,17 @@ MVP'de her sinyal aşağıdaki alanları üretir:
 
 ~~~text
 SignalResult
-├── Key
+├── SignalKey
+├── SignalVersion
 ├── Category
 ├── Status
 ├── Score
 ├── MaximumScore
 ├── Evidence
 ├── Explanation
-└── Recommendation
+├── Recommendation
+├── Limitations
+└── EvaluatedAt
 ~~~
 
 ### Status değerleri
@@ -42,6 +45,7 @@ Present
 Partial
 Missing
 NotApplicable
+UnavailableEvidence
 RequiresHumanReview
 ~~~
 
@@ -61,11 +65,17 @@ Sinyal mevcuttur ancak eksik, sınırlı veya belirsizdir.
 
 #### Missing
 
-Sinyal için görünür kanıt bulunamamıştır.
+Gerekli veri başarıyla incelenmiştir ancak sinyal için görünür kanıt bulunamamıştır.
 
 #### NotApplicable
 
 Sinyal repository türü veya teknoloji bağlamı için anlamlı değildir.
+
+#### UnavailableEvidence
+
+Sinyalin değerlendirilmesi için gereken veri teknik veya erişim kaynaklı bir nedenle alınamamıştır.
+
+Bu durum görünür kanıtın eksik olduğu anlamına gelmez ve otomatik olarak sıfır puan olarak değerlendirilmemelidir.
 
 #### RequiresHumanReview
 
@@ -319,7 +329,18 @@ ImprovementAction
 ├── Title
 ├── Reason
 ├── ExpectedImpact
-└── RelatedSignals
+├── RelatedSignals
+├── Effort
+└── EvidenceReferences
+~~~
+
+### Effort değerleri
+
+~~~text
+Low
+Medium
+High
+Unknown
 ~~~
 
 ### Örnek
@@ -335,10 +356,15 @@ Beklenen etki:
 Repository anlaşılabilirliği ve kullanılabilirliği artar.
 
 İlgili sinyaller:
-InstallationGuideSignal
-BuildRunDefinitionSignal
-EnvironmentExampleSignal
+documentation.installation-guide
+
+Effort:
+Low
 ~~~
+
+Her geliştirme adımı en az bir sinyal sonucuna dayanmalıdır.
+
+Eylemler repository üzerinde uygulanabilir olmalı ve geliştirici hakkında kişisel yargı içermemelidir.
 
 ---
 
@@ -457,7 +483,7 @@ Sinyal repository için anlamlı değil.
 
 Otomatik analiz güvenilir karar üretemedi.
 
-Bu durumların tamamına sıfır puan vermek yasaktır.
+`Missing`, tanımlı sinyal kurallarına göre sıfır puan alabilir. `UnavailableEvidence`, `NotApplicable` ve `RequiresHumanReview` ise otomatik olarak sıfır puanlanmamalıdır.
 
 ---
 

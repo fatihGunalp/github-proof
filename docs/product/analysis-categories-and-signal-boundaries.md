@@ -22,7 +22,7 @@ Her sinyal yalnızca kendi sınırları içerisinde yorumlanmalıdır.
 
 ### Amaç
 
-Repository'yi ilk kez açan bir kişinin projenin amacını, kullanımını ve temel yapısını anlayıp anlayamadığını değerlendirmek.
+Repository'yi ilk kez açan bir kişinin projenin amacını, kurulumunu ve kullanım biçimini anlayıp anlayamadığını değerlendirmek.
 
 ### MVP sinyalleri
 
@@ -30,15 +30,15 @@ Repository'yi ilk kez açan bir kişinin projenin amacını, kullanımını ve t
 
 **Kanıt**
 
-Repository kökünde GitHub tarafından README olarak tanınan bir dosyanın bulunması.
+GitHub tarafından README olarak tanınan bir dosyanın bulunması.
 
 **Olumlu yorum**
 
-Repository için temel bir açıklama alanı mevcuttur.
+Repository için temel bir açıklama alanı bulunmaktadır.
 
 **Sınır**
 
-README'nin bulunması, içeriğinin yeterli veya doğru olduğunu tek başına kanıtlamaz.
+README'nin bulunması, içeriğinin yeterli, doğru veya güncel olduğunu kanıtlamaz.
 
 ---
 
@@ -46,15 +46,15 @@ README'nin bulunması, içeriğinin yeterli veya doğru olduğunu tek başına k
 
 **Kanıt**
 
-GitHub repository metadata alanında açıklama bulunması.
+Repository metadata içerisinde description alanının bulunması.
 
 **Olumlu yorum**
 
-Repository, listeleme ve profil görünümünde temel amacını ifade etmektedir.
+Repository, GitHub listeleme ve profil görünümünde amacını kısa biçimde ifade etmektedir.
 
 **Sınır**
 
-Kısa bir açıklama, projenin kapsamının tamamen anlaşılır olduğunu kanıtlamaz.
+Description bulunması, projenin kapsamının bütünüyle anlaşılır olduğunu kanıtlamaz.
 
 ---
 
@@ -62,63 +62,47 @@ Kısa bir açıklama, projenin kapsamının tamamen anlaşılır olduğunu kanı
 
 **Kanıt**
 
-README içerisinde kurulum, setup, installation veya eşdeğer bir bölümün bulunması.
+README veya indekslenebilir dokümantasyon içerisinde uygulanabilir kurulum adımlarının bulunması.
 
 **Olumlu yorum**
 
-Başka bir geliştiricinin projeyi çalıştırmasına yardımcı olacak başlangıç bilgisi mevcuttur.
+Başka bir geliştiricinin projeyi hazırlamasına yardımcı olacak görünür başlangıç bilgisi bulunmaktadır.
 
 **Sınır**
 
-Bölüm başlığının bulunması, talimatların güncel veya çalışır olduğunu garanti etmez.
+Talimatların bulunması gerçekten çalıştıklarını veya güncel olduklarını garanti etmez.
 
 ---
 
-#### 2.4 Kullanım Örneği
+#### 2.4 Lisans
 
 **Kanıt**
 
-README veya docs içerisinde komut, ekran görüntüsü, örnek istek, örnek çıktı veya kullanım senaryosu bulunması.
+GitHub tarafından tanınan veya repository kökünde bulunan lisans dosyası.
 
 **Olumlu yorum**
 
-Projenin nasıl kullanılacağına dair görünür kanıt bulunmaktadır.
+Repository'nin kullanım ve katkı koşullarına ilişkin görünür bir çerçevesi bulunmaktadır.
 
 **Sınır**
 
-Bir kullanım örneği, bütün kullanım senaryolarının belgelendiğini kanıtlamaz.
+Lisans bulunması, hukuki uygunluğun bütünüyle doğrulandığı anlamına gelmez.
 
 ---
 
-#### 2.5 Lisans
+#### 2.5 Kullanım Örneği veya Demo
 
 **Kanıt**
 
-GitHub tarafından tanınan bir lisans dosyasının bulunması.
+README veya dokümantasyon içerisinde kullanım komutu, örnek istek/cevap, kod örneği, ekran görüntüsü, video, canlı demo veya örnek çıktı bulunması.
 
 **Olumlu yorum**
 
-Repository'nin kullanım ve katkı koşulları hakkında hukuki bir çerçeve bulunmaktadır.
+Projenin nasıl kullanılacağına veya sonucunun nasıl göründüğüne dair gözlemlenebilir kanıt bulunmaktadır.
 
 **Sınır**
 
-Lisansın bulunması, projenin ticari veya operasyonel olarak kullanıma hazır olduğunu göstermez.
-
----
-
-#### 2.6 Demo veya Görsel Kanıt
-
-**Kanıt**
-
-README içerisinde ekran görüntüsü, video, canlı demo veya çalışan örnek bağlantısı bulunması.
-
-**Olumlu yorum**
-
-Repository'nin sonucu veya kullanım biçimi görsel ya da etkileşimli olarak sunulmaktadır.
-
-**Sınır**
-
-Demo bağlantısının bulunması, bağlantının erişilebilir veya güncel olduğunu tek başına garanti etmez.
+Örneğin veya bağlantının bulunması erişilebilirliğini, doğruluğunu veya güncelliğini garanti etmez.
 
 ---
 
@@ -126,7 +110,7 @@ Demo bağlantısının bulunması, bağlantının erişilebilir veya güncel old
 
 ### Amaç
 
-Repository'nin yalnızca son kod hâlini değil, geliştirme sürecine ait görünür kanıtları taşıyıp taşımadığını değerlendirmek.
+Repository'nin yalnızca son kod hâlini değil, geliştirme sürecine ait gözlemlenebilir kanıtları taşıyıp taşımadığını değerlendirmek.
 
 ### MVP sinyalleri
 
@@ -134,15 +118,15 @@ Repository'nin yalnızca son kod hâlini değil, geliştirme sürecine ait gör�
 
 **Kanıt**
 
-Repository'de birden fazla commit bulunması.
+Default branch üzerinde bulunan commitler.
 
 **Olumlu yorum**
 
-Kod tabanının gelişimine ait bir geçmiş mevcuttur.
+Repository içerisinde kod tabanının gelişimine ait görünür bir geçmiş bulunmaktadır.
 
 **Sınır**
 
-Commit sayısı tek başına commit kalitesini veya geliştiricinin katkı seviyesini kanıtlamaz.
+Commit sayısı commit kalitesini, özgün üretimi veya geliştirici seviyesini kanıtlamaz.
 
 ---
 
@@ -150,79 +134,63 @@ Commit sayısı tek başına commit kalitesini veya geliştiricinin katkı seviy
 
 **Kanıt**
 
-Commitlerin farklı tarih ve zaman aralıklarında yapılmış olması.
+Commitlerin farklı aktif günlere veya zaman aralıklarına yayılması.
 
 **Olumlu yorum**
 
-Repository, tek seferlik yükleme yerine zamana yayılan bir gelişim süreci gösterebilir.
+Repository tek seferlik yüklemenin ötesinde zamana yayılmış bir gelişim geçmişi gösterebilir.
 
 **Sınır**
 
-Zamana yayılmış commitler düzenli, planlı veya kaliteli çalışma anlamına gelmez.
+Zamana yayılım planlı, düzenli veya kaliteli çalışma kanıtı değildir.
 
 ---
 
-#### 3.3 Büyük Başlangıç Commit'i
+#### 3.3 Issue Kullanımı
 
 **Kanıt**
 
-Repository içeriğinin önemli bölümünün ilk veya tek commit içerisinde eklenmiş olması.
-
-**Dikkat sinyali**
-
-Geliştirme sürecinin repository üzerinde görünürlüğü sınırlı olabilir.
-
-**Sınır**
-
-Bu sinyal AI kullanımı, kopyalama veya düşük mühendislik kalitesi kanıtı değildir. Mevcut bir projenin GitHub'a sonradan taşınması gibi geçerli nedenler olabilir.
-
----
-
-#### 3.4 Issue Kullanımı
-
-**Kanıt**
-
-Repository'de en az bir issue bulunması.
+Pull requestlerden ayrıştırılmış açık veya kapalı issue kayıtları.
 
 **Olumlu yorum**
 
-İş, hata veya geliştirme ihtiyaçlarının görünür biçimde takip edildiğine dair kanıt bulunabilir.
+Hata, görev veya geliştirme ihtiyaçlarının repository üzerinde takip edildiğine dair görünür kanıt bulunabilir.
 
 **Sınır**
 
-Issue bulunması, düzenli proje yönetimi yapıldığını tek başına kanıtlamaz.
+Issue bulunması düzenli proje yönetimini veya kaliteli issue içeriğini kanıtlamaz.
 
 ---
 
-#### 3.5 Pull Request Kullanımı
+#### 3.4 Pull Request Kullanımı
 
 **Kanıt**
 
-Repository'de en az bir pull request bulunması.
+Açık, kapalı veya merged pull request kayıtları.
 
 **Olumlu yorum**
 
-Değişikliklerin ayrı bir inceleme veya birleştirme akışından geçtiğine dair kanıt bulunabilir.
+Değişikliklerin ayrı bir birleştirme veya inceleme akışından geçtiğine dair görünür kanıt bulunabilir.
 
 **Sınır**
 
-Pull request kullanımı, gerçek ekip çalışmasını veya kaliteli code review yapıldığını garanti etmez.
+Pull request bulunması gerçek code review veya ekip çalışması yapıldığını garanti etmez.
 
 ---
 
-#### 3.6 Release Kullanımı
+#### 3.5 Release Kullanımı
 
 **Kanıt**
 
-Repository'de en az bir GitHub Release bulunması.
+GitHub Releases, tags ve yayın durumları.
 
 **Olumlu yorum**
 
-Projenin belirli sürümler veya teslim noktaları üzerinden sunulduğuna dair kanıt vardır.
+Repository'nin belirli sürüm veya teslim noktaları görünür hâle getirilmiştir.
 
 **Sınır**
 
-Release bulunması semantic versioning, üretim kararlılığı veya aktif bakım anlamına gelmez.
+Release bulunması production kararlılığı, semantic versioning veya aktif bakım kanıtı değildir.
 
 ---
 
@@ -230,95 +198,39 @@ Release bulunması semantic versioning, üretim kararlılığı veya aktif bakı
 
 ### Amaç
 
-Başka bir geliştiricinin projeyi kurabilmesi, çalıştırabilmesi ve temel davranışlarını doğrulayabilmesi için görünür kanıtların bulunup bulunmadığını değerlendirmek.
+Kod davranışlarının otomatik olarak doğrulanmasına yönelik görünür yapı ve otomasyon bulunup bulunmadığını değerlendirmek.
 
 ### MVP sinyalleri
 
-#### 4.1 Dependency Tanımı
+#### 4.1 Test Yapısı
 
 **Kanıt**
 
-Proje teknolojisine uygun dependency veya proje tanım dosyalarının bulunması.
-
-Örnekler:
-
-- `.csproj`
-- `package.json`
-- `requirements.txt`
-- `pom.xml`
-- `go.mod`
+Test projesi, test klasörü, test framework tanımı veya güvenilir test dosyası desenleri.
 
 **Olumlu yorum**
 
-Projenin bağımlılıklarının makine tarafından okunabilir biçimde tanımlandığına dair kanıt vardır.
+Kod davranışlarını otomatik doğrulamaya yönelik görünür bir yapı bulunmaktadır.
 
 **Sınır**
 
-Dependency dosyasının bulunması, bağımlılıkların güncel veya güvenli olduğunu göstermez.
+Test dosyalarının bulunması testlerin yeterli, doğru, güncel veya başarılı olduğunu kanıtlamaz.
 
 ---
 
-#### 4.2 Build veya Çalıştırma Tanımı
+#### 4.2 Continuous Integration
 
 **Kanıt**
 
-README, script veya proje dosyaları içerisinde build ve çalıştırma sürecinin tanımlanması.
+`.github/workflows` altında build veya test adımları içeren workflow dosyaları.
 
 **Olumlu yorum**
 
-Projenin nasıl derleneceği veya başlatılacağına dair görünür bir yol bulunmaktadır.
+Build, test veya başka doğrulamaların otomatikleştirilmesine yönelik görünür altyapı bulunmaktadır.
 
 **Sınır**
 
-Komutların bulunması, farklı ortamlarda başarıyla çalışacağını garanti etmez.
-
----
-
-#### 4.3 Test Yapısı
-
-**Kanıt**
-
-Test klasörü, test projesi veya yaygın test dosyası desenlerinin bulunması.
-
-**Olumlu yorum**
-
-Kod davranışlarının otomatik olarak doğrulanmasına yönelik yapı bulunmaktadır.
-
-**Sınır**
-
-Test dosyalarının bulunması, testlerin yeterli, güncel veya başarılı olduğunu kanıtlamaz.
-
----
-
-#### 4.4 Continuous Integration
-
-**Kanıt**
-
-`.github/workflows` altında en az bir workflow dosyasının bulunması.
-
-**Olumlu yorum**
-
-Build, test veya başka doğrulamaların otomatikleştirilmesine yönelik altyapı bulunmaktadır.
-
-**Sınır**
-
-Workflow dosyasının bulunması, workflow'un aktif, başarılı veya güvenli olduğunu garanti etmez.
-
----
-
-#### 4.5 Ortam Değişkeni Örneği
-
-**Kanıt**
-
-`.env.example`, örnek configuration dosyası veya README içerisinde gerekli ortam değişkenlerinin açıklanması.
-
-**Olumlu yorum**
-
-Projeyi çalıştırmak için gereken dış yapılandırmalar görünür hâle getirilmiştir.
-
-**Sınır**
-
-Örnek configuration dosyasının bulunması, gerçek değerlerin güvenli yönetildiğini kanıtlamaz.
+Workflow dosyasının bulunması workflow'un aktif, başarılı veya güvenli olduğunu garanti etmez.
 
 ---
 
@@ -326,93 +238,75 @@ Projeyi çalıştırmak için gereken dış yapılandırmalar görünür hâle g
 
 ### Amaç
 
-Repository'nin, yapılan üretimi dışarıdan inceleyen bir kişiye açık, düzenli ve anlamlı biçimde sunup sunmadığını değerlendirmek.
+Repository'nin yapılan üretimi dışarıdan inceleyen bir kişiye açık ve anlamlı biçimde sunup sunmadığını değerlendirmek.
 
 ### MVP sinyalleri
 
-#### 5.1 Repository Adı
+#### 5.1 GitHub Topics
 
 **Kanıt**
 
-Repository adının varsayılan, geçici veya anlamsız bir ad yerine projeyi ifade eden bir yapıda olması.
+Repository metadata içerisinde bulunan topics listesi.
 
 **Olumlu yorum**
 
-Repository adı projenin kimliğini anlamaya yardımcı olmaktadır.
+Projenin teknoloji, ürün veya problem alanı GitHub üzerinde sınıflandırılmıştır.
 
 **Sınır**
 
-İyi bir ad, projenin teknik veya ürün kalitesini kanıtlamaz.
+Topics bulunması belirtilen teknolojilerin doğru veya etkin kullanıldığını kanıtlamaz.
 
 ---
 
-#### 5.2 GitHub Topics
+#### 5.2 Homepage veya Canlı Demo Bağlantısı
 
 **Kanıt**
 
-Repository metadata içerisinde en az bir topic bulunması.
+Repository homepage alanı veya README içerisinde açık bir demo, ürün ya da dokümantasyon bağlantısı.
 
 **Olumlu yorum**
 
-Projenin teknoloji veya problem alanı GitHub üzerinde sınıflandırılmıştır.
+Repository'den çalışan ürüne veya ayrıntılı proje kaynağına görünür bir geçiş bulunmaktadır.
 
 **Sınır**
 
-Topic kullanımı, projenin belirtilen teknolojileri doğru veya etkin kullandığını göstermez.
+Bağlantının bulunması erişilebilirliğini, güncelliğini veya ürün kalitesini garanti etmez.
 
 ---
 
-#### 5.3 Homepage veya Demo Bağlantısı
+#### 5.3 Repository Sunum Bütünlüğü
 
 **Kanıt**
 
-Repository metadata veya README içerisinde canlı uygulama, dokümantasyon veya demo bağlantısı bulunması.
+Aşağıdaki beş sunum parçasının birlikte bulunma durumu:
+
+1. Repository description
+2. README
+3. Kullanım örneği veya demo
+4. Lisans
+5. En az bir GitHub topic
 
 **Olumlu yorum**
 
-Repository dışındaki çalışan ürüne veya ayrıntılı kaynağa ulaşılabilir.
+Repository'nin temel sunum parçalarının birlikte bulunma durumu deterministik biçimde özetlenebilir.
 
 **Sınır**
 
-Bağlantının bulunması, erişilebilirliğini veya kalitesini garanti etmez.
+Bu sinyal teknik kaliteyi, estetiği veya geliştirici seviyesini değerlendirmez.
+
+Bu sinyal mevcut alt sinyallerden türetildiği için:
+
+~~~text
+IncludeInOverallScore: false
+~~~
+
+olarak değerlendirilir ve toplam görünür kanıt skoruna yeniden dahil edilmez.
 
 ---
 
-#### 5.4 Arşiv Durumu
+## 6. Kesin MVP Sinyal Listesi
 
-**Kanıt**
-
-Repository'nin GitHub üzerinde archived olarak işaretlenip işaretlenmediği.
-
-**Olumlu yorum**
-
-Aktif veya arşivlenmiş olma durumu dışarıdan görülebilmektedir.
-
-**Sınır**
-
-Arşivlenmiş repository başarısız veya değersiz değildir. Tamamlanmış ya da artık bakım gerektirmeyen bir proje olabilir.
-
----
-
-#### 5.5 Son Güncelleme Tarihi
-
-**Kanıt**
-
-Repository'nin son push veya güncelleme zamanı.
-
-**Olumlu yorum**
-
-Repository'nin yakın zamanda aktif olup olmadığı hakkında sınırlı bir bakım sinyali sunar.
-
-**Sınır**
-
-Eski tarih düşük kaliteyi, yakın tarih ise aktif ve sürdürülebilir bakımı tek başına kanıtlamaz.
-
----
-
-## 6. MVP Sinyal Listesi
-
-MVP çekirdeği en az aşağıdaki 12 açıklanabilir sinyali içermelidir:
+MVP çekirdeği aşağıdaki 15 açıklanabilir sinyali içerir:
 
 1. README varlığı
 2. Proje açıklaması
@@ -426,17 +320,11 @@ MVP çekirdeği en az aşağıdaki 12 açıklanabilir sinyali içermelidir:
 10. Release kullanımı
 11. Test yapısı
 12. Continuous Integration
+13. GitHub Topics
+14. Homepage veya canlı demo bağlantısı
+15. Repository sunum bütünlüğü
 
-İlave aday sinyaller:
-
-13. Dependency tanımı
-14. Build veya çalıştırma tanımı
-15. Ortam değişkeni örneği
-16. GitHub Topics
-17. Homepage bağlantısı
-18. Arşiv durumu
-
----
+`Repository sunum bütünlüğü`, kategori içi açıklama ve özet amacı taşır ancak toplam görünür kanıt skoruna katkı yapmaz.
 
 ## 7. Yasaklı Çıkarımlar
 

@@ -143,7 +143,7 @@ MVP tamamlanmış sayılır:
 
 - Public GitHub repository URL'si kabul edilebiliyor.
 - Repository verileri GitHub API üzerinden toplanabiliyor.
-- En az 12 açıklanabilir sinyal değerlendiriliyor.
+- 15 açıklanabilir MVP sinyali değerlendiriliyor.
 - Sonuçlar dört kategori altında gösteriliyor.
 - Her skorun dayandığı kanıt açıklanıyor.
 - Üç öncelikli geliştirme önerisi sunuluyor.
