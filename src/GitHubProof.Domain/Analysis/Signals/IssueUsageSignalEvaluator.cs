@@ -1,0 +1,170 @@
+using System.Globalization;
+using GitHubProof.Domain.Analysis.Enums;
+using GitHubProof.Domain.Analysis.Models;
+using GitHubProof.Domain.Analysis.ValueObjects;
+
+namespace GitHubProof.Domain.Analysis.Signals;
+
+public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
+{
+    public const string SignalKey = "process.issue-usage";
+
+    private const string IssuesDataKey = "issues";
+    private const string Recommendation =
+        "Hata, görev veya geliştirme fikirlerini görünür issue kayıtlarıyla yönetin.";
+    private const string Limitation =
+        "Issue varlığı düzenli proje yönetimi veya kaliteli içerik kanıtı değildir.";
+
+    private readonly TimeProvider _timeProvider;
+
+    public IssueUsageSignalEvaluator(TimeProvider? timeProvider = null)
+    {
+        _timeProvider = timeProvider ?? TimeProvider.System;
+    }
+
+    public SignalDefinition Definition { get; } = new(
+        SignalKey,
+        "Issue Kullanımı",
+        AnalysisCategory.DevelopmentProcessVisibility,
+        "Pull requestlerden ayrıştırılmış görünür issue kayıtlarının kullanımını değerlendirir.",
+        maximumScore: 5,
+        requiredDataKeys: [IssuesDataKey],
+        applicabilityRules:
+        [
+            "GitHub Issues kapalıysa NotApplicable sonucu üretilir.",
+            "Repository büyüklüğü veya amacı NotApplicable sonucu üretmez."
+        ],
+        evaluationRules:
+        [
+            "İki veya daha fazla qualifying issue Present sonucu ve tam puan üretir.",
+            "Tek qualifying issue Partial sonucu üretir.",
+            "Tam ve erişilebilir koleksiyonda issue bulunmaması Missing sonucu üretir."
+        ],
+        evidenceRequirements:
+        [
+            "Qualifying, açık ve kapalı issue sayıları.",
+            "Issue koleksiyonu bütünlüğü ve erişilebilirliği."
+        ],
+        explanationTemplate: "Normalize issue sayıları ve veri bütünlüğü deterministik olarak değerlendirilir.",
+        recommendationTemplate: Recommendation,
+        includeInOverallScore: true,
+        version: 1);
+
+    public SignalResult Evaluate(RepositorySnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        DateTimeOffset evaluatedAt = _timeProvider.GetUtcNow();
+        DataAvailability? availability = snapshot.FindAvailability(IssuesDataKey);
+        int qualifyingCount = snapshot.Issues.Items.Count;
+        EvidenceCollection evidence = CollectEvidence(snapshot, availability);
+
+        if (availability?.Status == DataAvailabilityStatus.NotApplicable)
+        {
+            return CreateResult(
+                SignalStatus.NotApplicable,
+                score: null,
+                evidence,
+                "GitHub Issues özelliği kapalı olduğu için issue kullanımı uygulanabilir değildir.",
+                recommendation: null,
+                limitations: null,
+                evaluatedAt);
+        }
+
+        if (qualifyingCount >= 2)
+        {
+            return CreateResult(
+                SignalStatus.Present,
+                score: 5,
+                evidence,
+                $"Pull requestlerden ayrıştırılmış {Format(qualifyingCount)} issue kaydı bulundu.",
+                recommendation: null,
+                [Limitation],
+                evaluatedAt);
+        }
+
+        if (availability?.IsAvailable != true || !snapshot.Issues.IsComplete)
+        {
+            return CreateResult(
+                SignalStatus.UnavailableEvidence,
+                score: null,
+                evidence,
+                "Issue koleksiyonu exact sonucu belirlemek için erişilebilir ve tam değildir.",
+                recommendation: null,
+                limitations: null,
+                evaluatedAt);
+        }
+
+        if (qualifyingCount == 1)
+        {
+            return CreateResult(
+                SignalStatus.Partial,
+                score: 2,
+                evidence,
+                "Pull requestlerden ayrıştırılmış tek bir issue kaydı bulundu.",
+                Recommendation,
+                [Limitation],
+                evaluatedAt);
+        }
+
+        return CreateResult(
+            SignalStatus.Missing,
+            score: 0,
+            evidence,
+            "Issue verisi tam olarak incelendi ancak qualifying issue bulunamadı.",
+            Recommendation,
+            [Limitation],
+            evaluatedAt);
+    }
+
+    private static EvidenceCollection CollectEvidence(
+        RepositorySnapshot snapshot,
+        DataAvailability? availability)
+    {
+        int openCount = snapshot.Issues.Items.Count(issue => !issue.IsClosed);
+        int closedCount = snapshot.Issues.Items.Count(issue => issue.IsClosed);
+        string state = availability is null
+            ? "not-recorded"
+            : availability.Status.ToString();
+        string value = $"qualifying={Format(snapshot.Issues.Items.Count)};open={Format(openCount)};closed={Format(closedCount)};complete={snapshot.Issues.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={state}";
+
+        EvidenceCollection evidence = new();
+        evidence.Add(new EvidenceItem(
+            SignalKey,
+            "RepositoryIssues",
+            value,
+            location: null,
+            availability?.RetrievedAt ?? snapshot.CapturedAt,
+            EvidenceConfidence.High,
+            "Issue kayıtları provider normalizasyonunda pull requestlerden ayrıştırılmıştır."));
+
+        return evidence;
+    }
+
+    private static string Format(int value) =>
+        value.ToString(CultureInfo.InvariantCulture);
+
+    private SignalResult CreateResult(
+        SignalStatus status,
+        int? score,
+        EvidenceCollection evidence,
+        string explanation,
+        string? recommendation,
+        IEnumerable<string>? limitations,
+        DateTimeOffset evaluatedAt)
+    {
+        return new SignalResult(
+            Definition.Key,
+            Definition.Version,
+            Definition.Category,
+            status,
+            score,
+            Definition.MaximumScore,
+            Definition.IncludeInOverallScore,
+            evidence.Items,
+            explanation,
+            recommendation,
+            limitations,
+            evaluatedAt);
+    }
+}

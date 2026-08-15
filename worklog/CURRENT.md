@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Seven production evaluators are complete; issue, pull-request, and release usage signals are next.
+Focus: Ten production evaluators are complete; test-structure and continuous-integration signals are next.
 ```
 
 ---
@@ -51,46 +51,46 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Implement `process.issue-usage`, `process.pull-request-usage`, and `process.release-usage` in the next bounded session.
+Implement `validation.test-structure` and `validation.continuous-integration` in the next bounded session.
 ```
 
 ## Working Set
 
 ```text
-Session 031 canonical clarification, two Domain evaluators, focused tests, and worklog changes only.
+Session 032 canonical clarification, three Domain evaluators, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 17c74aa
-Last verified working tree: CLEAN before Session 031
+Last verified HEAD: 86dee23
+Last verified working tree: CLEAN before Session 032
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 031 — Commit History + Commit Distribution: PASS
+Session 032 — Issue + Pull Request + Release Signals: PASS
 
-- Audited default-branch commit collection, pagination, UTC timestamps, metadata age, availability, and duplicate normalization.
-- Clarified complete-only Version 1 scoring, snapshot-relative repository age, UTC active days, and elapsed first-last span.
-- Added deterministic `process.commit-history` and `process.commit-distribution` Domain evaluators.
-- Covered every score boundary, exact 14-day edges, incomplete/unavailable evidence, UTC day grouping, unsorted inputs, and deterministic output.
-- Production evaluators are now 7 / 15.
+- Confirmed normalized issue/PR separation, merge state, release/draft/notes data, tags, completeness, and independent availability.
+- Clarified qualifying issue, release-note presence, and terminal incomplete-evidence semantics for Version 1.
+- Added deterministic issue, pull-request, and release usage Domain evaluators.
+- Covered all score branches, Issues-disabled, separate Releases/Tags failures, terminal positive evidence, ordering, and determinism.
+- Production evaluators are now 10 / 15.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 17c74aa, clean before Session 031
-Contract/data audit: PASS — required snapshot data and deterministic semantics confirmed
-Focused Commit History + Distribution tests: PASS — 50 passed
-All evaluator regression: PASS — 215 passed
-Domain tests: PASS — 266 passed
+Repository baseline: PASS — main at 86dee23, clean before Session 032
+Contract/data audit: PASS — issue, PR, release, tag, completeness, and availability data sufficient
+Focused Issue + PR + Release tests: PASS — 46 passed
+All evaluator regression: PASS — 261 passed
+Domain tests: PASS — 312 passed
 Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 354 passed
+Solution tests: PASS — 400 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS

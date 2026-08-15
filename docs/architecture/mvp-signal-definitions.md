@@ -1095,6 +1095,13 @@ Hata, görev veya geliştirme ihtiyaçlarının repository üzerinde görünür 
 - API verisi alınamadıysa: `UnavailableEvidence`, `Score: null`
 - Repository'nin küçük olması tek başına `NotApplicable` üretmez
 
+### Version 1 issue ve veri bütünlüğü semantiği
+
+- MVP v1'de "anlamlı issue", provider normalizasyonunda pull request olmadığı doğrulanmış bir `RepositoryIssue` kaydıdır. Issue title veya body içerik kalitesi ayrıca değerlendirilmez.
+- İki veya daha fazla qualifying issue gözlendiyse sonraki sayfalar sonucu değiştiremeyeceği için koleksiyon eksik olsa da terminal `Present`, 5 puan korunur.
+- İkiden az issue içeren eksik veya erişilemeyen koleksiyon exact sonucu değiştirebileceği için `UnavailableEvidence`, `Score: null` üretir.
+- `Missing` yalnız `issues` erişilebilirliği `Available` ve issue koleksiyonu tam olduğunda üretilebilir.
+
 ### Uygulanabilirlik sınırı
 
 Küçük, tek amaçlı veya tamamlanmış repository'lerde issue eksikliği otomatik olarak ciddi eksik sayılmamalıdır.
@@ -1139,6 +1146,12 @@ Değişikliklerin ayrı bir birleştirme veya inceleme akışından geçtiğine 
 - Veri alınamadıysa: `UnavailableEvidence`, `Score: null`
 - Repository'nin küçük veya tek geliştiricili olması tek başına `NotApplicable` üretmez
 
+### Version 1 veri bütünlüğü semantiği
+
+- İki veya daha fazla merged pull request gözlendiyse sonraki sayfalar sonucu değiştiremeyeceği için koleksiyon eksik olsa da terminal `Strong`, 6 puan korunur.
+- İkiden az merged pull request içeren eksik veya erişilemeyen koleksiyon exact sonucu değiştirebileceği için `UnavailableEvidence`, `Score: null` üretir.
+- `Missing` yalnız `pull-requests` erişilebilirliği `Available` ve pull request koleksiyonu tam olduğunda üretilebilir.
+
 ### Uygulanabilirlik sınırı
 
 Tek geliştiricili küçük repository'lerde pull request eksikliği mutlak bir kalite kusuru olarak sunulmamalıdır.
@@ -1182,6 +1195,15 @@ Repository'nin belirli sürüm veya teslim noktalarının görünür olup olmad�
 - Yalnızca draft release varsa: `Partial`, 2 puan
 - Veri incelendi ancak release veya tag yoksa: `Missing`, 0 puan
 - Veri alınamadıysa: `UnavailableEvidence`, `Score: null`
+
+### Version 1 release note ve veri bütünlüğü semantiği
+
+- Açıklayıcı release note, published release üzerindeki normalize edilmiş `Notes` alanının null, empty veya whitespace olmamasıdır. İçerik kalitesi, uzunluğu veya dili değerlendirilmez.
+- En az bir published release ve release note gözlendiyse terminal `Present`, 6 puan üretilir; daha fazla release veya tag bu sonucu yükseltemeyeceği için Releases/Tags eksikliği sonucu değiştirmez.
+- Published release gözlenmiş ancak note gözlenmemişse `Partial`, 4 puan yalnız Releases erişilebilir ve tam olduğunda üretilebilir; bu durumda Tags sonucu değiştirmez.
+- Published release yokken en az bir tag gözlenmişse `Partial`, 3 puan yalnız Releases erişilebilir ve tam olduğunda üretilebilir; tag varlığı doğrulandıktan sonra ek tag sayısı sonucu değiştirmez.
+- Yalnız draft release için `Partial`, 2 puan ve hiçbir release/tag bulunmaması için `Missing`, 0 puan üretmek üzere hem Releases hem Tags erişilebilir ve tam olmalıdır.
+- Yukarıdaki terminal olarak belirlenmiş durumlar dışında exact classification için gerekli Releases veya Tags verisi eksik ya da erişilemezse `UnavailableEvidence`, `Score: null` üretilir.
 
 ### Uygulanabilirlik sınırı
 

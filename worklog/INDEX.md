@@ -40,6 +40,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Usage/Demo signal evaluator | BLOCKED | Sol / high | [029](./sessions/2026-08-15-029-usage-demo-signal-evaluator.md) | 9b1bf85 |
 | 2026-08-15 | Usage/Demo contract fix and evaluator retry | PASS | Sol / high | [030](./sessions/2026-08-15-030-usage-demo-contract-fix-and-evaluator.md) | 5060f1c |
 | 2026-08-15 | Commit History and Commit Distribution | PASS | Sol / high | [031](./sessions/2026-08-15-031-commit-history-and-distribution.md) | 17c74aa |
+| 2026-08-15 | Issue, Pull Request, and Release signals | PASS | Sol / high | [032](./sessions/2026-08-15-032-issue-pr-release-signals.md) | 86dee23 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
