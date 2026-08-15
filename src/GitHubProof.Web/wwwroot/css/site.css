@@ -3,7 +3,7 @@
 }
 
 .site-header {
-    width: min(100% - (2 * var(--space-6)), 72rem);
+    width: min(100% - (2 * var(--space-8)), 80rem);
     margin-inline: auto;
     padding-top: var(--space-6);
 }
@@ -11,10 +11,12 @@
 .site-brand {
     display: inline-flex;
     align-items: center;
+    min-height: 2.5rem;
     color: var(--fg-primary);
     font-size: var(--font-size-title);
     font-weight: var(--font-weight-title);
     line-height: var(--line-height-title);
+    letter-spacing: -0.015em;
     text-decoration: none;
 }
 
@@ -23,17 +25,24 @@
 }
 
 .site-main {
-    width: min(100% - (2 * var(--space-6)), 72rem);
+    width: min(100% - (2 * var(--space-8)), 80rem);
     margin-inline: auto;
 }
 
-@media (max-width: 36rem) {
+@media (max-width: 48rem) {
     .site-header,
     .site-main {
-        width: min(100% - (2 * var(--space-4)), 72rem);
+        width: min(100% - (2 * var(--space-5)), 80rem);
     }
 
     .site-header {
-        padding-top: var(--space-5);
+        padding-top: var(--space-4);
+    }
+}
+
+@media (max-width: 30rem) {
+    .site-header,
+    .site-main {
+        width: min(100% - (2 * var(--space-4)), 80rem);
     }
 }

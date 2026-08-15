@@ -158,30 +158,6 @@ Production foundation:
 ## Validation
 
 ~~~text
-Session-start scope guard:
-PASS
-
-GitHubProof.Web build:
-PASS
-
-GitHubProof.Web.Tests build:
-PASS
-
-Semantic token required-contract guard:
-PASS
-
-Light / Dark / System theme contract guard:
-PASS
-
-Raw-color consumer guard:
-PASS
-
-CSS architecture tests:
-PASS — 3/3
-
-Home / repository-input contract tests:
-PASS — 4/4
-
 GitHubProof.Web.Tests:
 PASS — 7/7
 
@@ -191,7 +167,7 @@ PASS
 Full solution tests:
 PASS
 
-dotnet format --verify-no-changes:
+Semantic CSS boundary:
 PASS
 
 Canonical repository URL scope:
@@ -200,8 +176,17 @@ PASS
 Username discovery:
 NOT INTRODUCED
 
-Browser smoke check:
-PASS — Home rendered successfully in Dark mode.
+Dark browser review:
+PASS
+
+Light browser review:
+PASS
+
+Light/Dark hierarchy equivalence:
+PASS
+
+Step 5.1 Home visual refinement:
+ACCEPTED
 
 git diff --check:
 PASS
@@ -274,12 +259,19 @@ Session status:
 ## Next
 
 ~~~text
-Step 5.1 — refine the existing Home visually without changing its product scope.
+Implement StatusBadge and the seven canonical evidence-state semantics.
 
-After Home hierarchy is accepted:
-continue with StatusBadge and the seven canonical evidence-state semantics.
+Required states:
+- Strong
+- Present
+- Partial
+- Missing
+- NotApplicable
+- UnavailableEvidence
+- RequiresHumanReview
 
-Do not wire live repository analysis until the presentation foundation is stable.
+Do not collapse uncertainty states into failure semantics.
+Do not wire live repository analysis yet.
 ~~~
 
 ## Git

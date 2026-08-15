@@ -18,11 +18,16 @@
             class="button button--primary repository-input__action"
             type="button"
             disabled>
-            Analyze
+            <span>Analyze</span>
+            <span aria-hidden="true">→</span>
         </button>
     </div>
 
-    <p class="repository-input__context" id="repository-input-context">
-        Public repositories only · 15 deterministic signals · No developer judgment
-    </p>
+    <div class="repository-input__context" id="repository-input-context">
+        <span>Public repositories only</span>
+        <span class="repository-input__separator" aria-hidden="true">·</span>
+        <span>15 deterministic signals</span>
+        <span class="repository-input__separator" aria-hidden="true">·</span>
+        <span>No developer judgment</span>
+    </div>
 </div>

@@ -1,49 +1,68 @@
 .home {
-    display: grid;
-    align-content: center;
-    min-height: calc(100vh - 5rem);
-    padding-block: var(--space-16);
+    min-height: calc(100vh - 4.5rem);
+    padding-top: clamp(5rem, 13vh, 8.5rem);
+    padding-bottom: var(--space-24);
 }
 
 .home__content {
-    width: min(100%, 44rem);
+    width: min(100%, 52rem);
 }
 
 .home__eyebrow {
     margin: 0 0 var(--space-4);
     color: var(--fg-tertiary);
-    font-size: var(--font-size-label);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-label);
-    line-height: var(--line-height-label);
+    line-height: var(--line-height-small);
 }
 
 .home__title {
-    max-width: 13ch;
+    max-width: 14ch;
     margin: 0;
     color: var(--fg-primary);
-    font-size: var(--font-size-display);
+    font-size: clamp(3rem, 4.6vw, 4.25rem);
     font-weight: var(--font-weight-display);
-    line-height: var(--line-height-display);
-    letter-spacing: -0.035em;
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
 }
 
 .home__summary {
-    max-width: 42rem;
-    margin: var(--space-5) 0 0;
+    max-width: 46rem;
+    margin: var(--space-6) 0 0;
     color: var(--fg-secondary);
-    font-size: var(--font-size-body-large);
-    line-height: var(--line-height-body-large);
+    font-size: 1.0625rem;
+    line-height: 1.75rem;
+    text-wrap: pretty;
 }
 
 @media (max-width: 48rem) {
     .home {
         min-height: auto;
-        padding-block: var(--space-16);
+        padding-top: var(--space-16);
+        padding-bottom: var(--space-20);
     }
 
     .home__title {
-        font-size: var(--font-size-h1);
-        line-height: var(--line-height-h1);
-        letter-spacing: -0.025em;
+        max-width: 13ch;
+        font-size: clamp(2.5rem, 9vw, 3.5rem);
+        letter-spacing: -0.035em;
+    }
+
+    .home__summary {
+        margin-top: var(--space-5);
+        font-size: var(--font-size-body-large);
+        line-height: var(--line-height-body-large);
+    }
+}
+
+@media (max-width: 30rem) {
+    .home {
+        padding-top: var(--space-12);
+    }
+
+    .home__title {
+        font-size: 2.5rem;
+        line-height: 1.05;
     }
 }

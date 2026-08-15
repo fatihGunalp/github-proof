@@ -50,20 +50,26 @@ Completed checkpoint:
 - Minimal GitHubProof.Web Razor Pages host.
 - GitHubProof.Web.Tests project.
 - Semantic Light / Dark / System token architecture.
-- Typography, spacing, radius, motion, focus, surface and status foundations.
 - Generic Button and Input primitives.
 - CSS semantic-token architecture tests.
 - Canonical repository-URL-only RepositoryInput.
 - Minimal evidence-first Home composition.
-- Browser smoke check completed successfully in Dark mode.
-- Web contract tests PASS 7/7 before full regression validation.
+- Foundation checkpoint pushed at 227c84f / fb1f388.
 
-Current UI state:
-Home foundation is functional and visually reviewable.
-Live repository analysis is intentionally not wired yet.
+Step 5.1 completed:
+- Hero vertical position and visual weight refined.
+- Content width and reading rhythm refined.
+- Typography hierarchy strengthened.
+- RepositoryInput promoted as the primary interaction surface.
+- Disabled Analyze state remains honest but visually legible.
+- Supporting metadata hierarchy refined.
+- Mobile spacing and stacking refined.
+- Explicit public GitHub repository boundary preserved.
+- Dark browser review: PASS.
+- Light browser review: PASS.
+- Light/Dark hierarchy equivalence: PASS.
 
-Next:
-Refine Home visual hierarchy before introducing report/status components.
+Live repository analysis remains intentionally unwired.
 ~~~
 
 ## Current Problem
@@ -75,18 +81,23 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Session 047 / Step 5.1 — Home Visual Refinement.
+Session 047 / next step — implement StatusBadge and the seven canonical evidence-state semantics:
 
-Refine:
-- hero vertical position,
-- content width and visual weight,
-- typography balance,
-- RepositoryInput proportions,
-- disabled Analyze treatment,
-- supporting metadata hierarchy,
-- desktop/mobile spacing.
+Strong
+Present
+Partial
+Missing
+NotApplicable
+UnavailableEvidence
+RequiresHumanReview
 
-Do not wire live analysis yet.
+Preserve:
+- text/icon + color semantics,
+- Missing != UnavailableEvidence,
+- theme equivalence,
+- semantic-token-only styling.
+
+Do not wire live repository analysis yet.
 ~~~
 
 ## Working Set
