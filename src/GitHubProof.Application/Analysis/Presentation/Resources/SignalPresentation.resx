@@ -28,7 +28,7 @@
   <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Documentation</value></data>
   <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Development Process</value></data>
   <data name="category.ValidationAndUsability" xml:space="preserve"><value>Validation</value></data>
-  <data name="category.PortfolioPresentation" xml:space="preserve"><value>Collaboration</value></data>
+  <data name="category.PortfolioPresentation" xml:space="preserve"><value>Portfolio Presentation</value></data>
   <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof evaluates visible repository evidence. It does not infer developer seniority, employability, authorship, originality, AI usage, or overall developer quality.</value></data>
 
   <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>

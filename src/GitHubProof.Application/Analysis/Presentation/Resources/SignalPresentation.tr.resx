@@ -28,7 +28,7 @@
   <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Dokümantasyon</value></data>
   <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Geliştirme Süreci</value></data>
   <data name="category.ValidationAndUsability" xml:space="preserve"><value>Doğrulama</value></data>
-  <data name="category.PortfolioPresentation" xml:space="preserve"><value>İş Birliği</value></data>
+  <data name="category.PortfolioPresentation" xml:space="preserve"><value>Portföy Sunumu</value></data>
   <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof repository üzerinde görünür olan kanıtı değerlendirir. Geliştirici kıdemi, işe alınabilirlik, yazarlık, özgünlük, AI kullanımı veya genel geliştirici kalitesi hakkında çıkarım yapmaz.</value></data>
 
   <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>

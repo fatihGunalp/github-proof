@@ -463,36 +463,55 @@ Composer localized prose üretmez, `SignalPresentationLocalizer` çağırmaz ve 
 
 ---
 
-## 10. Session 045 Exact Handoff — Localized Report Projection
+## 10. Session 045 Implementation Result — Localized RepositoryReport Projection
 
-### Input / output boundary
+Session 045 tamamlanmış tek bir `RepositoryAnalysis` ve requested locale girdisinden, analiz truth'unu değiştirmeden ortak localized `RepositoryReport` projection üretir.
 
-Session 045 yalnız tamamlanmış tek bir `RepositoryAnalysis` ve requested locale almalıdır:
-
-```text
+~~~text
 RepositoryAnalysis + requested locale
-↓
-Localized RepositoryReport projection
-```
+                ↓
+        RepositoryReport
+~~~
 
-Projection; repository collection, evaluator, scoring, category aggregation, strength/gap/action selection veya ranking çalıştırmamalıdır. Aynı analysis instance EN ve TR için tekrar kullanılmalıdır.
+Projection repository collection, evaluator, scoring, category aggregation, strength/gap/action selection veya ranking çalıştırmaz.
 
-### MUST implement
+### Uygulanan contract
 
-1. Markdown ve ilerideki Web UI'ın ortak kullanacağı typed `RepositoryReport` projection contract'ı.
-2. Bölüm sırası: identity → proves → weakens → do first → explicit uncertainty → categories/secondary score → signal detail → disclaimer.
-3. Sabit `report.*` section key'leri ve source-controlled `en` / `tr` presentation catalog'ları.
-4. `ScoreBreakdown.LabelKey`, category/status labels, `ImprovementAction.PresentationKey`, warning presentation key'leri ve limitation key'leri için deterministic localized copy.
-5. Versioned product-boundary disclaimer: seniority, employability, authorship/originality, AI usage ve overall developer quality inference yapılmadığını açıkça söylemelidir.
-6. Existing `SignalPresentationLocalizer` ile 15 signal detail projection'ı; signal truth ve evidence instance'ları değiştirilmemelidir.
-7. Unknown locale → `en` fallback; returned projection resolved locale'i açıkça taşımalıdır.
-8. Explicit uncertainty yalnız `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` sonuçlarından canonical signal order ile türetilmelidir. `Missing` critical-gap akışında kalır.
+- Markdown ve ilerideki Web UI'ın ortak kullanacağı typed `RepositoryReport` projection contract'ı eklendi.
+- Canonical evidence-first section order sabitlendi:
+  identity → proves → weakens → do first → explicit uncertainty → categories/secondary score → signal detail → disclaimer.
+- Report-level EN/TR source-controlled resource catalog eklendi.
+- Unknown locale deterministic olarak `en` fallback kullanır ve projection resolved locale'i taşır.
+- Mevcut `SignalPresentationLocalizer`, canonical 15 signal detail için yeniden kullanılır.
+- Score label, analysis/category status, effort, improvement action, warning, limitation ve section copy report presentation boundary'sinde çözülür.
+- Product-boundary disclaimer `PolicyVersion = 1` ile versioned presentation policy olarak taşınır.
+- Disclaimer seniority, employability, authorship, originality, AI usage ve overall developer quality inference yapılmadığını açıkça belirtir.
+- Explicit uncertainty yalnız `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` sonuçlarından canonical signal order ile türetilir.
+- `Missing`, critical-gap akışında kalır ve uncertainty olarak yeniden sınıflandırılmaz.
+- Strength, critical-gap ve action projection sırası composer çıktısından aynen korunur; projection yeniden ranking yapmaz.
+- Repository URL, branch, SHA, language, evidence path, filename, command, URL ve diğer literal değerler locale değişiminde değiştirilmez.
+- `PortfolioPresentation` category label'ındaki pre-existing `Collaboration` / `İş Birliği` presentation hatası canonical kategoriyle uyumlu `Portfolio Presentation` / `Portföy Sunumu` olarak düzeltildi.
+- Yeni third-party dependency, MediatR, CQRS, LLM translation veya LLM report truth eklenmedi.
 
-### Required tests
+### Validation
 
-- same `RepositoryAnalysis` → EN ve TR copy farklı, semantic identity/order/score/status/evidence aynı,
+~~~text
+Application tests: 39/39 PASS
+Domain tests: 422/422 PASS
+Infrastructure tests: 101/101 PASS
+Total: 562/562 PASS
+Forced rebuild: PASS — 0 warnings, 0 errors
+dotnet format --verify-no-changes: PASS
+git diff --check: PASS
+~~~
+
+Session 045 ile 8 yeni localized report projection testi eklendi.
+
+Doğrulanan davranışlar:
+
+- aynı `RepositoryAnalysis` → EN ve TR copy farklı, semantic identity/order/score/status/evidence aynı,
 - locale switch hiçbir analyzer/composer rerun'ı yapmaz,
-- unknown locale → EN fallback,
+- unsupported locale → EN fallback,
 - EN/TR catalog key completeness ve boş copy bulunmaması,
 - evidence path, filename, command, URL, SHA ve repository literal'lerinin aynen korunması,
 - exact evidence-first section order,
@@ -500,6 +519,79 @@ Projection; repository collection, evaluator, scoring, category aggregation, str
 - all uncertainty statuses'ın failure copy'sine dönüşmemesi,
 - full product-boundary disclaimer'ın iki locale'de bulunması.
 
+### Session 045 out of scope olarak kalanlar
+
+- Markdown string renderer
+- HTML/Web UI
+- PDF
+- LinkedIn card
+- yeni evaluator
+- scoring/ranking değişikliği
+- validation-011
+- LLM-generated report truth
+
+---
+
+## 11. Session 046 Exact Handoff — Markdown Report + Phase 4 Exit Validation
+
+Session 046, Session 045'in typed localized projection'ını tüketmelidir:
+
+~~~text
+RepositoryReport
+      ↓
+Deterministic Markdown report
+      ↓
+Phase 4 exit validation
+~~~
+
+### MUST implement
+
+1. `RepositoryReport` dışında analysis input'u kabul etmeyen deterministic Markdown renderer.
+2. Canonical section order aynen korunmalı:
+   identity → proves → weakens → do first → uncertainty → categories/secondary score → signal detail → disclaimer.
+3. Strength, critical-gap ve action sırası renderer tarafından yeniden hesaplanmamalı.
+4. Skor ilk okuma katmanının kahramanı yapılmamalı; category/overall score evidence-first bölümlerden sonra secondary summary olarak kalmalı.
+5. `UnavailableEvidence`, `NotApplicable` ve `RequiresHumanReview` Markdown'da failure/missing gibi sunulmamalı.
+6. Repository/evidence literal değerleri — path, filename, command, URL, SHA, branch ve repository kimliği — değiştirilmeden render edilmeli.
+7. Product-boundary disclaimer Markdown çıktısında zorunlu olmalı.
+8. Aynı `RepositoryReport` aynı Markdown çıktısını üretmeli.
+9. EN ve TR `RepositoryReport` örneklerinin ikisi de render edilebilmeli; Markdown renderer localization yapmamalı.
+10. Phase 4 sonunda full solution regression, build, format ve report determinism doğrulaması yapılmalı.
+
+### Phase 4 exit expectation
+
+Phase 4 tamamlandığında:
+
+~~~text
+RepositoryAnalysis
+        ↓
+localized RepositoryReport
+        ↓
+Markdown output
+
+ve aynı RepositoryReport
+        ↓
+Phase 5 Web UI
+~~~
+
+olmalıdır.
+
+Web UI, Markdown renderer'ın içinden türetilmemeli; ikisi aynı typed `RepositoryReport` contract'ının bağımsız consumer'ları olmalıdır.
+
+### Required tests
+
+- same RepositoryReport → byte-for-byte same Markdown,
+- exact section order,
+- EN/TR localized projection render,
+- max-three strength/gap/action sırasının korunması,
+- explicit uncertainty ayrımı,
+- repository/evidence literal preservation,
+- secondary-score positioning,
+- disclaimer presence,
+- empty optional sections için deterministic davranış,
+- Markdown renderer'ın analyzer/composer/localizer çağırmaması,
+- full existing regression.
+
 ### Out of scope
 
-Markdown string renderer, HTML/Web UI, yeni evaluator, score/ranking değişikliği, LLM translation/copy truth, `validation-011`, yeni dependency, MediatR ve CQRS Session 045'e dahil edilmemelidir.
+HTML/Web UI, PDF, LinkedIn card, public report hosting, yeni evaluator, scoring/ranking değişikliği, validation-011, new dependency, MediatR, CQRS ve LLM report generation Session 046 kapsamına alınmamalıdır.
