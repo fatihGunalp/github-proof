@@ -12,8 +12,8 @@
 
 ```text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 2 — GitHub Data Collection
-Focus: RepositorySnapshot orchestration is implemented; Phase 2 integration validation is next.
+Delivery Phase: Phase 2 — GitHub Data Collection COMPLETE
+Focus: Phase 2 exit criterion passed; Phase 3 Signal Engine is next.
 ```
 
 ---
@@ -51,46 +51,48 @@ None.
 ## Next Immediate Action
 
 ```text
-Run a new model gate for Session 018 — Phase 2 integration and validation.
+Prepare Phase 3 — Signal Engine first bounded task and run mandatory model gate.
 ```
 
 ## Working Set
 
 ```text
-Session 017 implementation and worklog updates are uncommitted.
+Session 018 opt-in live validation harness and worklog updates are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 07a2e62
-Last verified working tree: Session 017 changes only; no pre-existing unrelated changes
+Last verified HEAD: 25cec67
+Last verified working tree: Session 018 validation-only changes; no pre-existing unrelated changes
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 017 — RepositorySnapshot Orchestration: PASS
+Session 018 — Phase 2 Final Integration Validation: PASS
 
-- Added metadata-first sequential orchestration from public GitHub URL to RepositorySnapshot.
-- Preserved partial data, section availability, completeness warnings, resolved head SHA, and deterministic capture time.
-- Kept Releases and Tags independent and completed Issue/PR normalization required by Domain mapping.
+- Full automated suite, build, format, and diff validation passed.
+- Two bounded public repositories produced coherent live RepositorySnapshot values with independently verified head SHAs.
+- A real GitHub 404 produced explicit unavailable metadata and no fake snapshot.
+- Phase 2 Exit Criterion: PASS.
 ```
 
 ## Last Validation
 
 ```text
+live integration: PASS — 2 snapshots + 1 not-found case
 focused orchestration tests: PASS — 7 passed
 dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 46 passed
-dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 75 passed
+dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 76 passed
 Application tests: N/A — no Application test project
-dotnet test GitHubProof.slnx --no-restore: PASS — 121 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 122 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 017 changes only
+git status --short: Session 018 validation-only changes
 ```
 
 ## Critical Invariants
