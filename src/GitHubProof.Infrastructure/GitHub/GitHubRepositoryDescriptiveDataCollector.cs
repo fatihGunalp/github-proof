@@ -330,36 +330,11 @@ public sealed class GitHubRepositoryDescriptiveDataCollector
 
     private static DataAvailability CreateFailureAvailability(
         HttpResponseMessage response,
-        string dataKey)
-    {
-        (DataAvailabilityStatus status, string reason) = response.StatusCode switch
-        {
-            HttpStatusCode.Forbidden when IsRateLimited(response) => (
-                DataAvailabilityStatus.RateLimited,
-                $"GitHub rate limit was reached while retrieving {dataKey} data."),
-            HttpStatusCode.TooManyRequests => (
-                DataAvailabilityStatus.RateLimited,
-                $"GitHub rate limit was reached while retrieving {dataKey} data."),
-            HttpStatusCode.Forbidden => (
-                DataAvailabilityStatus.Forbidden,
-                $"GitHub denied access to {dataKey} data."),
-            HttpStatusCode.NotFound => (
-                DataAvailabilityStatus.Unavailable,
-                $"GitHub could not retrieve {dataKey} data."),
-            _ => (
-                DataAvailabilityStatus.Failed,
-                $"GitHub returned HTTP {(int)response.StatusCode} ({response.StatusCode}) for {dataKey} data.")
-        };
-
-        return DataAvailability.Unavailable(dataKey, status, reason);
-    }
+        string dataKey) =>
+        GitHubApiAvailability.FromFailureResponse(response, dataKey);
 
     private static DataAvailability CreateFailedAvailability(string dataKey, string reason) =>
         DataAvailability.Unavailable(dataKey, DataAvailabilityStatus.Failed, reason);
-
-    private static bool IsRateLimited(HttpResponseMessage response) =>
-        response.Headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? values)
-        && values.Any(value => string.Equals(value, "0", StringComparison.Ordinal));
 
     private static IReadOnlyDictionary<string, long> NormalizeLanguages(
         IReadOnlyDictionary<string, long> languages)

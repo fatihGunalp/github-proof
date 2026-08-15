@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -144,37 +143,12 @@ public sealed class GitHubRepositoryMetadataCollector : IGitHubRepositoryMetadat
 
     private static GitHubRepositoryMetadataCollection CreateUnavailableResult(
         HttpResponseMessage response)
-    {
-        (DataAvailabilityStatus status, string reason) = response.StatusCode switch
-        {
-            HttpStatusCode.NotFound => (
-                DataAvailabilityStatus.Unavailable,
-                "Repository was not found or is not publicly accessible."),
-            HttpStatusCode.Forbidden when IsRateLimited(response) => (
-                DataAvailabilityStatus.RateLimited,
-                "GitHub rate limit was reached while retrieving repository metadata."),
-            HttpStatusCode.TooManyRequests => (
-                DataAvailabilityStatus.RateLimited,
-                "GitHub rate limit was reached while retrieving repository metadata."),
-            HttpStatusCode.Forbidden => (
-                DataAvailabilityStatus.Forbidden,
-                "GitHub denied access to repository metadata."),
-            _ => (
-                DataAvailabilityStatus.Failed,
-                $"GitHub returned HTTP {(int)response.StatusCode} ({response.StatusCode}).")
-        };
-
-        return new GitHubRepositoryMetadataCollection(
+        => new(
             Repository: null,
             Metadata: null,
             Topics: Array.Empty<string>(),
             License: null,
-            DataAvailability.Unavailable(MetadataDataKey, status, reason));
-    }
-
-    private static bool IsRateLimited(HttpResponseMessage response) =>
-        response.Headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? values)
-        && values.Any(value => string.Equals(value, "0", StringComparison.Ordinal));
+            GitHubApiAvailability.FromFailureResponse(response, MetadataDataKey));
 
     private static GitHubRepositoryMetadataCollection CreateFailedResult(string reason) =>
         new(
