@@ -42,7 +42,7 @@ public sealed partial class ValidationRepositoryManifestTests
             Assert.Equal(
                 $"https://github.com/{repository.Owner}/{repository.Name}",
                 repository.Url);
-            Assert.Equal("Pending", repository.ManualReviewStatus);
+            Assert.Contains(repository.ManualReviewStatus, new[] { "Pending", "Completed" });
             Assert.NotEmpty(repository.ExpectedEdgeCases);
             Assert.False(string.IsNullOrWhiteSpace(repository.Notes));
         }

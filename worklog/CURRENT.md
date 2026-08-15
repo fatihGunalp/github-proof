@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: All 15 signals, Application orchestration, and the first frozen validation run are complete; Phase 3 final exit validation is next.
+Focus: No active meaningful session. Historical-ref content collection is complete; Session 039 can be explicitly resumed.
 ```
 
 ---
@@ -39,7 +39,7 @@ No active task.
 ## In Progress
 
 ```text
-None.
+NONE
 ```
 
 ## Current Problem
@@ -51,45 +51,43 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Start Session 038 — Phase 3 Final Integration / Exit Validation after its mandatory model gate.
+Resume Session 039 only on explicit user continuation, using c3eea5bec401935206d4697d0c73af950514c1ac without current-HEAD substitution.
 ```
 
 ## Working Set
 
 ```text
-Session 037 frozen manifest, 10-repository live artifacts, and deterministic analyzer coverage.
+Session 040 PASS: explicit historical commit content collection is available. Session 039 remains BLOCKED pending explicit resume; its target SHA is preserved. Session 038 baseline remains immutable at 150 comparisons and 92.00% acceptance.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: c7c2bb6
-Last verified working tree: CLEAN before Session 037
+Last verified HEAD: 2552fda
+Last verified working tree: CLEAN before Session 038
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 037 — Validation Repository Set + Determinism: PASS
+Session 040 — Historical-Ref Repository Content Collection: PASS
 
-- Froze 10 distinct public validation repositories at real default/head commit SHAs.
-- Ran the opt-in collection → snapshot → 15-signal pipeline successfully for all 10 repositories.
-- Proved two fixed-time analyses of the same snapshot have zero semantic differences.
-- Added per-repository validation-only artifacts while leaving all human review statuses `Pending`.
+- Added explicit 40-character commit SHA content collection without changing the default-HEAD path.
+- Pinned tree, project/test files, workflows, docs, README, and license evidence while preserving live/non-atomic GitHub sections.
+- Added fail-fast/no-fallback behavior and snapshot warnings for the frozen-ref/live boundary.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at c7c2bb6, clean before Session 037
-Manifest/schema tests: PASS — 2 passed
-Opt-in live validation: PASS — 10 repositories, 150 signals, 0 semantic differences
+Repository baseline: PASS — main at 2552fda; pre-existing Session 038/039 changes preserved
+Historical-ref collection tests: PASS — explicit SHA, invalid/nonexistent SHA, no fallback, default-HEAD regression
 Domain tests: PASS — 420 passed
 Application tests: PASS — 10 passed
-Infrastructure tests: PASS — 90 passed
-Solution tests: PASS — 520 passed
+Infrastructure tests: PASS — 101 passed
+Solution tests: PASS — 531 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS

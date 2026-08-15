@@ -136,6 +136,23 @@ RepositorySnapshot
 - Hangi veri alanlarının başarıyla toplandığını görünür hâle getirmek
 - Veri toplama sırasında oluşan uyarıları taşımak
 
+### Explicit content commit referansı
+
+Repository collection isteği explicit ve tam bir commit SHA içerdiğinde ref-pinlenebilir content evidence bu commit üzerinden okunur:
+
+- file tree
+- project/dependency ve test-structure için kullanılan repository dosyaları
+- workflow dosyaları
+- `docs/**/*.md` documentation corpus'u
+- README
+- license endpoint'inden gelen lisans ve lisans dosyası kanıtı
+
+Bu durumda `RepositorySnapshot.HeadCommitSha`, content evidence'ın bağlandığı requested commit SHA'yı taşır. Explicit SHA verilmezse mevcut davranış korunur ve content evidence collection başında çözülen default-branch HEAD'e bağlanır.
+
+Metadata, languages, commit history, issues, pull requests, releases, tags ve contributors historical state olarak yeniden oluşturulmaz; collection zamanındaki live GitHub state'inden gelir. Snapshot `CollectionWarnings` içinde hangi content evidence'ın requested commit'e pinlendiğini ve hangi alanların live/non-atomic kaldığını açıkça belirtmelidir.
+
+Geçersiz biçimli commit SHA API isteğinden önce reddedilir. Biçimi geçerli ancak repository'de bulunmayan veya alınamayan requested commit için current HEAD'e sessiz fallback yapılamaz; collection fail-fast olmalı veya ilgili veri açık `DataAvailability` failure semantiğiyle temsil edilmelidir.
+
 ### Lisans kanıtı
 
 `License`, provider tarafından tanınmış normalize lisans metadata'sını temsil eder.

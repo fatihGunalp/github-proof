@@ -54,7 +54,22 @@ public sealed class GitHubRepositorySnapshotOrchestrator
 
     public async Task<GitHubRepositorySnapshotResult> CollectAsync(
         string repositoryUrl,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        await CollectAsync(repositoryUrl, contentReference: null, cancellationToken);
+
+    public async Task<GitHubRepositorySnapshotResult> CollectAtCommitAsync(
+        string repositoryUrl,
+        string commitSha,
+        CancellationToken cancellationToken = default) =>
+        await CollectAsync(
+            repositoryUrl,
+            GitHubCommitReference.Parse(commitSha),
+            cancellationToken);
+
+    private async Task<GitHubRepositorySnapshotResult> CollectAsync(
+        string repositoryUrl,
+        GitHubCommitReference? contentReference,
+        CancellationToken cancellationToken)
     {
         GitHubRepositoryUrl repository = GitHubRepositoryUrl.Parse(repositoryUrl);
         GitHubRepositoryMetadataCollection metadata = await metadataCollector.CollectAsync(
@@ -78,11 +93,27 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryContentsCollection contents = await contentsCollector.CollectAsync(
             repository,
             metadata,
+            contentReference,
             cancellationToken);
+
+        if (contentReference is not null
+            && !string.Equals(
+                contents.HeadCommitSha,
+                contentReference.CommitSha,
+                StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Repository content at requested commit SHA '{contentReference.CommitSha}' "
+                + $"could not be collected ({contents.FileTreeAvailability.Status}: "
+                + $"{contents.FileTreeAvailability.Reason}). "
+                + "The collector will not fall back to the current default-branch HEAD.");
+        }
+
         GitHubRepositoryDescriptiveDataCollection descriptive =
             await descriptiveDataCollector.CollectAsync(
                 repository,
                 metadata,
+                contentReference,
                 cancellationToken);
         GitHubRepositoryCommitCollection commits = await commitCollector.CollectAsync(
             repository,
@@ -144,7 +175,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 pullRequests,
                 releases,
                 tags,
-                contributors),
+                contributors,
+                contentReference),
             MapTags(tags.Tags),
             descriptive.LicenseFile,
             contents.DocumentationMarkdownFiles);
@@ -259,7 +291,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryPullRequestCollection pullRequests,
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
-        GitHubRepositoryContributorCollection contributors)
+        GitHubRepositoryContributorCollection contributors,
+        GitHubCommitReference? contentReference)
     {
         List<string> warnings =
         [
@@ -274,7 +307,9 @@ public sealed class GitHubRepositorySnapshotOrchestrator
 
         if (contents.HeadCommitSha is not null)
         {
-            warnings.Add(SnapshotConsistencyWarning);
+            warnings.Add(contentReference is null
+                ? SnapshotConsistencyWarning
+                : $"Repository file tree, project files, workflows, documentation Markdown, README, and license evidence were collected from requested commit SHA '{contentReference.CommitSha}'. Metadata, languages, commits, issues, pull requests, releases, tags, and contributors were collected from live GitHub state and may not be atomic with that commit.");
         }
 
         return warnings;

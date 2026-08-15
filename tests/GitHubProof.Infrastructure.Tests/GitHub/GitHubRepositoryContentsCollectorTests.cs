@@ -9,6 +9,9 @@ namespace GitHubProof.Infrastructure.Tests.GitHub;
 
 public sealed class GitHubRepositoryContentsCollectorTests
 {
+    private const string HistoricalCommitSha =
+        "c3eea5bec401935206d4697d0c73af950514c1ac";
+
     [Fact]
     public async Task CollectAsync_PinsTreeAndSelectedContentsToTheResolvedDefaultBranchHead()
     {
@@ -52,6 +55,60 @@ public sealed class GitHubRepositoryContentsCollectorTests
         Assert.Contains("/git/commits/head-sha", handler.RequestUris[1].AbsolutePath);
         Assert.Contains("/git/trees/root-tree-sha", handler.RequestUris[2].AbsolutePath);
         Assert.All(handler.RequestUris.Skip(3), uri => Assert.Contains("ref=head-sha", uri.Query));
+    }
+
+    [Fact]
+    public async Task CollectAsync_PinsTreeAndSelectedContentsToExplicitCommitWithoutResolvingHead()
+    {
+        QueueHttpMessageHandler handler = new(
+            CommitResponse("historical-root-tree"),
+            TreeResponse("""
+                [
+                  { "path": "package.json", "type": "blob", "size": 12 },
+                  { "path": "tests/app.test.js", "type": "blob", "size": 10 },
+                  { "path": ".github/workflows/ci.yml", "type": "blob", "size": 18 },
+                  { "path": "docs/setup.md", "type": "blob", "size": 20 }
+                ]
+                """),
+            ContentResponse("package.json", "{}"),
+            ContentResponse(".github/workflows/ci.yml", "run: npm test"),
+            ContentResponse("docs/setup.md", "# Setup"));
+        GitHubRepositoryContentsCollector collector = CreateCollector(handler);
+
+        GitHubRepositoryContentsCollection result = await collector.CollectAsync(
+            RepositoryUrl,
+            AvailableMetadata(),
+            GitHubCommitReference.Parse(HistoricalCommitSha));
+
+        Assert.Equal(HistoricalCommitSha, result.HeadCommitSha);
+        Assert.Contains("/git/commits/" + HistoricalCommitSha, handler.RequestUris[0].AbsolutePath);
+        Assert.DoesNotContain(
+            handler.RequestUris,
+            uri => uri.AbsolutePath.Contains("/git/ref/heads/", StringComparison.Ordinal));
+        Assert.All(
+            handler.RequestUris.Skip(2),
+            uri => Assert.Contains("ref=" + HistoricalCommitSha, uri.Query));
+        Assert.Contains(result.FileTree.Items, file => file.Path == "tests/app.test.js");
+        Assert.Equal("run: npm test", Assert.Single(result.Workflows.Items).Content);
+        Assert.Equal("# Setup", Assert.Single(result.DocumentationMarkdownFiles.Items).Content);
+    }
+
+    [Fact]
+    public async Task CollectAsync_RepresentsNonexistentExplicitCommitAsUnavailableWithoutHeadFallback()
+    {
+        QueueHttpMessageHandler handler = new(new HttpResponseMessage(HttpStatusCode.NotFound));
+        GitHubRepositoryContentsCollector collector = CreateCollector(handler);
+
+        GitHubRepositoryContentsCollection result = await collector.CollectAsync(
+            RepositoryUrl,
+            AvailableMetadata(),
+            GitHubCommitReference.Parse(HistoricalCommitSha));
+
+        Assert.Null(result.HeadCommitSha);
+        Assert.Equal(DataAvailabilityStatus.Unavailable, result.FileTreeAvailability.Status);
+        Assert.Single(handler.RequestUris);
+        Assert.Contains("/git/commits/" + HistoricalCommitSha, handler.RequestUris[0].AbsolutePath);
+        Assert.DoesNotContain("/git/ref/heads/", handler.RequestUris[0].AbsolutePath);
     }
 
     [Fact]

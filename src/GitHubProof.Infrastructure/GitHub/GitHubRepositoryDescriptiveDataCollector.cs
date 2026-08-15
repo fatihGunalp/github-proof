@@ -38,6 +38,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
     public async Task<GitHubRepositoryDescriptiveDataCollection> CollectAsync(
         GitHubRepositoryUrl repository,
         GitHubRepositoryMetadataCollection metadata,
+        GitHubCommitReference? contentReference = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(repository);
@@ -50,9 +51,11 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
 
         EndpointResult<RepositoryReadme> readme = await CollectReadmeAsync(
             repository,
+            contentReference,
             cancellationToken);
         EndpointResult<LicenseData> license = await CollectLicenseAsync(
             repository,
+            contentReference,
             cancellationToken);
         EndpointResult<IReadOnlyDictionary<string, long>> languages =
             await CollectLanguagesAsync(repository, cancellationToken);
@@ -67,6 +70,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
 
     private async Task<EndpointResult<RepositoryReadme>> CollectReadmeAsync(
         GitHubRepositoryUrl repository,
+        GitHubCommitReference? contentReference,
         CancellationToken cancellationToken)
     {
         try
@@ -74,6 +78,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
             using HttpResponseMessage response = await SendAsync(
                 repository,
                 "readme",
+                contentReference,
                 cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -144,6 +149,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
 
     private async Task<EndpointResult<LicenseData>> CollectLicenseAsync(
         GitHubRepositoryUrl repository,
+        GitHubCommitReference? contentReference,
         CancellationToken cancellationToken)
     {
         try
@@ -151,6 +157,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
             using HttpResponseMessage response = await SendAsync(
                 repository,
                 "license",
+                contentReference,
                 cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -232,6 +239,7 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
             using HttpResponseMessage response = await SendAsync(
                 repository,
                 "languages",
+                contentReference: null,
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
@@ -286,11 +294,20 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
     private async Task<HttpResponseMessage> SendAsync(
         GitHubRepositoryUrl repository,
         string endpoint,
+        GitHubCommitReference? contentReference,
         CancellationToken cancellationToken)
     {
+        string relativeUri =
+            $"repos/{Uri.EscapeDataString(repository.Owner)}/{Uri.EscapeDataString(repository.Name)}/{endpoint}";
+
+        if (contentReference is not null)
+        {
+            relativeUri += $"?ref={Uri.EscapeDataString(contentReference.CommitSha)}";
+        }
+
         using HttpRequestMessage request = new(
             HttpMethod.Get,
-            $"repos/{Uri.EscapeDataString(repository.Owner)}/{Uri.EscapeDataString(repository.Name)}/{endpoint}");
+            relativeUri);
 
         request.Headers.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));

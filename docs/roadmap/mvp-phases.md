@@ -166,6 +166,8 @@ Public bir GitHub repository'sinden MVP için gereken verileri güvenilir ve nor
 - Arşivlenmiş repository kontrolü
 - Büyük repository sınırları
 - API cevaplarının normalize edilmesi
+- Default HEAD davranışını koruyan, ref-pinlenebilir repository içerikleri için explicit commit SHA collection desteği
+- Historical commit isteğinde ref-pinli content ile live/non-atomic GitHub alanlarının snapshot uyarılarında ayrıştırılması
 
 ### Bu fazda yapılmayacaklar
 

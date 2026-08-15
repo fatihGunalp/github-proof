@@ -5,6 +5,7 @@ public interface IGitHubRepositoryDescriptiveDataCollector
     Task<GitHubRepositoryDescriptiveDataCollection> CollectAsync(
         GitHubRepositoryUrl repository,
         GitHubRepositoryMetadataCollection metadata,
+        GitHubCommitReference? contentReference = null,
         CancellationToken cancellationToken = default);
 }
 
@@ -61,5 +62,6 @@ public interface IGitHubRepositoryContentsCollector
     Task<GitHubRepositoryContentsCollection> CollectAsync(
         GitHubRepositoryUrl repository,
         GitHubRepositoryMetadataCollection metadata,
+        GitHubCommitReference? contentReference = null,
         CancellationToken cancellationToken = default);
 }

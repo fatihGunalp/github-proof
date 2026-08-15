@@ -10,6 +10,9 @@ namespace GitHubProof.Infrastructure.Tests.GitHub;
 
 public sealed class GitHubRepositoryDescriptiveDataCollectorTests
 {
+    private const string HistoricalCommitSha =
+        "c3eea5bec401935206d4697d0c73af950514c1ac";
+
     [Fact]
     public async Task CollectAsync_NormalizesReadmeLicenseAndLanguages()
     {
@@ -67,6 +70,44 @@ public sealed class GitHubRepositoryDescriptiveDataCollectorTests
                 "/repos/octocat/hello-world/languages"
             ],
             handler.RequestPaths);
+    }
+
+    [Fact]
+    public async Task CollectAsync_PinsReadmeAndLicenseToExplicitCommitButKeepsLanguagesLive()
+    {
+        QueueHttpMessageHandler handler = new(
+            JsonResponse("""
+                {
+                  "path": "README.md",
+                  "content": "IyBIaXN0b3JpY2Fs",
+                  "encoding": "base64"
+                }
+                """),
+            JsonResponse("""
+                {
+                  "path": "LICENSE",
+                  "size": 1080,
+                  "license": {
+                    "key": "mit",
+                    "name": "MIT License",
+                    "spdx_id": "MIT"
+                  }
+                }
+                """),
+            JsonResponse("{ \"Go\": 1200 }"));
+        GitHubRepositoryDescriptiveDataCollector collector = CreateCollector(handler);
+
+        GitHubRepositoryDescriptiveDataCollection result = await collector.CollectAsync(
+            RepositoryUrl,
+            AvailableMetadata(),
+            GitHubCommitReference.Parse(HistoricalCommitSha));
+
+        Assert.Equal("# Historical", result.Readme!.Content);
+        Assert.Equal("MIT", result.License!.SpdxIdentifier);
+        Assert.Equal(1200, result.Languages["Go"]);
+        Assert.Equal("?ref=" + HistoricalCommitSha, handler.RequestUris[0].Query);
+        Assert.Equal("?ref=" + HistoricalCommitSha, handler.RequestUris[1].Query);
+        Assert.Empty(handler.RequestUris[2].Query);
     }
 
     [Fact]
@@ -236,10 +277,13 @@ public sealed class GitHubRepositoryDescriptiveDataCollectorTests
 
         public List<string> RequestPaths { get; } = [];
 
+        public List<Uri> RequestUris { get; } = [];
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            RequestUris.Add(request.RequestUri!);
             RequestPaths.Add(request.RequestUri!.AbsolutePath);
 
             return responses.Dequeue() switch

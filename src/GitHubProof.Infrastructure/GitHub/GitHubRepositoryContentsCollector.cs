@@ -41,6 +41,7 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
     public async Task<GitHubRepositoryContentsCollection> CollectAsync(
         GitHubRepositoryUrl repository,
         GitHubRepositoryMetadataCollection metadata,
+        GitHubCommitReference? contentReference = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(repository);
@@ -54,6 +55,7 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
         TreeResult tree = await CollectTreeAsync(
             repository,
             metadata.Repository.DefaultBranch,
+            contentReference,
             cancellationToken);
 
         if (tree.Availability is not null)
@@ -119,29 +121,39 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
     private async Task<TreeResult> CollectTreeAsync(
         GitHubRepositoryUrl repository,
         string defaultBranch,
+        GitHubCommitReference? contentReference,
         CancellationToken cancellationToken)
     {
         try
         {
-            using HttpResponseMessage referenceResponse = await SendAsync(
-                $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/ref/heads/{EscapeRepositorySegment(defaultBranch)}",
-                cancellationToken);
+            string headCommitSha;
 
-            if (referenceResponse.StatusCode == HttpStatusCode.Conflict
-                && await IsEmptyRepositoryResponseAsync(referenceResponse, cancellationToken))
+            if (contentReference is null)
             {
-                return TreeResult.Empty;
-            }
+                using HttpResponseMessage referenceResponse = await SendAsync(
+                    $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/ref/heads/{EscapeRepositorySegment(defaultBranch)}",
+                    cancellationToken);
 
-            if (!referenceResponse.IsSuccessStatusCode)
+                if (referenceResponse.StatusCode == HttpStatusCode.Conflict
+                    && await IsEmptyRepositoryResponseAsync(referenceResponse, cancellationToken))
+                {
+                    return TreeResult.Empty;
+                }
+
+                if (!referenceResponse.IsSuccessStatusCode)
+                {
+                    return TreeResult.Failed(
+                        GitHubApiAvailability.FromFailureResponse(referenceResponse, FileTreeDataKey));
+                }
+
+                GitHubReferenceResponse? reference = await referenceResponse.Content
+                    .ReadFromJsonAsync<GitHubReferenceResponse>(JsonOptions, cancellationToken);
+                headCommitSha = RequireValue(reference?.Object?.Sha, "reference.object.sha");
+            }
+            else
             {
-                return TreeResult.Failed(
-                    GitHubApiAvailability.FromFailureResponse(referenceResponse, FileTreeDataKey));
+                headCommitSha = contentReference.CommitSha;
             }
-
-            GitHubReferenceResponse? reference = await referenceResponse.Content
-                .ReadFromJsonAsync<GitHubReferenceResponse>(JsonOptions, cancellationToken);
-            string headCommitSha = RequireValue(reference?.Object?.Sha, "reference.object.sha");
 
             using HttpResponseMessage commitResponse = await SendAsync(
                 $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/commits/{EscapeRepositorySegment(headCommitSha)}",

@@ -8,6 +8,8 @@ namespace GitHubProof.Infrastructure.Tests.GitHub;
 
 public sealed class GitHubRepositorySnapshotOrchestratorTests
 {
+    private const string HistoricalCommitSha =
+        "c3eea5bec401935206d4697d0c73af950514c1ac";
     private static readonly DateTimeOffset CapturedAt =
         DateTimeOffset.Parse("2026-08-15T09:30:00Z");
 
@@ -88,6 +90,82 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             snapshot.FindAvailability("documentation-markdown")!.Status);
         Assert.Single(snapshot.CollectionWarnings);
         Assert.Contains("may not be atomic", snapshot.CollectionWarnings[0]);
+        Assert.Null(collectors.ContentsReference);
+        Assert.Null(collectors.DescriptiveReference);
+    }
+
+    [Fact]
+    public async Task CollectAtCommitAsync_PinsContentCollectorsAndKeepsLiveSectionsUnchanged()
+    {
+        StubCollectors collectors = new();
+        collectors.Contents = collectors.Contents with
+        {
+            HeadCommitSha = HistoricalCommitSha
+        };
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAtCommitAsync(
+                "https://github.com/octocat/hello-world",
+                HistoricalCommitSha);
+
+        RepositorySnapshot snapshot = Assert.IsType<RepositorySnapshot>(result.Snapshot);
+
+        Assert.Equal(HistoricalCommitSha, snapshot.HeadCommitSha);
+        Assert.Equal(HistoricalCommitSha, collectors.ContentsReference!.CommitSha);
+        Assert.Equal(HistoricalCommitSha, collectors.DescriptiveReference!.CommitSha);
+        Assert.Equal(
+            [
+                "metadata",
+                "contents",
+                "descriptive",
+                "commits",
+                "issues",
+                "pull-requests",
+                "releases",
+                "tags",
+                "contributors"
+            ],
+            collectors.Calls);
+        Assert.Contains(
+            snapshot.CollectionWarnings,
+            warning => warning.Contains("requested commit SHA", StringComparison.Ordinal)
+                && warning.Contains("live GitHub state", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectAtCommitAsync_FailsFastWhenExplicitCommitCannotBeCollected()
+    {
+        StubCollectors collectors = new();
+        collectors.Contents = collectors.Contents with
+        {
+            HeadCommitSha = null,
+            FileTreeAvailability = Unavailable(
+                "file-tree",
+                DataAvailabilityStatus.Unavailable,
+                "Commit not found.")
+        };
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => CreateOrchestrator(collectors).CollectAtCommitAsync(
+                "https://github.com/octocat/hello-world",
+                HistoricalCommitSha));
+
+        Assert.Contains("will not fall back", exception.Message, StringComparison.Ordinal);
+        Assert.Equal(["metadata", "contents"], collectors.Calls);
+        Assert.Null(collectors.DescriptiveReference);
+    }
+
+    [Fact]
+    public async Task CollectAtCommitAsync_RejectsInvalidCommitBeforeCallingGitHubCollectors()
+    {
+        StubCollectors collectors = new();
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => CreateOrchestrator(collectors).CollectAtCommitAsync(
+                "https://github.com/octocat/hello-world",
+                "not-a-full-commit-sha"));
+
+        Assert.Empty(collectors.Calls);
     }
 
     [Fact]
@@ -409,6 +487,10 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
 
         public GitHubRepositoryUrl? Repository { get; private set; }
 
+        public GitHubCommitReference? ContentsReference { get; private set; }
+
+        public GitHubCommitReference? DescriptiveReference { get; private set; }
+
         public GitHubRepositoryMetadataCollection Metadata { get; set; }
 
         public GitHubRepositoryContentsCollection Contents { get; set; }
@@ -438,18 +520,22 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Task<GitHubRepositoryContentsCollection> IGitHubRepositoryContentsCollector.CollectAsync(
             GitHubRepositoryUrl repository,
             GitHubRepositoryMetadataCollection metadata,
+            GitHubCommitReference? contentReference,
             CancellationToken cancellationToken)
         {
             Record("contents", repository);
+            ContentsReference = contentReference;
             return Task.FromResult(Contents);
         }
 
         Task<GitHubRepositoryDescriptiveDataCollection> IGitHubRepositoryDescriptiveDataCollector.CollectAsync(
             GitHubRepositoryUrl repository,
             GitHubRepositoryMetadataCollection metadata,
+            GitHubCommitReference? contentReference,
             CancellationToken cancellationToken)
         {
             Record("descriptive", repository);
+            DescriptiveReference = contentReference;
             return Task.FromResult(Descriptive);
         }
 

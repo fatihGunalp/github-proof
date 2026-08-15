@@ -46,6 +46,9 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Homepage Contract Fix and Portfolio Evaluators | PASS | Sol / high | [035](./sessions/2026-08-15-035-homepage-contract-and-portfolio-signals.md) | 14f4d48 |
 | 2026-08-15 | Application Signal Orchestration and Presentation Completeness | PASS | Sol / high | [036](./sessions/2026-08-15-036-application-signal-orchestration.md) | 715114a |
 | 2026-08-15 | Validation Repository Set and Determinism | PASS | Sol / high | [037](./sessions/2026-08-15-037-validation-repository-set-and-determinism.md) | c7c2bb6 |
+| 2026-08-15 | Human Review and Automated Comparison | PASS | Terra / medium | [038](./sessions/2026-08-15-038-human-review-and-comparison.md) | 2552fda |
+| 2026-08-15 | AI-Era Non-Gating Exploratory Validation | BLOCKED | Sol / high | [039](./sessions/2026-08-15-039-ai-era-exploratory-validation.md) | 2552fda |
+| 2026-08-15 | Historical-Ref Repository Content Collection | PASS | Sol / high | [040](./sessions/2026-08-15-040-historical-ref-content-collection.md) | 2552fda |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
