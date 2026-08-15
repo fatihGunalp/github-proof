@@ -177,6 +177,14 @@ Yalnız ilk 16 eligible Ordinal candidate selection scope'a girer. Tree size nul
 
 File-count, size, total-budget veya tree-truncation sınırına takılmak collection'ı incomplete yapar ancak API availability'yi otomatik unavailable yapmaz. Content request failure gerçek `RateLimited`, `Forbidden` veya `Failed` availability durumunu korur ve önceki başarılı items kaybedilmez. Complete tree içinde eligible dosya bulunmaması `Available`, complete ve empty corpus'tur.
 
+### Usage/demo documentation corpus kanıtı
+
+`documentation.usage-or-demo` aynı normalize README ve bounded `DocumentationMarkdown` corpus'unu kullanır. `RepositoryMetadata.Homepage` yalnız documentation source içindeki explicit live-demo link'in target'ını corroborate etmek için kullanılır; homepage tek başına Usage/Demo evidence değildir.
+
+Markdown linkleri, image referansları ve fenced code block'lar ayrı snapshot field gerektirmez; README/docs content'i içindeki provider-independent Markdown syntax'inden deterministik olarak ayrıştırılır.
+
+`readme` ile `documentation-markdown` availability/completeness değerleri lower sonuçların güvenilirliğini belirler. `metadata` availability yalnız homepage corroboration'ı exact Usage/Demo sonucunu değiştirebilecekse zorunludur. Remote link health, DNS veya HTTP status sonucu snapshot'a eklenmez ve MVP v1 Usage/Demo sinyali tarafından zorunlu olarak doğrulanmaz.
+
 ### Kural
 
 Snapshot eksik olabilir.

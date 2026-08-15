@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Four deterministic evaluators are complete; Usage/Demo implementation is blocked on canonical corpus and semantic rules.
+Focus: Four production evaluators are complete; the Usage/Demo Version 1 contract is executable and evaluator implementation is next.
 ```
 
 ---
@@ -45,52 +45,55 @@ None.
 ## Current Problem
 
 ```text
-`documentation.usage-or-demo` Version 1 is not executable: corpus scope conflicts and usage/demo/visual/link classification rules are underdefined.
+None currently confirmed.
 ```
 
 ## Next Immediate Action
 
 ```text
-Define the canonical Version 1 Usage/Demo corpus and deterministic semantic contract before evaluator implementation.
+Session 029 — Usage/Demo Signal Evaluator.
 ```
 
 ## Working Set
 
 ```text
-Session 027 worklog changes only; production and test code are unchanged.
+Session 028 canonical docs and worklog changes only; production and test code are unchanged.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 30640fc
-Last verified working tree: Session 027 worklog changes only
+Last verified HEAD: 7641cc6
+Last verified working tree: Session 028 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 027 — Usage/Demo Signal Contract Audit: BLOCKED
+Session 028 — Usage/Demo Semantic Contract: PASS
 
-- Confirmed normalized README content, homepage metadata, Markdown syntax, and availability are carried in the snapshot.
-- Found a canonical corpus contradiction between README-only RequiredData and README-or-documentation evidence scope.
-- Confirmed usage command, request/response, code/output, screenshot, video, demo, brittle-link, and Strong aggregation rules are not executable.
-- Confirmed this signal has no bounded RequiresHumanReview triggers or complete status precedence.
-- Made no production, test, canonical docs, snapshot, collector, or dependency changes.
+- Locked README + bounded docs Markdown corpus and conditional homepage corroboration.
+- Defined exact usage/demo headings, section boundaries, clear usage examples, and false positives.
+- Defined deterministic screenshot, video, live-demo, brittle-link, and evidence-distinctness rules.
+- Locked Strong/Present/Partial/Missing/UnavailableEvidence/RequiresHumanReview precedence.
+- Confirmed existing snapshot evidence is sufficient; no production model or collector change is required.
+- Preserved Version 1, scores, overall inclusion, and remote-health limitations.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 30640fc, clean before Session 027
-Raw data representation audit: PASS
-Canonical corpus consistency audit: BLOCKED
-Semantic determinism audit: BLOCKED
-Production tests/build/format: NOT RUN — audit-only session with no production/test changes
+Repository baseline: PASS — main at 7641cc6, clean before Session 028
+Canonical contradiction review: PASS
+Contract review matrix: PASS — 18/18 YES
+Snapshot sufficiency: PASS — no data contract change required
+Canonical consistency review: PASS
+Production/test scope review: PASS — no src/** or tests/** changes
+dotnet test/build/format: NOT RUN — docs-only session
 git diff --check: PASS
-git status --short: Session 027 worklog changes only
+git status --short: Session 028 canonical docs and worklog changes only
 ```
 
 ## Critical Invariants
@@ -118,7 +121,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-Usage/Demo corpus scope and deterministic evidence/status rules require canonical clarification before implementation.
+None currently confirmed.
 ```
 
 ## Git Rule

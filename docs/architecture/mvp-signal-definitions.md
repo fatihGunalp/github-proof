@@ -595,6 +595,7 @@ Key: documentation.usage-or-demo
 Name: Kullanım Örneği veya Demo
 Category: RepositoryUnderstandability
 MaximumScore: 7
+IncludeInOverallScore: true
 Version: 1
 ~~~
 
@@ -602,40 +603,353 @@ Version: 1
 
 Repository sonucunun veya kullanım biçiminin görünür bir örnekle sunulup sunulmadığını değerlendirmek.
 
-### Gerekli veri
+### Sürüm kararı
 
-- README
-- Repository homepage
-- Markdown bağlantıları
-- Görsel referansları
-- Kod blokları
-- Veri erişilebilirlik durumu
+Bu bölüm, henüz yayımlanmış bir analyzer bulunmadan önce `Version: 1` sözleşmesinin corpus ve semantic belirsizliklerini executable hâle getirir. Sinyalin amacı, kanıt sınırı, status değerleri ve skorları değişmez. Bu nedenle `Version: 1` korunur. Bu contract lock sonrasındaki semantic değişikliklerde sinyal `Version` değeri artırılmalıdır.
 
-### Kanıt türleri
+### Gerekli dokümantasyon corpus'u
 
-- Kullanım komutu
-- Örnek istek ve cevap
-- Kod örneği
-- Ekran görüntüsü
-- Video bağlantısı
-- Canlı demo
-- Örnek çıktı
+MVP v1 Usage/Demo corpus'u şunlardan oluşur:
 
-### Değerlendirme
+1. GitHub tarafından normalize edilmiş repository README
+2. RepositorySnapshot içindeki bounded canonical `docs/**/*.md` `DocumentationMarkdown` collection'ı
+3. `RepositoryMetadata.Homepage`, yalnız açık live-demo link corroboration'ı için
 
-- Hem kullanım örneği hem demo veya görsel varsa: `Strong`, 7 puan
-- En az bir açık ve bağlama uygun kullanım örneği varsa: `Present`, 5 puan
-- Yalnızca belirsiz ekran görüntüsü veya kırılgan bağlantı varsa: `Partial`, 4 puan
-- İçerik incelendi ancak örnek bulunamadıysa: `Missing`, 0 puan
-- İçerik alınamadıysa: `UnavailableEvidence`, `Score: null`
+README primary source, `DocumentationMarkdown` fallback/secondary corpus'tur. Docs path, ordering, file-count, decoded-size ve completeness sınırları Kurulum Talimatı bölümündeki canonical `docs/**/*.md` collection contract'ıyla aynıdır.
+
+Markdown linkleri, image referansları ve fenced code block'lar ayrı snapshot alanları değildir; documentation source content'i içinden deterministik olarak ayrıştırılır.
+
+Markdown corpus completeness şu koşulları birlikte gerektirir:
+
+- `readme` availability `Available`
+- `documentation-markdown` availability `Available`
+- `DocumentationMarkdown.IsComplete: true`
+- collection içindeki bütün dosya içeriklerinin değerlendirmeye uygun olması
+
+`metadata` availability yalnız explicit demo-intent link'in homepage ile corroboration'ı exact sonucu değiştirebilecekse zorunludur. Homepage tek başına Usage/Demo kanıtı olmadığı için, ilgili demo-intent link bulunmadığında unavailable metadata Markdown corpus'un güvenilir sonucunu otomatik olarak geçersiz kılmaz.
+
+### Source-local değerlendirme
+
+Her README/docs Markdown source bağımsız değerlendirilir. Farklı dosyalardaki usage ile demo/visual evidence birleştirilerek Frankenstein Strong evidence oluşturulmaz.
+
+`Strong` için aynı coherent documentation source içinde:
+
+~~~text
+en az bir clear usage example
++
+en az bir distinct high-confidence demo/visual evidence
+~~~
+
+bulunmalıdır.
+
+Tek istisna `RepositoryMetadata.Homepage` corroboration'ıdır: aynı source içindeki explicit live-demo link target'ı normalize homepage URL'siyle eşleşirse o source'un link evidence'ı high-confidence live demo olur. Homepage bağımsız bir source veya tek başına demo evidence değildir.
+
+### Canonical usage/example heading'leri
+
+~~~text
+usage
+how to use
+using
+example
+examples
+quick start
+getting started
+kullanım
+nasıl kullanılır
+örnek
+örnekler
+başlangıç
+~~~
+
+Heading matching case-insensitive ve ordinal/invariant'dır. Leading/trailing whitespace, ATX opening marker ve optional trailing ATX `#` decoration yok sayılır; kalan text exact candidate olmalıdır. Fuzzy, typo, NLP, embedding veya semantic heading matching yapılmaz.
+
+ATX ve Setext heading biçimleri desteklenir. Fenced code block içindeki heading-benzeri satırlar heading değildir. Matched section body, heading sonrasından aynı veya daha yüksek seviyedeki sonraki heading'e kadar sürer; daha düşük seviyeli subsection'lar dahildir.
+
+### Clear usage example
+
+Bir source yalnız exact usage/example section içinde aşağıdaki yapılardan en az birini taşıyorsa clear usage example üretir.
+
+#### Non-empty fenced code example
+
+Fenced block en az üç aynı backtick veya tilde ile açılmalı, aynı karakterle ve en az opening uzunluğunda kapanmalı ve en az bir meaningful content satırı taşımalıdır.
+
+Meaningful satır trim sonrasında alphanumeric content taşır ve yalnız comment/metadata değildir. Bütün non-empty satırları aşağıdaki gruplardan oluşan fence clear usage değildir:
+
+- Comment-only satırlar: `#`, `//`, `;` veya `<!--` ile başlayan açıklamalar
+- Yalnız dependency/version gösterimi
+- Yalnız environment/config assignment veya config fragment'i
+- Yalnız Kurulum Talimatı contract'ındaki dependency-installation, configuration, build veya migration/preparation operation'ları
+
+Exact sample request/response veya sample output label'ı altındaki non-empty fence bu exclusion'lardan bağımsız olarak example content'tir; label bağlamı evidence türünü açıkça belirler.
+
+#### Ordered Markdown step
+
+Trim sonrasında decimal sayı ve `.` veya `)` marker'ı ile başlayan item, marker sonrasında non-empty content taşımalıdır. Section içindeki ordered items'ın tamamı yalnız dependency installation, configuration, build veya migration/preparation adımlarından oluşuyorsa clear usage sayılmaz.
+
+#### Explicit usage command
+
+MVP v1 canonical command family'leri:
+
+~~~text
+dotnet run [arguments]
+npm start [arguments]
+npm run dev [arguments]
+python <file> [arguments]
+docker compose up [arguments]
+curl <target> [arguments]
+git clone <target> [arguments]
+~~~
+
+`<file>` ve `<target>` non-empty argument gerektirir. `[arguments]` optional'dır. Leading Markdown list marker ve `$` veya `>` shell prompt yok sayılabilir. Command token'ları case-insensitive karşılaştırılır; daha uzun identifier içindeki prefix eşleşme değildir. Bu family'ler yalnız exact usage/example section içinde clear usage evidence üretir.
+
+#### Sample request/response
+
+Canonical exact subsection/label adayları:
+
+~~~text
+request
+response
+example request
+example response
+istek
+yanıt
+örnek istek
+örnek yanıt
+~~~
+
+#### Sample output
+
+Canonical exact subsection/label adayları:
+
+~~~text
+output
+sample output
+result
+example result
+çıktı
+örnek çıktı
+sonuç
+~~~
+
+Label; ATX/Setext subsection heading veya trim sonrasında exact label ve optional tek trailing `:` taşıyan standalone satır olabilir. Label sonrasında, sonraki aynı/yüksek heading veya başka canonical sample label'a kadar en az bir non-empty fenced block, paragraph ya da list content bulunmalıdır. Label-only bölüm evidence değildir.
+
+### Clear usage olmayan içerik
+
+Aşağıdakiler tek başına clear usage example değildir:
+
+- Exact usage/example section dışında arbitrary fenced code block
+- Badge, image veya link
+- Dependency/version snippet
+- Config fragment
+- Installation-only command
+- License veya changelog code
+- Inline identifier
+- Generic prose
+
+Bu sinyal generic “README'de kod var” sinyali değildir. Kurulum Talimatı contract'ındaki dependency-installation, configuration, build veya migration/preparation kanıtı, ayrıca yukarıdaki clear usage kurallarından birini karşılamadıkça Usage/Demo evidence'ı olmaz.
+
+### Canonical demo/visual heading'leri
+
+~~~text
+demo
+live demo
+preview
+screenshots
+screenshot
+canlı demo
+önizleme
+ekran görüntüsü
+ekran görüntüleri
+~~~
+
+Matching, usage heading'leriyle aynı exact case-insensitive ATX/Setext ve section-boundary kurallarını kullanır.
+
+### Screenshot / visual evidence
+
+Well-formed Markdown image aşağıdaki koşullardan biriyle high-confidence visual/demo evidence olur:
+
+1. Exact demo/preview/screenshots section içinde bulunur.
+2. Image alt text veya target filename içinde en az bir positive marker bulunur.
+
+Positive marker'lar:
+
+~~~text
+screenshot
+screen
+preview
+demo
+ui
+interface
+ekran
+arayüz
+önizleme
+~~~
+
+Explicit exclusion marker'ları:
+
+~~~text
+badge
+shield
+logo
+icon
+avatar
+~~~
+
+Alt text ve filename case-insensitive değerlendirilir. Token'lar non-alphanumeric separator'larla ayrılır; `screenshot1` gibi marker + numeric suffix kabul edilir. Target filename, query ve fragment çıkarıldıktan sonraki son path segment'in extension'sız adıdır.
+
+Exclusion marker'ı high-confidence classification'ı geçersiz kılar. Hem positive hem exclusion marker'ı taşıyan well-formed image yalnız bounded ambiguous screenshot candidate olabilir. Yalnız exclusion marker'ı taşıyan veya canonical section/marker taşımayan `![architecture](...)` gibi generic image evidence değildir ve tek başına `Partial` üretmez.
+
+Inline `![alt](target)` ve aynı source içinde çözümlenebilen reference-style `![alt][id]` image desteklenir. Empty/unresolved target high-confidence evidence değildir.
+
+### Video evidence
+
+Well-formed Markdown link veya `<a href="...">label</a>` equivalent link şu target'lardan birini taşımalıdır:
+
+- Host exact `youtube.com`, `youtu.be`, `vimeo.com` veya bunların subdomain'i
+- Query/fragment çıkarılmış target path'inde case-insensitive `.mp4` veya `.webm` extension
+
+Buna ek olarak link:
+
+- exact usage/example veya demo/visual section içinde bulunmalı; veya
+- exact canonical video label taşımalıdır.
+
+Canonical video label'ları:
+
+~~~text
+video
+demo video
+walkthrough
+demo
+tanıtım videosu
+demo videosu
+~~~
+
+Generic YouTube/Vimeo link, section veya label bağlamı olmadan video evidence değildir.
+
+### Live demo ve homepage corroboration
+
+`RepositoryMetadata.Homepage` tek başına live demo değildir.
+
+Live-demo candidate için aynı documentation source içinde external absolute HTTP/HTTPS link ve exact canonical demo-intent label gerekir:
+
+~~~text
+demo
+live demo
+try it
+open app
+launch app
+canlı demo
+uygulamayı aç
+deneyin
+~~~
+
+`Website`, `Docs`, `Documentation` ve `Homepage` generic label'ları live-demo intent değildir.
+
+URL comparison için iki taraf da absolute HTTP/HTTPS URI olmalıdır. Scheme ve host lowercase normalize edilir, default `:80`/`:443` port kaldırılır, empty path `/` kabul edilir, root dışındaki tek trailing `/` kaldırılır, fragment yok sayılır; path case ve query korunur. Normalize demo target, normalize `RepositoryMetadata.Homepage` ile exact eşleşirse high-confidence live-demo evidence oluşur.
+
+Homepage null olsa bile explicit demo-labeled external HTTP/HTTPS link bir demo candidate olabilir; corroboration yoksa aşağıdaki bounded brittle-link kuralına girer.
+
+### Canonical brittle link
+
+MVP v1 remote link health kontrolü yapmaz: HTTP request, DNS veya 404 kontrolü yoktur.
+
+“Brittle link”, link'in bozuk olduğu iddiası değil; demo intent taşıyan fakat homepage ile corroborate edilemeyen ve aynı source içinde başka high-confidence demo/visual evidence ile desteklenmeyen tek başına link candidate anlamına gelir.
+
+~~~text
+[Demo](https://example.com)
++ metadata homepage eşleşmesi yok
++ başka high-confidence demo/visual evidence yok
+-> weak/brittle demo evidence candidate
+~~~
+
+Generic label/target link brittle evidence değildir ve tek başına `Partial` üretmez.
+
+### Evidence distinctness
+
+Evidence identity; source path, matched section ve normalize Markdown node/target/value bileşimidir. Aynı identity usage ve demo/visual evidence olarak iki kez kullanılamaz. Aynı image/link'in tekrarı Strong distinctness'ını artırmaz.
+
+### Status seçim kuralları
+
+#### Strong
+
+Aynı coherent documentation source içinde en az bir clear usage example ile en az bir distinct high-confidence demo/visual evidence varsa `Strong`, 7 puan üretilir. Strong observable maximum sonuçtur; diğer corpus parçaları incomplete/unavailable olsa bile korunur.
+
+#### Present
+
+En az bir clear usage example varsa, fakat hiçbir source-local sonuç Strong değilse ve gerekli Markdown corpus exact lower sonucu belirleyecek kadar complete ise `Present`, 5 puan üretilir. README clear usage + unavailable docs doğrudan Present değildir; eksik docs içinde Strong bulunabileceği için `UnavailableEvidence` uygulanır.
+
+#### Partial
+
+Clear usage example yoksa, required Markdown corpus complete ise ve yalnız bounded weak presentation evidence bulunuyorsa `Partial`, 4 puan üretilir. Bounded weak evidence yalnız:
+
+- Aynı image identity içinde hem positive hem exclusion marker'ı bulunan ambiguous screenshot candidate
+- Uncorroborated canonical demo-intent brittle-link candidate
+
+olabilir. Generic image veya generic link Partial değildir.
+
+#### Missing
+
+README ile required `DocumentationMarkdown` corpus complete biçimde incelenmiş ve clear usage, high-confidence demo/visual ya da bounded weak evidence bulunmamışsa `Missing`, 0 puan üretilir. README-only negative Missing değildir.
+
+#### UnavailableEvidence
+
+Gerekli corpus incomplete/unavailable, terminal Strong yok ve eksik evidence final skoru değiştirebilecek durumdaysa `UnavailableEvidence`, `Score: null` üretilir.
+
+- README clear usage + unavailable docs -> Present değil `UnavailableEvidence`; docs içinde Strong bulunabilir.
+- README no evidence + rate-limited docs -> Missing değil `UnavailableEvidence`.
+- Explicit demo-intent link'in homepage eşleşmesi exact sonucu değiştirebilecek ve metadata unavailable ise `UnavailableEvidence` uygulanır.
+
+#### RequiresHumanReview
+
+`RequiresHumanReview`, `Score: null` yalnız observable malformed Markdown link/image/fence yapısı Partial, Present veya Strong ayrımını gerçekten engelliyorsa kullanılır. Generic semantic uncertainty bucket değildir. Near-match heading, typo, generic image veya unsupported wording tek başına insan incelemesi gerektirmez.
+
+### Repository-level status precedence
+
+~~~text
+1. Strong
+2. RequiresHumanReview — bounded ambiguity exact classification'ı gerçekten engelliyorsa
+3. UnavailableEvidence — incomplete/unavailable evidence exact skoru değiştirebiliyorsa
+4. Present
+5. Partial
+6. Missing
+~~~
+
+Strong observable maximum olduğu için unavailable başka source tarafından geçersiz kılınmaz.
+
+### Score ve Version lock
+
+~~~text
+Strong              -> 7
+Present             -> 5
+Partial             -> 4
+Missing             -> 0
+UnavailableEvidence -> null
+RequiresHumanReview -> null
+Version             -> 1
+IncludeInOverallScore -> true
+~~~
+
+### Evidence kuralları
+
+Full README/docs body `SignalResult` içine kopyalanmaz. Minimum deterministic evidence seçilir:
+
+- Strong: source path, usage evidence type, distinct demo/visual evidence type ve concise representative values
+- Present: source path ve clear usage evidence
+- Partial: weak visual/link evidence ve neden high-confidence olmadığı
+- Missing: README inspection, complete docs corpus, usage count `0`, demo/visual count `0`
+- UnavailableEvidence: exact sonucu engelleyen availability/completeness limitation'ı
+- RequiresHumanReview: malformed/ambiguous source ve bounded reason
 
 ### Öneri
 
-README içerisine projenin nasıl kullanılacağını gösteren kısa bir örnek, ekran görüntüsü veya demo bağlantısı ekleyin.
+- Missing: README veya docs içinde gerçek bir kullanım örneği ekleyin; mümkünse örnek komut, request/response veya sample output gösterin.
+- Partial: Belirsiz demo/görsel kanıtını açık bir kullanım örneği ve net demo/screenshot bağlamıyla tamamlayın.
+- RequiresHumanReview: Belirsiz Markdown kullanım/demo gösterimini açık heading, label ve geçerli Markdown yapısıyla netleştirin.
+- UnavailableEvidence: Kanıtın gerçekten eksik olduğu bilinmediği için repository content değişikliği önermeyin.
 
 ### Sınırlar
 
-Bağlantıların erişilebilirliği MVP'de her zaman doğrulanamayabilir.
+Usage/demo evidence bulunması örneğin gerçekten çalıştığını, demo URL'sinin erişilebilir olduğunu veya ürünün production kalitesini kanıtlamaz. Remote link health bu sinyal tarafından doğrulanmaz.
 
 ---
 
