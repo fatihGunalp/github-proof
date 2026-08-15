@@ -1,0 +1,22 @@
+@page
+
+@{
+    ViewData["Title"] = "GitHub Proof";
+}
+
+<section class="home" aria-labelledby="home-title">
+    <div class="home__content">
+        <p class="home__eyebrow">Observable repository evidence</p>
+
+        <h1 class="home__title" id="home-title">
+            What does this repository prove?
+        </h1>
+
+        <p class="home__summary">
+            Analyze observable engineering evidence from a public GitHub repository.
+            See what is visible, what weakens the evidence, and what to improve first.
+        </p>
+
+        <partial name="_RepositoryInput" />
+    </div>
+</section>

@@ -1,0 +1,28 @@
+<div class="repository-input">
+    <label class="repository-input__label" for="repository-url">
+        Public GitHub repository URL
+    </label>
+
+    <div class="repository-input__control">
+        <input
+            class="input repository-input__field"
+            id="repository-url"
+            name="repositoryUrl"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://github.com/owner/repository"
+            aria-describedby="repository-input-context" />
+
+        <button
+            class="button button--primary repository-input__action"
+            type="button"
+            disabled>
+            Analyze
+        </button>
+    </div>
+
+    <p class="repository-input__context" id="repository-input-context">
+        Public repositories only · 15 deterministic signals · No developer judgment
+    </p>
+</div>

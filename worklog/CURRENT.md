@@ -12,9 +12,9 @@
 
 ~~~text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 4 — Report Generation COMPLETE
-Next Delivery Phase: Phase 5 — Minimal Web UI
-Focus: Session 046 completed deterministic Markdown rendering and Phase 4 exit validation.
+Delivery Phase: Phase 5 — Minimal Web UI IN_PROGRESS
+Next Delivery Phase: Phase 6 — MVP Validation
+Focus: Session 047 — Web Foundation + Semantic UI System.
 ~~~
 
 ---
@@ -22,25 +22,48 @@ Focus: Session 046 completed deterministic Markdown rendering and Phase 4 exit v
 ## Active Session
 
 ~~~text
-NONE
+Session 047 — Web Foundation + Semantic UI System
+worklog/sessions/2026-08-16-047-web-foundation-semantic-ui-system.md
+Result: IN_PROGRESS
+Base HEAD: 89e7be3
+Execution: PowerShell / manual
 ~~~
 
 ## Model Gate State
 
 ~~~text
-NONE
+Manual PowerShell workflow selected by the user after routing discussion.
 ~~~
 
 ## Current Task
 
 ~~~text
-NONE
+Establish the Phase 5 Web foundation and semantic Light/Dark UI system while preserving RepositoryReport as the canonical presentation input.
 ~~~
 
 ## In Progress
 
 ~~~text
-NONE
+Session 047 is active.
+
+Completed checkpoint:
+- Minimal GitHubProof.Web Razor Pages host.
+- GitHubProof.Web.Tests project.
+- Semantic Light / Dark / System token architecture.
+- Typography, spacing, radius, motion, focus, surface and status foundations.
+- Generic Button and Input primitives.
+- CSS semantic-token architecture tests.
+- Canonical repository-URL-only RepositoryInput.
+- Minimal evidence-first Home composition.
+- Browser smoke check completed successfully in Dark mode.
+- Web contract tests PASS 7/7 before full regression validation.
+
+Current UI state:
+Home foundation is functional and visually reviewable.
+Live repository analysis is intentionally not wired yet.
+
+Next:
+Refine Home visual hierarchy before introducing report/status components.
 ~~~
 
 ## Current Problem
@@ -52,14 +75,27 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Start Phase 5 / Session 047 — Minimal Web UI foundation using RepositoryReport as the canonical presentation input.
+Session 047 / Step 5.1 — Home Visual Refinement.
+
+Refine:
+- hero vertical position,
+- content width and visual weight,
+- typography balance,
+- RepositoryInput proportions,
+- disabled Analyze treatment,
+- supporting metadata hierarchy,
+- desktop/mobile spacing.
+
+Do not wire live analysis yet.
 ~~~
 
 ## Working Set
 
 ~~~text
 Phase 3 and Phase 4 are complete.
+Phase 5 / Session 047 is active.
 Sessions 042–046 established evidence-first report architecture, language-neutral semantic truth, deterministic RepositoryAnalysis composition, localized RepositoryReport projection, and deterministic Markdown rendering.
+The Phase 5 UI foundation is guided by github-proof-design-principles-v1.md and github-proof-ui-system-light-dark-v1.md without overriding canonical product/report contracts.
 Session 039 and validation-011 remain exploratory, blocked/non-gating, and outside the current MVP delivery path.
 ~~~
 
@@ -67,9 +103,9 @@ Session 039 and validation-011 remain exploratory, blocked/non-gating, and outsi
 
 ~~~text
 Branch: main
-Session 046 validated baseline: edeff9b
-Live HEAD / commit / push state is intentionally not duplicated here; use Git directly for live repository state.
-Session 046 working tree passed final validation before user-owned commit/push.
+Session 047 base HEAD: 89e7be3
+Pre-existing working tree at session start: CLEAN
+Live HEAD / commit / push state after session start should be read from Git directly.
 ~~~
 
 ## Last Completed Work
@@ -92,13 +128,16 @@ Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 ## Last Validation
 
 ~~~text
-Markdown renderer targeted tests: PASS — 10/10
-Domain tests: PASS — 422/422
-Application tests: PASS — 49/49
-Infrastructure tests: PASS — 101/101
-Total: PASS — 572/572
-Forced rebuild: PASS — 0 warnings, 0 errors
+Session 047 checkpoint validation:
+
+GitHubProof.Web.Tests: PASS — 7/7
+Full solution build: PASS
+Full solution tests: PASS
 dotnet format --verify-no-changes: PASS
+CSS semantic-token boundary: PASS
+Canonical repository URL scope guard: PASS
+Username discovery not introduced: PASS
+Browser smoke check: PASS
 git diff --check: PASS
 ~~~
 

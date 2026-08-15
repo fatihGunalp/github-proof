@@ -1,0 +1,39 @@
+.site-shell {
+    min-height: 100vh;
+}
+
+.site-header {
+    width: min(100% - (2 * var(--space-6)), 72rem);
+    margin-inline: auto;
+    padding-top: var(--space-6);
+}
+
+.site-brand {
+    display: inline-flex;
+    align-items: center;
+    color: var(--fg-primary);
+    font-size: var(--font-size-title);
+    font-weight: var(--font-weight-title);
+    line-height: var(--line-height-title);
+    text-decoration: none;
+}
+
+.site-brand:hover {
+    color: var(--fg-primary);
+}
+
+.site-main {
+    width: min(100% - (2 * var(--space-6)), 72rem);
+    margin-inline: auto;
+}
+
+@media (max-width: 36rem) {
+    .site-header,
+    .site-main {
+        width: min(100% - (2 * var(--space-4)), 72rem);
+    }
+
+    .site-header {
+        padding-top: var(--space-5);
+    }
+}

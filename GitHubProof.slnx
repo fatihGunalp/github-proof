@@ -3,10 +3,12 @@
     <Project Path="src/GitHubProof.Application/GitHubProof.Application.csproj" />
     <Project Path="src/GitHubProof.Domain/GitHubProof.Domain.csproj" />
     <Project Path="src/GitHubProof.Infrastructure/GitHubProof.Infrastructure.csproj" />
+    <Project Path="src/GitHubProof.Web/GitHubProof.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/GitHubProof.Application.Tests/GitHubProof.Application.Tests.csproj" />
     <Project Path="tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj" />
     <Project Path="tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj" />
+    <Project Path="tests/GitHubProof.Web.Tests/GitHubProof.Web.Tests.csproj" />
   </Folder>
 </Solution>
