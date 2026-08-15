@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Four production evaluators are complete; the Usage/Demo Version 1 contract is executable and evaluator implementation is next.
+Focus: Usage/Demo evaluator implementation is blocked by a non-exhaustive canonical status contract.
 ```
 
 ---
@@ -45,55 +45,50 @@ None.
 ## Current Problem
 
 ```text
-None currently confirmed.
+Complete-corpus high-confidence visual/demo-only evidence has no canonical Usage/Demo status.
 ```
 
 ## Next Immediate Action
 
 ```text
-Session 029 — Usage/Demo Signal Evaluator.
+Define the canonical status/score for high-confidence visual/demo evidence without clear usage, then retry the evaluator.
 ```
 
 ## Working Set
 
 ```text
-Session 028 canonical docs and worklog changes only; production and test code are unchanged.
+Session 029 worklog changes only; production, test, and canonical docs are unchanged.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 7641cc6
-Last verified working tree: Session 028 changes only
+Last verified HEAD: 9b1bf85
+Last verified working tree: CLEAN before Session 029
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 028 — Usage/Demo Semantic Contract: PASS
+Session 029 — Usage/Demo Signal Evaluator: BLOCKED — CONTRACT CONTRADICTION
 
-- Locked README + bounded docs Markdown corpus and conditional homepage corroboration.
-- Defined exact usage/demo headings, section boundaries, clear usage examples, and false positives.
-- Defined deterministic screenshot, video, live-demo, brittle-link, and evidence-distinctness rules.
-- Locked Strong/Present/Partial/Missing/UnavailableEvidence/RequiresHumanReview precedence.
-- Confirmed existing snapshot evidence is sufficient; no production model or collector change is required.
-- Preserved Version 1, scores, overall inclusion, and remote-health limitations.
+- Verified the clean main baseline at 9b1bf85 and reloaded the canonical Version 1 contract.
+- Found that high-confidence screenshot/video/live-demo evidence without clear usage matches none of the six statuses.
+- Confirmed the product boundary treats those artifacts as valid positive Usage/Demo evidence.
+- Stopped before production/test implementation rather than choosing an undocumented status or score.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 7641cc6, clean before Session 028
-Canonical contradiction review: PASS
-Contract review matrix: PASS — 18/18 YES
-Snapshot sufficiency: PASS — no data contract change required
-Canonical consistency review: PASS
+Repository baseline: PASS — main at 9b1bf85, clean before Session 029
+Canonical status exhaustiveness review: BLOCKED — visual/demo-only high-confidence state is unclassified
+Cross-document signal-boundary review: PASS
 Production/test scope review: PASS — no src/** or tests/** changes
-dotnet test/build/format: NOT RUN — docs-only session
+dotnet test/build/format: NOT RUN — implementation stopped before code changes
 git diff --check: PASS
-git status --short: Session 028 canonical docs and worklog changes only
 ```
 
 ## Critical Invariants
@@ -121,7 +116,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-None currently confirmed.
+`documentation.usage-or-demo` Version 1 does not define a status for complete-corpus high-confidence visual/demo evidence when clear usage is absent.
 ```
 
 ## Git Rule
