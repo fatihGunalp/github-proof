@@ -277,20 +277,23 @@ Do not wire live repository analysis yet.
 ## Git
 
 ~~~text
-Checkpoint commit:
-227c84f0854427224a50e99aa8681f82a6ecc87b
+Foundation checkpoint:
+227c84f — feat(web): add semantic UI foundation
 
-Checkpoint message:
-feat(web): add semantic UI foundation
+Foundation worklog sync:
+fb1f388 — docs(worklog): sync session 047 checkpoint state
 
-Checkpoint push:
+Home visual refinement checkpoint:
+e2bb09bb67bf182a87fe21d9a12e9c383faec74d — feat(web): refine minimal home experience
+
+Push:
 origin/main — PASS
 
 Session status:
 IN_PROGRESS
 
 Next:
-Step 5.1 — Home Visual Refinement
+StatusBadge + seven canonical evidence-state semantics
 ~~~
 
 ## Completion Checklist
