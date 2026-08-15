@@ -262,7 +262,7 @@ Topics bulunması belirtilen teknolojilerin doğru veya etkin kullanıldığın�
 
 **Kanıt**
 
-Repository homepage alanı veya README içerisinde açık bir demo, ürün ya da dokümantasyon bağlantısı.
+Meaningful repository homepage alanı veya README içerisinde açık bir demo/live-app bağlantısı.
 
 **Olumlu yorum**
 
@@ -271,6 +271,7 @@ Repository'den çalışan ürüne veya ayrıntılı proje kaynağına görünür
 **Sınır**
 
 Bağlantının bulunması erişilebilirliğini, güncelliğini veya ürün kalitesini garanti etmez.
+Documentation-only destination ve generic README linki bu sinyal için tek başına kanıt değildir.
 
 ---
 

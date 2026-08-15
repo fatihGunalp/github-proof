@@ -128,7 +128,7 @@ Topics bulunması, ilgili teknolojilerin doğru veya etkin kullanıldığını k
 
 ### 4.2 Homepage veya Canlı Demo Bağlantısı
 
-Repository metadata veya açık dokümantasyon içerisinde çalışan ürüne, ayrıntılı dokümantasyona veya canlı demoya yönlendiren bağlantı bulunup bulunmadığını değerlendirir.
+Repository metadata içindeki meaningful homepage veya README içindeki açık demo/live-app bağlantısının görünür olup olmadığını değerlendirir.
 
 Gözlemlenebilir kanıt:
 
@@ -138,6 +138,8 @@ Gözlemlenebilir kanıt:
 Sınır:
 
 Bağlantının bulunması erişilebilirliği, güncelliği veya ürün kalitesini garanti etmez.
+
+Documentation-only destination ve generic README linki bu sinyal için tek başına kanıt değildir.
 
 ---
 

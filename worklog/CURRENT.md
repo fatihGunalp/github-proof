@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Twelve production evaluators are complete; Homepage/Live Demo requires canonical alignment before Portfolio evaluator implementation.
+Focus: Fourteen production evaluators are complete; Application orchestration and the derived presentation-completeness signal are next.
 ```
 
 ---
@@ -45,52 +45,50 @@ None.
 ## Current Problem
 
 ```text
-`portfolio.homepage-or-live-demo` does not define executable boundaries for meaningful homepage, Partial versus RequiresHumanReview, or metadata/README availability precedence.
+None currently confirmed.
 ```
 
 ## Next Immediate Action
 
 ```text
-Define the canonical Version 1 Homepage/Live Demo semantic and availability-precedence rules, then retry Topics + Homepage evaluator implementation.
+Session 036 — Application Signal Orchestration + `portfolio.presentation-completeness`.
 ```
 
 ## Working Set
 
 ```text
-Session 034 worklog-only contract-gap record.
+Session 035 canonical Homepage alignment, two Domain evaluators, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 63f3467
-Last verified working tree: CLEAN before Session 033
+Last verified HEAD: 14f4d48
+Last verified working tree: CLEAN before Session 035
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 033 — Test Structure + Continuous Integration: PASS
+Session 035 — Homepage Contract Fix + Portfolio Evaluators: PASS
 
-- Confirmed file-tree/project-content/workflow content, completeness, and availability evidence is sufficient.
-- Clarified exact test indicators, evidence combinations, bounded run-command families, and YAML ambiguity semantics.
-- Added deterministic Test Structure and Continuous Integration Domain evaluators.
-- Covered every status/score branch, false positives, dependency evidence, malformed workflow content, incomplete evidence, ordering, and determinism.
-- Production evaluators are now 12 / 15.
+- Closed the Homepage/Live Demo Version 1 semantic and availability-precedence gaps.
+- Added deterministic Topics and Homepage/Live Demo Domain evaluators.
+- Covered every score/status branch, URL/link exclusions, malformed ambiguity, availability, and determinism.
+- Production evaluators are now 14 / 15.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 63f3467, clean before Session 033
-Contract/data audit: PASS — test/project/workflow content and completeness data sufficient
-Focused Test Structure + CI tests: PASS — 46 passed
-All evaluator regression: PASS — 307 passed
-Domain tests: PASS — 358 passed
+Repository baseline: PASS — main at 14f4d48, clean before Session 035
+Focused Topics + Homepage tests: PASS — 49 passed
+All evaluator regression: PASS — 356 passed
+Domain tests: PASS — 407 passed
 Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 446 passed
+Solution tests: PASS — 495 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS
@@ -121,7 +119,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-Homepage/Live Demo can classify the same generic or ambiguous link as Partial or RequiresHumanReview, and terminal-positive behavior under partial availability is unspecified.
+None currently confirmed.
 ```
 
 ## Git Rule

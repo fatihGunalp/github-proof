@@ -1412,7 +1412,7 @@ Version: 1
 
 ### Amaç
 
-Repository'den çalışan ürüne, ayrıntılı dokümantasyona veya canlı demoya ulaşılabilen görünür bir bağlantı bulunup bulunmadığını değerlendirmek.
+Repository'den çalışan ürüne, canlı demoya, yayımlanmış örneğe veya ürün/proje sayfasına ulaşılabilen görünür bir bağlantı bulunup bulunmadığını değerlendirmek.
 
 ### Gerekli veri
 
@@ -1423,7 +1423,6 @@ Repository'den çalışan ürüne, ayrıntılı dokümantasyona veya canlı demo
 ### Kanıt türleri
 
 - Canlı uygulama bağlantısı
-- Proje dokümantasyonu
 - Etkileşimli demo
 - Yayınlanmış örnek
 - Ürün veya proje sayfası
@@ -1437,9 +1436,62 @@ Repository'den çalışan ürüne, ayrıntılı dokümantasyona veya canlı demo
 - README veya metadata alınamadıysa: `UnavailableEvidence`
 - Bağlantının anlamı belirsizse: `RequiresHumanReview`
 
+### Version 1 executable bağlantı semantiği
+
+Metadata homepage'in anlamlı portfolio presentation evidence olması için değer:
+
+- absolute `http` veya `https` URL olmalıdır;
+- normalize repository GitHub URL'sinin kendisi olmamalıdır;
+- `github.com/{owner}/{repository}` URL'sinin kendisi veya bunun altındaki `issues`, `pulls`, `wiki`, `tree`, `blob` gibi repository-management hedeflerinden biri olmamalıdır;
+- açık documentation-only destination olmamalıdır.
+
+Documentation-only destination; hostname'in ilk label'ı veya URL path içindeki tam bir segment `docs` ya da `documentation` olduğunda kabul edilir. `docs-app`, `product-docs-v2` gibi substring eşleşmeleri kullanılmaz.
+
+URL normalization, Usage/Demo Version 1 ile aynıdır: scheme ve host lowercase yapılır, default port kaldırılır, empty path `/` kabul edilir, root dışındaki tek trailing slash kaldırılır, fragment yok sayılır; path case ve query korunur. Bu koşulları sağlayan metadata homepage `Present`, 5 puan üreten terminal maksimum kanıttır. Bu sonuç bağlantının çalışan ürün olduğunu değil, yalnız görünür portfolio presentation bağlantısı bulunduğunu gösterir.
+
+README explicit demo/live-app evidence için Usage/Demo Version 1'deki exact case-insensitive canonical label'lar kullanılır:
+
+~~~text
+demo
+live demo
+try it
+open app
+launch app
+canlı demo
+uygulamayı aç
+deneyin
+~~~
+
+MVP v1 README link syntax'i, fenced code block dışında bulunan inline Markdown `[label](target)` ve HTML `<a href="target">label</a>` bağlantılarıdır. Target absolute HTTP/HTTPS olmalıdır. Exact canonical label taşıyan geçerli target `Present`, 4 puan üretir. Badge/image syntax'i ve `docs`, `documentation`, `source`, `issues`, `dependency`, `website` gibi generic label'lar explicit demo veya ambiguous presentation candidate değildir.
+
+Canonical label'a exact eşleşmeyen ancak label'ında tam token olarak `demo`, `live`, `try`, `preview`, `app`, `launch`, `canlı`, `deneyin`, `önizleme` veya `uygulama` bulunan geçerli absolute HTTP/HTTPS link bounded ambiguous presentation candidate'dır ve `Partial`, 2 puan üretir. Genel link varlığı veya target URL içindeki keyword tek başına Partial üretmez.
+
+`RequiresHumanReview`, yalnız canonical veya bounded ambiguous intent taşıyan adayın malformed Markdown/HTML yapısı ya da parse edilemeyen URL'si nedeniyle `Present / 4` ile `Partial / 2` ayrımı yapılamadığında kullanılır. Generic veya context-free link belirsizliği human-review bucket'ına taşınmaz. Non-empty metadata homepage parse edilebilir absolute HTTP/HTTPS URL değilse, 5 puan ihtimalini güvenilir biçimde sınıflandırmayı engelleyen bounded malformed URL sayılır.
+
+### Version 1 availability ve status precedence
+
+Repository düzeyinde sıra şöyledir:
+
+~~~text
+1. Present / 5 — meaningful metadata homepage; terminal maximum
+2. RequiresHumanReview — malformed metadata homepage 5 puan ayrımını engelliyorsa
+3. UnavailableEvidence — metadata unavailable ise exact skor belirlenemiyorsa
+4. Present / 4 — metadata available, meaningful homepage yok ve README explicit demo link içeriyorsa
+5. RequiresHumanReview — malformed README candidate 4/2 ayrımını engelliyorsa
+6. UnavailableEvidence — README unavailable ise exact lower skor belirlenemiyorsa
+7. Partial / 2 — complete README içinde bounded ambiguous candidate varsa
+8. Missing / 0 — metadata ve README complete incelenmiş, hiçbir eligible candidate bulunmamışsa
+~~~
+
+Snapshot değeri yalnız karşılık gelen availability `Available` olduğunda yorumlanır; unavailable section içindeki stale veya kısmi değer kanıt sayılmaz.
+
+Meaningful metadata homepage maksimum 5 puanı terminal yaptığı için README unavailable olsa da korunur. Metadata unavailable iken README explicit demo link bulunsa bile metadata 5 puan üretebileceğinden exact sonuç `UnavailableEvidence` olur. Metadata available, meaningful homepage yok ve README explicit demo link varsa `Present`, 4 puan üretilir.
+
+Remote HTTP request, DNS, redirect, 404, güvenlik, güncellik veya içerik kalitesi kontrolü yapılmaz. Evidence; source, normalize URL, varsa label/intent türü ve sonucu belirleyen availability durumuyla sınırlıdır; full README body taşınmaz.
+
 ### Öneri
 
-Çalışan ürün, proje dokümantasyonu veya canlı demo için GitHub homepage alanına açık bir bağlantı ekleyin.
+Çalışan ürün, yayımlanmış örnek veya canlı demo için GitHub homepage alanına açık bir bağlantı ekleyin.
 
 ### Sınırlar
 
