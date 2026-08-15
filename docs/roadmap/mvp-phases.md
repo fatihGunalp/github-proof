@@ -225,31 +225,42 @@ SignalResult
 ├── Status
 ├── Score
 ├── MaximumScore
+├── IncludeInOverallScore
 ├── Evidence
-├── Explanation
-├── Recommendation
-├── Limitations
 └── EvaluatedAt
 ~~~
 
 ### Örnek sinyal sonucu
 
-~~~text
-Sinyal: Kurulum Talimatı
+Analysis truth locale-independent tutulur:
 
+~~~text
 SignalKey: documentation.installation-guide
 SignalVersion: 1
 Category: RepositoryUnderstandability
 Status: Missing
 Score: 0
 MaximumScore: 8
+IncludeInOverallScore: true
 
-Kanıt:
-README ve `docs/**/*.md` corpus'u başarıyla incelendi; desteklenen installation, setup veya kurulum bölümü bulunamadı.
+Evidence:
+README ve `docs/**/*.md` corpus'u incelendi; desteklenen installation/setup talimatı gözlemlenmedi.
+~~~
+
+Kullanıcıya görünen title, explanation, recommendation ve limitation metinleri `SignalResult` içerisinde tutulmaz. Bunlar aynı semantic sonuçtan Application presentation/localization katmanında üretilir.
+
+Örneğin Türkçe presentation:
+
+~~~text
+Kurulum Talimatı
+
+Repository üzerinde açık bir kurulum akışı gözlemlenmedi.
 
 Öneri:
 README dosyasına bağımlılıkları, yapılandırmayı ve çalıştırma komutlarını ekleyin.
 ~~~
+
+Aynı semantic sonuç İngilizce presentation ile de gösterilebilir; locale değişimi repository collection, evaluator, score, status veya evidence sonucunu değiştirmez.
 
 ### Tasarım kuralı
 
@@ -356,13 +367,19 @@ Rapor Sonucu
 
 ### Sonuç ekranı
 
-- Repository bilgisi
-- Toplam görünür kanıt skoru
-- Kategori skorları
-- Güçlü sinyaller
-- Kritik eksikler
-- İlk üç geliştirme adımı
+Evidence-first ilk okuma sırası korunur:
+
+- Repository identity / context
+- Bu repository neyi kanıtlıyor? — en fazla üç güçlü kanıt
+- Kanıtı ne zayıflatıyor? — en fazla üç kritik boşluk
+- Önce bunları yap — en fazla üç geliştirme adımı
+- Explicit uncertainty — varsa `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview`
+- Kategori sonuçları ve ikincil skor özeti
+- Signal detail ve evidence
+- Product boundary disclaimer
 - Markdown raporunu kopyalama
+
+Toplam skor kullanıcı deneyiminin ana kahramanı değildir; evidence-first bölümlerden sonra ikincil özet olarak gösterilir.
 
 ### MVP kapsamı dışında kalan arayüzler
 

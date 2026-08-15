@@ -153,21 +153,32 @@ Bu sinyallerin hiçbiri tek başına veya birlikte AI kullanıldığını, kodun
 ~~~text
 Repository Kanıt Profili
 
-Toplam görünür kanıt: 56 / 100
-Etiket: Gelişen görünür kanıt
+Bu repository neyi kanıtlıyor?
 
-Kategori sonuçları
+✓ Commit geçmişi geliştirme sürecini görünür kılıyor.
+✓ Repository üzerinde test yapısı gözlemleniyor.
+
+Kanıtı ne zayıflatıyor?
+
+△ Kurulum ve kullanım kanıtı sınırlı.
+✗ CI doğrulaması görünür değil.
+✗ Release süreci görünür değil.
+
+Önce bunları yap
+
+1. Kurulum sürecini belgeleyin.
+2. Test doğrulamasını CI ile otomatikleştirin.
+3. İlk anlamlı release'i yayınlayın.
+
+Kategori özeti — ikincil
 
 Repository anlaşılabilirliği: 59 / 100
 Geliştirme süreci görünürlüğü: 66 / 100
 Doğrulama ve kullanılabilirlik: 44 / 100
 Portföy sunumu: 57 / 100
 
-Öncelikli adımlar
-
-1. Kurulum sürecini belgeleyin.
-2. Test doğrulamasını CI ile otomatikleştirin.
-3. İlk anlamlı release'i yayınlayın.
+Toplam görünür kanıt — ikincil: 56 / 100
+Etiket: Gelişen görünür kanıt
 ~~~
 
 Bu örnek temsilîdir ve [Örnek MVP Analiz Raporu](docs/product/sample-analysis-report.md) ile aynı puanlama sözleşmesini kullanır.
