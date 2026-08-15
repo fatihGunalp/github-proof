@@ -46,32 +46,31 @@ Establish the Phase 5 Web foundation and semantic Light/Dark UI system while pre
 ~~~text
 Session 047 is active.
 
-Completed:
+Completed checkpoints:
 - Minimal GitHubProof.Web Razor Pages host.
 - Semantic Light / Dark / System token architecture.
 - Canonical repository-URL-only Home.
 - Home visual refinement accepted in Dark and Light.
 - Canonical StatusBadge with seven SignalStatus semantics.
-- Typed RepositoryReport report shell implemented and checkpointed.
-- Report shell consumes RepositoryReport directly.
-- Canonical evidence-first section order preserved.
-- Proves / Weakens / DoFirst remain primary reading layers.
-- Uncertainty precedes secondary score.
-- Signal details use progressive disclosure.
-- Evidence remains visible without Markdown parsing.
-- StatusBadge accepts reusable SignalStatus + localized StatusLabel input.
+- Typed RepositoryReport report shell.
+- Canonical evidence-first section order.
+- Progressive SignalDetails disclosure.
+- Secondary score placement after uncertainty.
 
-Step 7 checkpoint:
-a262394a62ba9084df09954864d36a22a290c5fc — feat(web): add typed repository report shell
+Step 8 implemented:
+- Development-only /report-preview route.
+- Typed RepositoryReport preview fixture.
+- Preview exercises all seven SignalStatus semantics.
+- English and Turkish presentation paths available.
+- Repository literals remain stable between locales.
+- Home remains unchanged.
+- Preview is not linked from Home.
+- Non-Development environments return NotFound for the preview route.
 
-Validation:
-- Web tests PASS 26/26.
-- Clean Web build PASS.
-- Full solution build PASS.
-- Full solution tests PASS.
-- Format verification PASS.
-- CSS semantic boundary PASS.
-- Home unchanged.
+Step 8 validation:
+- GitHubProof.Web.Tests PASS — 31/31.
+- GitHubProof.Web build PASS.
+- Home immutability PASS.
 
 Live repository analysis remains intentionally unwired.
 ~~~
@@ -85,17 +84,24 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Session 047 — harden the typed RepositoryReport presentation before live orchestration.
+Open the Development-only RepositoryReport preview in the browser and perform presentation review before further hardening.
 
-Validate and refine:
-- responsive semantic order,
+Review:
+- Dark desktop,
+- Light desktop,
+- narrow/mobile width,
+- first-reading hierarchy,
 - evidence readability,
-- keyboard/details behavior,
-- Light/Dark equivalence,
-- score remains secondary,
-- accessibility foundation.
+- StatusBadge semantics,
+- uncertainty treatment,
+- secondary score prominence,
+- SignalDetails progressive disclosure,
+- keyboard/details behavior.
 
-Do not parse Markdown.
+Preview routes:
+- /report-preview?locale=en
+- /report-preview?locale=tr
+
 Do not wire live GitHub analysis yet.
 ~~~
 
@@ -138,22 +144,34 @@ Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 ## Last Validation
 
 ~~~text
-Session 047 / Step 7:
+Session 047 / Step 8:
 
-GitHubProof.Web.Tests: PASS — 26/26
-Clean Web build: PASS
-Full solution build: PASS
-Full solution tests: PASS
-dotnet format --verify-no-changes: PASS
+GitHubProof.Web.Tests: PASS — 31/31
+GitHubProof.Web build: PASS
 
-RepositoryReport direct input: PASS
-Canonical section order: PASS
-Uncertainty before secondary score: PASS
-SignalDetails progressive disclosure: PASS
-Markdown parsing in Web: NONE
-CSS semantic-token boundary: PASS
-Home immutability guard: PASS
-git diff --cached --check: PASS
+Development-only RepositoryReport preview:
+PASS
+
+Canonical RepositoryReport input:
+PASS
+
+Seven SignalStatus semantics represented:
+PASS
+
+EN/TR preview paths:
+PASS
+
+Repository literals preserved across locale fixture:
+PASS
+
+Preview hidden outside Development:
+PASS
+
+Home:
+UNCHANGED
+
+Live GitHub analysis:
+NOT WIRED
 ~~~
 
 ## Critical Invariants

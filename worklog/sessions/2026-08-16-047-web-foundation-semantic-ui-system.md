@@ -110,38 +110,23 @@ Phase 4 report/presentation contracts established by Sessions 042–046 remain a
 ## Changes
 
 ~~~text
-Created:
-- src/GitHubProof.Web/GitHubProof.Web.csproj
-- src/GitHubProof.Web/Program.cs
-- src/GitHubProof.Web/Pages/Index.cshtml
-- src/GitHubProof.Web/Pages/_ViewImports.cshtml
-- src/GitHubProof.Web/Pages/_ViewStart.cshtml
-- src/GitHubProof.Web/Pages/Shared/_Layout.cshtml
-- src/GitHubProof.Web/wwwroot/css/tokens.css
-- src/GitHubProof.Web/wwwroot/css/base.css
-- src/GitHubProof.Web/wwwroot/css/components.css
-- src/GitHubProof.Web/wwwroot/css/site.css
-- src/GitHubProof.Web/wwwroot/css/home.css
-- src/GitHubProof.Web/wwwroot/css/repository-input.css
-- src/GitHubProof.Web/Pages/Shared/_RepositoryInput.cshtml
-- tests/GitHubProof.Web.Tests/GitHubProof.Web.Tests.csproj
-- tests/GitHubProof.Web.Tests/CssArchitectureTests.cs
-- tests/GitHubProof.Web.Tests/HomeCompositionTests.cs
-- worklog/sessions/2026-08-16-047-web-foundation-semantic-ui-system.md
-
-Modified:
-- GitHubProof.slnx
-- worklog/CURRENT.md
-- worklog/INDEX.md
-
 Production foundation:
-- Minimal ASP.NET Core Razor Pages host
-- Light/Dark/System semantic token architecture
-- Generic Button/Input control primitives
-- CSS semantic-token boundary tests
-~~~
+- Minimal ASP.NET Core Razor Pages host.
+- Light / Dark / System semantic token architecture.
+- Generic Button/Input primitives.
+- Canonical repository URL Home.
+- Canonical StatusBadge for seven SignalStatus semantics.
+- Typed RepositoryReport report shell.
+- Progressive SignalDetails disclosure.
+- Semantic report CSS.
+- Development-only typed RepositoryReport preview.
 
----
+Development review surface:
+- /report-preview?locale=en
+- /report-preview?locale=tr
+
+The preview is intentionally not linked from Home and returns NotFound outside Development.
+~~~
 
 ## Decisions
 
@@ -159,18 +144,9 @@ Production foundation:
 
 ~~~text
 GitHubProof.Web.Tests:
-PASS — 26/26
+PASS — 31/31
 
-Clean Web build:
-PASS
-
-Full solution build:
-PASS
-
-Full solution tests:
-PASS
-
-dotnet format --verify-no-changes:
+GitHubProof.Web build:
 PASS
 
 RepositoryReport direct typed input:
@@ -179,23 +155,29 @@ PASS
 Canonical report section order:
 PASS
 
-Uncertainty before secondary score:
+Seven canonical SignalStatus semantics:
 PASS
 
-SignalDetails progressive disclosure:
+Development-only report preview:
 PASS
 
-Markdown parsing in Web:
-NONE
+English preview:
+PASS
 
-CSS semantic-token boundary:
+Turkish preview:
+PASS
+
+Repository literal preservation:
+PASS
+
+Preview production isolation:
 PASS
 
 Home:
 UNCHANGED
 
-git diff --cached --check:
-PASS
+Live repository analysis:
+NOT WIRED
 ~~~
 
 ## Problems
@@ -211,18 +193,17 @@ None.
 Intentionally deferred beyond this checkpoint:
 
 ~~~text
-- Home visual refinement
-- StatusBadge implementation
-- seven canonical status visual components
-- RepositoryReport composition
-- SignalRow / SignalDetail
-- UncertaintyNotice
-- CategorySummary / secondary score
+- browser visual review of RepositoryReport preview
+- report responsive hardening
+- evidence readability hardening
+- keyboard/details review
+- Light/Dark report equivalence review
+- final score-secondary visual verification
+- final responsive/accessibility audit
 - live GitHub repository analysis orchestration
 - analysis loading/progress integration
 - Copy Markdown
 - explicit Light / Dark / System theme switch control
-- final responsive/accessibility audit
 - RepositoryPicker / username discovery
 - authentication
 - dashboard
@@ -265,18 +246,21 @@ Session status:
 ## Next
 
 ~~~text
-Harden the typed RepositoryReport shell before live orchestration.
+Browser-review the Development-only typed RepositoryReport preview.
 
-Validate and refine:
-- responsive semantic order,
+Review Dark and Light first, then narrow/mobile width.
+
+Use the preview to harden:
+- first-reading hierarchy,
 - evidence readability,
-- keyboard/details behavior,
-- Light/Dark equivalence,
-- score remains secondary,
+- StatusBadge presentation,
+- uncertainty,
+- score-secondary treatment,
+- progressive disclosure,
 - accessibility foundations.
 
 Do not parse Markdown.
-Do not wire live repository analysis yet.
+Do not wire live GitHub analysis yet.
 ~~~
 
 ## Git
