@@ -11,7 +11,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryDescriptiveDataCollector
+public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepositoryDescriptiveDataCollector
 {
     private const string ReadmeDataKey = "readme";
     private const string LicenseDataKey = "license";

@@ -9,7 +9,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryContributorCollector
+public sealed class GitHubRepositoryContributorCollector : IGitHubRepositoryContributorCollector
 {
     private const string ContributorsDataKey = "contributors";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");

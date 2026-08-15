@@ -10,7 +10,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryContentsCollector
+public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContentsCollector
 {
     private const string FileTreeDataKey = "file-tree";
     private const string ProjectFilesDataKey = "project-files";

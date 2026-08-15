@@ -25,6 +25,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Releases, tags, and contributors collection | PASS | Terra / high | [014](./sessions/2026-08-15-014-releases-tags-contributors-collection.md) | 6b3d5a1 |
 | 2026-08-15 | Repository contents and workflow files | PASS | Terra / high | [015](./sessions/2026-08-15-015-repository-contents-workflows.md) | ef33bf0 |
 | 2026-08-15 | Tags snapshot contract alignment | PASS | Sol / high | [016](./sessions/2026-08-15-016-tags-snapshot-contract-alignment.md) | d5424b8 |
+| 2026-08-15 | RepositorySnapshot orchestration | PASS | Sol / medium | [017](./sessions/2026-08-15-017-repository-snapshot-orchestration.md) | 07a2e62 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 

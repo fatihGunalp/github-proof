@@ -16,9 +16,9 @@ public sealed class GitHubRepositoryPullRequestCollectorTests
     {
         QueueHttpMessageHandler handler = new(JsonResponse("""
             [
-              { "number": 4, "state": "open", "created_at": "2026-08-10T12:30:00+03:00", "merged_at": null },
-              { "number": 5, "state": "closed", "created_at": "2026-08-11T00:00:00Z", "merged_at": null },
-              { "number": 6, "state": "closed", "created_at": "2026-08-12T00:00:00Z", "merged_at": "2026-08-13T00:00:00Z" }
+              { "number": 4, "title": " First pull request ", "state": "open", "created_at": "2026-08-10T12:30:00+03:00", "merged_at": null },
+              { "number": 5, "title": "Second pull request", "state": "closed", "created_at": "2026-08-11T00:00:00Z", "merged_at": null },
+              { "number": 6, "title": "Third pull request", "state": "closed", "created_at": "2026-08-12T00:00:00Z", "merged_at": "2026-08-13T00:00:00Z" }
             ]
             """));
         GitHubRepositoryPullRequestCollector collector = CreateCollector(handler);
@@ -28,6 +28,7 @@ public sealed class GitHubRepositoryPullRequestCollectorTests
         Assert.True(result.IsComplete);
         Assert.Equal([4, 5, 6], result.PullRequests.Items.Select(pullRequest => pullRequest.Number));
         Assert.False(result.PullRequests.Items[0].IsClosed);
+        Assert.Equal("First pull request", result.PullRequests.Items[0].Title);
         Assert.False(result.PullRequests.Items[1].IsMerged);
         Assert.True(result.PullRequests.Items[2].IsClosed);
         Assert.True(result.PullRequests.Items[2].IsMerged);
@@ -106,7 +107,7 @@ public sealed class GitHubRepositoryPullRequestCollectorTests
     {
         GitHubRepositoryPullRequestCollector collector = CreateCollector(
             new QueueHttpMessageHandler(JsonResponse("""
-                [{ "number": 1, "state": "closed", "created_at": null, "merged_at": null }]
+                [{ "number": 1, "title": "Pull request", "state": "closed", "created_at": null, "merged_at": null }]
                 """)));
 
         GitHubRepositoryPullRequestCollection result = await collector.CollectAsync(RepositoryUrl, AvailableMetadata());
@@ -174,6 +175,7 @@ public sealed class GitHubRepositoryPullRequestCollectorTests
         JsonSerializer.Serialize(pullRequests.Select(pullRequest => new
         {
             number = pullRequest.Number,
+            title = $"Pull request {pullRequest.Number}",
             state = pullRequest.State,
             created_at = pullRequest.CreatedAt,
             merged_at = pullRequest.MergedAt

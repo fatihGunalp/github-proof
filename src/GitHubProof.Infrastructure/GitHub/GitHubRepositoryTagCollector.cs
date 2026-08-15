@@ -8,7 +8,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryTagCollector
+public sealed class GitHubRepositoryTagCollector : IGitHubRepositoryTagCollector
 {
     private const string TagsDataKey = "tags";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");

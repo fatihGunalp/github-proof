@@ -16,9 +16,9 @@ public sealed class GitHubRepositoryIssueCollectorTests
     {
         QueueHttpMessageHandler handler = new(JsonResponse("""
             [
-              { "number": 7, "state": "open", "created_at": "2026-08-10T12:30:00+03:00" },
-              { "number": 8, "state": "closed", "created_at": "2026-08-11T00:00:00Z", "pull_request": { "url": "https://api.github.com/repos/octocat/hello-world/pulls/8" } },
-              { "number": 9, "state": "closed", "created_at": "2026-08-12T00:00:00Z" }
+              { "number": 7, "title": " First issue ", "body": " Details ", "state": "open", "created_at": "2026-08-10T12:30:00+03:00" },
+              { "number": 8, "title": "Pull request", "state": "closed", "created_at": "2026-08-11T00:00:00Z", "pull_request": { "url": "https://api.github.com/repos/octocat/hello-world/pulls/8" } },
+              { "number": 9, "title": "Second issue", "body": null, "state": "closed", "created_at": "2026-08-12T00:00:00Z" }
             ]
             """));
         GitHubRepositoryIssueCollector collector = CreateCollector(handler);
@@ -28,6 +28,8 @@ public sealed class GitHubRepositoryIssueCollectorTests
         Assert.True(result.IsComplete);
         Assert.Equal([7, 9], result.Issues.Items.Select(issue => issue.Number));
         Assert.False(result.Issues.Items[0].IsClosed);
+        Assert.Equal("First issue", result.Issues.Items[0].Title);
+        Assert.Equal("Details", result.Issues.Items[0].Body);
         Assert.True(result.Issues.Items[1].IsClosed);
         Assert.Equal(DateTimeOffset.Parse("2026-08-10T09:30:00Z"), result.Issues.Items[0].CreatedAt);
         Assert.Equal(DataAvailabilityStatus.Available, result.Availability.Status);
@@ -130,7 +132,7 @@ public sealed class GitHubRepositoryIssueCollectorTests
     {
         GitHubRepositoryIssueCollector collector = CreateCollector(
             new QueueHttpMessageHandler(JsonResponse("""
-                [{ "number": 1, "state": "unexpected", "created_at": "2026-08-10T00:00:00Z" }]
+                [{ "number": 1, "title": "Issue", "state": "unexpected", "created_at": "2026-08-10T00:00:00Z" }]
                 """)));
 
         GitHubRepositoryIssueCollection result = await collector.CollectAsync(RepositoryUrl, AvailableMetadata());
@@ -186,6 +188,8 @@ public sealed class GitHubRepositoryIssueCollectorTests
         JsonSerializer.Serialize(issues.Select(issue => new
         {
             number = issue.Number,
+            title = $"Issue {issue.Number}",
+            body = (string?)null,
             state = issue.State,
             created_at = issue.CreatedAt
         }));

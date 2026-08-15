@@ -8,7 +8,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryPullRequestCollector
+public sealed class GitHubRepositoryPullRequestCollector : IGitHubRepositoryPullRequestCollector
 {
     private const string PullRequestsDataKey = "pull-requests";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");
@@ -147,6 +147,7 @@ public sealed class GitHubRepositoryPullRequestCollector
         GitHubPullRequestResponse response) =>
         new(
             RequirePositive(response.Number, "number"),
+            RequireValue(response.Title, "title"),
             IsClosed(response.State, "state"),
             response.MergedAt is not null,
             RequireTimestamp(response.CreatedAt, "created_at"));
@@ -190,6 +191,18 @@ public sealed class GitHubRepositoryPullRequestCollector
         return value.Value;
     }
 
+    private static string RequireValue(string? value, string name)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                $"GitHub response field '{name}' is required.",
+                name);
+        }
+
+        return value.Trim();
+    }
+
     private static bool IsClosed(string? value, string name) =>
         value switch
         {
@@ -223,6 +236,7 @@ public sealed class GitHubRepositoryPullRequestCollector
 
     private sealed record GitHubPullRequestResponse(
         [property: JsonPropertyName("number")] int? Number,
+        [property: JsonPropertyName("title")] string? Title,
         [property: JsonPropertyName("state")] string? State,
         [property: JsonPropertyName("created_at")] DateTimeOffset? CreatedAt,
         [property: JsonPropertyName("merged_at")] DateTimeOffset? MergedAt);

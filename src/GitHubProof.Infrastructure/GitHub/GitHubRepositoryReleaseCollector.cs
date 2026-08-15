@@ -8,7 +8,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryReleaseCollector
+public sealed class GitHubRepositoryReleaseCollector : IGitHubRepositoryReleaseCollector
 {
     private const string ReleasesDataKey = "releases";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");

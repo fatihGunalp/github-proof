@@ -8,7 +8,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Infrastructure.GitHub;
 
-public sealed class GitHubRepositoryIssueCollector
+public sealed class GitHubRepositoryIssueCollector : IGitHubRepositoryIssueCollector
 {
     private const string IssuesDataKey = "issues";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");
@@ -160,6 +160,8 @@ public sealed class GitHubRepositoryIssueCollector
     private static GitHubRepositoryIssue NormalizeIssue(GitHubIssueResponse response) =>
         new(
             RequirePositive(response.Number, "number"),
+            RequireValue(response.Title, "title"),
+            response.Body,
             IsClosed(response.State, "state"),
             RequireTimestamp(response.CreatedAt, "created_at"));
 
@@ -202,6 +204,18 @@ public sealed class GitHubRepositoryIssueCollector
         return value.Value;
     }
 
+    private static string RequireValue(string? value, string name)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                $"GitHub response field '{name}' is required.",
+                name);
+        }
+
+        return value.Trim();
+    }
+
     private static bool IsClosed(string? value, string name) =>
         value switch
         {
@@ -235,6 +249,8 @@ public sealed class GitHubRepositoryIssueCollector
 
     private sealed record GitHubIssueResponse(
         [property: JsonPropertyName("number")] int? Number,
+        [property: JsonPropertyName("title")] string? Title,
+        [property: JsonPropertyName("body")] string? Body,
         [property: JsonPropertyName("state")] string? State,
         [property: JsonPropertyName("created_at")] DateTimeOffset? CreatedAt,
         [property: JsonPropertyName("pull_request")] JsonElement? PullRequest);
