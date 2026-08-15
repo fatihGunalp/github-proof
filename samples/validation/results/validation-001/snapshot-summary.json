@@ -1,0 +1,123 @@
+﻿{
+  "validationId": "validation-001",
+  "repository": {
+    "owner": "khellang",
+    "name": "Scrutor",
+    "url": "https://github.com/khellang/Scrutor",
+    "defaultBranch": "master",
+    "isPublic": true,
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "primaryLanguage": "C#"
+  },
+  "frozenCommitSha": "7f315dab5b0f7134a6be58941db1da8c904507e2",
+  "observedHeadCommitSha": "7f315dab5b0f7134a6be58941db1da8c904507e2",
+  "headMatchesFrozen": true,
+  "capturedAt": "2026-08-15T18:09:38.3589513+00:00",
+  "atomicity": {
+    "defaultBranchContentsBoundToObservedHead": true,
+    "otherSectionsMayReflectLiveGitHubState": true,
+    "limitation": "Metadata, issues, pull requests, releases, tags, contributors, and commit pagination are not collected as one atomic GitHub transaction."
+  },
+  "counts": {
+    "fileTree": 65,
+    "commits": 395,
+    "issues": 176,
+    "pullRequests": 93,
+    "releases": 44,
+    "tags": 53,
+    "workflows": 1,
+    "topics": 10,
+    "contributors": 41
+  },
+  "availability": [
+    {
+      "dataKey": "metadata",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:38.3550559+00:00"
+    },
+    {
+      "dataKey": "file-tree",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:39.9963492+00:00"
+    },
+    {
+      "dataKey": "project-files",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:39.7600872+00:00"
+    },
+    {
+      "dataKey": "workflows",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:39.9950143+00:00"
+    },
+    {
+      "dataKey": "documentation-markdown",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:39.996273+00:00"
+    },
+    {
+      "dataKey": "readme",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:40.3572166+00:00"
+    },
+    {
+      "dataKey": "license",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:40.6905528+00:00"
+    },
+    {
+      "dataKey": "languages",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:40.9474748+00:00"
+    },
+    {
+      "dataKey": "commits",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:44.5854222+00:00"
+    },
+    {
+      "dataKey": "issues",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:47.8850401+00:00"
+    },
+    {
+      "dataKey": "pull-requests",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:49.3896978+00:00"
+    },
+    {
+      "dataKey": "releases",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:49.8055038+00:00"
+    },
+    {
+      "dataKey": "tags",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:50.1574714+00:00"
+    },
+    {
+      "dataKey": "contributors",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:09:50.4899982+00:00"
+    }
+  ],
+  "collectionWarnings": [
+    "Repository sections other than default-branch contents are collected from live GitHub state and may not be atomic with HeadCommitSha."
+  ]
+}

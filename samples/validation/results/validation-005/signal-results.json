@@ -1,0 +1,519 @@
+﻿{
+  "validationId": "validation-005",
+  "frozenCommitSha": "1e5760131dd7cc0376b86f4499aef15d51e28ea6",
+  "evaluationTime": "2026-08-15T12:00:00+00:00",
+  "signalCount": 15,
+  "signals": [
+    {
+      "signalKey": "repository.readme.exists",
+      "signalVersion": 1,
+      "category": "RepositoryUnderstandability",
+      "status": "Present",
+      "score": 5,
+      "maximumScore": 5,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "repository.readme.exists",
+          "source": "README",
+          "value": "true",
+          "location": "README.rst",
+          "observedAt": "2026-08-15T18:10:15.6783991+00:00",
+          "confidence": "High",
+          "notes": "Normalize edilmi\u015F snapshot i\u00E7inde GitHub taraf\u0131ndan tan\u0131nan README bulundu."
+        }
+      ],
+      "explanation": "GitHub taraf\u0131ndan README olarak tan\u0131nan \u0027README.rst\u0027 dosyas\u0131 bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "README\u0027nin bulunmas\u0131 i\u00E7eri\u011Fin yeterli, do\u011Fru veya g\u00FCncel oldu\u011Funu kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "repository.description.present",
+      "signalVersion": 1,
+      "category": "RepositoryUnderstandability",
+      "status": "Present",
+      "score": 4,
+      "maximumScore": 4,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "repository.description.present",
+          "source": "RepositoryMetadata",
+          "value": "47",
+          "location": "description",
+          "observedAt": "2026-08-15T18:10:13.6749908+00:00",
+          "confidence": "High",
+          "notes": "Repository description alan\u0131nda 47 karakterlik a\u00E7\u0131klama bulundu."
+        }
+      ],
+      "explanation": "Repository metadata i\u00E7erisinde 47 karakterlik g\u00F6r\u00FCn\u00FCr bir description bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Description bulunmas\u0131, projenin kapsam\u0131n\u0131n veya de\u011Fer \u00F6nerisinin tamamen anla\u015F\u0131l\u0131r oldu\u011Funu kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "documentation.installation-guide",
+      "signalVersion": 1,
+      "category": "RepositoryUnderstandability",
+      "status": "Partial",
+      "score": 4,
+      "maximumScore": 8,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "documentation.installation-guide",
+          "source": "README",
+          "value": "partial",
+          "location": "README.rst#installation",
+          "observedAt": "2026-08-15T18:10:15.6783991+00:00",
+          "confidence": "High",
+          "notes": "\u0027Installation\u0027 ba\u015Fl\u0131\u011F\u0131 bulundu ancak b\u00F6l\u00FCmde uygulanabilir bir ad\u0131m bulunamad\u0131."
+        }
+      ],
+      "explanation": "\u0027README.rst\u0027 i\u00E7inde kurulum b\u00F6l\u00FCm\u00FC bulundu ancak uygulanabilir kurulum ad\u0131m\u0131 bulunamad\u0131.",
+      "recommendation": "Mevcut kurulum b\u00F6l\u00FCm\u00FCn\u00FC uygulanabilir komutlar veya numaral\u0131 ad\u0131mlarla tamamlay\u0131n.",
+      "limitations": [],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "repository.license.present",
+      "signalVersion": 1,
+      "category": "RepositoryUnderstandability",
+      "status": "Present",
+      "score": 3,
+      "maximumScore": 3,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "repository.license.present",
+          "source": "RepositoryLicense",
+          "value": "MIT",
+          "location": "LICENSE",
+          "observedAt": "2026-08-15T18:10:15.9656053+00:00",
+          "confidence": "High",
+          "notes": "Tan\u0131nm\u0131\u015F lisans metadata\u0027s\u0131: MIT License."
+        }
+      ],
+      "explanation": "Tan\u0131nm\u0131\u015F \u0027MIT License\u0027 lisans metadata\u0027s\u0131 bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Lisans bulunmas\u0131, yasal uygunlu\u011Fun b\u00FCt\u00FCn\u00FCyle do\u011Fruland\u0131\u011F\u0131 anlam\u0131na gelmez."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "documentation.usage-or-demo",
+      "signalVersion": 1,
+      "category": "RepositoryUnderstandability",
+      "status": "Missing",
+      "score": 0,
+      "maximumScore": 7,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "documentation.usage-or-demo",
+          "source": "READMEInspection",
+          "value": "available-inspected",
+          "location": "README.rst",
+          "observedAt": "2026-08-15T18:10:15.6783991+00:00",
+          "confidence": "High",
+          "notes": "README ba\u015Far\u0131yla incelendi; usage count = 0; visual/demo count = 0."
+        },
+        {
+          "key": "documentation.usage-or-demo",
+          "source": "DocumentationMarkdownInspection",
+          "value": "available-complete",
+          "location": "docs/**/*.md",
+          "observedAt": "2026-08-15T18:10:15.288822+00:00",
+          "confidence": "High",
+          "notes": "Complete docs corpus i\u00E7indeki 0 dosya incelendi; usage count = 0; visual/demo count = 0."
+        }
+      ],
+      "explanation": "README ve complete docs Markdown corpus\u0027u ba\u015Far\u0131yla incelendi ancak clear usage, high-confidence demo/visual veya bounded weak evidence bulunmad\u0131.",
+      "recommendation": "README veya docs i\u00E7inde ger\u00E7ek bir kullan\u0131m \u00F6rne\u011Fi ekleyin; m\u00FCmk\u00FCnse \u00F6rnek komut, request/response veya sample output g\u00F6sterin.",
+      "limitations": [],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "process.commit-history",
+      "signalVersion": 1,
+      "category": "DevelopmentProcessVisibility",
+      "status": "Strong",
+      "score": 7,
+      "maximumScore": 7,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "process.commit-history",
+          "source": "RepositoryCommits",
+          "value": "observedCount=260;complete=True;availability=Available",
+          "location": "main",
+          "observedAt": "2026-08-15T18:10:18.8748413+00:00",
+          "confidence": "High",
+          "notes": "Commit eri\u015Filebilirli\u011Fi Available ve koleksiyon tam; 260 normalize edilmi\u015F commit bulundu."
+        }
+      ],
+      "explanation": "Default branch \u00FCzerinde 260 normalize edilmi\u015F commit bulundu; sonu\u00E7 Strong olarak s\u0131n\u0131fland\u0131r\u0131ld\u0131.",
+      "recommendation": null,
+      "limitations": [
+        "Commit say\u0131s\u0131 commit kalitesini, geli\u015Ftirici yetkinli\u011Fini veya \u00F6zg\u00FCn \u00FCretimi kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "process.commit-distribution",
+      "signalVersion": 1,
+      "category": "DevelopmentProcessVisibility",
+      "status": "Strong",
+      "score": 8,
+      "maximumScore": 8,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "process.commit-distribution",
+          "source": "RepositoryCommitDistribution",
+          "value": "repositoryAgeDays=2705.88;activeDays=128;firstCommitAt=2019-03-19T21:03:16.0000000\u002B00:00;lastCommitAt=2025-11-01T14:51:09.0000000\u002B00:00;spanDays=2418.742;commitsComplete=True;metadataAvailability=Available;commitsAvailability=Available",
+          "location": "main",
+          "observedAt": "2026-08-15T18:10:18.8748413+00:00",
+          "confidence": "High",
+          "notes": "Aktif g\u00FCnler UTC takvim g\u00FCnlerine, ilk-son aral\u0131\u011F\u0131 normalize edilmi\u015F UTC commit zamanlar\u0131na g\u00F6re hesapland\u0131."
+        }
+      ],
+      "explanation": "Commitler 128 farkl\u0131 UTC g\u00FCn\u00FCne ve 2418.742 g\u00FCnl\u00FCk ilk-son aral\u0131\u011F\u0131na yay\u0131lm\u0131\u015Ft\u0131r; sonu\u00E7 Strong olarak s\u0131n\u0131fland\u0131r\u0131ld\u0131.",
+      "recommendation": null,
+      "limitations": [
+        "Zamana yay\u0131l\u0131m planl\u0131, d\u00FCzenli veya kaliteli \u00E7al\u0131\u015Fma kan\u0131t\u0131 de\u011Fildir.",
+        "Repository ba\u015Fka bir kaynaktan import edilmi\u015F olabilir; g\u00F6r\u00FCnen commit zamanlar\u0131 GitHub \u00FCzerindeki geli\u015Ftirme s\u00FCrecinin tamam\u0131n\u0131 kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "process.issue-usage",
+      "signalVersion": 1,
+      "category": "DevelopmentProcessVisibility",
+      "status": "Present",
+      "score": 5,
+      "maximumScore": 5,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "process.issue-usage",
+          "source": "RepositoryIssues",
+          "value": "qualifying=66;open=23;closed=43;complete=True;availability=Available",
+          "location": null,
+          "observedAt": "2026-08-15T18:10:21.6771159+00:00",
+          "confidence": "High",
+          "notes": "Issue kay\u0131tlar\u0131 provider normalizasyonunda pull requestlerden ayr\u0131\u015Ft\u0131r\u0131lm\u0131\u015Ft\u0131r."
+        }
+      ],
+      "explanation": "Pull requestlerden ayr\u0131\u015Ft\u0131r\u0131lm\u0131\u015F 66 issue kayd\u0131 bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Issue varl\u0131\u011F\u0131 d\u00FCzenli proje y\u00F6netimi veya kaliteli i\u00E7erik kan\u0131t\u0131 de\u011Fildir."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "process.pull-request-usage",
+      "signalVersion": 1,
+      "category": "DevelopmentProcessVisibility",
+      "status": "Strong",
+      "score": 6,
+      "maximumScore": 6,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "process.pull-request-usage",
+          "source": "RepositoryPullRequests",
+          "value": "total=154;merged=143;open=2;closedUnmerged=9;complete=True;availability=Available",
+          "location": null,
+          "observedAt": "2026-08-15T18:10:24.6650913+00:00",
+          "confidence": "High",
+          "notes": "Pull request durumlar\u0131 normalize merged ve closed alanlar\u0131ndan say\u0131lm\u0131\u015Ft\u0131r."
+        }
+      ],
+      "explanation": "Repository \u00FCzerinde 143 merged pull request bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Pull request varl\u0131\u011F\u0131 ger\u00E7ek code review veya ekip \u00E7al\u0131\u015Fmas\u0131n\u0131 garanti etmez."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "process.release-usage",
+      "signalVersion": 1,
+      "category": "DevelopmentProcessVisibility",
+      "status": "Present",
+      "score": 6,
+      "maximumScore": 6,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "process.release-usage",
+          "source": "RepositoryReleasesAndTags",
+          "value": "published=6;publishedWithNotes=2;draft=0;tags=22;releasesComplete=True;tagsComplete=True;releasesAvailability=Available;tagsAvailability=Available",
+          "location": null,
+          "observedAt": "2026-08-15T18:10:25.3583911+00:00",
+          "confidence": "High",
+          "notes": "Release note varl\u0131\u011F\u0131 normalize edilmi\u015F Notes alan\u0131ndan; Releases ve Tags durumlar\u0131 ayr\u0131 kaynaklardan de\u011Ferlendirilmi\u015Ftir."
+        }
+      ],
+      "explanation": "A\u00E7\u0131klay\u0131c\u0131 note i\u00E7eren 2 published release bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Release varl\u0131\u011F\u0131 semantic versioning, production kararl\u0131l\u0131\u011F\u0131 veya aktif bak\u0131m kan\u0131t\u0131 de\u011Fildir."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "validation.test-structure",
+      "signalVersion": 1,
+      "category": "ValidationAndUsability",
+      "status": "Present",
+      "score": 8,
+      "maximumScore": 10,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "validation.test-structure",
+          "source": "RepositoryTestStructure",
+          "value": "recognized=2;complete=True;fileTreeAvailability=Available;projectFilesAvailability=Available",
+          "location": null,
+          "observedAt": "2026-08-15T18:10:15.2888237+00:00",
+          "confidence": "High",
+          "notes": "Recognized evidence yaln\u0131z kilitli Version 1 path ve dependency kurallar\u0131ndan \u00FCretilmi\u015Ftir."
+        },
+        {
+          "key": "validation.test-structure",
+          "source": "TestDirectory",
+          "value": "count=1",
+          "location": "tests",
+          "observedAt": "2026-08-15T18:10:15.2888237+00:00",
+          "confidence": "High",
+          "notes": "Bu evidence t\u00FCr\u00FC i\u00E7in Ordinal s\u0131ralamadaki ilk recognized path g\u00F6sterilmi\u015Ftir."
+        },
+        {
+          "key": "validation.test-structure",
+          "source": "TestFramework",
+          "value": "count=1",
+          "location": "pytest.ini",
+          "observedAt": "2026-08-15T18:10:15.2888237+00:00",
+          "confidence": "High",
+          "notes": "Bu evidence t\u00FCr\u00FC i\u00E7in Ordinal s\u0131ralamadaki ilk recognized path g\u00F6sterilmi\u015Ftir."
+        }
+      ],
+      "explanation": "A\u00E7\u0131k test projesi veya test framework kan\u0131t\u0131 do\u011Fruland\u0131.",
+      "recommendation": null,
+      "limitations": [
+        "Test dosyalar\u0131n\u0131n bulunmas\u0131 testlerin yeterli, do\u011Fru, g\u00FCncel veya ba\u015Far\u0131l\u0131 oldu\u011Funu kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "validation.continuous-integration",
+      "signalVersion": 1,
+      "category": "ValidationAndUsability",
+      "status": "Partial",
+      "score": 2,
+      "maximumScore": 8,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "validation.continuous-integration",
+          "source": "RepositoryWorkflows",
+          "value": "workflows=2;build=0;test=0;deploy=0;ambiguous=0;contentUnavailable=0;complete=True;availability=Available",
+          "location": null,
+          "observedAt": "2026-08-15T18:10:15.2888051+00:00",
+          "confidence": "High",
+          "notes": "Yaln\u0131z workflow run scalar komutlar\u0131 bounded Version 1 command aileleriyle de\u011Ferlendirilmi\u015Ftir."
+        },
+        {
+          "key": "validation.continuous-integration",
+          "source": "WorkflowUnknownPurpose",
+          "value": "recognized",
+          "location": ".github/workflows/deploy.yml",
+          "observedAt": "2026-08-15T18:10:15.2888051+00:00",
+          "confidence": "High",
+          "notes": "Bu evidence t\u00FCr\u00FC i\u00E7in Ordinal s\u0131ralamadaki ilk workflow path\u0027i g\u00F6sterilmi\u015Ftir."
+        }
+      ],
+      "explanation": "Workflow bulundu ancak amac\u0131 kilitli Version 1 komut aileleriyle do\u011Frulanamad\u0131.",
+      "recommendation": "Push ve pull requestlerde build ile test komutlar\u0131n\u0131 \u00E7al\u0131\u015Ft\u0131ran temel bir GitHub Actions workflow\u0027u ekleyin.",
+      "limitations": [
+        "Workflow dosyas\u0131n\u0131n bulunmas\u0131 workflow\u0027un aktif, ba\u015Far\u0131l\u0131 veya g\u00FCvenli yap\u0131land\u0131r\u0131ld\u0131\u011F\u0131n\u0131 garanti etmez."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "portfolio.topics",
+      "signalVersion": 1,
+      "category": "PortfolioPresentation",
+      "status": "Strong",
+      "score": 4,
+      "maximumScore": 4,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "portfolio.topics",
+          "source": "RepositoryTopics",
+          "value": "4",
+          "location": "topics",
+          "observedAt": "2026-08-15T18:10:13.6749908+00:00",
+          "confidence": "High",
+          "notes": "Normalize topic count: 4; topics: hacktoberfest, pytest, python, testing."
+        }
+      ],
+      "explanation": "Repository metadata i\u00E7inde 4 distinct topic bulundu.",
+      "recommendation": null,
+      "limitations": [
+        "Topics bulunmas\u0131, belirtilen teknolojilerin do\u011Fru veya etkin kullan\u0131ld\u0131\u011F\u0131n\u0131 kan\u0131tlamaz."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "portfolio.homepage-or-live-demo",
+      "signalVersion": 1,
+      "category": "PortfolioPresentation",
+      "status": "Missing",
+      "score": 0,
+      "maximumScore": 5,
+      "includeInOverallScore": true,
+      "evidence": [
+        {
+          "key": "portfolio.homepage-or-live-demo",
+          "source": "RepositoryMetadata",
+          "value": "none",
+          "location": "homepage",
+          "observedAt": "2026-08-15T18:10:13.6749908+00:00",
+          "confidence": "High",
+          "notes": "Metadata homepage alan\u0131 bo\u015F."
+        },
+        {
+          "key": "portfolio.homepage-or-live-demo",
+          "source": "README",
+          "value": "0",
+          "location": "README.rst",
+          "observedAt": "2026-08-15T18:10:15.6783991+00:00",
+          "confidence": "High",
+          "notes": "README ba\u015Far\u0131yla incelendi; eligible demo/presentation link count: 0."
+        }
+      ],
+      "explanation": "Metadata ve README ba\u015Far\u0131yla incelendi ancak eligible homepage veya demo ba\u011Flant\u0131s\u0131 bulunamad\u0131.",
+      "recommendation": "\u00C7al\u0131\u015Fan \u00FCr\u00FCn veya canl\u0131 demo i\u00E7in GitHub homepage alan\u0131na ya da README\u0027ye a\u00E7\u0131k bir ba\u011Flant\u0131 ekleyin.",
+      "limitations": [],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    },
+    {
+      "signalKey": "portfolio.presentation-completeness",
+      "signalVersion": 1,
+      "category": "PortfolioPresentation",
+      "status": "Present",
+      "score": 4,
+      "maximumScore": 5,
+      "includeInOverallScore": false,
+      "evidence": [
+        {
+          "key": "portfolio.presentation-completeness",
+          "source": "SignalResult",
+          "value": "Present",
+          "location": "repository.description.present",
+          "observedAt": "2026-08-15T12:00:00+00:00",
+          "confidence": "High",
+          "notes": "Upstream signal status: Present; score: 4."
+        },
+        {
+          "key": "portfolio.presentation-completeness",
+          "source": "SignalResult",
+          "value": "Present",
+          "location": "repository.readme.exists",
+          "observedAt": "2026-08-15T12:00:00+00:00",
+          "confidence": "High",
+          "notes": "Upstream signal status: Present; score: 5."
+        },
+        {
+          "key": "portfolio.presentation-completeness",
+          "source": "SignalResult",
+          "value": "Missing",
+          "location": "documentation.usage-or-demo",
+          "observedAt": "2026-08-15T12:00:00+00:00",
+          "confidence": "High",
+          "notes": "Upstream signal status: Missing; score: 0."
+        },
+        {
+          "key": "portfolio.presentation-completeness",
+          "source": "SignalResult",
+          "value": "Present",
+          "location": "repository.license.present",
+          "observedAt": "2026-08-15T12:00:00+00:00",
+          "confidence": "High",
+          "notes": "Upstream signal status: Present; score: 3."
+        },
+        {
+          "key": "portfolio.presentation-completeness",
+          "source": "SignalResult",
+          "value": "Strong",
+          "location": "portfolio.topics",
+          "observedAt": "2026-08-15T12:00:00+00:00",
+          "confidence": "High",
+          "notes": "Upstream signal status: Strong; score: 4."
+        }
+      ],
+      "explanation": "Be\u015F canonical sunum par\u00E7as\u0131ndan 4 tanesi mevcut.",
+      "recommendation": null,
+      "limitations": [
+        "Sunum b\u00FCt\u00FCnl\u00FC\u011F\u00FC teknik kaliteyi, esteti\u011Fi veya geli\u015Ftirici seviyesini de\u011Ferlendirmez."
+      ],
+      "evaluatedAt": "2026-08-15T12:00:00+00:00",
+      "hasScore": true,
+      "isApplicable": true,
+      "hasAvailableEvidence": true
+    }
+  ]
+}

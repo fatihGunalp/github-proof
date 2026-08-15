@@ -1,0 +1,123 @@
+﻿{
+  "validationId": "validation-010",
+  "repository": {
+    "owner": "octocat",
+    "name": "test-repo1",
+    "url": "https://github.com/octocat/test-repo1",
+    "defaultBranch": "gh-pages",
+    "isPublic": true,
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "primaryLanguage": null
+  },
+  "frozenCommitSha": "57523742631876181d95bc268e09fb3fd1a4d85e",
+  "observedHeadCommitSha": "57523742631876181d95bc268e09fb3fd1a4d85e",
+  "headMatchesFrozen": true,
+  "capturedAt": "2026-08-15T18:11:02.4582333+00:00",
+  "atomicity": {
+    "defaultBranchContentsBoundToObservedHead": true,
+    "otherSectionsMayReflectLiveGitHubState": true,
+    "limitation": "Metadata, issues, pull requests, releases, tags, contributors, and commit pagination are not collected as one atomic GitHub transaction."
+  },
+  "counts": {
+    "fileTree": 3,
+    "commits": 1,
+    "issues": 0,
+    "pullRequests": 5,
+    "releases": 1,
+    "tags": 2,
+    "workflows": 0,
+    "topics": 0,
+    "contributors": 1
+  },
+  "availability": [
+    {
+      "dataKey": "metadata",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:02.4582054+00:00"
+    },
+    {
+      "dataKey": "file-tree",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.2371643+00:00"
+    },
+    {
+      "dataKey": "project-files",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.2371417+00:00"
+    },
+    {
+      "dataKey": "workflows",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.2371445+00:00"
+    },
+    {
+      "dataKey": "documentation-markdown",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.2371629+00:00"
+    },
+    {
+      "dataKey": "readme",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.5647663+00:00"
+    },
+    {
+      "dataKey": "license",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:03.8433477+00:00"
+    },
+    {
+      "dataKey": "languages",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:04.0740085+00:00"
+    },
+    {
+      "dataKey": "commits",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:04.3613471+00:00"
+    },
+    {
+      "dataKey": "issues",
+      "status": "NotApplicable",
+      "reason": "GitHub Issues is disabled for this repository.",
+      "retrievedAt": null
+    },
+    {
+      "dataKey": "pull-requests",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:04.7792411+00:00"
+    },
+    {
+      "dataKey": "releases",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:05.1360483+00:00"
+    },
+    {
+      "dataKey": "tags",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:05.4116575+00:00"
+    },
+    {
+      "dataKey": "contributors",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:11:05.7124437+00:00"
+    }
+  ],
+  "collectionWarnings": [
+    "Repository sections other than default-branch contents are collected from live GitHub state and may not be atomic with HeadCommitSha."
+  ]
+}

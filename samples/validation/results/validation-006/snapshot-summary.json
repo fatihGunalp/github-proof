@@ -1,0 +1,123 @@
+﻿{
+  "validationId": "validation-006",
+  "repository": {
+    "owner": "githubtraining",
+    "name": "github-games",
+    "url": "https://github.com/githubtraining/github-games",
+    "defaultBranch": "main",
+    "isPublic": true,
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "primaryLanguage": "HTML"
+  },
+  "frozenCommitSha": "ac5daf3081db10b40434cecad0fa53d91b0b3c7f",
+  "observedHeadCommitSha": "ac5daf3081db10b40434cecad0fa53d91b0b3c7f",
+  "headMatchesFrozen": true,
+  "capturedAt": "2026-08-15T18:10:26.3206338+00:00",
+  "atomicity": {
+    "defaultBranchContentsBoundToObservedHead": true,
+    "otherSectionsMayReflectLiveGitHubState": true,
+    "limitation": "Metadata, issues, pull requests, releases, tags, contributors, and commit pagination are not collected as one atomic GitHub transaction."
+  },
+  "counts": {
+    "fileTree": 15,
+    "commits": 46,
+    "issues": 3,
+    "pullRequests": 97,
+    "releases": 0,
+    "tags": 0,
+    "workflows": 0,
+    "topics": 0,
+    "contributors": 5
+  },
+  "availability": [
+    {
+      "dataKey": "metadata",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:26.3206117+00:00"
+    },
+    {
+      "dataKey": "file-tree",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.1214169+00:00"
+    },
+    {
+      "dataKey": "project-files",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.1214003+00:00"
+    },
+    {
+      "dataKey": "workflows",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.121405+00:00"
+    },
+    {
+      "dataKey": "documentation-markdown",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.1214152+00:00"
+    },
+    {
+      "dataKey": "readme",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.4762637+00:00"
+    },
+    {
+      "dataKey": "license",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:27.7570046+00:00"
+    },
+    {
+      "dataKey": "languages",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:28.1938032+00:00"
+    },
+    {
+      "dataKey": "commits",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:28.6498389+00:00"
+    },
+    {
+      "dataKey": "issues",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:29.9757401+00:00"
+    },
+    {
+      "dataKey": "pull-requests",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:31.4392381+00:00"
+    },
+    {
+      "dataKey": "releases",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:31.7414845+00:00"
+    },
+    {
+      "dataKey": "tags",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:32.0049741+00:00"
+    },
+    {
+      "dataKey": "contributors",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:32.2923559+00:00"
+    }
+  ],
+  "collectionWarnings": [
+    "Repository sections other than default-branch contents are collected from live GitHub state and may not be atomic with HeadCommitSha."
+  ]
+}

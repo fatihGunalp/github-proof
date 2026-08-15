@@ -1,0 +1,123 @@
+﻿{
+  "validationId": "validation-004",
+  "repository": {
+    "owner": "BurntSushi",
+    "name": "walkdir",
+    "url": "https://github.com/BurntSushi/walkdir",
+    "defaultBranch": "master",
+    "isPublic": true,
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "primaryLanguage": "Rust"
+  },
+  "frozenCommitSha": "6fd031c82ba5a4204b4ce6eae73dacb00dc072ec",
+  "observedHeadCommitSha": "6fd031c82ba5a4204b4ce6eae73dacb00dc072ec",
+  "headMatchesFrozen": true,
+  "capturedAt": "2026-08-15T18:10:02.332053+00:00",
+  "atomicity": {
+    "defaultBranchContentsBoundToObservedHead": true,
+    "otherSectionsMayReflectLiveGitHubState": true,
+    "limitation": "Metadata, issues, pull requests, releases, tags, contributors, and commit pagination are not collected as one atomic GitHub transaction."
+  },
+  "counts": {
+    "fileTree": 26,
+    "commits": 192,
+    "issues": 107,
+    "pullRequests": 111,
+    "releases": 0,
+    "tags": 39,
+    "workflows": 1,
+    "topics": 0,
+    "contributors": 35
+  },
+  "availability": [
+    {
+      "dataKey": "metadata",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:02.332037+00:00"
+    },
+    {
+      "dataKey": "file-tree",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:03.9587872+00:00"
+    },
+    {
+      "dataKey": "project-files",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:03.5336167+00:00"
+    },
+    {
+      "dataKey": "workflows",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:03.9587579+00:00"
+    },
+    {
+      "dataKey": "documentation-markdown",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:03.9587853+00:00"
+    },
+    {
+      "dataKey": "readme",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:04.2497258+00:00"
+    },
+    {
+      "dataKey": "license",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:04.5386411+00:00"
+    },
+    {
+      "dataKey": "languages",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:04.7907475+00:00"
+    },
+    {
+      "dataKey": "commits",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:06.6349144+00:00"
+    },
+    {
+      "dataKey": "issues",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:09.1460281+00:00"
+    },
+    {
+      "dataKey": "pull-requests",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:12.0066293+00:00"
+    },
+    {
+      "dataKey": "releases",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:12.3198929+00:00"
+    },
+    {
+      "dataKey": "tags",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:12.6409004+00:00"
+    },
+    {
+      "dataKey": "contributors",
+      "status": "Available",
+      "reason": null,
+      "retrievedAt": "2026-08-15T18:10:13.0428108+00:00"
+    }
+  ],
+  "collectionWarnings": [
+    "Repository sections other than default-branch contents are collected from live GitHub state and may not be atomic with HeadCommitSha."
+  ]
+}

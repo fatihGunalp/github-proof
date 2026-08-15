@@ -1,0 +1,193 @@
+[
+  {
+    "id": "validation-001",
+    "owner": "khellang",
+    "name": "Scrutor",
+    "url": "https://github.com/khellang/Scrutor",
+    "commitSha": "7f315dab5b0f7134a6be58941db1da8c904507e2",
+    "primaryLanguage": "C#",
+    "repositoryProfile": "strong-documentation-active",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "strong-documentation",
+      "tests-and-ci",
+      "active-project"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Moderate-size active .NET library selected for documentation and validation evidence."
+  },
+  {
+    "id": "validation-002",
+    "owner": "githubtraining",
+    "name": "assessment-push-course",
+    "url": "https://github.com/githubtraining/assessment-push-course",
+    "commitSha": "d659a44de31a7abb34f74073b410200bd4ab7bc7",
+    "primaryLanguage": null,
+    "repositoryProfile": "weak-short-readme",
+    "isArchived": true,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "short-readme",
+      "archived-training-repository",
+      "no-primary-language"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "The default-branch README is intentionally very short; archive status is independently recorded."
+  },
+  {
+    "id": "validation-003",
+    "owner": "octocat",
+    "name": "hello-worId",
+    "url": "https://github.com/octocat/hello-worId",
+    "commitSha": "7e068727fdb347b685b658d2981f8c85f7bf0585",
+    "primaryLanguage": null,
+    "repositoryProfile": "single-commit",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "single-commit",
+      "short-readme",
+      "no-primary-language"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "GitHub reports one default-branch commit; no authorship, copying, AI-use, or skill inference is permitted."
+  },
+  {
+    "id": "validation-004",
+    "owner": "BurntSushi",
+    "name": "walkdir",
+    "url": "https://github.com/BurntSushi/walkdir",
+    "commitSha": "6fd031c82ba5a4204b4ce6eae73dacb00dc072ec",
+    "primaryLanguage": "Rust",
+    "repositoryProfile": "distributed-commit-history",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "distributed-history",
+      "rust-library",
+      "small-purpose-scope"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Established Rust library selected to exercise commit-history distribution without using a very large repository."
+  },
+  {
+    "id": "validation-005",
+    "owner": "pytest-dev",
+    "name": "pytest-subtests",
+    "url": "https://github.com/pytest-dev/pytest-subtests",
+    "commitSha": "1e5760131dd7cc0376b86f4499aef15d51e28ea6",
+    "primaryLanguage": "Python",
+    "repositoryProfile": "test-and-ci",
+    "isArchived": true,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "tests-and-ci",
+      "python",
+      "archived"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Python plugin selected for explicit test and workflow evidence; archive state must not imply failure."
+  },
+  {
+    "id": "validation-006",
+    "owner": "githubtraining",
+    "name": "github-games",
+    "url": "https://github.com/githubtraining/github-games",
+    "commitSha": "ac5daf3081db10b40434cecad0fa53d91b0b3c7f",
+    "primaryLanguage": "HTML",
+    "repositoryProfile": "no-test-or-ci",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "training-project",
+      "test-ci-absence-candidate",
+      "intentional-bugs"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Training repository selected to inspect test/CI false positives; expected absence remains subject to human review."
+  },
+  {
+    "id": "validation-007",
+    "owner": "githubtraining",
+    "name": "hellogitworld",
+    "url": "https://github.com/githubtraining/hellogitworld",
+    "commitSha": "ef7bebf8bdb1919d947afe46ab4b2fb4278039b3",
+    "primaryLanguage": "Java",
+    "repositoryProfile": "archived-completed",
+    "isArchived": true,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "archived",
+      "completed-sample",
+      "java"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Completed training sample selected to ensure archive state is recorded without value or quality inference."
+  },
+  {
+    "id": "validation-008",
+    "owner": "sindresorhus",
+    "name": "yocto-queue",
+    "url": "https://github.com/sindresorhus/yocto-queue",
+    "commitSha": "b07eac099753833b29d06c614149904445739776",
+    "primaryLanguage": "JavaScript",
+    "repositoryProfile": "small-single-purpose-tool",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "small-tool",
+      "single-purpose",
+      "issues-empty-candidate"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Tiny queue package selected to verify that small scope is not itself treated as poor evidence."
+  },
+  {
+    "id": "validation-009",
+    "owner": "spring-guides",
+    "name": "gs-spring-boot",
+    "url": "https://github.com/spring-guides/gs-spring-boot",
+    "commitSha": "d29be6bd11373e40b8e00885ec3106c74b67fd25",
+    "primaryLanguage": "Java",
+    "repositoryProfile": "education-example",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "education-example",
+      "java",
+      "tests-and-ci"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Spring guide selected to keep educational intent separate from production-readiness assumptions."
+  },
+  {
+    "id": "validation-010",
+    "owner": "octocat",
+    "name": "test-repo1",
+    "url": "https://github.com/octocat/test-repo1",
+    "commitSha": "57523742631876181d95bc268e09fb3fd1a4d85e",
+    "primaryLanguage": null,
+    "repositoryProfile": "empty-or-insufficient-data",
+    "isArchived": false,
+    "isFork": false,
+    "isTemplate": false,
+    "expectedEdgeCases": [
+      "no-readme",
+      "minimal-content",
+      "single-commit",
+      "no-primary-language"
+    ],
+    "manualReviewStatus": "Pending",
+    "notes": "Non-empty but intentionally insufficient-data candidate; a real SHA is retained because an actually empty repository has no commit to freeze."
+  }
+]

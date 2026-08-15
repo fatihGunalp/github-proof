@@ -54,6 +54,55 @@ public sealed class RepositorySignalAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_WithAllProductionEvaluatorsAndSameSnapshot_IsSemanticallyDeterministic()
+    {
+        RepositorySnapshot snapshot = CreateSnapshot();
+        RepositorySignalAnalyzer firstAnalyzer = CreateProductionAnalyzer(EvaluatedAt);
+        RepositorySignalAnalyzer secondAnalyzer = CreateProductionAnalyzer(EvaluatedAt);
+
+        IReadOnlyList<SignalResult> first = firstAnalyzer.Analyze(snapshot);
+        IReadOnlyList<SignalResult> second = secondAnalyzer.Analyze(snapshot);
+
+        Assert.Equal(first.Count, second.Count);
+
+        for (int index = 0; index < first.Count; index++)
+        {
+            AssertEquivalent(first[index], second[index]);
+        }
+    }
+
+    [Fact]
+    public void Analyze_PreservesMissingUnavailableAndNotApplicableStatusBoundaries()
+    {
+        RepositorySnapshot snapshot = CreateStatusBoundarySnapshot();
+        IReadOnlyList<SignalResult> results = CreateProductionAnalyzer(EvaluatedAt).Analyze(snapshot);
+
+        SignalResult description = Assert.Single(
+            results,
+            result => result.SignalKey == DescriptionPresentSignalEvaluator.SignalKey);
+        Assert.Equal(SignalStatus.Missing, description.Status);
+        Assert.Equal(0, description.Score);
+
+        SignalResult readme = Assert.Single(
+            results,
+            result => result.SignalKey == ReadmeExistsSignalEvaluator.SignalKey);
+        Assert.Equal(SignalStatus.UnavailableEvidence, readme.Status);
+        Assert.Null(readme.Score);
+
+        SignalResult issueUsage = Assert.Single(
+            results,
+            result => result.SignalKey == IssueUsageSignalEvaluator.SignalKey);
+        Assert.Equal(SignalStatus.NotApplicable, issueUsage.Status);
+        Assert.Null(issueUsage.Score);
+
+        SignalResult commitDistribution = Assert.Single(
+            results,
+            result => result.SignalKey == CommitDistributionSignalEvaluator.SignalKey);
+        Assert.Equal(SignalStatus.NotApplicable, commitDistribution.Status);
+        Assert.Null(commitDistribution.Score);
+    }
+
+    [Fact]
     public void Constructor_WhenEvaluatorKeyIsDuplicated_FailsFast()
     {
         List<FakeSignalEvaluator> evaluators = CreateEvaluators();
@@ -166,6 +215,15 @@ public sealed class RepositorySignalAnalyzerTests
         new HomepageLiveDemoSignalEvaluator(timeProvider)
     ];
 
+    private static RepositorySignalAnalyzer CreateProductionAnalyzer(DateTimeOffset evaluatedAt)
+    {
+        FixedTimeProvider timeProvider = new(evaluatedAt);
+
+        return new RepositorySignalAnalyzer(
+            CreateProductionEvaluators(timeProvider),
+            new PresentationCompletenessSignalEvaluator(timeProvider));
+    }
+
     private static RepositorySnapshot CreateSnapshot() =>
         new(
             new RepositoryIdentity(
@@ -193,6 +251,52 @@ public sealed class RepositorySignalAnalyzerTests
             languages: null,
             contributors: null,
             availability: null,
+            collectionWarnings: null);
+
+    private static RepositorySnapshot CreateStatusBoundarySnapshot() =>
+        new(
+            new RepositoryIdentity(
+                "owner",
+                "repository",
+                new Uri("https://github.com/owner/repository"),
+                "main",
+                isPublic: true,
+                isArchived: false,
+                isFork: false,
+                isTemplate: false,
+                primaryLanguage: "C#"),
+            CapturedAt,
+            headCommitSha: "abc123",
+            new RepositoryMetadata(
+                description: null,
+                homepage: null,
+                createdAt: EvaluatedAt.AddDays(-7),
+                issuesEnabled: false),
+            readme: null,
+            fileTree: null,
+            new RepositoryCollection<RepositoryCommit>(
+                [new RepositoryCommit("abc123", CapturedAt, "Initial commit", "owner")]),
+            issues: null,
+            pullRequests: null,
+            releases: null,
+            workflows: null,
+            topics: null,
+            license: null,
+            languages: null,
+            contributors: null,
+            availability:
+            [
+                DataAvailability.Available("metadata", CapturedAt),
+                DataAvailability.Unavailable(
+                    "readme",
+                    DataAvailabilityStatus.Failed,
+                    "README request failed."),
+                DataAvailability.Available("commits", CapturedAt),
+                DataAvailability.Unavailable(
+                    "issues",
+                    DataAvailabilityStatus.NotApplicable,
+                    "GitHub Issues is disabled.")
+            ],
             collectionWarnings: null);
 
     private static void AssertEquivalent(SignalResult first, SignalResult second)

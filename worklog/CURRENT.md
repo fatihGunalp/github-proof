@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: All 15 production signals and Application orchestration are available; validation-set and cross-run determinism work is next.
+Focus: All 15 signals, Application orchestration, and the first frozen validation run are complete; Phase 3 final exit validation is next.
 ```
 
 ---
@@ -51,46 +51,45 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Start Session 037 — Validation Repository Set + Signal Determinism after its mandatory model gate.
+Start Session 038 — Phase 3 Final Integration / Exit Validation after its mandatory model gate.
 ```
 
 ## Working Set
 
 ```text
-Session 036 Application orchestration, derived presentation completeness, and focused tests.
+Session 037 frozen manifest, 10-repository live artifacts, and deterministic analyzer coverage.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 715114a
-Last verified working tree: CLEAN before Session 036
+Last verified HEAD: c7c2bb6
+Last verified working tree: CLEAN before Session 037
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 036 — Application Signal Orchestration + Presentation Completeness: PASS
+Session 037 — Validation Repository Set + Determinism: PASS
 
-- Added deterministic Application orchestration for the exact 14 independent production evaluators.
-- Added the derived `portfolio.presentation-completeness` Domain evaluator over five upstream signal results.
-- Enforced missing, duplicate, unknown, and returned-key contract guards without reflection or a generic registry.
-- Production signal output is now 15 / 15 in canonical order; the composite remains excluded from overall scoring.
+- Froze 10 distinct public validation repositories at real default/head commit SHAs.
+- Ran the opt-in collection → snapshot → 15-signal pipeline successfully for all 10 repositories.
+- Proved two fixed-time analyses of the same snapshot have zero semantic differences.
+- Added per-repository validation-only artifacts while leaving all human review statuses `Pending`.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 715114a, clean before Session 036
-Focused Presentation Completeness tests: PASS — 13 passed
-Focused Application orchestration tests: PASS — 8 passed
-All evaluator regression: PASS — 369 passed
+Repository baseline: PASS — main at c7c2bb6, clean before Session 037
+Manifest/schema tests: PASS — 2 passed
+Opt-in live validation: PASS — 10 repositories, 150 signals, 0 semantic differences
 Domain tests: PASS — 420 passed
-Application tests: PASS — 8 passed
-Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 516 passed
+Application tests: PASS — 10 passed
+Infrastructure tests: PASS — 90 passed
+Solution tests: PASS — 520 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS
@@ -121,7 +120,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-None currently confirmed.
+Repository sections outside default-branch contents remain live and non-atomic with the frozen head SHA; validation artifacts expose this Phase 2 limitation.
 ```
 
 ## Git Rule

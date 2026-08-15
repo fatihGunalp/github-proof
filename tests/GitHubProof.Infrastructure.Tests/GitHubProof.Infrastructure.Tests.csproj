@@ -18,7 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\GitHubProof.Application\GitHubProof.Application.csproj" />
     <ProjectReference Include="..\..\src\GitHubProof.Infrastructure\GitHubProof.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\samples\validation\repositories.json"
+          Link="samples\validation\repositories.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
