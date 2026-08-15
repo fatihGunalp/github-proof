@@ -2,8 +2,10 @@
   <Folder Name="/src/">
     <Project Path="src/GitHubProof.Application/GitHubProof.Application.csproj" />
     <Project Path="src/GitHubProof.Domain/GitHubProof.Domain.csproj" />
+    <Project Path="src/GitHubProof.Infrastructure/GitHubProof.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj" />
+    <Project Path="tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>
