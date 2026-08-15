@@ -38,6 +38,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Usage/Demo signal contract audit | BLOCKED | Sol / high | [027](./sessions/2026-08-15-027-usage-demo-contract-audit.md) | 30640fc |
 | 2026-08-15 | Usage/Demo semantic contract | PASS | Sol / high | [028](./sessions/2026-08-15-028-usage-demo-semantic-contract.md) | 7641cc6 |
 | 2026-08-15 | Usage/Demo signal evaluator | BLOCKED | Sol / high | [029](./sessions/2026-08-15-029-usage-demo-signal-evaluator.md) | 9b1bf85 |
+| 2026-08-15 | Usage/Demo contract fix and evaluator retry | PASS | Sol / high | [030](./sessions/2026-08-15-030-usage-demo-contract-fix-and-evaluator.md) | 5060f1c |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 

@@ -880,7 +880,7 @@ En az bir clear usage example varsa, fakat hiçbir source-local sonuç Strong de
 
 #### Partial
 
-Clear usage example yoksa, required Markdown corpus complete ise ve yalnız bounded weak presentation evidence bulunuyorsa `Partial`, 4 puan üretilir. Bounded weak evidence yalnız:
+Clear usage example yoksa, required Markdown corpus complete ise ve en az bir high-confidence screenshot/video/live-demo evidence veya bounded weak presentation evidence bulunuyorsa `Partial`, 4 puan üretilir. High-confidence visual/demo evidence, kullanım örneğini tek başına kanıtlamaz ancak görünür sunum/demo kanıtının tamamen eksik olmadığı anlamına gelir. Bounded weak evidence yalnız:
 
 - Aynı image identity içinde hem positive hem exclusion marker'ı bulunan ambiguous screenshot candidate
 - Uncorroborated canonical demo-intent brittle-link candidate
@@ -935,7 +935,7 @@ Full README/docs body `SignalResult` içine kopyalanmaz. Minimum deterministic e
 
 - Strong: source path, usage evidence type, distinct demo/visual evidence type ve concise representative values
 - Present: source path ve clear usage evidence
-- Partial: weak visual/link evidence ve neden high-confidence olmadığı
+- Partial: high-confidence visual/demo veya bounded weak evidence; weak evidence için neden high-confidence olmadığı
 - Missing: README inspection, complete docs corpus, usage count `0`, demo/visual count `0`
 - UnavailableEvidence: exact sonucu engelleyen availability/completeness limitation'ı
 - RequiresHumanReview: malformed/ambiguous source ve bounded reason
@@ -943,7 +943,7 @@ Full README/docs body `SignalResult` içine kopyalanmaz. Minimum deterministic e
 ### Öneri
 
 - Missing: README veya docs içinde gerçek bir kullanım örneği ekleyin; mümkünse örnek komut, request/response veya sample output gösterin.
-- Partial: Belirsiz demo/görsel kanıtını açık bir kullanım örneği ve net demo/screenshot bağlamıyla tamamlayın.
+- Partial: Görsel/demo kanıtını açık bir kullanım örneğiyle tamamlayın; bounded weak evidence varsa demo/screenshot bağlamını da netleştirin.
 - RequiresHumanReview: Belirsiz Markdown kullanım/demo gösterimini açık heading, label ve geçerli Markdown yapısıyla netleştirin.
 - UnavailableEvidence: Kanıtın gerçekten eksik olduğu bilinmediği için repository content değişikliği önermeyin.
 

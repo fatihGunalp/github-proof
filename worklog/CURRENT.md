@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Usage/Demo evaluator implementation is blocked by a non-exhaustive canonical status contract.
+Focus: Five production evaluators are complete; process commit-history and commit-distribution signals are next.
 ```
 
 ---
@@ -45,49 +45,55 @@ None.
 ## Current Problem
 
 ```text
-Complete-corpus high-confidence visual/demo-only evidence has no canonical Usage/Demo status.
+None currently confirmed.
 ```
 
 ## Next Immediate Action
 
 ```text
-Define the canonical status/score for high-confidence visual/demo evidence without clear usage, then retry the evaluator.
+Implement `process.commit-history` and `process.commit-distribution` in the next bounded session.
 ```
 
 ## Working Set
 
 ```text
-Session 029 worklog changes only; production, test, and canonical docs are unchanged.
+Session 030 canonical Partial fix, Domain evaluator, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 9b1bf85
-Last verified working tree: CLEAN before Session 029
+Last verified HEAD: 5060f1c
+Last verified working tree: CLEAN before Session 030
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 029 — Usage/Demo Signal Evaluator: BLOCKED — CONTRACT CONTRADICTION
+Session 030 — Usage/Demo Contract Fix + Evaluator: PASS
 
-- Verified the clean main baseline at 9b1bf85 and reloaded the canonical Version 1 contract.
-- Found that high-confidence screenshot/video/live-demo evidence without clear usage matches none of the six statuses.
-- Confirmed the product boundary treats those artifacts as valid positive Usage/Demo evidence.
-- Stopped before production/test implementation rather than choosing an undocumented status or score.
+- Closed the single exhaustive-status gap by classifying complete-corpus high-confidence visual/demo-only evidence as Partial / 4.
+- Added the deterministic Version 1 `documentation.usage-or-demo` evaluator.
+- Covered exact usage, screenshot, video, live-demo, weak evidence, source-local, availability, ambiguity, and determinism rules.
+- Preserved Version 1, all existing scores, status precedence, provider isolation, and dependency boundaries.
+- Production evaluators are now 5 / 15.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 9b1bf85, clean before Session 029
-Canonical status exhaustiveness review: BLOCKED — visual/demo-only high-confidence state is unclassified
-Cross-document signal-boundary review: PASS
-Production/test scope review: PASS — no src/** or tests/** changes
-dotnet test/build/format: NOT RUN — implementation stopped before code changes
+Repository baseline: PASS — main at 5060f1c, clean before Session 030
+Contract exhaustiveness: PASS — 7 / 7 valid states classified
+Focused Usage/Demo tests: PASS — 73 passed
+Existing evaluator regression: PASS — 92 passed
+Documentation Infrastructure regression: PASS — 28 passed
+Domain tests: PASS — 216 passed
+Infrastructure tests: PASS — 88 passed
+Solution tests: PASS — 304 passed
+Solution build: PASS — 0 warnings, 0 errors
+dotnet format verify: PASS
 git diff --check: PASS
 ```
 
@@ -116,7 +122,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-`documentation.usage-or-demo` Version 1 does not define a status for complete-corpus high-confidence visual/demo evidence when clear usage is absent.
+None currently confirmed.
 ```
 
 ## Git Rule
