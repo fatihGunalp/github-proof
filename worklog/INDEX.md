@@ -22,6 +22,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Repository descriptive data collection | PASS | Terra / high | [011](./sessions/2026-08-15-011-descriptive-data-collection.md) | 3d81f80 |
 | 2026-08-15 | Default branch commit collection | PASS | Terra / high | [012](./sessions/2026-08-15-012-commit-collection.md) | d8bea7b |
 | 2026-08-15 | Issues and pull requests collection | PASS | Terra / high | [013](./sessions/2026-08-15-013-issues-pull-requests-collection.md) | badc250 |
+| 2026-08-15 | Releases, tags, and contributors collection | PASS | Terra / high | [014](./sessions/2026-08-15-014-releases-tags-contributors-collection.md) | 6b3d5a1 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 

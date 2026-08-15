@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 2 — GitHub Data Collection
-Focus: Issue and pull-request collection is implemented; remaining Phase 2 collectors are pending.
+Focus: Releases, tags, and contributors collection is implemented; remaining Phase 2 collectors are pending.
 ```
 
 ---
@@ -57,38 +57,38 @@ Run a new model gate before the next bounded Phase 2 data-collection slice.
 ## Working Set
 
 ```text
-Session 013 implementation and worklog updates are uncommitted.
+Session 014 implementation and worklog updates are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: badc250
-Last verified working tree: Session 013 changes present; no pre-existing unrelated changes
+Last verified HEAD: 6b3d5a1
+Last verified working tree: Session 014 changes present; no pre-existing unrelated changes
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 013 — Issues and pull requests collection: PASS
+Session 014 — Releases, tags, and contributors collection: PASS
 
-- Added normalized issue and pull-request collectors with Link-header pagination.
-- Excluded pull-request-shaped entries from issue data and preserved first-observed records by number.
-- Kept unavailable, partial, rate-limited, forbidden, and not-applicable data explicit through availability and completeness state.
-- Added sixteen focused issue and pull-request collection tests.
+- Added independent normalized release, tag, and contributor collectors with Link-header pagination.
+- Preserved release notes, published/draft state, tags independent from releases, and contributors without anonymous identity expansion.
+- Preserved usable data when later pages fail and retained each collection's own availability/completeness state.
+- Added sixteen focused release, tag, and contributor collection tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 43 passed
-dotnet test GitHubProof.slnx --no-restore: PASS — 86 passed
+dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 59 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 102 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 013 changes only
+git status --short: Session 014 changes only
 ```
 
 ## Critical Invariants
