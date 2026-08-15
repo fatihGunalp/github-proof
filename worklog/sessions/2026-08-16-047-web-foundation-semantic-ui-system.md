@@ -159,9 +159,9 @@ Production foundation:
 
 ~~~text
 GitHubProof.Web.Tests:
-PASS — 20/20
+PASS — 26/26
 
-GitHubProof.Web build:
+Clean Web build:
 PASS
 
 Full solution build:
@@ -173,34 +173,28 @@ PASS
 dotnet format --verify-no-changes:
 PASS
 
-Canonical SignalStatus coverage:
-PASS — 7/7
-
-Typed StatusBadge mapping:
+RepositoryReport direct typed input:
 PASS
 
-Localized StatusLabel preservation:
+Canonical report section order:
 PASS
 
-Text/icon + color semantics:
+Uncertainty before secondary score:
 PASS
 
-Missing != UnavailableEvidence:
+SignalDetails progressive disclosure:
 PASS
+
+Markdown parsing in Web:
+NONE
 
 CSS semantic-token boundary:
-PASS
-
-Primitive-token guard across all consumer stylesheets:
 PASS
 
 Home:
 UNCHANGED
 
-Live repository analysis:
-NOT WIRED
-
-git diff --check:
+git diff --cached --check:
 PASS
 ~~~
 
@@ -273,10 +267,10 @@ Session status:
 ~~~text
 Harden the typed RepositoryReport shell before live orchestration.
 
-Validate:
+Validate and refine:
 - responsive semantic order,
 - evidence readability,
-- progressive disclosure,
+- keyboard/details behavior,
 - Light/Dark equivalence,
 - score remains secondary,
 - accessibility foundations.
@@ -301,7 +295,13 @@ Home refinement worklog sync:
 5a883a6 — docs(worklog): sync home refinement checkpoint
 
 StatusBadge checkpoint:
-5a4ff37a6a0b2b776ffe91ee9998b7bcfb36c940 — feat(web): add canonical status badge semantics
+5a4ff37 — feat(web): add canonical status badge semantics
+
+StatusBadge worklog sync:
+2ee9b58 — docs(worklog): sync status badge checkpoint
+
+Typed RepositoryReport shell checkpoint:
+a262394a62ba9084df09954864d36a22a290c5fc — feat(web): add typed repository report shell
 
 Push:
 origin/main — PASS
@@ -310,7 +310,7 @@ Session status:
 IN_PROGRESS
 
 Next:
-Typed RepositoryReport report shell
+RepositoryReport presentation hardening
 ~~~
 
 ## Completion Checklist

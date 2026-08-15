@@ -52,22 +52,26 @@ Completed:
 - Canonical repository-URL-only Home.
 - Home visual refinement accepted in Dark and Light.
 - Canonical StatusBadge with seven SignalStatus semantics.
-- Typed RepositoryReport report shell implemented.
+- Typed RepositoryReport report shell implemented and checkpointed.
 - Report shell consumes RepositoryReport directly.
 - Canonical evidence-first section order preserved.
 - Proves / Weakens / DoFirst remain primary reading layers.
 - Uncertainty precedes secondary score.
 - Signal details use progressive disclosure.
-- Evidence values remain visible without Markdown parsing.
-- StatusBadge generalized to reusable SignalStatus + localized StatusLabel input.
+- Evidence remains visible without Markdown parsing.
+- StatusBadge accepts reusable SignalStatus + localized StatusLabel input.
 
-Step 7 validation:
+Step 7 checkpoint:
+a262394a62ba9084df09954864d36a22a290c5fc — feat(web): add typed repository report shell
+
+Validation:
 - Web tests PASS 26/26.
-- Initial standalone Web build hit a transient ResolveAppHosts SDK assembly-load failure.
-- Build servers were reset.
-- Clean no-node-reuse Web build passed without source changes.
-- Home remained unchanged.
-- Current shell Git access recovered through Visual Studio embedded Git.
+- Clean Web build PASS.
+- Full solution build PASS.
+- Full solution tests PASS.
+- Format verification PASS.
+- CSS semantic boundary PASS.
+- Home unchanged.
 
 Live repository analysis remains intentionally unwired.
 ~~~
@@ -81,15 +85,15 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Review and harden the typed RepositoryReport shell before live orchestration.
+Session 047 — harden the typed RepositoryReport presentation before live orchestration.
 
-Validate:
+Validate and refine:
 - responsive semantic order,
 - evidence readability,
 - keyboard/details behavior,
 - Light/Dark equivalence,
-- score-secondary treatment,
-- accessibility foundations.
+- score remains secondary,
+- accessibility foundation.
 
 Do not parse Markdown.
 Do not wire live GitHub analysis yet.
@@ -137,7 +141,11 @@ Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 Session 047 / Step 7:
 
 GitHubProof.Web.Tests: PASS — 26/26
-GitHubProof.Web clean build: PASS
+Clean Web build: PASS
+Full solution build: PASS
+Full solution tests: PASS
+dotnet format --verify-no-changes: PASS
+
 RepositoryReport direct input: PASS
 Canonical section order: PASS
 Uncertainty before secondary score: PASS
@@ -145,18 +153,7 @@ SignalDetails progressive disclosure: PASS
 Markdown parsing in Web: NONE
 CSS semantic-token boundary: PASS
 Home immutability guard: PASS
-
-Initial standalone build:
-TRANSIENT ResolveAppHosts SDK assembly-load failure.
-
-Recovery:
-build-server shutdown + /nr:false.
-
-Recovery result:
-PASS
-
-Git shell recovery:
-PASS — Visual Studio embedded Git.
+git diff --cached --check: PASS
 ~~~
 
 ## Critical Invariants
