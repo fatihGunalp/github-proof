@@ -36,20 +36,34 @@ public sealed class CssArchitectureTests
     }
 
     [Fact]
-    public void Component_stylesheet_does_not_depend_on_primitive_color_tokens()
+    public void Consumer_stylesheets_do_not_depend_on_primitive_color_tokens()
     {
-        string componentPath = Path.Combine(
-            GetCssDirectory(),
-            "components.css");
+        string cssDirectory = GetCssDirectory();
 
-        string content = File.ReadAllText(componentPath);
+        string[] consumerFiles = Directory
+            .EnumerateFiles(
+                cssDirectory,
+                "*.css",
+                SearchOption.TopDirectoryOnly)
+            .Where(path => !string.Equals(
+                Path.GetFileName(path),
+                "tokens.css",
+                StringComparison.OrdinalIgnoreCase))
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .ToArray();
 
-        Assert.DoesNotContain(
-            "--primitive-",
-            content,
-            StringComparison.Ordinal);
+        Assert.NotEmpty(consumerFiles);
+
+        foreach (string file in consumerFiles)
+        {
+            string content = File.ReadAllText(file);
+
+            Assert.DoesNotContain(
+                "--primitive-",
+                content,
+                StringComparison.Ordinal);
+        }
     }
-
     [Fact]
     public void Component_stylesheet_uses_semantic_interaction_tokens()
     {

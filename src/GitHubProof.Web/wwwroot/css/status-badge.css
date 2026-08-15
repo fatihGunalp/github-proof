@@ -1,0 +1,84 @@
+.status-badge {
+    --status-badge-fg: var(--fg-secondary);
+    --status-badge-bg: var(--surface-subtle);
+    --status-badge-border: var(--border-default);
+    --status-badge-icon: var(--fg-tertiary);
+
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 1.75rem;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--status-badge-border);
+    border-radius: var(--radius-full);
+    background: var(--status-badge-bg);
+    color: var(--status-badge-fg);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-label);
+    line-height: var(--line-height-small);
+    white-space: nowrap;
+}
+
+.status-badge__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0.875rem;
+    color: var(--status-badge-icon);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.status-badge__label {
+    color: inherit;
+}
+
+.status-badge--strong {
+    --status-badge-fg: var(--status-strong-fg);
+    --status-badge-bg: var(--status-strong-bg);
+    --status-badge-border: var(--status-strong-border);
+    --status-badge-icon: var(--status-strong-icon);
+}
+
+.status-badge--present {
+    --status-badge-fg: var(--status-present-fg);
+    --status-badge-bg: var(--status-present-bg);
+    --status-badge-border: var(--status-present-border);
+    --status-badge-icon: var(--status-present-icon);
+}
+
+.status-badge--partial {
+    --status-badge-fg: var(--status-partial-fg);
+    --status-badge-bg: var(--status-partial-bg);
+    --status-badge-border: var(--status-partial-border);
+    --status-badge-icon: var(--status-partial-icon);
+}
+
+.status-badge--missing {
+    --status-badge-fg: var(--status-missing-fg);
+    --status-badge-bg: var(--status-missing-bg);
+    --status-badge-border: var(--status-missing-border);
+    --status-badge-icon: var(--status-missing-icon);
+}
+
+.status-badge--not-applicable {
+    --status-badge-fg: var(--status-not-applicable-fg);
+    --status-badge-bg: var(--status-not-applicable-bg);
+    --status-badge-border: var(--status-not-applicable-border);
+    --status-badge-icon: var(--status-not-applicable-icon);
+}
+
+.status-badge--unavailable-evidence {
+    --status-badge-fg: var(--status-unavailable-fg);
+    --status-badge-bg: var(--status-unavailable-bg);
+    --status-badge-border: var(--status-unavailable-border);
+    --status-badge-icon: var(--status-unavailable-icon);
+}
+
+.status-badge--requires-human-review {
+    --status-badge-fg: var(--status-human-review-fg);
+    --status-badge-bg: var(--status-human-review-bg);
+    --status-badge-border: var(--status-human-review-border);
+    --status-badge-icon: var(--status-human-review-icon);
+}

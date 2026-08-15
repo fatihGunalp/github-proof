@@ -159,7 +159,10 @@ Production foundation:
 
 ~~~text
 GitHubProof.Web.Tests:
-PASS — 7/7
+PASS — 20/20
+
+GitHubProof.Web build:
+PASS
 
 Full solution build:
 PASS
@@ -167,26 +170,35 @@ PASS
 Full solution tests:
 PASS
 
-Semantic CSS boundary:
+dotnet format --verify-no-changes:
 PASS
 
-Canonical repository URL scope:
+Canonical SignalStatus coverage:
+PASS — 7/7
+
+Typed StatusBadge mapping:
 PASS
 
-Username discovery:
-NOT INTRODUCED
-
-Dark browser review:
+Localized StatusLabel preservation:
 PASS
 
-Light browser review:
+Text/icon + color semantics:
 PASS
 
-Light/Dark hierarchy equivalence:
+Missing != UnavailableEvidence:
 PASS
 
-Step 5.1 Home visual refinement:
-ACCEPTED
+CSS semantic-token boundary:
+PASS
+
+Primitive-token guard across all consumer stylesheets:
+PASS
+
+Home:
+UNCHANGED
+
+Live repository analysis:
+NOT WIRED
 
 git diff --check:
 PASS
@@ -259,18 +271,12 @@ Session status:
 ## Next
 
 ~~~text
-Implement StatusBadge and the seven canonical evidence-state semantics.
+Build the first typed RepositoryReport report shell using the accepted semantic UI system.
 
-Required states:
-- Strong
-- Present
-- Partial
-- Missing
-- NotApplicable
-- UnavailableEvidence
-- RequiresHumanReview
+StatusBadge is the canonical signal-state visual primitive.
 
-Do not collapse uncertainty states into failure semantics.
+Preserve exact report hierarchy and progressive disclosure.
+Do not parse Markdown.
 Do not wire live repository analysis yet.
 ~~~
 

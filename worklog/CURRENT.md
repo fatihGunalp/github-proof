@@ -46,28 +46,18 @@ Establish the Phase 5 Web foundation and semantic Light/Dark UI system while pre
 ~~~text
 Session 047 is active.
 
-Completed checkpoint:
+Completed:
 - Minimal GitHubProof.Web Razor Pages host.
-- GitHubProof.Web.Tests project.
 - Semantic Light / Dark / System token architecture.
 - Generic Button and Input primitives.
-- CSS semantic-token architecture tests.
-- Canonical repository-URL-only RepositoryInput.
-- Minimal evidence-first Home composition.
-- Foundation checkpoint pushed at 227c84f / fb1f388.
-
-Step 5.1 completed:
-- Hero vertical position and visual weight refined.
-- Content width and reading rhythm refined.
-- Typography hierarchy strengthened.
-- RepositoryInput promoted as the primary interaction surface.
-- Disabled Analyze state remains honest but visually legible.
-- Supporting metadata hierarchy refined.
-- Mobile spacing and stacking refined.
-- Explicit public GitHub repository boundary preserved.
-- Dark browser review: PASS.
-- Light browser review: PASS.
-- Light/Dark hierarchy equivalence: PASS.
+- Canonical repository-URL-only Home.
+- Home visual refinement accepted in Dark and Light.
+- StatusBadge typed presentation mapping implemented.
+- StatusBadge consumes SignalPresentation.Status and localized StatusLabel.
+- All seven canonical SignalStatus values have explicit non-color visual cues.
+- Missing and UnavailableEvidence remain visually and semantically distinct.
+- StatusBadge consumes semantic status tokens only.
+- CSS primitive-token architecture guard now covers all consumer stylesheets.
 
 Live repository analysis remains intentionally unwired.
 ~~~
@@ -81,23 +71,14 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Session 047 / next step — implement StatusBadge and the seven canonical evidence-state semantics:
+Build the first typed RepositoryReport report shell.
 
-Strong
-Present
-Partial
-Missing
-NotApplicable
-UnavailableEvidence
-RequiresHumanReview
+The Web UI must consume RepositoryReport directly and preserve:
+identity -> proves -> weakens -> do first -> uncertainty -> categories/secondary score -> signal details -> disclaimer.
 
-Preserve:
-- text/icon + color semantics,
-- Missing != UnavailableEvidence,
-- theme equivalence,
-- semantic-token-only styling.
-
-Do not wire live repository analysis yet.
+Do not parse Markdown.
+Do not recreate analysis truth in Web.
+Do not wire live GitHub analysis yet.
 ~~~
 
 ## Working Set
@@ -139,16 +120,17 @@ Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 ## Last Validation
 
 ~~~text
-Session 047 checkpoint validation:
+Session 047 / Step 6:
 
-GitHubProof.Web.Tests: PASS — 7/7
-Full solution build: PASS
-Full solution tests: PASS
-dotnet format --verify-no-changes: PASS
+GitHubProof.Web.Tests: PASS
+GitHubProof.Web build: PASS
+Seven canonical SignalStatus values: PASS
+Typed StatusBadge mapping: PASS
+Localized StatusLabel preservation: PASS
+Non-color status cues: PASS
+Missing != UnavailableEvidence: PASS
 CSS semantic-token boundary: PASS
-Canonical repository URL scope guard: PASS
-Username discovery not introduced: PASS
-Browser smoke check: PASS
+Primitive-token consumer guard: PASS
 git diff --check: PASS
 ~~~
 

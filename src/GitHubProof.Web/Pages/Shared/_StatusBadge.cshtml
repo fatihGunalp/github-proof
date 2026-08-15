@@ -1,0 +1,20 @@
+@using GitHubProof.Web.Presentation
+@model GitHubProof.Application.Analysis.Presentation.SignalPresentation
+
+@{
+    StatusBadgePresentation badge = StatusBadgePresentation.From(Model.Status);
+}
+
+<span
+    class="status-badge @badge.CssModifier"
+    data-status="@Model.Status">
+    <span
+        class="status-badge__icon"
+        aria-hidden="true">
+        @badge.Glyph
+    </span>
+
+    <span class="status-badge__label">
+        @Model.StatusLabel
+    </span>
+</span>
