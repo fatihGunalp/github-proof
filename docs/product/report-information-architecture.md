@@ -532,66 +532,142 @@ Doğrulanan davranışlar:
 
 ---
 
-## 11. Session 046 Exact Handoff — Markdown Report + Phase 4 Exit Validation
+## 11. Session 046 Implementation Result — Deterministic Markdown Report + Phase 4 Exit
 
-Session 046, Session 045'in typed localized projection'ını tüketmelidir:
-
-~~~text
-RepositoryReport
-      ↓
-Deterministic Markdown report
-      ↓
-Phase 4 exit validation
-~~~
-
-### MUST implement
-
-1. `RepositoryReport` dışında analysis input'u kabul etmeyen deterministic Markdown renderer.
-2. Canonical section order aynen korunmalı:
-   identity → proves → weakens → do first → uncertainty → categories/secondary score → signal detail → disclaimer.
-3. Strength, critical-gap ve action sırası renderer tarafından yeniden hesaplanmamalı.
-4. Skor ilk okuma katmanının kahramanı yapılmamalı; category/overall score evidence-first bölümlerden sonra secondary summary olarak kalmalı.
-5. `UnavailableEvidence`, `NotApplicable` ve `RequiresHumanReview` Markdown'da failure/missing gibi sunulmamalı.
-6. Repository/evidence literal değerleri — path, filename, command, URL, SHA, branch ve repository kimliği — değiştirilmeden render edilmeli.
-7. Product-boundary disclaimer Markdown çıktısında zorunlu olmalı.
-8. Aynı `RepositoryReport` aynı Markdown çıktısını üretmeli.
-9. EN ve TR `RepositoryReport` örneklerinin ikisi de render edilebilmeli; Markdown renderer localization yapmamalı.
-10. Phase 4 sonunda full solution regression, build, format ve report determinism doğrulaması yapılmalı.
-
-### Phase 4 exit expectation
-
-Phase 4 tamamlandığında:
+Session 046, Session 045 tarafından üretilmiş typed ve localized `RepositoryReport` değerini deterministic Markdown çıktısına dönüştürür.
 
 ~~~text
 RepositoryAnalysis
         ↓
 localized RepositoryReport
         ↓
-Markdown output
-
-ve aynı RepositoryReport
-        ↓
-Phase 5 Web UI
+deterministic Markdown
 ~~~
 
-olmalıdır.
+Markdown renderer analysis truth üretmez ve localization yapmaz.
 
-Web UI, Markdown renderer'ın içinden türetilmemeli; ikisi aynı typed `RepositoryReport` contract'ının bağımsız consumer'ları olmalıdır.
+### Uygulanan contract
 
-### Required tests
+- `RepositoryReportMarkdownRenderer` yalnız `RepositoryReport` kabul eder.
+- Renderer `RepositoryAnalysis`, analyzer, composer veya localizer kabul etmez.
+- Canonical evidence-first section order doğrulanır ve aynen render edilir:
+  identity → proves → weakens → do first → uncertainty → categories/secondary score → signal detail → disclaimer.
+- Strength, critical-gap ve action item sırası report projection'dan aynen korunur.
+- Strength, gap ve action için canonical maksimum üç kuralı renderer boundary'sinde de fail-fast doğrulanır.
+- `Missing`, weakens/gap bölümünde kalır.
+- `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` explicit uncertainty bölümünde kalır.
+- Warning ve report-level limitation copy uncertainty bölümünde, failure semantiği üretilmeden gösterilir.
+- Overall/category score evidence-first bölümlerden sonra secondary summary olarak render edilir.
+- Repository URL, branch, SHA, filename/path, command, evidence value, notes ve diğer repository literal değerleri değiştirilmeden Markdown'a taşınır.
+- Renderer platform `Environment.NewLine` kullanmaz; her ortamda deterministic LF (`\n`) üretir.
+- Date/time ve numeric formatting locale-dependent runtime davranışına bırakılmaz.
+- Product-boundary disclaimer zorunlu son canonical bölümdür ve policy version ile render edilir.
+- Empty optional collections deterministic olarak desteklenir.
+- Markdown renderer yeni dependency, LLM, MediatR veya CQRS kullanmaz.
 
-- same RepositoryReport → byte-for-byte same Markdown,
-- exact section order,
-- EN/TR localized projection render,
-- max-three strength/gap/action sırasının korunması,
-- explicit uncertainty ayrımı,
-- repository/evidence literal preservation,
-- secondary-score positioning,
-- disclaimer presence,
-- empty optional sections için deterministic davranış,
-- Markdown renderer'ın analyzer/composer/localizer çağırmaması,
-- full existing regression.
+### Validation
 
-### Out of scope
+~~~text
+Markdown renderer targeted tests: PASS — 10/10
+Domain tests: PASS — 422/422
+Application tests: PASS — 49/49
+Infrastructure tests: PASS — 101/101
+Total: PASS — 572/572
+Forced rebuild: PASS — 0 warnings, 0 errors
+dotnet format --verify-no-changes: PASS
+git diff --check: PASS
+~~~
 
-HTML/Web UI, PDF, LinkedIn card, public report hosting, yeni evaluator, scoring/ranking değişikliği, validation-011, new dependency, MediatR, CQRS ve LLM report generation Session 046 kapsamına alınmamalıdır.
+Doğrulanan davranışlar:
+
+- same `RepositoryReport` → byte-for-byte same Markdown,
+- platform-independent LF output,
+- exact canonical section order,
+- EN/TR localized report render,
+- strength/gap/action ordering preservation,
+- Missing / explicit uncertainty separation,
+- repository ve evidence literal preservation,
+- score'un evidence-first bölümlerden sonra yer alması,
+- versioned product-boundary disclaimer presence,
+- empty optional collections,
+- renderer public boundary'sinin yalnız `RepositoryReport` kabul etmesi.
+
+---
+
+## 12. Phase 4 Exit State
+
+Phase 4 — Report Generation tamamlandı.
+
+Canonical pipeline:
+
+~~~text
+RepositorySnapshot
+        ↓
+15 deterministic SignalResult
+        ↓
+RepositoryAnalysis
+        ↓
+RepositoryReportProjector(locale)
+        ↓
+localized RepositoryReport
+        ↓
+RepositoryReportMarkdownRenderer
+        ↓
+deterministic Markdown
+~~~
+
+Aynı typed `RepositoryReport`, Phase 5 Web UI için de canonical presentation input'udur.
+
+Markdown ve Web UI birbirinin çıktısını parse etmemelidir.
+
+~~~text
+                    RepositoryReport
+                    /              \
+                   /                \
+          Markdown renderer        Phase 5 Web UI
+~~~
+
+Phase 4 exit ile aşağıdaki sınırlar korunmuştur:
+
+- analysis truth locale-independent,
+- presentation deterministic ve source-controlled,
+- score secondary,
+- evidence-first information architecture,
+- explicit uncertainty failure değildir,
+- no developer seniority / employability / authorship / originality / AI usage / overall quality inference,
+- no LLM-generated scoring or report truth.
+
+---
+
+## 13. Phase 5 Handoff — Minimal Web UI
+
+Phase 5 Web UI doğrudan typed `RepositoryReport` tüketmelidir.
+
+### MUST preserve
+
+1. Evidence-first section order.
+2. Score'un secondary konumu.
+3. Max-three proves / weakens / do-first projection'ı.
+4. Explicit uncertainty ayrımı.
+5. Signal detail + raw evidence görünürlüğü.
+6. Product-boundary disclaimer.
+7. EN default/fallback + TR presentation boundary.
+8. Repository/evidence literal preservation.
+9. Markdown copy/download özelliği gerekiyorsa mevcut `RepositoryReportMarkdownRenderer` kullanılmalı; UI Markdown parse etmemelidir.
+10. UI analysis/scoring/ranking truth üretmemelidir.
+
+### Phase 5 canonical boundary
+
+~~~text
+Repository URL
+      ↓
+existing collection + analysis pipeline
+      ↓
+RepositoryReport
+      ↓
+Minimal Web UI
+~~~
+
+### Out of scope unless separately contracted
+
+Authentication, profile, dashboard, analysis history, payment, team features, PDF, LinkedIn card, public hosted report, new evaluator, scoring/ranking changes, validation-011, MediatR, CQRS ve LLM report generation.

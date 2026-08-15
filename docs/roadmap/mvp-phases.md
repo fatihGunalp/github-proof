@@ -276,6 +276,8 @@ Rapor üzerindeki her puanın hangi gözlemlenebilir kanıta ve hangi sinyal sü
 
 ## Faz 4 — Rapor Üretimi
 
+**Durum:** COMPLETE — typed localized `RepositoryReport`, deterministic Markdown renderer ve Phase 4 exit validation tamamlandı.
+
 ### Amaç
 
 Teknik analiz sonuçlarını, kullanıcının anlayabileceği ve uygulayabileceği bir geliştirme raporuna dönüştürmek.
@@ -336,6 +338,22 @@ Kullanıcıya uzun ve dağınık bir öneri listesi yerine, en yüksek etkili ü
 ### Çıkış kriteri
 
 Kullanıcı raporu okuduğunda repository'sinde ilk olarak neyi geliştirmesi gerektiğini anlayabilmelidir.
+
+### Phase 4 implementation exit
+
+Phase 4 uygulama çıkışı tamamlandı:
+
+- locale-independent `RepositoryAnalysis`,
+- EN/TR typed `RepositoryReport`,
+- exact evidence-first section order,
+- explicit uncertainty boundary,
+- secondary score presentation,
+- deterministic Markdown renderer,
+- versioned product-boundary disclaimer,
+- repository/evidence literal preservation,
+- full regression ve deterministic output doğrulaması.
+
+Web sonucu Phase 5'te aynı typed `RepositoryReport` contract'ını doğrudan tüketir; Markdown çıktısını parse etmez.
 
 ---
 

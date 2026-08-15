@@ -12,8 +12,9 @@
 
 ~~~text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 4 — Report Generation
-Focus: Session 045 completed the localized typed RepositoryReport projection boundary.
+Delivery Phase: Phase 4 — Report Generation COMPLETE
+Next Delivery Phase: Phase 5 — Minimal Web UI
+Focus: Session 046 completed deterministic Markdown rendering and Phase 4 exit validation.
 ~~~
 
 ---
@@ -51,49 +52,51 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Start Session 046 and implement deterministic Markdown rendering from RepositoryReport, followed by Phase 4 final exit validation.
+Start Phase 5 / Session 047 — Minimal Web UI foundation using RepositoryReport as the canonical presentation input.
 ~~~
 
 ## Working Set
 
 ~~~text
-Phase 3 and Sessions 042–045 are complete.
-Repository analysis truth is locale-independent.
-A completed RepositoryAnalysis can now be projected to EN/TR RepositoryReport without rerunning analysis.
-Session 039 and validation-011 remain exploratory, blocked/non-gating, and outside the current Phase 4 delivery path.
+Phase 3 and Phase 4 are complete.
+Sessions 042–046 established evidence-first report architecture, language-neutral semantic truth, deterministic RepositoryAnalysis composition, localized RepositoryReport projection, and deterministic Markdown rendering.
+Session 039 and validation-011 remain exploratory, blocked/non-gating, and outside the current MVP delivery path.
 ~~~
 
 ## Repository State
 
 ~~~text
 Branch: main
-Session 045 validated baseline: c94ce19
+Session 046 validated baseline: edeff9b
 Live HEAD / commit / push state is intentionally not duplicated here; use Git directly for live repository state.
-Session 045 working tree passed final validation before user-owned commit/push.
+Session 046 working tree passed final validation before user-owned commit/push.
 ~~~
 
 ## Last Completed Work
 
 ~~~text
-Session 045 — Localized RepositoryReport Projection: PASS
+Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 
-- Added typed shared RepositoryReport projection.
-- Added EN default/fallback and TR report presentation resources.
-- Preserved analysis truth, evidence, scoring, ranking, and composer ordering.
-- Added localized section/score/action/warning/limitation/disclaimer copy.
-- Added versioned product-boundary disclaimer policy v1.
-- Added explicit uncertainty projection without treating uncertainty as failure.
-- Preserved repository and evidence literal values across locales.
-- Corrected PortfolioPresentation EN/TR category copy.
+- Added RepositoryReportMarkdownRenderer.
+- Renderer accepts only RepositoryReport.
+- Preserved exact evidence-first section order.
+- Preserved max-three strength/gap/action ordering.
+- Preserved Missing vs explicit uncertainty semantics.
+- Kept score secondary.
+- Preserved repository/evidence literals.
+- Added platform-independent deterministic LF output.
+- Kept versioned product-boundary disclaimer mandatory.
+- Closed Phase 4 and handed typed RepositoryReport to Phase 5 Web UI.
 ~~~
 
 ## Last Validation
 
 ~~~text
+Markdown renderer targeted tests: PASS — 10/10
 Domain tests: PASS — 422/422
-Application tests: PASS — 39/39
+Application tests: PASS — 49/49
 Infrastructure tests: PASS — 101/101
-Total: PASS — 562/562
+Total: PASS — 572/572
 Forced rebuild: PASS — 0 warnings, 0 errors
 dotnet format --verify-no-changes: PASS
 git diff --check: PASS
@@ -116,7 +119,11 @@ portfolio.presentation-completeness is category-included and overall-excluded.
 
 RepositoryAnalysis is locale-independent analysis truth.
 RepositoryReport is localized presentation projection.
+RepositoryReportMarkdownRenderer renders presentation truth; it does not recreate analysis truth.
+
 Locale switching must not rerun collection/evaluation/composition/scoring/ranking.
+Markdown renderer must not localize or parse analysis.
+Web UI must consume RepositoryReport directly rather than parse Markdown.
 ~~~
 
 ## Do Not Reinvestigate
@@ -124,7 +131,8 @@ Locale switching must not rerun collection/evaluation/composition/scoring/rankin
 ~~~text
 MVP signal count, category count, nullable score semantics, overall method,
 presentation-completeness exclusion, evidence-first report order,
-and the semantic/presentation localization boundary are contract-locked in docs/.
+semantic/presentation localization boundary, and Phase 4 Markdown boundary
+are contract-locked in docs/.
 ~~~
 
 ## Known Problems
