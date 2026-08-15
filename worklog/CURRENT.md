@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Three deterministic evaluator slices are complete; bounded documentation evidence is aligned and Installation Guide evaluator retry is next.
+Focus: Four deterministic evaluator slices are complete; Usage or Demo is the next bounded Phase 3 signal.
 ```
 
 ---
@@ -45,58 +45,57 @@ None.
 ## Current Problem
 
 ```text
-None.
+None currently confirmed.
 ```
 
 ## Next Immediate Action
 
 ```text
-Session 026 — Installation Guide Signal Evaluator Retry.
+Session 027 — `documentation.usage-or-demo`.
 ```
 
 ## Working Set
 
 ```text
-Session 025 Domain, Infrastructure, canonical docs, tests, and worklog changes only.
+Session 026 Domain evaluator, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 8c12f28
-Last verified working tree: Session 025 changes only
+Last verified HEAD: ad5d0da
+Last verified working tree: Session 026 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 025 — Documentation Evidence Snapshot Alignment: PASS
+Session 026 — Installation Guide Signal Evaluator Retry: PASS
 
-- Added provider-independent RepositorySnapshot.DocumentationMarkdown evidence with source-compatible unknown/incomplete defaults.
-- Collected exact docs/**/*.md paths at the resolved head SHA in deterministic Ordinal order.
-- Enforced 16-file, 128 KiB per-file, and 512 KiB corpus limits before and after content decoding.
-- Preserved complete empty, bounded partial, tree-truncated, and API failure semantics separately.
-- Added and propagated the dedicated documentation-markdown availability key and deterministic warnings.
-- Kept README, LicenseFile, evaluator, score, and signal Version 1 semantics unchanged.
+- Added the canonical Version 1 `documentation.installation-guide` production evaluator.
+- Evaluated exact ATX/Setext sections, actionable steps, and six Strong feature families deterministically.
+- Kept Strong evidence source-local and docs ordering Ordinal.
+- Preserved positive results from incomplete evidence while requiring complete corpus for Partial/Missing.
+- Distinguished UnavailableEvidence and bounded RequiresHumanReview from missing evidence.
+- Kept provider isolation, scoring, signal Version, and existing evaluator contracts unchanged.
 ```
 
 ## Last Validation
 
 ```text
-focused RepositorySnapshot tests: PASS — 13 passed
-focused documentation Markdown collector tests: PASS — 9 passed
-existing contents collector regression: PASS — 9 passed
-orchestrator focused/regression: PASS — 10 passed
+focused InstallationGuide evaluator tests: PASS — 54 passed
 README/Description/License evaluator regression: PASS — 38 passed
-dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 89 passed
+RepositorySnapshot regression: PASS — 13 passed
+documentation collector + contents + orchestrator regression: PASS — 28 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 143 passed
 dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 88 passed
-dotnet test GitHubProof.slnx --no-restore: PASS — 177 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 231 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 025 changes only
+git status --short: Session 026 changes only
 ```
 
 ## Critical Invariants
