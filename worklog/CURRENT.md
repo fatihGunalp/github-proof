@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: License evidence snapshot contract aligned; Phase 3 Signal Engine remains in progress.
+Focus: Three deterministic evaluator slices are complete; Phase 3 Signal Engine remains in progress.
 ```
 
 ---
@@ -51,50 +51,52 @@ None.
 ## Next Immediate Action
 
 ```text
-Retry the bounded Description + License signal evaluator task using the corrected RepositorySnapshot license evidence contract.
+Prepare the next bounded RepositoryUnderstandability evaluator task and run the mandatory model gate.
 ```
 
 ## Working Set
 
 ```text
-Session 021 snapshot contract, mapping, tests, docs, and worklog changes are uncommitted.
+Session 022 evaluator, tests, and worklog changes are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: dce9f4b
-Last verified working tree: Session 021 changes only
+Last verified HEAD: b38f8a9
+Last verified working tree: Session 022 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 021 — License Evidence Snapshot Alignment: PASS
+Session 022 — Description + License Signal Evaluators: PASS
 
-- Added provider-independent `RepositoryFile? LicenseFile` to RepositorySnapshot.
-- Preserved constructor source compatibility with a nullable trailing parameter.
-- Mapped the existing descriptive LicenseFile into the snapshot without data loss.
-- Verified recognized, unrecognized-file, absent, and unavailable license states remain distinct.
-- Updated the canonical analysis domain model without changing signal semantics or version.
+- Added only `repository.description.present` and `repository.license.present` evaluators.
+- Reused ISignalEvaluator and normalized RepositorySnapshot evidence without a generic engine.
+- Preserved Missing versus UnavailableEvidence semantics with observable evidence.
+- Used corrected LicenseFile evidence for deterministic Present, Partial, Missing, and UnavailableEvidence license outcomes.
+- Kept signal versions, scoring contracts, and provider isolation unchanged.
 - Full automated suite, build, format, and diff validation passed.
 ```
 
 ## Last Validation
 
 ```text
-focused RepositorySnapshot tests: PASS — 11 passed
-focused descriptive/orchestrator tests: PASS — 16 passed
-dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 60 passed
+focused Description + License evaluator tests: PASS — 27 passed
+README evaluator regression: PASS — 11 passed
+RepositorySnapshot LicenseFile regression: PASS — 11 passed
+Infrastructure orchestration regression: PASS — 10 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 87 passed
 dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 79 passed
 Application tests: N/A — no Application test project
-dotnet test GitHubProof.slnx --no-restore: PASS — 139 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 166 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 021 changes only
+git status --short: Session 022 changes only
 ```
 
 ## Critical Invariants

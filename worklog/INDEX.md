@@ -30,6 +30,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Signal Engine foundation and README Exists | PASS | Sol / medium | [019](./sessions/2026-08-15-019-signal-engine-readme-foundation.md) | b7a69eb |
 | 2026-08-15 | Simple repository evidence signals | BLOCKED | Terra / high | [020](./sessions/2026-08-15-020-simple-repository-evidence-signals.md) | fe47257 |
 | 2026-08-15 | License evidence snapshot alignment | PASS | Sol / high | [021](./sessions/2026-08-15-021-license-evidence-snapshot-alignment.md) | dce9f4b |
+| 2026-08-15 | Description and License signal evaluators | PASS | Terra / high | [022](./sessions/2026-08-15-022-description-license-signal-evaluators.md) | b38f8a9 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
