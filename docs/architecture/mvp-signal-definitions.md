@@ -987,6 +987,12 @@ Repository'nin tek bir nihai dosya yüklemesi dışında görünür geliştirme 
 - Commit verisi başarıyla incelendi ancak commit yoksa: `Missing`, 0 puan
 - Commit geçmişi alınamadıysa: `UnavailableEvidence`, `Score: null`
 
+### Version 1 veri bütünlüğü
+
+- Sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonu tam (`IsComplete: true`) olmalıdır.
+- Eksik sayfalama (`IsComplete: false`) gözlenen commit sayısı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- Commit sayısı normalize edilmiş snapshot koleksiyonundaki öğe sayısıdır. Provider katmanının aynı SHA için yaptığı tekrar giderme sonrasında evaluator ikinci bir tekrar giderme kuralı uygulamaz; giriş sırası sonucu değiştirmez.
+
 ### Öneri
 
 Değişiklikleri amaçlarına göre küçük ve açıklanabilir commitler hâlinde kaydedin.
@@ -1031,6 +1037,17 @@ Geliştirme faaliyetinin farklı günlere veya dönemlere yayılıp yayılmadı�
 - Tek aktif gün varsa: `Partial`, 1 puan
 - Commit verisi başarıyla incelendi ancak commit yoksa: `Missing`, 0 puan
 - Commit tarihleri veya repository oluşturulma zamanı alınamadıysa: `UnavailableEvidence`, `Score: null`
+
+### Version 1 zaman ve veri bütünlüğü
+
+- Repository yaşı, snapshot'ın `CapturedAt` zamanı ile metadata `CreatedAt` zamanı arasındaki UTC geçen süredir. Tam 14 günlük yaş uygulanabilir kabul edilir.
+- Aktif gün sayısı, normalize edilmiş commit zamanlarının farklı UTC takvim günlerinin sayısıdır.
+- İlk-son commit aralığı, en erken ve en geç normalize edilmiş UTC commit zamanı arasındaki geçen süredir. Tam 14 günlük aralık Strong koşulunu karşılar.
+- Repository yaşını belirlemek için metadata erişilebilirliği `Available` ve metadata değeri mevcut olmalıdır; aksi durumda sonuç `UnavailableEvidence` olur.
+- `CreatedAt`, snapshot `CapturedAt` zamanından sonraysa repository yaşı tutarsızdır ve sonuç `UnavailableEvidence` olur.
+- Repository en az 14 günlükse sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonu tam (`IsComplete: true`) olmalıdır.
+- Eksik sayfalama (`IsComplete: false`) gözlenen aktif gün veya ilk-son aralığı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- Dağılım normalize edilmiş snapshot commit koleksiyonunu kullanır; giriş sırası sonucu değiştirmez ve evaluator provider normalizasyonuna ek bir tekrar giderme kuralı uygulamaz.
 
 ### Bağlam kuralları
 

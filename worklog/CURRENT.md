@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Five production evaluators are complete; process commit-history and commit-distribution signals are next.
+Focus: Seven production evaluators are complete; issue, pull-request, and release usage signals are next.
 ```
 
 ---
@@ -51,47 +51,46 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Implement `process.commit-history` and `process.commit-distribution` in the next bounded session.
+Implement `process.issue-usage`, `process.pull-request-usage`, and `process.release-usage` in the next bounded session.
 ```
 
 ## Working Set
 
 ```text
-Session 030 canonical Partial fix, Domain evaluator, focused tests, and worklog changes only.
+Session 031 canonical clarification, two Domain evaluators, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 5060f1c
-Last verified working tree: CLEAN before Session 030
+Last verified HEAD: 17c74aa
+Last verified working tree: CLEAN before Session 031
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 030 — Usage/Demo Contract Fix + Evaluator: PASS
+Session 031 — Commit History + Commit Distribution: PASS
 
-- Closed the single exhaustive-status gap by classifying complete-corpus high-confidence visual/demo-only evidence as Partial / 4.
-- Added the deterministic Version 1 `documentation.usage-or-demo` evaluator.
-- Covered exact usage, screenshot, video, live-demo, weak evidence, source-local, availability, ambiguity, and determinism rules.
-- Preserved Version 1, all existing scores, status precedence, provider isolation, and dependency boundaries.
-- Production evaluators are now 5 / 15.
+- Audited default-branch commit collection, pagination, UTC timestamps, metadata age, availability, and duplicate normalization.
+- Clarified complete-only Version 1 scoring, snapshot-relative repository age, UTC active days, and elapsed first-last span.
+- Added deterministic `process.commit-history` and `process.commit-distribution` Domain evaluators.
+- Covered every score boundary, exact 14-day edges, incomplete/unavailable evidence, UTC day grouping, unsorted inputs, and deterministic output.
+- Production evaluators are now 7 / 15.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 5060f1c, clean before Session 030
-Contract exhaustiveness: PASS — 7 / 7 valid states classified
-Focused Usage/Demo tests: PASS — 73 passed
-Existing evaluator regression: PASS — 92 passed
-Documentation Infrastructure regression: PASS — 28 passed
-Domain tests: PASS — 216 passed
+Repository baseline: PASS — main at 17c74aa, clean before Session 031
+Contract/data audit: PASS — required snapshot data and deterministic semantics confirmed
+Focused Commit History + Distribution tests: PASS — 50 passed
+All evaluator regression: PASS — 215 passed
+Domain tests: PASS — 266 passed
 Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 304 passed
+Solution tests: PASS — 354 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS
