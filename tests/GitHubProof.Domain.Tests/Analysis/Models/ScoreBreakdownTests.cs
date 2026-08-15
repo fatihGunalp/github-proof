@@ -31,7 +31,7 @@ public sealed class ScoreBreakdownTests
         Assert.Equal(5, result.EarnedScore);
         Assert.Equal(5, result.ApplicableMaximumScore);
         Assert.Equal(100, result.NormalizedScore);
-        Assert.Equal("Çok güçlü görünür kanıt", result.Label);
+        Assert.Equal("score.label.very-strong-visible-evidence", result.LabelKey);
         Assert.Equal([composite], result.ExcludedFromOverallScoreSignals);
         Assert.Empty(result.ExcludedSignals);
         Assert.Equal(
@@ -59,12 +59,12 @@ public sealed class ScoreBreakdownTests
         Assert.Equal(3, result.EarnedScore);
         Assert.Equal(8, result.ApplicableMaximumScore);
         Assert.Equal(38, result.NormalizedScore);
-        Assert.Equal("Temel görünür kanıt", result.Label);
+        Assert.Equal("score.label.basic-visible-evidence", result.LabelKey);
         Assert.Equal([unavailable], result.ExcludedSignals);
     }
 
     [Fact]
-    public void Constructor_LeavesScoreAndLabelEmptyWhenNoSignalIsApplicableToOverall()
+    public void Constructor_LeavesScoreAndLabelKeyEmptyWhenNoSignalIsApplicableToOverall()
     {
         SignalResult notApplicable = CreateSignal(
             "process.release-usage",
@@ -89,7 +89,7 @@ public sealed class ScoreBreakdownTests
         Assert.Equal(0, result.EarnedScore);
         Assert.Equal(0, result.ApplicableMaximumScore);
         Assert.Null(result.NormalizedScore);
-        Assert.Null(result.Label);
+        Assert.Null(result.LabelKey);
         Assert.Equal([notApplicable], result.ExcludedSignals);
         Assert.Equal([composite], result.ExcludedFromOverallScoreSignals);
     }

@@ -255,14 +255,22 @@ Toplam skor, yargılayıcı seviye isimleriyle sunulmamalıdır.
 ### MVP etiketleri
 
 ~~~text
-0–24   : Sınırlı görünür kanıt
-25–49  : Temel görünür kanıt
-50–69  : Gelişen görünür kanıt
-70–84  : Güçlü görünür kanıt
-85–100 : Çok güçlü görünür kanıt
+0–24   : score.label.limited-visible-evidence
+25–49  : score.label.basic-visible-evidence
+50–69  : score.label.developing-visible-evidence
+70–84  : score.label.strong-visible-evidence
+85–100 : score.label.very-strong-visible-evidence
 ~~~
 
-Bu etiketler geliştiriciyi değil, repository üzerinde görülebilen kanıt yoğunluğunu ifade eder.
+Bu değerler Domain'de `ScoreBreakdown.LabelKey` olarak taşınan semantic key'lerdir. EN/TR kullanıcı metni presentation catalog tarafından üretilir. Localized etiketler geliştiriciyi değil, repository üzerinde görülebilen kanıt yoğunluğunu ifade eder.
+
+| LabelKey | EN | TR |
+|---|---|---|
+| `score.label.limited-visible-evidence` | Limited visible evidence | Sınırlı görünür kanıt |
+| `score.label.basic-visible-evidence` | Basic visible evidence | Temel görünür kanıt |
+| `score.label.developing-visible-evidence` | Developing visible evidence | Gelişen görünür kanıt |
+| `score.label.strong-visible-evidence` | Strong visible evidence | Güçlü görünür kanıt |
+| `score.label.very-strong-visible-evidence` | Very strong visible evidence | Çok güçlü görünür kanıt |
 
 ---
 
@@ -416,6 +424,8 @@ Low
 ~~~
 
 Her geliştirme adımı en az bir sinyal sonucuna dayanmalıdır.
+
+MVP composer yalnız seçilmiş `Missing` veya `Partial` critical gap'lerden action üretir. `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` action veya failure değildir; explicit uncertainty olarak sunulur. Türetilmiş `portfolio.presentation-completeness` için ayrı action üretilemez çünkü upstream gap action'larıyla aynı işi tekrarlar.
 
 Eylemler repository üzerinde uygulanabilir olmalı ve geliştirici hakkında kişisel yargı içermemelidir.
 

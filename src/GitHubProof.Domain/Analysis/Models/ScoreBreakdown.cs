@@ -29,9 +29,9 @@ public sealed record ScoreBreakdown
         NormalizedScore = ApplicableMaximumScore == 0
             ? null
             : RoundHalfUp((decimal)EarnedScore / ApplicableMaximumScore * 100);
-        Label = NormalizedScore is null
+        LabelKey = NormalizedScore is null
             ? null
-            : GetLabel(NormalizedScore.Value);
+            : GetLabelKey(NormalizedScore.Value);
         CalculationMethod = ScoreCalculationMethod.RawApplicableScoreNormalization;
     }
 
@@ -41,7 +41,7 @@ public sealed record ScoreBreakdown
 
     public int? NormalizedScore { get; }
 
-    public string? Label { get; }
+    public string? LabelKey { get; }
 
     public IReadOnlyList<CategoryResult> CategoryBreakdowns { get; }
 
@@ -94,12 +94,12 @@ public sealed record ScoreBreakdown
     private static int RoundHalfUp(decimal value) =>
         (int)Math.Floor(value + 0.5m);
 
-    private static string GetLabel(int normalizedScore) => normalizedScore switch
+    private static string GetLabelKey(int normalizedScore) => normalizedScore switch
     {
-        <= 24 => "Sınırlı görünür kanıt",
-        <= 49 => "Temel görünür kanıt",
-        <= 69 => "Gelişen görünür kanıt",
-        <= 84 => "Güçlü görünür kanıt",
-        _ => "Çok güçlü görünür kanıt"
+        <= 24 => "score.label.limited-visible-evidence",
+        <= 49 => "score.label.basic-visible-evidence",
+        <= 69 => "score.label.developing-visible-evidence",
+        <= 84 => "score.label.strong-visible-evidence",
+        _ => "score.label.very-strong-visible-evidence"
     };
 }

@@ -495,7 +495,7 @@ ScoreBreakdown
 ├── EarnedScore
 ├── ApplicableMaximumScore
 ├── NormalizedScore
-├── Label
+├── LabelKey
 ├── CategoryBreakdowns
 ├── ExcludedSignals
 ├── ExcludedFromOverallScoreSignals
@@ -522,6 +522,8 @@ olan sinyalleri kullanır.
 `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` numerator ve denominator hesabından çıkarılır.
 
 `IncludeInOverallScore: false` olan sinyaller `ExcludedFromOverallScoreSignals` içerisinde görünür tutulur.
+
+`LabelKey`, score band'ini locale-independent semantic key olarak taşır. Localized score label'ı Domain tarafından üretilmez; report presentation katmanı `score.label.*` key'ini EN/TR catalog üzerinden çözer.
 
 Toplam skor:
 

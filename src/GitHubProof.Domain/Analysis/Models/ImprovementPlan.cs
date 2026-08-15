@@ -23,6 +23,28 @@ public sealed record ImprovementPlan
                 nameof(actions));
         }
 
+        int[] expectedPriorities = Enumerable
+            .Range(1, normalizedActions.Length)
+            .ToArray();
+
+        if (!normalizedActions
+            .Select(action => action.Priority)
+            .SequenceEqual(expectedPriorities))
+        {
+            throw new ArgumentException(
+                "Action priorities must be unique, contiguous, and ordered from 1.",
+                nameof(actions));
+        }
+
+        if (normalizedActions
+            .GroupBy(action => action.PresentationKey, StringComparer.Ordinal)
+            .Any(group => group.Count() > 1))
+        {
+            throw new ArgumentException(
+                "Action presentation keys must be unique.",
+                nameof(actions));
+        }
+
         Actions = normalizedActions;
         GeneratedAt = generatedAt.ToUniversalTime();
         RuleSetVersion = RequireValue(ruleSetVersion, nameof(ruleSetVersion));

@@ -140,6 +140,69 @@ public sealed record RepositoryAnalysis
                 "Improvement plan rule set version must match the analysis version.",
                 nameof(ImprovementPlan));
         }
+
+        ValidateHighlightReferences(Strengths, nameof(Strengths));
+        ValidateHighlightReferences(CriticalGaps, nameof(CriticalGaps));
+        ValidateImprovementActionReferences();
+    }
+
+    private void ValidateHighlightReferences(
+        IReadOnlyList<AnalysisHighlight> highlights,
+        string parameterName)
+    {
+        IReadOnlyDictionary<string, SignalResult> byKey = SignalResults.ToDictionary(
+            result => result.SignalKey,
+            StringComparer.Ordinal);
+
+        foreach (AnalysisHighlight highlight in highlights)
+        {
+            if (!byKey.TryGetValue(highlight.SignalKey, out SignalResult? result))
+            {
+                throw new ArgumentException(
+                    $"Highlight signal '{highlight.SignalKey}' does not exist in signal results.",
+                    parameterName);
+            }
+
+            HashSet<string> evidenceKeys = result.Evidence
+                .Select(evidence => evidence.Key)
+                .ToHashSet(StringComparer.Ordinal);
+
+            if (highlight.EvidenceReferences.Any(reference => !evidenceKeys.Contains(reference)))
+            {
+                throw new ArgumentException(
+                    $"Highlight for '{highlight.SignalKey}' contains an unknown evidence reference.",
+                    parameterName);
+            }
+        }
+    }
+
+    private void ValidateImprovementActionReferences()
+    {
+        IReadOnlyDictionary<string, SignalResult> byKey = SignalResults.ToDictionary(
+            result => result.SignalKey,
+            StringComparer.Ordinal);
+
+        foreach (ImprovementAction action in ImprovementPlan.Actions)
+        {
+            SignalResult[] relatedResults = action.RelatedSignals
+                .Select(signalKey => byKey.TryGetValue(signalKey, out SignalResult? result)
+                    ? result
+                    : throw new ArgumentException(
+                        $"Improvement action references unknown signal '{signalKey}'.",
+                        nameof(ImprovementPlan)))
+                .ToArray();
+            HashSet<string> evidenceKeys = relatedResults
+                .SelectMany(result => result.Evidence)
+                .Select(evidence => evidence.Key)
+                .ToHashSet(StringComparer.Ordinal);
+
+            if (action.EvidenceReferences.Any(reference => !evidenceKeys.Contains(reference)))
+            {
+                throw new ArgumentException(
+                    $"Improvement action '{action.PresentationKey}' contains an unknown evidence reference.",
+                    nameof(ImprovementPlan));
+            }
+        }
     }
 
     private static IReadOnlyList<SignalResult> NormalizeSignalResults(

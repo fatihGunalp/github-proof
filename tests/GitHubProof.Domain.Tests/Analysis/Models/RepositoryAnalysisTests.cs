@@ -104,12 +104,63 @@ public sealed class RepositoryAnalysisTests
                 strengths:
                 [
                     fixture.Strength,
-                    CreateHighlight(HighlightType.Strength, "signal.2"),
-                    CreateHighlight(HighlightType.Strength, "signal.3"),
-                    CreateHighlight(HighlightType.Strength, "signal.4")
+                    CreateHighlight(HighlightType.Strength, fixture.SignalResults[0].SignalKey, "evidence.readme", 2),
+                    CreateHighlight(HighlightType.Strength, fixture.SignalResults[0].SignalKey, "evidence.readme", 3),
+                    CreateHighlight(HighlightType.Strength, fixture.SignalResults[0].SignalKey, "evidence.readme", 4)
                 ]));
 
         Assert.Equal("strengths", limitException.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_RejectsHighlightWithUnknownSignalReference()
+    {
+        AnalysisFixture fixture = CreateFixture();
+        AnalysisHighlight unknownSignal = CreateHighlight(
+            HighlightType.Strength,
+            "unknown.signal",
+            "evidence.readme");
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            CreateAnalysis(fixture, strengths: [unknownSignal]));
+
+        Assert.Equal("Strengths", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_RejectsHighlightWithUnknownEvidenceReference()
+    {
+        AnalysisFixture fixture = CreateFixture();
+        AnalysisHighlight unknownEvidence = CreateHighlight(
+            HighlightType.Strength,
+            fixture.SignalResults[0].SignalKey,
+            "evidence.unknown");
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            CreateAnalysis(fixture, strengths: [unknownEvidence]));
+
+        Assert.Equal("Strengths", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_RejectsImprovementActionWithUnknownEvidenceReference()
+    {
+        AnalysisFixture fixture = CreateFixture();
+        ImprovementAction action = new(
+            1,
+            "action.fix-readme",
+            [fixture.SignalResults[0].SignalKey],
+            EffortLevel.Low,
+            ["evidence.unknown"]);
+        ImprovementPlan plan = new(
+            [action],
+            DateTimeOffset.UtcNow,
+            fixture.Version.RuleSetVersion);
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            CreateAnalysis(fixture, improvementPlan: plan));
+
+        Assert.Equal("ImprovementPlan", exception.ParamName);
     }
 
     private static RepositoryAnalysis CreateAnalysis(
@@ -164,7 +215,17 @@ public sealed class RepositoryAnalysisTests
             score: 4,
             maximumScore: 5,
             includeInOverallScore: true,
-            evidence: null,
+            evidence:
+            [
+                new EvidenceItem(
+                    "evidence.readme",
+                    "repository.readme",
+                    "README.md",
+                    "README.md",
+                    DateTimeOffset.UtcNow,
+                    EvidenceConfidence.High,
+                    notes: null)
+            ],
             evaluatedAt: DateTimeOffset.UtcNow);
         CategoryResult category = new(
             AnalysisCategory.RepositoryUnderstandability,
@@ -186,8 +247,8 @@ public sealed class RepositoryAnalysisTests
             [signal],
             [category],
             breakdown,
-            CreateHighlight(HighlightType.Strength, signal.SignalKey),
-            CreateHighlight(HighlightType.CriticalGap, "documentation.installation-guide"),
+            CreateHighlight(HighlightType.Strength, signal.SignalKey, "evidence.readme"),
+            CreateHighlight(HighlightType.CriticalGap, signal.SignalKey, "evidence.readme"),
             plan,
             new AnalysisWarning(
                 "snapshot.partial",
@@ -211,12 +272,14 @@ public sealed class RepositoryAnalysisTests
 
     private static AnalysisHighlight CreateHighlight(
         HighlightType type,
-        string signalKey) =>
+        string signalKey,
+        string evidenceReference,
+        int scoreImpact = 1) =>
         new(
             type,
             signalKey,
-            scoreImpact: 1,
-            evidenceReferences: ["evidence.highlight"]);
+            scoreImpact,
+            evidenceReferences: [evidenceReference]);
 
     private sealed record AnalysisFixture(
         RepositoryIdentity Repository,

@@ -66,6 +66,38 @@ public sealed class ImprovementPlanTests
         Assert.Equal("ruleSetVersion", exception.ParamName);
     }
 
+    [Fact]
+    public void Constructor_RejectsNonContiguousPriorities()
+    {
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            new ImprovementPlan(
+                [CreateAction(1), CreateAction(3)],
+                DateTimeOffset.UtcNow,
+                "2026.08.01"));
+
+        Assert.Equal("actions", exception.ParamName);
+    }
+
+    [Fact]
+    public void Constructor_RejectsDuplicatePresentationKeys()
+    {
+        ImprovementAction first = CreateAction(1);
+        ImprovementAction duplicate = new(
+            2,
+            first.PresentationKey,
+            ["signal.2"],
+            EffortLevel.Low,
+            ["evidence.2"]);
+
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            new ImprovementPlan(
+                [first, duplicate],
+                DateTimeOffset.UtcNow,
+                "2026.08.01"));
+
+        Assert.Equal("actions", exception.ParamName);
+    }
+
     private static ImprovementAction CreateAction(int priority) =>
         new(
             priority,

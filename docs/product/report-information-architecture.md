@@ -238,12 +238,13 @@ LLM report truth, score, highlight veya action seçmez.
 
 ### 3.3 Improvement action selection
 
-1. Action yalnız `Partial`, `Missing` veya `RequiresHumanReview` sonucu, onun recommendation'ı ve en az bir evidence item'ı varsa üretilebilir.
+1. Action yalnız seçilmiş `Partial` veya `Missing` critical gap ve en az bir evidence item'ı varsa üretilebilir.
 2. İlk action candidate'ları seçilmiş critical gap sırasını izler.
-3. Kalan yer varsa `RequiresHumanReview` sonuçları canonical signal order ile eklenebilir.
-4. Bir action en az bir related signal ve evidence reference taşır.
-5. Priority değerleri `1..N` kesintisiz ve benzersizdir.
-6. En fazla üç action üretilir.
+3. `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` action değildir; explicit uncertainty olarak kalır.
+4. Türetilmiş `portfolio.presentation-completeness` için ayrı action üretilmez; upstream gap action'ıyla çakışması önlenir.
+5. Bir action en az bir related signal ve evidence reference taşır.
+6. Priority değerleri `1..N` kesintisiz ve benzersizdir.
+7. En fazla üç action üretilir.
 
 MVP'de serbest metin action birleştirme veya LLM ile yeniden yazma yapılmaz. Birden fazla sinyali tek action altında birleştirmek ancak explicit deterministic template bulunduğunda mümkündür.
 
@@ -266,20 +267,20 @@ MVP'de serbest metin action birleştirme veya LLM ile yeniden yazma yapılmaz. B
 
 ---
 
-## 5. Eksik Report Contract
+## 5. Report Contract Durumu
 
-Phase 4 implementation öncesinde aşağıdaki boşluklar açıkça kapatılmalıdır:
+Session 044 sonrasında semantic composition tarafının durumu:
 
-1. `RepositoryAnalysis` composition service henüz yoktur. Mevcut application katmanı yalnız 15 `SignalResult` üretir.
-2. Category summary, strength, critical gap ve improvement action üretimi için deterministic application orchestration yoktur.
-3. Signal-level EN/TR presentation catalog Session 043'te eklenmiştir; report section/action/warning catalog kapsamı composer ile tamamlanmalıdır.
-4. `AnalysisHighlight.EvidenceReferences` ve `ImprovementAction.EvidenceReferences` değerlerinin `EvidenceItem.Key` değerlerine referans verdiği constructor veya composer seviyesinde doğrulanmamaktadır.
-5. `AnalysisHighlight.ScoreImpact` alanının evidence-first raporda kullanıcıya gösterilmesi gerekmez; alanın seçim amacı açık değildir ve score-first algısı yaratabilir.
-6. Product boundary disclaimer `RepositoryAnalysis` verisi değildir. Bu, her renderer'ın uyması gereken versioned report policy olarak tanımlanmalıdır.
-7. Explicit uncertainty için ayrı domain koleksiyonu zorunlu değildir; signal status ve warnings üzerinden türetilebilir. Ancak web ve Markdown renderer'larının aynı filtreleme ve sırayı kullanması için ortak report projection gerekir.
-8. Session 043 ile evaluator `SignalDefinition`/`SignalResult` çıktısından user-facing copy çıkarılmıştır. Composer'ın yeni semantic key alanlarını locale copy ile doldurmaması gerekir.
+1. `RepositoryAnalysisComposer`, canonical 15 result'ı doğrular, canonical sıraya koyar ve dört `CategoryResult` ile `ScoreBreakdown` üretir.
+2. Strength, critical gap ve improvement action seçimi deterministic tier, category-diversity ve canonical tie-break kurallarıyla uygulanmıştır.
+3. `AnalysisHighlight` ve `ImprovementAction` evidence reference'ları `EvidenceItem.Key` graph'ına karşı fail-fast doğrulanır.
+4. Score band copy'si Domain'den çıkarılmış; `ScoreBreakdown.LabelKey` locale-independent semantic identity olmuştur.
+5. Signal-level EN/TR catalog vardır; report section, score label, action, warning, limitation ve disclaimer catalog'ları henüz yoktur.
+6. Product boundary disclaimer `RepositoryAnalysis` truth alanı değildir. Her renderer'ın kullandığı versioned report presentation policy içinde üretilmelidir.
+7. Explicit uncertainty signal status, warnings ve limitation key'lerinden ortak projection'da türetilmelidir; Markdown ve Web UI ayrı filtre/ranking uygulamamalıdır.
+8. `AnalysisHighlight.ScoreImpact` semantic seçim izidir; evidence-first ilk okuma katmanında görünür olmak zorunda değildir.
 
-Bu boşluklar yeni sinyal, yeni scoring yöntemi veya yeni canonical kategori gerektirmez.
+Kalan presentation/projection boşlukları yeni sinyal, yeni scoring yöntemi veya yeni canonical kategori gerektirmez.
 
 ---
 
@@ -443,51 +444,62 @@ Yalnız heading, explanatory label, prose, action copy ve disclaimer localized o
 
 ---
 
-## 9. Session 044 Composer Handoff
+## 9. Session 044 Implementation Result
 
-Session 043 yalnız language-neutral signal/domain contract migration ve deterministic EN/TR signal presentation boundary'sini tamamladı. `RepositoryAnalysis` composer, report aggregation, Markdown renderer ve Web UI eklenmedi.
+`RepositoryAnalysisComposer`, `RepositorySnapshot` ve canonical 15 semantic `SignalResult` girdisinden locale kabul etmeden graph-consistent `RepositoryAnalysis` üretir.
 
-### Session 044 scope
+Uygulanan contract:
 
-Application katmanında, mevcut `RepositorySnapshot` ve canonical sıralı 15 `SignalResult` girdisinden locale kabul etmeden şunları üret:
+- exact canonical key/metadata/order doğrulaması ve missing/duplicate/unknown fail-fast,
+- dört canonical category ve unchanged `RawApplicableScoreNormalization`,
+- evidence-backed, deterministic ve en fazla üç strength/gap/action,
+- uncertainty status'larının gap/action dışında tutulması,
+- `portfolio.presentation-completeness` category-included / overall-excluded davranışı,
+- stable action, warning, limitation ve score-label semantic key'leri,
+- highlight/action evidence reference bütünlüğü,
+- explicit analysis id/version/start/completion girdileriyle gizli clock/id olmadan deterministic composition.
 
-- tam dört `CategoryResult`,
-- `ScoreBreakdown`,
-- en fazla üç `AnalysisHighlight` strength,
-- en fazla üç `AnalysisHighlight` critical gap,
-- en fazla üç `ImprovementAction`,
-- `ImprovementPlan`,
-- semantic warning/limitation key'leri,
-- tamamlanmış ve graph-consistent `RepositoryAnalysis`.
+Composer localized prose üretmez, `SignalPresentationLocalizer` çağırmaz ve evaluator çalıştırmaz. Markdown renderer, Web UI ve locale-specific report projection Session 044 kapsamına alınmamıştır.
 
-### Kesin contract
+---
 
-- Composer `locale`, `CultureInfo` veya localized string kabul etmez ve üretmez.
-- `RepositorySignalAnalyzer` tek evaluator çalıştırma noktasıdır; presentation çağrıları evaluator'ları yeniden çalıştırmaz.
-- Strength/gap/action selection bu belgedeki deterministic tier, category-diversity ve canonical-order kurallarını uygular.
-- `AnalysisHighlight` yalnız `Type`, `SignalKey`, `ScoreImpact` ve `EvidenceReferences` taşır.
-- `ImprovementAction` locale-independent `PresentationKey`, priority, related signals, effort ve evidence references taşır.
-- `AnalysisWarning.PresentationKey` ve `RepositoryAnalysis.LimitationKeys` localized prose değildir.
-- Signal presentation için mevcut `SignalPresentationLocalizer` yeniden kullanılır; report section/action/warning copy'si aynı EN-default/TR catalog sınırında eklenir.
-- Evidence path, command, filename, URL, SHA ve repository literal'leri projection sırasında aynı `EvidenceItem` değerleri olarak korunur.
-- `RawApplicableScoreNormalization`, 15 signal key/status/score/max/applicability ve canonical ordering değişmez.
-- `portfolio.presentation-completeness` category score'a dahil, overall score'a dahil değildir.
-- `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` gap olarak seçilmez; explicit uncertainty projection'ına gider.
-- Yeni dependency, MediatR, CQRS, LLM scoring/copy truth veya `validation-011` yoktur.
+## 10. Session 045 Exact Handoff — Localized Report Projection
+
+### Input / output boundary
+
+Session 045 yalnız tamamlanmış tek bir `RepositoryAnalysis` ve requested locale almalıdır:
+
+```text
+RepositoryAnalysis + requested locale
+↓
+Localized RepositoryReport projection
+```
+
+Projection; repository collection, evaluator, scoring, category aggregation, strength/gap/action selection veya ranking çalıştırmamalıdır. Aynı analysis instance EN ve TR için tekrar kullanılmalıdır.
+
+### MUST implement
+
+1. Markdown ve ilerideki Web UI'ın ortak kullanacağı typed `RepositoryReport` projection contract'ı.
+2. Bölüm sırası: identity → proves → weakens → do first → explicit uncertainty → categories/secondary score → signal detail → disclaimer.
+3. Sabit `report.*` section key'leri ve source-controlled `en` / `tr` presentation catalog'ları.
+4. `ScoreBreakdown.LabelKey`, category/status labels, `ImprovementAction.PresentationKey`, warning presentation key'leri ve limitation key'leri için deterministic localized copy.
+5. Versioned product-boundary disclaimer: seniority, employability, authorship/originality, AI usage ve overall developer quality inference yapılmadığını açıkça söylemelidir.
+6. Existing `SignalPresentationLocalizer` ile 15 signal detail projection'ı; signal truth ve evidence instance'ları değiştirilmemelidir.
+7. Unknown locale → `en` fallback; returned projection resolved locale'i açıkça taşımalıdır.
+8. Explicit uncertainty yalnız `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` sonuçlarından canonical signal order ile türetilmelidir. `Missing` critical-gap akışında kalır.
 
 ### Required tests
 
-- Tam 15 signal → tam dört category ve tutarlı result graph.
-- Strength ve critical-gap tier/category-diversity/canonical tie-break seçimi.
-- Action sayısı, priority, semantic `PresentationKey`, related signals ve evidence-reference doğrulaması.
-- Missing / NotApplicable / UnavailableEvidence / RequiresHumanReview ayrımı.
-- Presentation completeness category-included / overall-excluded invariant'ı.
-- Aynı semantic input + aynı id/time/version → aynı `RepositoryAnalysis`.
-- Composer çağrısında evaluator result'larının score/status/evidence/version değerlerinin değişmemesi.
-- Aynı composed analysis için EN/TR projection identity/ranking eşitliği ve copy farklılığı.
-- Unsupported locale → EN fallback; collection/evaluation tekrar çalışmaz.
-- Repository literal'lerinin locale değişiminde byte-for-byte korunması.
+- same `RepositoryAnalysis` → EN ve TR copy farklı, semantic identity/order/score/status/evidence aynı,
+- locale switch hiçbir analyzer/composer rerun'ı yapmaz,
+- unknown locale → EN fallback,
+- EN/TR catalog key completeness ve boş copy bulunmaması,
+- evidence path, filename, command, URL, SHA ve repository literal'lerinin aynen korunması,
+- exact evidence-first section order,
+- maksimum 3 strength/gap/action projection'ının composer sırasını koruması,
+- all uncertainty statuses'ın failure copy'sine dönüşmemesi,
+- full product-boundary disclaimer'ın iki locale'de bulunması.
 
 ### Out of scope
 
-Full Markdown renderer, Web UI, yeni signal/evaluator/scoring ve `validation-011` Session 044'e dahil edilmez. Session 044, locale-independent composer ve ortak report projection contract'ı yeşil testlerle tamamlandığında biter.
+Markdown string renderer, HTML/Web UI, yeni evaluator, score/ranking değişikliği, LLM translation/copy truth, `validation-011`, yeni dependency, MediatR ve CQRS Session 045'e dahil edilmemelidir.
