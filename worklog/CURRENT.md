@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Three deterministic evaluator slices are complete; Installation Guide is blocked by data and semantic contract gaps.
+Focus: Three deterministic evaluator slices are complete; Installation Guide semantic contract is executable and snapshot alignment is next.
 ```
 
 ---
@@ -45,61 +45,55 @@ None.
 ## Current Problem
 
 ```text
-Session 023 BLOCKED — CONTRACT GAP:
-- RepositorySnapshot carries README content but not indexable docs Markdown content or its dedicated availability.
-- Canonical sources do not define deterministic executable boundaries for an actionable step or Strong feature detection.
-- Missing, Present, and Strong therefore cannot all be produced reliably without inventing unsupported rules.
+Installation Guide semantic contract is now executable; documentation evidence is not yet available in RepositorySnapshot.
 ```
 
 ## Next Immediate Action
 
 ```text
-Define the docs-content snapshot/availability contract and actionable-step/feature-detection semantics in canonical docs, then run a new mandatory model gate for the smallest alignment task.
+Session 025 — Documentation Evidence Snapshot Alignment: define bounded collection limits, then carry normalized docs/**/*.md content and completeness/availability into RepositorySnapshot.
 ```
 
 ## Working Set
 
 ```text
-Session 023 worklog changes only; no production or test implementation was made.
+Session 024 canonical docs and worklog changes only; production and test code are unchanged.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 78fb3fd
-Last verified working tree: Session 023 worklog changes only
+Last verified HEAD: 7401793
+Last verified working tree: Session 024 canonical docs and worklog changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 022 — Description + License Signal Evaluators: PASS
+Session 024 — Installation Guide Semantic Contract: PASS
 
-- Added only `repository.description.present` and `repository.license.present` evaluators.
-- Reused ISignalEvaluator and normalized RepositorySnapshot evidence without a generic engine.
-- Preserved Missing versus UnavailableEvidence semantics with observable evidence.
-- Used corrected LicenseFile evidence for deterministic Present, Partial, Missing, and UnavailableEvidence license outcomes.
-- Kept signal versions, scoring contracts, and provider isolation unchanged.
-- Full automated suite, build, format, and diff validation passed.
+- Defined the bounded README plus exact docs/**/*.md documentation corpus.
+- Locked README/docs fallback, source-local evaluation, exact heading forms, and section boundaries.
+- Defined actionable steps and all six Strong feature detectors with distinct evidence counting.
+- Bounded Strong, Present, Partial, Missing, UnavailableEvidence, and RequiresHumanReview behavior.
+- Preserved Version 1, all scores, 15-signal/4-category contracts, and provider isolation.
+- Added high-level future snapshot evidence semantics without choosing C# fields or arbitrary collection limits.
 ```
 
 ## Last Validation
 
 ```text
-focused Description + License evaluator tests: PASS — 27 passed
-README evaluator regression: PASS — 11 passed
-RepositorySnapshot LicenseFile regression: PASS — 11 passed
-Infrastructure orchestration regression: PASS — 10 passed
-dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 87 passed
-dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 79 passed
-Application tests: N/A — no Application test project
-dotnet test GitHubProof.slnx --no-restore: PASS — 166 passed
-dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
-dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
+Contract review matrix: PASS — all 18 checks YES
+Canonical contradiction review: PASS
+Versioning review: PASS — Version 1 remains the first executable pre-publication contract
+Docs consistency review: PASS — canonical and example Missing evidence use the complete corpus rule
+Production code changed: NONE
+Tests changed: NONE
+dotnet test/build/format: NOT RUN — docs-only session
 git diff --check: PASS
-git status --short: Session 022 changes only
+git status --short: Session 024 canonical docs and worklog changes only
 ```
 
 ## Critical Invariants
@@ -127,7 +121,8 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-None currently confirmed.
+RepositorySnapshot and Infrastructure do not yet carry the canonical docs/**/*.md content corpus or its completeness/availability semantics.
+Exact deterministic file-count/content-size collection bounds must be selected before production collection implementation.
 ```
 
 ## Git Rule

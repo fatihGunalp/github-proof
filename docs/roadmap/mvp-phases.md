@@ -239,7 +239,7 @@ Score: 0
 MaximumScore: 8
 
 Kanıt:
-README içerisinde installation, setup veya kurulum bölümü bulunamadı.
+README ve `docs/**/*.md` corpus'u başarıyla incelendi; desteklenen installation, setup veya kurulum bölümü bulunamadı.
 
 Öneri:
 README dosyasına bağımlılıkları, yapılandırmayı ve çalıştırma komutlarını ekleyin.

@@ -149,6 +149,22 @@ Bu iki alan bağımsızdır:
 
 `license` availability değeri `Available` değilse iki alanın null olması lisansın bulunmadığı anlamına gelmez.
 
+### Installation documentation corpus kanıtı
+
+`documentation.installation-guide` sinyali için normalize snapshot gelecekte provider-independent olarak şu semantiği taşıyabilmelidir:
+
+- Mevcut README path, content ve availability sözleşmesi
+- Exact `docs/**/*.md` kapsamındaki normalize Markdown dosyaları
+- Her docs dosyasının path'i ve alınabildiğinde content'i
+- Collection-level availability ve completeness
+- Gerektiğinde file-level content availability
+
+Docs collection en az `Available + Complete`, `Available + Partial` ve `Unavailable` durumlarını ayırabilmelidir. Scoped path'lerin tamamı başarıyla seçilip içerikleri alındığında complete; tree truncation, collection bound veya content failure nedeniyle eksik kaldığında partial olmalıdır.
+
+Bu semantik, incomplete evidence'ın `Missing` olarak yorumlanmasını engellerken mevcut kanıttan güvenilir positive sonuç üretilmesine izin verir. Exact C# type/field tasarımı snapshot alignment implementasyonuna bırakılır.
+
+Docs Markdown collection başlamadan önce deterministic file-count/content-size bound, path selection order ve bound'a takılan collection davranışı kilitlenmelidir. Mevcut canonical belgeler henüz exact limit tanımlamaz.
+
 ### Kural
 
 Snapshot eksik olabilir.

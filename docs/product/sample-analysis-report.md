@@ -125,7 +125,7 @@ Bu analiz testlerin kapsamını, doğruluğunu veya başarıyla çalıştığın
 
 **Kanıt**
 
-README içerisinde `Kurulum`, `Setup` veya `Installation` bölümü bulunamadı.
+README ve `docs/**/*.md` installation documentation corpus'u başarıyla incelendi; desteklenen bir `Kurulum`, `Setup` veya `Installation` bölümü bulunamadı.
 
 **Neden önemli?**
 

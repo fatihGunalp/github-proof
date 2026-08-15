@@ -280,7 +280,7 @@ README içerisinde "Kurulum" başlığı ve üç çalıştırma adımı tespit e
 ### Eksik kanıt örneği
 
 ~~~text
-README içerisinde kurulum, setup veya installation başlığı bulunamadı.
+README ve `docs/**/*.md` corpus'u başarıyla incelendi; desteklenen kurulum, setup veya installation başlığı bulunamadı.
 ~~~
 
 ### Belirsiz kanıt örneği

@@ -176,6 +176,7 @@ Key: documentation.installation-guide
 Name: Kurulum Talimatı
 Category: RepositoryUnderstandability
 MaximumScore: 8
+IncludeInOverallScore: true
 Version: 1
 ~~~
 
@@ -183,13 +184,89 @@ Version: 1
 
 Başka bir geliştiricinin projeyi kurmasına yardımcı olacak görünür talimatların bulunup bulunmadığını değerlendirmek.
 
-### Gerekli veri
+### Sürüm kararı
 
-- README içeriği
-- Gerekirse docs dizinindeki indekslenebilir Markdown dosyaları
-- İçerik erişilebilirlik durumu
+Bu bölüm, henüz yayımlanmış bir analyzer bulunmadan önce `Version: 1` sözleşmesinin belirsiz noktalarını executable hâle getirir. Sinyalin amacı, status değerleri, skorları ve görünür dokümantasyon kanıtı sınırı değişmez. Bu nedenle `Version: 1` korunur. Bu contract lock sonrasındaki semantik değişikliklerde sinyal `Version` değeri artırılmalıdır.
 
-### İlk sürüm başlık adayları
+### Gerekli dokümantasyon corpus'u
+
+MVP v1 installation documentation corpus'u yalnızca şunlardan oluşur:
+
+1. GitHub tarafından normalize edilmiş repository README
+2. Repository root'undaki exact `docs/` dizini altında bulunan `docs/**/*.md` dosyaları
+
+`docs/**/*.md` kapsamı recursive'dir; yalnız regular file/blob girdilerini içerir. `.md` extension karşılaştırması case-insensitive yapılır. Path'ler normalize `/` separator ile ve `StringComparer.Ordinal` sırasıyla değerlendirilir. `docs/` path prefix'i exact ve case-sensitive'dir.
+
+Kapsam içi örnekler:
+
+~~~text
+docs/setup.md
+docs/getting-started.md
+docs/install/windows.md
+docs/INSTALL.MD
+~~~
+
+Kapsam dışı örnekler:
+
+~~~text
+CHANGELOG.md
+CONTRIBUTING.md
+examples/README.md
+Docs/setup.md
+GitHub Wiki
+external URL içerikleri
+~~~
+
+MVP v1'de repository-wide generic Markdown araması yapılmaz.
+
+README için availability, path ve content durumu ayrı gözlemlenebilmelidir. Docs Markdown corpus'u için en az şu durumlar ayrılabilmelidir:
+
+~~~text
+Available + Complete
+Available + Partial
+Unavailable
+~~~
+
+Corpus kanıtı; collection availability, completeness, toplanan dosyalar, her dosyanın normalize path'i ve content/content-availability durumunu taşımalıdır.
+
+`Available + Complete`, kapsamdaki bütün path'lerin deterministik olarak seçildiği ve her seçili dosyanın içeriğinin değerlendirmeye uygun olduğu anlamına gelir. Kapsamda hiç dosya yoksa başarıyla tamamlanan boş collection da `Available + Complete` olabilir.
+
+Tree truncation, collection bound nedeniyle atlanan dosya veya alınamayan en az bir seçili içerik collection'ı `Partial` yapar. Teknik ya da erişim kaynaklı olarak corpus seçimi veya içeriği değerlendirilemiyorsa `Unavailable` kullanılır. Exact provider-independent model ve C# type/field tasarımı sonraki snapshot alignment işine aittir.
+
+### README primary ve docs fallback
+
+README primary documentation source'tur. Docs fallback yalnız README'nin hiç bulunmadığı durumda değil, README tek başına canonical exact sonucu güvenilir biçimde belirleyemediğinde kullanılır.
+
+- README `Strong` ise sonuç terminaldir; docs fallback zorunlu değildir.
+- README `Present` ise skor zaten maksimumdur. Complete docs corpus daha güçlü `Strong` kanıtı için değerlendirilebilir. Docs partial/unavailable olsa da güvenilir `Present` korunur; daha güçlü classification'ın bütünüyle doğrulanamadığı limitation içinde belirtilebilir.
+- README `Partial` ise docs fallback gereklidir.
+- README'de exact installation section yoksa docs fallback gereklidir.
+- README bulunmadı ancak README availability `Available` ise docs fallback değerlendirilir.
+- README unavailable olsa bile docs içinde bağımsız, high-confidence `Strong` veya `Present` kanıtı varsa bu positive sonuç kullanılabilir. Docs exact sonucu belirlemeye yetmiyorsa `UnavailableEvidence` üretilir.
+
+### Source-local değerlendirme
+
+Her documentation source kendi içinde değerlendirilir. Strong feature'lar farklı dosyalardan birleştirilerek "Frankenstein evidence" oluşturulmaz.
+
+Her source için:
+
+1. Exact installation heading aranır.
+2. Coherent installation section çıkarılır.
+3. Actionable step belirlenir.
+4. Distinct Strong feature sayısı hesaplanır.
+
+Source-local sonuç:
+
+~~~text
+en az 3 distinct Strong feature -> Strong / 8
+aksi halde en az 1 actionable step -> Present / 8
+aksi halde matched installation section -> Partial / 4
+matched section yok -> positive installation result yok
+~~~
+
+Repository sonucu güvenilir source-local sonuçlar arasındaki `Strong > Present > Partial > Missing` önceliğini kullanır. Güvenilir `Strong` terminaldir. Güvenilir `Present`, başka bir source partial/unavailable olsa da korunabilir. `Strong` veya `Present` yoksa incomplete evidence ve bounded ambiguity kuralları status seçiminde uygulanır.
+
+### High-confidence heading adayları
 
 ~~~text
 kurulum
@@ -204,33 +281,271 @@ running
 run locally
 ~~~
 
-### Değerlendirme
+Heading matching case-insensitive ve ordinal/invariant'dır. Leading/trailing whitespace, ATX opening marker ve optional trailing ATX `#` decoration yok sayılır; kalan heading text exact candidate olmalıdır. Fuzzy, Levenshtein, LLM, embedding veya NLP matching yapılmaz.
 
-- Strong koşulları sağlanıyorsa: `Strong`, 8 puan
-- Açık kurulum başlığı ve en az bir uygulanabilir adım varsa ancak Strong koşulları sağlanmıyorsa: `Present`, 8 puan
-- Kurulumla ilgili metin var ancak uygulanabilir adım yoksa: `Partial`, 4 puan
-- İçerik başarıyla incelendi ancak kurulum kanıtı yoksa: `Missing`, 0 puan
-- README alınamadıysa: `UnavailableEvidence`, `Score: null`
-- Otomatik eşleşme güveni düşükse: `RequiresHumanReview`, `Score: null`
+`Installation Notes and History`, `How Our Installer Works` ve `Setup Architecture` exact match değildir. `Instalation` typo'su otomatik eşleşmez ve tek başına insan incelemesi gerektirmez.
 
-### Strong koşulu
+### Desteklenen Markdown heading biçimleri
 
-Aşağıdaki unsurlardan en az üçünü taşıyorsa `Strong`, 8 puan:
+MVP v1 şunları destekler:
 
-- Ön koşullar
-- Dependency kurulumu
-- Configuration adımları
-- Build komutu
-- Çalıştırma komutu
-- Migration veya hazırlık adımı
+- ATX heading: bir ile altı `#` karakteri, ardından whitespace ve heading text
+- Setext heading: non-empty text satırını izleyen yalnız `=` veya yalnız `-` karakterlerinden oluşan underline
 
-### Öneri
+Fenced code block içindeki heading-benzeri satırlar heading olarak değerlendirilmez. External Markdown parser dependency zorunlu değildir.
 
-README içerisine ön koşulları, bağımlılıkları, yapılandırmayı ve çalıştırma komutlarını içeren bir kurulum bölümü ekleyin.
+### Installation section sınırı
+
+Matched heading'in section body alanı heading sonrasından aynı veya daha yüksek seviyedeki bir sonraki heading'e kadar sürer. Daha düşük seviyeli subsection'lar installation section'a dahildir. Örneğin `## Installation` altındaki `### Dependencies` ve `### Build` dahil, sonraki `## Usage` hariçtir.
+
+### Actionable step
+
+MVP v1'de actionable step serbest semantic yorum değildir. Bir installation section aşağıdaki yapılardan en az birini içeriyorsa actionable kabul edilir.
+
+#### Fenced code block
+
+En az üç aynı backtick veya tilde ile açılıp aynı karakterle ve en az opening uzunluğunda kapanan fenced block içinde en az bir non-empty content satırı bulunmalıdır. Language annotation optional'dır. Yalnız boş bir fence actionable değildir.
+
+#### Ordered Markdown step
+
+Trim sonrasında decimal sayı ve `.` veya `)` marker'ı ile başlayan ordered item'ın marker sonrasında non-empty content taşıması gerekir.
+
+~~~text
+1. Clone the repository.
+2) Projeyi çalıştırın.
+~~~
+
+#### Explicit imperative instruction
+
+Paragraph veya list item normalize edilirken leading Markdown list marker ve punctuation kaldırılır. İlk meaningful token ya da aşağıdaki multi-token phrase exact olarak bu setlerden biri olmalıdır:
+
+~~~text
+English:
+install, run, build, configure, create, copy, set, add, clone,
+restore, execute, start
+
+Turkish:
+kurun, yükleyin, çalıştırın, derleyin, yapılandırın, oluşturun,
+kopyalayın, ayarlayın, ekleyin, klonlayın, geri yükleyin, başlatın
+~~~
+
+Karşılaştırma case-insensitive ve ordinal'dır. Verb token'ının daha uzun bir identifier içindeki prefix'i eşleşme değildir.
+
+Tek başına ordinary explanatory paragraph, heading, badge, URL, image, inline keyword, unordered prerequisite-name list, code identifier, package/tool adı veya version numarası actionable değildir. Örneğin `This project uses npm for installation.` actionable değildir.
+
+### Strong feature modeli
+
+Strong için aynı coherent installation section içinde aşağıdaki altı canonical feature'dan en az üç distinct feature gerekir:
+
+1. prerequisites
+2. dependency installation
+3. configuration
+4. build
+5. run
+6. migration/preparation
+
+Üç, dört, beş veya altı distinct feature `Strong / 8` üretir. İki feature Strong değildir.
+
+#### Prerequisites
+
+Şunlardan biri gerekir:
+
+- Exact `prerequisites`, `requirements`, `gereksinimler`, `ön koşullar` veya `önkoşullar` subsection heading'i ve non-empty subsection body
+- `requires`, `required`, `requirement`, `gerektirir`, `gereklidir` veya `gerekli` exact token/phrase'i ile açık requirement ifade eden bir satır ve trigger dışında en az bir alphanumeric tool/value/version token'ı
+
+Boş bir Requirements subsection feature değildir.
+
+#### Dependency installation
+
+Şu command family'lerinden biri açıkça bulunmalıdır:
+
+~~~text
+dotnet restore
+npm install
+npm ci
+yarn install
+pnpm install
+pip install
+pip3 install
+poetry install
+bundle install
+composer install
+mvn dependency:*
+gradle dependencies
+./gradlew dependencies
+~~~
+
+Alternatif olarak `install`, `yükleyin` veya `kurun` ile başlayan explicit imperative instruction, dependency/package/tool target'ını aynı instruction içinde açıkça taşımalıdır. Yalnız `install` heading'i dependency feature değildir.
+
+#### Configuration
+
+Şunlardan biri gerekir:
+
+- Exact `configuration`, `config`, `configuration setup`, `yapılandırma` veya `ayarlar` subsection heading'i ve non-empty actionable body
+- Actionable instruction içinde `.env`, `environment variable`, `environment variables`, `appsettings`, `config file`, `configuration`, `secret`, `secrets` veya `connection string` target'larından biri
+
+`Copy .env.example to .env.` ve `Set the connection string.` configuration kanıtıdır.
+
+#### Build
+
+Şu açık command family'lerinden biri gerekir:
+
+~~~text
+dotnet build
+npm run build
+yarn build
+pnpm build
+mvn package
+mvn compile
+gradle build
+./gradlew build
+cargo build
+go build
+make
+cmake --build
+~~~
+
+Alternatif olarak `build` veya `derleyin` ile başlayan explicit imperative instruction marker sonrasında non-empty build target/context taşımalıdır. Body text içindeki tek başına `build` kelimesi feature değildir.
+
+#### Run
+
+Şu açık command family'lerinden biri gerekir:
+
+~~~text
+dotnet run
+npm start
+npm run dev
+yarn start
+yarn dev
+pnpm start
+pnpm dev
+python <file>
+python3 <file>
+flask run
+uvicorn <target>
+cargo run
+go run <target>
+docker compose up
+docker-compose up
+~~~
+
+Alternatif olarak `run`, `start`, `çalıştırın` veya `başlatın` ile başlayan explicit imperative instruction marker sonrasında non-empty executable/target context taşımalıdır. Yalnız `running` heading'i Run feature değildir.
+
+#### Migration/preparation
+
+Şu command veya normalized imperative operation family'lerinden biri gerekir:
+
+~~~text
+dotnet ef database update
+dotnet ef migrations <operation>
+alembic upgrade <target>
+prisma migrate <operation>
+prisma db push
+sequelize db:migrate
+rails db:migrate
+rake db:migrate
+seed database
+create database
+prepare database
+initialize database
+generate certificates
+copy example configuration
+create required directory
+veritabanını oluşturun
+migration çalıştırın
+veritabanını hazırlayın
+başlangıç verisini yükleyin
+gerekli dizini oluşturun
+~~~
+
+Placeholder ile gösterilen command family'lerde placeholder yerine non-empty argument gerekir.
+
+### Distinct feature sayımı
+
+Evidence identity; source path, matched section ve normalize evidence line/operation bileşimidir. Aynı identity Strong threshold için en fazla bir feature'a atanabilir. Bir identity birden fazla detector'a uyarsa yukarıdaki canonical feature sırası önceki feature'a öncelik verir. Aynı feature'ın tekrarı feature sayısını artırmaz.
+
+Ayrı subsection heading/body kanıtı ile ayrı command/instruction satırı farklı identity olabilir. Configuration olarak kullanılan aynı operation migration/preparation için tekrar sayılamaz; ayrı preparation operation varsa iki feature ayrı ayrı sayılabilir.
+
+~~~text
+dotnet run -> Run; Build değildir
+
+dotnet restore
+dotnet build
+dotnet run
+-> dependency + build + run -> Strong
+
+npm install
+npm run build
+-> dependency + build -> Strong değil
+~~~
+
+### Status seçim kuralları
+
+#### Strong
+
+En az bir source-local section içinde en az üç distinct Strong feature bulunursa `Strong`, 8 puan üretilir. Docs fallback artık gerekli değildir.
+
+#### Present
+
+En az bir high-confidence section içinde actionable step bulunur, fakat hiçbir source-local section üç distinct Strong feature'a ulaşmazsa `Present`, 8 puan üretilir. Başka corpus parçaları partial/unavailable olsa bile bu güvenilir maksimum-puan positive sonuç korunabilir; doğrulanamayan Strong ayrımı limitation içinde gösterilir.
+
+#### Partial
+
+Documentation corpus exact lower sonucu belirlemek için complete/available olmalı; en az bir exact high-confidence installation section bulunmalı ve bütün matched section'larda actionable step bulunmamalıdır. Bu durumda `Partial`, 4 puan üretilir. Body text içindeki `install`, `setup` veya `kurulum` occurrence'ı tek başına Partial değildir.
+
+#### Missing
+
+README state ile docs corpus `Available + Complete` olmalı ve hiçbir değerlendirilebilir source'ta exact high-confidence installation section bulunmamalıdır. Bu durumda `Missing`, 0 puan üretilir. Missing yalnız README'de bulunamayan kanıt anlamına gelmez; canonical corpus'un tamamının başarıyla incelendiği anlamına gelir.
+
+#### UnavailableEvidence
+
+Güvenilir `Strong` veya `Present` sonucu yokken exact final result için gerekli corpus unavailable ya da sonucu belirleyemeyecek kadar incomplete ise `UnavailableEvidence`, `Score: null` üretilir.
+
+- README'de section yok ve docs unavailable ise Missing değil `UnavailableEvidence`.
+- README Partial ve docs partial/unavailable ise `UnavailableEvidence`.
+- Partial docs collection içinde Strong veya Present bulunursa observable positive sonuç korunur.
+- Partial docs collection yalnız Partial veya no-evidence sağlıyorsa `UnavailableEvidence`.
+- README Present ve docs unavailable ise `Present` korunur; olası Strong classification limitation içinde belirtilebilir.
+
+#### RequiresHumanReview
+
+`RequiresHumanReview`, `Score: null` yalnız observable content mevcut, gerekli corpus sonucu belirleyecek kadar available ve aşağıdaki bounded ambiguity trigger'larından biri deterministic classification'ı engelliyorsa kullanılır:
+
+1. Heading, canonical candidate'ı yalnız tek balanced parenthetical suffix veya yalnız trailing punctuation ile genişletir; body actionable installation steps taşır. Örnek: `Installation (Windows)`.
+2. Matched section içindeki unclosed fence veya çelişkili heading/fence yapısı section boundary'yi güvenilir çıkarmayı engeller.
+3. Mevcut content'in heading ya da fenced-block yapısı aynı satırları kurallara göre hem section dışında hem içinde bırakacak biçimde malformed'dur.
+
+Required corpus incomplete/unavailable ise ve güvenilir Strong/Present yoksa `UnavailableEvidence` önceliklidir. Güvenilir Strong/Present zaten varsa ambiguity daha düşük sonucu geçersiz kılmaz; positive sonuç korunur ve gerekiyorsa limitation eklenir.
+
+Exact heading bulunmaması, body text'te `install` geçmesi, unsupported arbitrary wording, boş README/docs, heading-only section veya typo tek başına insan incelemesi gerektirmez.
+
+### Evidence kuralları
+
+Full README veya docs body `SignalResult` içine kopyalanmaz. Sonucu açıklayacak minimum observable evidence seçilir:
+
+- Strong: source path, matched heading, distinct feature adları ve representative evidence values
+- Present: source path, matched heading ve actionable evidence
+- Partial: source path, matched heading ve actionable evidence bulunmadığı observation'ı
+- Missing: inspected README state, inspected docs corpus state ve matched section count `0`
+- UnavailableEvidence: exact result için gerekli evidence availability/completeness limitation'ı
+- RequiresHumanReview: ambiguous source/path/heading ve bounded ambiguity nedeni
+
+Location için `README.md#installation` veya `docs/setup.md#getting-started` gibi path + normalized heading kullanılır. Exact GitHub slug algorithm veya line number zorunlu değildir.
+
+### Öneriler
+
+- Missing: README veya docs içine açık bir Kurulum/Installation bölümü ekleyip ön koşulları, dependency kurulumunu, configuration'ı ve çalıştırma adımlarını belirtin.
+- Partial: Mevcut kurulum bölümünü uygulanabilir komutlar veya numaralı adımlarla tamamlayın.
+- RequiresHumanReview: Belirsiz kurulum bölümünü exact canonical heading ve uygulanabilir adımlarla netleştirin.
+- UnavailableEvidence: Kanıtın gerçekten eksik olduğu bilinmediği için repository content değişikliği önermeyin.
+
+### Collection bound gereksinimi
+
+Mevcut canonical docs, docs Markdown collection için exact file-count veya byte limit kilitlemez. Production collection başlamadan önce deterministic bounded collection policy tanımlanmalıdır. Policy en az file-count/content-size sınırlarını, deterministic path selection order'ını ve bound'a takılan collection'ın `Partial` olarak temsil edilmesini belirlemelidir. Arbitrary limit bu session'da seçilmez.
 
 ### Sınırlar
 
-Talimatların bulunması, gerçekten çalıştığını veya güncel olduğunu garanti etmez.
+Kurulum talimatlarının bulunması, talimatların gerçekten çalıştığını, güncel olduğunu veya tüm ortamlarda geçerli olduğunu kanıtlamaz. Bu limitation bütün `Strong` ve `Present` sonuçlarında korunmalıdır.
 
 ---
 
