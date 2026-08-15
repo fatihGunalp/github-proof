@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Twelve production evaluators are complete; the three portfolio signals are next.
+Focus: Twelve production evaluators are complete; Homepage/Live Demo requires canonical alignment before Portfolio evaluator implementation.
 ```
 
 ---
@@ -45,19 +45,19 @@ None.
 ## Current Problem
 
 ```text
-None currently confirmed.
+`portfolio.homepage-or-live-demo` does not define executable boundaries for meaningful homepage, Partial versus RequiresHumanReview, or metadata/README availability precedence.
 ```
 
 ## Next Immediate Action
 
 ```text
-Implement `portfolio.topics`, `portfolio.homepage-or-live-demo`, and `portfolio.presentation-completeness` in the next bounded session.
+Define the canonical Version 1 Homepage/Live Demo semantic and availability-precedence rules, then retry Topics + Homepage evaluator implementation.
 ```
 
 ## Working Set
 
 ```text
-Session 033 canonical clarification, two Domain evaluators, focused tests, and worklog changes only.
+Session 034 worklog-only contract-gap record.
 ```
 
 ## Repository State
@@ -121,7 +121,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-None currently confirmed.
+Homepage/Live Demo can classify the same generic or ambiguous link as Partial or RequiresHumanReview, and terminal-positive behavior under partial availability is unspecified.
 ```
 
 ## Git Rule

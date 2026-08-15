@@ -42,6 +42,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Commit History and Commit Distribution | PASS | Sol / high | [031](./sessions/2026-08-15-031-commit-history-and-distribution.md) | 17c74aa |
 | 2026-08-15 | Issue, Pull Request, and Release signals | PASS | Sol / high | [032](./sessions/2026-08-15-032-issue-pr-release-signals.md) | 86dee23 |
 | 2026-08-15 | Test Structure and Continuous Integration | PASS | Sol / high | [033](./sessions/2026-08-15-033-test-structure-and-ci.md) | 63f3467 |
+| 2026-08-15 | Portfolio Topics and Homepage Signals | BLOCKED | Sol / high | [034](./sessions/2026-08-15-034-topics-and-homepage-signals.md) | d82884d |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
