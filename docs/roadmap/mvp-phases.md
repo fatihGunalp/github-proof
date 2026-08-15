@@ -186,6 +186,10 @@ Sistem geçerli bir public repository URL'sinden gerekli verileri almalı ve nor
 
 ## Faz 3 — Kural Tabanlı Signal Engine
 
+**Durum:** COMPLETE — 2026-08-15, Session 041 final exit validation PASS.
+
+Kapanış doğrulaması: 14 bağımsız evaluator ve derived `portfolio.presentation-completeness` canonical sırada 15 sonuç üretir; determinism PASS; ilk 10 repository için 150/150 human comparison tamamlanmıştır ve 138 `Agreement + MinorDifference` ile kabul oranı %92.00'dır (eşik: >= %80.00).
+
 ### Amaç
 
 Toplanan repository verilerinden açıklanabilir analiz sonuçları üretmek.

@@ -12,8 +12,9 @@
 
 ```text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: No active meaningful session. Historical-ref content collection is complete; Session 039 can be explicitly resumed.
+Delivery Phase: Phase 3 — COMPLETE
+Next Phase: Phase 4 — Report Generation
+Focus: Phase 3 exit validation passed; no active meaningful session.
 ```
 
 ---
@@ -51,39 +52,43 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Resume Session 039 only on explicit user continuation, using c3eea5bec401935206d4697d0c73af950514c1ac without current-HEAD substitution.
+Begin Phase 4 — Report Generation only after a new mandatory model gate and explicit user approval.
 ```
 
 ## Working Set
 
 ```text
-Session 040 PASS: explicit historical commit content collection is available. Session 039 remains BLOCKED pending explicit resume; its target SHA is preserved. Session 038 baseline remains immutable at 150 comparisons and 92.00% acceptance.
+Phase 3 is COMPLETE. Session 041 passed without evaluator, signal, scoring, or canonical rule changes. The immutable acceptance result remains 10 repositories / 150 signals / 138 Agreement + MinorDifference / 92.00% / PASS. Session 039 and validation-011 remain blocked, exploratory, and non-gating.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 2552fda
-Last verified working tree: CLEAN before Session 038
-Pre-existing unrelated changes: NONE
+Last verified HEAD: 8fe0d6d
+Pre-existing working tree: untracked samples/validation/exploratory/
+Session 041 changes: docs/roadmap and worklog completion state only
+Pre-existing non-gating change: samples/validation/exploratory/ preserved untouched
 ```
 
 ## Last Completed Work
 
 ```text
-Session 040 — Historical-Ref Repository Content Collection: PASS
+Session 041 — Phase 3 Final Exit Validation: PASS
 
-- Added explicit 40-character commit SHA content collection without changing the default-HEAD path.
-- Pinned tree, project/test files, workflows, docs, README, and license evidence while preserving live/non-atomic GitHub sections.
-- Added fail-fast/no-fallback behavior and snapshot warnings for the frozen-ref/live boundary.
+- Verified all 15 canonical signals, scoring/status invariants, orchestration fail-fast behavior, and deterministic output.
+- Recomputed the immutable acceptance result as 138 / 150 Agreement + MinorDifference (92.00%), above the 80% threshold.
+- Verified historical-ref regressions and the full 531-test solution with a clean 0-warning/0-error build.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 2552fda; pre-existing Session 038/039 changes preserved
-Historical-ref collection tests: PASS — explicit SHA, invalid/nonexistent SHA, no fallback, default-HEAD regression
+Repository baseline: PASS — main at 8fe0d6d; pre-existing exploratory directory preserved
+Signal engine and scoring contract audit: PASS
+Determinism artifacts: PASS — 10 / 10, 0 semantic differences
+Acceptance: PASS — 10 repositories, 150 comparisons, 138 Agreement + MinorDifference, 92.00%
+Historical-ref regression: PASS — explicit SHA, invalid/nonexistent SHA, no fallback, default-HEAD behavior, frozen/live warning
 Domain tests: PASS — 420 passed
 Application tests: PASS — 10 passed
 Infrastructure tests: PASS — 101 passed
@@ -118,7 +123,15 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-Repository sections outside default-branch contents remain live and non-atomic with the frozen head SHA; validation artifacts expose this Phase 2 limitation.
+- README.rst and README.adoc documentation detection gaps.
+- Cargo dependency installation instruction detection.
+- Explicit README demo-link detection.
+- CI wrapper commands such as tox and dotnet-coverage.
+- Reusable workflow resolution.
+- Derived presentation completeness inheriting upstream misses.
+- Broken-link/reachability semantics remain outside MVP v1.
+- Non-GitHub-Actions CI is a future consideration.
+- Historical-ref snapshots intentionally keep metadata, languages, commits, issues, pull requests, releases, tags, and contributors live/non-atomic and disclose that boundary in warnings.
 ```
 
 ## Git Rule
