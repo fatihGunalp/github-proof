@@ -290,7 +290,13 @@ Foundation worklog sync:
 fb1f388 — docs(worklog): sync session 047 checkpoint state
 
 Home visual refinement checkpoint:
-e2bb09bb67bf182a87fe21d9a12e9c383faec74d — feat(web): refine minimal home experience
+e2bb09b — feat(web): refine minimal home experience
+
+Home refinement worklog sync:
+5a883a6 — docs(worklog): sync home refinement checkpoint
+
+StatusBadge checkpoint:
+5a4ff37a6a0b2b776ffe91ee9998b7bcfb36c940 — feat(web): add canonical status badge semantics
 
 Push:
 origin/main — PASS
@@ -299,7 +305,7 @@ Session status:
 IN_PROGRESS
 
 Next:
-StatusBadge + seven canonical evidence-state semantics
+Typed RepositoryReport report shell
 ~~~
 
 ## Completion Checklist
