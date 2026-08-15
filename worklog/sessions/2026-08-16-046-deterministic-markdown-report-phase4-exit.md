@@ -115,7 +115,7 @@ Start Phase 5 — Minimal Web UI. The UI should consume RepositoryReport directl
 ## Git
 
 ~~~text
-Suggested commit: feat(report): add deterministic markdown renderer
-Commit: PENDING — user-owned
-Push: PENDING — user-owned
+Commit: cb86f144effe59d7c4ffbba4786932492ae2601c
+Message: feat(report): add deterministic markdown renderer
+Push: PASS — origin/main contains cb86f14
 ~~~
