@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 2 — GitHub Data Collection
-Focus: Default-branch commit history and pagination collection are implemented; remaining Phase 2 collectors are pending.
+Focus: Issue and pull-request collection is implemented; remaining Phase 2 collectors are pending.
 ```
 
 ---
@@ -57,38 +57,38 @@ Run a new model gate before the next bounded Phase 2 data-collection slice.
 ## Working Set
 
 ```text
-Session 012 implementation and worklog updates are uncommitted.
+Session 013 implementation and worklog updates are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: d8bea7b
-Last verified working tree: Session 012 changes present; no pre-existing unrelated changes
+Last verified HEAD: badc250
+Last verified working tree: Session 013 changes present; no pre-existing unrelated changes
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 012 — Default branch commit collection foundation: PASS
+Session 013 — Issues and pull requests collection: PASS
 
-- Added default-branch commit collection with GitHub Link-header pagination.
-- Preserved partial pages and explicit collection completeness on later-page failures.
-- Reused a shared availability mapper for rate-limit, forbidden, and generic failures.
-- Added nine focused pagination and availability tests.
+- Added normalized issue and pull-request collectors with Link-header pagination.
+- Excluded pull-request-shaped entries from issue data and preserved first-observed records by number.
+- Kept unavailable, partial, rate-limited, forbidden, and not-applicable data explicit through availability and completeness state.
+- Added sixteen focused issue and pull-request collection tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 27 passed
-dotnet test GitHubProof.slnx --no-restore: PASS — 70 passed
+dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 43 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 86 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 012 changes only
+git status --short: Session 013 changes only
 ```
 
 ## Critical Invariants
