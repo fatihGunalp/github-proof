@@ -65,6 +65,11 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal("<Project />", projectFile.Content);
         Assert.Equal(".github/workflows/ci.yml", snapshot.Workflows.Items[0].Path);
         Assert.Contains("dotnet test", snapshot.Workflows.Items[0].Content);
+        RepositoryFile documentationFile = Assert.Single(snapshot.DocumentationMarkdown.Items);
+        Assert.Equal("docs/setup.md", documentationFile.Path);
+        Assert.Equal(18, documentationFile.Size);
+        Assert.Equal("# Installation", documentationFile.Content);
+        Assert.True(snapshot.DocumentationMarkdown.IsComplete);
 
         Assert.Equal("commit-1", Assert.Single(snapshot.Commits.Items).Sha);
         Assert.Equal("Issue title", Assert.Single(snapshot.Issues.Items).Title);
@@ -75,9 +80,12 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal("v1.0.0", Assert.Single(snapshot.Tags.Items).Name);
         Assert.Equal("octocat", Assert.Single(snapshot.Contributors.Items).Login);
 
-        Assert.Equal(13, snapshot.Availability.Count);
+        Assert.Equal(14, snapshot.Availability.Count);
         Assert.All(snapshot.Availability, availability =>
             Assert.Equal(DataAvailabilityStatus.Available, availability.Status));
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("documentation-markdown")!.Status);
         Assert.Single(snapshot.CollectionWarnings);
         Assert.Contains("may not be atomic", snapshot.CollectionWarnings[0]);
     }
@@ -172,11 +180,23 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             Workflows = new RepositoryCollection<RepositoryFile>(
                 collectors.Contents.Workflows.Items,
                 isComplete: false),
+            DocumentationMarkdownFiles = new RepositoryCollection<RepositoryFile>(
+                collectors.Contents.DocumentationMarkdownFiles.Items,
+                isComplete: false),
             WorkflowsAvailability = Unavailable(
                 "workflows",
                 DataAvailabilityStatus.Failed,
                 "One workflow could not be read."),
-            CollectionWarnings = ["Tree truncated.", "Workflow content partial."]
+            DocumentationMarkdownAvailability = Unavailable(
+                "documentation-markdown",
+                DataAvailabilityStatus.RateLimited,
+                "Documentation content was rate limited."),
+            CollectionWarnings =
+            [
+                "Tree truncated.",
+                "Workflow content partial.",
+                "Documentation content partial."
+            ]
         };
         collectors.Commits = new GitHubRepositoryCommitCollection(
             collectors.Commits.Commits,
@@ -209,14 +229,21 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.False(snapshot.FileTree.IsComplete);
         Assert.False(snapshot.Workflows.IsComplete);
         Assert.Contains("dotnet test", Assert.Single(snapshot.Workflows.Items).Content);
+        Assert.False(snapshot.DocumentationMarkdown.IsComplete);
+        Assert.Equal(
+            "# Installation",
+            Assert.Single(snapshot.DocumentationMarkdown.Items).Content);
         Assert.Empty(snapshot.Releases.Items);
         Assert.Equal(DataAvailabilityStatus.Available, snapshot.FindAvailability("releases")!.Status);
         Assert.Equal("v1.0.0", Assert.Single(snapshot.Tags.Items).Name);
         Assert.Equal(DataAvailabilityStatus.RateLimited, snapshot.FindAvailability("tags")!.Status);
         Assert.Equal(DataAvailabilityStatus.RateLimited, snapshot.FindAvailability("commits")!.Status);
         Assert.Equal(DataAvailabilityStatus.Failed, snapshot.FindAvailability("workflows")!.Status);
+        Assert.Equal(
+            DataAvailabilityStatus.RateLimited,
+            snapshot.FindAvailability("documentation-markdown")!.Status);
         Assert.Equal(DataAvailabilityStatus.Failed, snapshot.FindAvailability("contributors")!.Status);
-        Assert.Equal(5, snapshot.CollectionWarnings.Count);
+        Assert.Equal(6, snapshot.CollectionWarnings.Count);
         Assert.Single(snapshot.CollectionWarnings, warning =>
             warning == "Commit pagination incomplete.");
     }
@@ -311,15 +338,19 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 [
                     new RepositoryFile("src/App.csproj", false, 11, content: null),
                     new RepositoryFile("LICENSE", false, 7, content: null),
-                    new RepositoryFile(".github/workflows/ci.yml", false, 20, content: null)
+                    new RepositoryFile(".github/workflows/ci.yml", false, 20, content: null),
+                    new RepositoryFile("docs/setup.md", false, 18, content: null)
                 ]),
                 new RepositoryCollection<RepositoryFile>(
                     [new RepositoryFile("src/App.csproj", false, 11, "<Project />")]),
                 new RepositoryCollection<RepositoryFile>(
                     [new RepositoryFile(".github/workflows/ci.yml", false, 20, "run: dotnet test")]),
+                new RepositoryCollection<RepositoryFile>(
+                    [new RepositoryFile("docs/setup.md", false, 18, "# Installation")]),
                 Available("file-tree"),
                 Available("project-files"),
                 Available("workflows"),
+                Available("documentation-markdown"),
                 Array.Empty<string>());
             Descriptive = new GitHubRepositoryDescriptiveDataCollection(
                 new RepositoryReadme("README.md", "# Hello"),

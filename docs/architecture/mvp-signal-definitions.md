@@ -541,7 +541,9 @@ Location için `README.md#installation` veya `docs/setup.md#getting-started` gib
 
 ### Collection bound gereksinimi
 
-Mevcut canonical docs, docs Markdown collection için exact file-count veya byte limit kilitlemez. Production collection başlamadan önce deterministic bounded collection policy tanımlanmalıdır. Policy en az file-count/content-size sınırlarını, deterministic path selection order'ını ve bound'a takılan collection'ın `Partial` olarak temsil edilmesini belirlemelidir. Arbitrary limit bu session'da seçilmez.
+MVP v1 docs Markdown collection en fazla 16 eligible dosya, dosya başına 131072 decoded UTF-8 byte (128 KiB) ve toplam 524288 decoded UTF-8 byte (512 KiB) kabul eder. Candidate path'ler content fetch öncesinde `StringComparer.Ordinal` ascending sıralanır.
+
+Limit aşımı, unknown tree size veya tree truncation collection'ı incomplete yapar ancak API availability'yi otomatik unavailable yapmaz. Content request failure ise gerçek availability status'unu korur. Complete tree içinde eligible dosya bulunmaması `Available + Complete` empty corpus'tur.
 
 ### Sınırlar
 

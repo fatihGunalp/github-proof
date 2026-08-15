@@ -185,6 +185,58 @@ public sealed class RepositorySnapshotTests
         Assert.Empty(snapshot.Tags.Items);
         Assert.Empty(snapshot.Releases.Items);
         Assert.Null(snapshot.Readme);
+        Assert.Empty(snapshot.DocumentationMarkdown.Items);
+        Assert.Null(snapshot.DocumentationMarkdown.TotalCount);
+        Assert.False(snapshot.DocumentationMarkdown.IsComplete);
+    }
+
+    [Fact]
+    public void Constructor_PreservesCompleteDocumentationMarkdownIndependently()
+    {
+        RepositoryReadme readme = new("README.md", "# Repository");
+        RepositoryFile licenseFile = new("LICENSE", false, 7, "license");
+        RepositoryCollection<RepositoryFile> documentationMarkdown = new(
+            [
+                new RepositoryFile(
+                    "docs/setup.md",
+                    isDirectory: false,
+                    size: 18,
+                    content: "# Installation")
+            ]);
+
+        RepositorySnapshot snapshot = CreateSnapshot(
+            readme,
+            licenseFile: licenseFile,
+            documentationMarkdown: documentationMarkdown);
+
+        RepositoryFile file = Assert.Single(snapshot.DocumentationMarkdown.Items);
+
+        Assert.Same(readme, snapshot.Readme);
+        Assert.Same(licenseFile, snapshot.LicenseFile);
+        Assert.Same(documentationMarkdown, snapshot.DocumentationMarkdown);
+        Assert.Equal("docs/setup.md", file.Path);
+        Assert.Equal(18, file.Size);
+        Assert.Equal("# Installation", file.Content);
+        Assert.True(snapshot.DocumentationMarkdown.IsComplete);
+        Assert.Equal(1, snapshot.DocumentationMarkdown.TotalCount);
+    }
+
+    [Fact]
+    public void Constructor_DistinguishesCompleteEmptyFromIncompleteDocumentationMarkdown()
+    {
+        RepositorySnapshot complete = CreateSnapshot(
+            documentationMarkdown: new RepositoryCollection<RepositoryFile>());
+        RepositorySnapshot incomplete = CreateSnapshot(
+            documentationMarkdown: new RepositoryCollection<RepositoryFile>(
+                [new RepositoryFile("docs/setup.md", false, 10, "partial")],
+                isComplete: false));
+
+        Assert.Empty(complete.DocumentationMarkdown.Items);
+        Assert.Equal(0, complete.DocumentationMarkdown.TotalCount);
+        Assert.True(complete.DocumentationMarkdown.IsComplete);
+        Assert.Single(incomplete.DocumentationMarkdown.Items);
+        Assert.Null(incomplete.DocumentationMarkdown.TotalCount);
+        Assert.False(incomplete.DocumentationMarkdown.IsComplete);
     }
 
     [Fact]
@@ -229,6 +281,7 @@ public sealed class RepositorySnapshotTests
     }
 
     private static RepositorySnapshot CreateSnapshot(
+        RepositoryReadme? readme = null,
         DateTimeOffset? capturedAt = null,
         string? headCommitSha = "abc123",
         RepositoryMetadata? metadata = null,
@@ -239,7 +292,8 @@ public sealed class RepositorySnapshotTests
         IEnumerable<string>? collectionWarnings = null,
         RepositoryCollection<RepositoryTag>? tags = null,
         RepositoryLicense? license = null,
-        RepositoryFile? licenseFile = null)
+        RepositoryFile? licenseFile = null,
+        RepositoryCollection<RepositoryFile>? documentationMarkdown = null)
     {
         return new RepositorySnapshot(
             new RepositoryIdentity(
@@ -255,7 +309,7 @@ public sealed class RepositorySnapshotTests
             capturedAt ?? DateTimeOffset.UtcNow,
             headCommitSha,
             metadata,
-            readme: null,
+            readme,
             fileTree: null,
             commits,
             issues: null,
@@ -269,6 +323,7 @@ public sealed class RepositorySnapshotTests
             availability,
             collectionWarnings,
             tags,
-            licenseFile);
+            licenseFile,
+            documentationMarkdown);
     }
 }

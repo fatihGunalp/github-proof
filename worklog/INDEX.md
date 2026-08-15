@@ -33,6 +33,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Description and License signal evaluators | PASS | Terra / high | [022](./sessions/2026-08-15-022-description-license-signal-evaluators.md) | b38f8a9 |
 | 2026-08-15 | Installation Guide signal | BLOCKED | Sol / high | [023](./sessions/2026-08-15-023-installation-guide-signal.md) | 78fb3fd |
 | 2026-08-15 | Installation Guide semantic contract | PASS | Sol / high | [024](./sessions/2026-08-15-024-installation-guide-semantic-contract.md) | 7401793 |
+| 2026-08-15 | Documentation evidence snapshot alignment | PASS | Sol / high | [025](./sessions/2026-08-15-025-documentation-evidence-snapshot-alignment.md) | 8c12f28 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 

@@ -15,6 +15,10 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
     private const string FileTreeDataKey = "file-tree";
     private const string ProjectFilesDataKey = "project-files";
     private const string WorkflowsDataKey = "workflows";
+    private const string DocumentationMarkdownDataKey = "documentation-markdown";
+    private const int MaximumDocumentationMarkdownFiles = 16;
+    private const int MaximumDocumentationMarkdownFileBytes = 131072;
+    private const int MaximumDocumentationMarkdownCorpusBytes = 524288;
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -80,6 +84,13 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
             "workflow file",
             tree.IsComplete,
             cancellationToken);
+        SelectedFilesResult documentationMarkdown =
+            await CollectDocumentationMarkdownAsync(
+                repository,
+                tree.HeadCommitSha!,
+                tree.FileTree!,
+                tree.IsComplete,
+                cancellationToken);
 
         List<string> warnings = [];
 
@@ -90,15 +101,18 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
 
         warnings.AddRange(projectFiles.Warnings);
         warnings.AddRange(workflows.Warnings);
+        warnings.AddRange(documentationMarkdown.Warnings);
 
         return new GitHubRepositoryContentsCollection(
             tree.HeadCommitSha,
             new RepositoryCollection<RepositoryFile>(tree.FileTree!, isComplete: tree.IsComplete),
             projectFiles.Files,
             workflows.Files,
+            documentationMarkdown.Files,
             DataAvailability.Available(FileTreeDataKey, timeProvider.GetUtcNow()),
             projectFiles.Availability,
             workflows.Availability,
+            documentationMarkdown.Availability,
             warnings);
     }
 
@@ -257,6 +271,117 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
             warnings);
     }
 
+    private async Task<SelectedFilesResult> CollectDocumentationMarkdownAsync(
+        GitHubRepositoryUrl repository,
+        string headCommitSha,
+        IReadOnlyList<RepositoryFile> fileTree,
+        bool treeIsComplete,
+        CancellationToken cancellationToken)
+    {
+        RepositoryFile[] candidates = fileTree
+            .Where(IsDocumentationMarkdownFile)
+            .OrderBy(file => file.Path, StringComparer.Ordinal)
+            .ToArray();
+        RepositoryFile[] boundedCandidates = candidates
+            .Take(MaximumDocumentationMarkdownFiles)
+            .ToArray();
+        List<RepositoryFile> files = [];
+        List<string> warnings = [];
+        DataAvailability? failure = null;
+        int acceptedBytes = 0;
+        bool isComplete = treeIsComplete
+            && candidates.Length <= MaximumDocumentationMarkdownFiles;
+
+        if (!treeIsComplete)
+        {
+            warnings.Add(
+                "Documentation Markdown collection is incomplete because the file tree was truncated.");
+        }
+
+        if (candidates.Length > MaximumDocumentationMarkdownFiles)
+        {
+            warnings.Add(
+                $"Documentation Markdown corpus exceeded the maximum file count of {MaximumDocumentationMarkdownFiles}; later Ordinal candidates were not fetched.");
+        }
+
+        foreach (RepositoryFile file in boundedCandidates)
+        {
+            if (file.Size is null)
+            {
+                isComplete = false;
+                warnings.Add(
+                    $"Documentation Markdown file '{file.Path}' has no declared size and was not fetched.");
+                continue;
+            }
+
+            if (file.Size > MaximumDocumentationMarkdownFileBytes)
+            {
+                isComplete = false;
+                warnings.Add(
+                    $"Documentation Markdown file '{file.Path}' exceeded the per-file limit of {MaximumDocumentationMarkdownFileBytes} bytes and was not fetched.");
+                continue;
+            }
+
+            if (file.Size > MaximumDocumentationMarkdownCorpusBytes - acceptedBytes)
+            {
+                isComplete = false;
+                warnings.Add(
+                    $"Documentation Markdown file '{file.Path}' exceeded the remaining corpus budget of {MaximumDocumentationMarkdownCorpusBytes} bytes and was not fetched.");
+                continue;
+            }
+
+            ContentResult content = await CollectFileContentAsync(
+                repository,
+                headCommitSha,
+                file,
+                DocumentationMarkdownDataKey,
+                "documentation Markdown file",
+                cancellationToken);
+
+            if (content.Availability is not null)
+            {
+                failure ??= content.Availability;
+                isComplete = false;
+                continue;
+            }
+
+            RepositoryFile collectedFile = content.File!;
+            int decodedBytes = Encoding.UTF8.GetByteCount(collectedFile.Content!);
+
+            if (decodedBytes > MaximumDocumentationMarkdownFileBytes)
+            {
+                isComplete = false;
+                warnings.Add(
+                    $"Documentation Markdown file '{file.Path}' decoded content exceeded the per-file limit of {MaximumDocumentationMarkdownFileBytes} bytes and was rejected.");
+                continue;
+            }
+
+            if (decodedBytes > MaximumDocumentationMarkdownCorpusBytes - acceptedBytes)
+            {
+                isComplete = false;
+                warnings.Add(
+                    $"Documentation Markdown file '{file.Path}' decoded content exceeded the remaining corpus budget of {MaximumDocumentationMarkdownCorpusBytes} bytes and was rejected.");
+                continue;
+            }
+
+            files.Add(collectedFile);
+            acceptedBytes += decodedBytes;
+        }
+
+        if (failure is not null)
+        {
+            warnings.Add(
+                "Documentation Markdown content collection did not complete; collected files were preserved.");
+        }
+
+        return new SelectedFilesResult(
+            new RepositoryCollection<RepositoryFile>(files, isComplete: isComplete),
+            failure ?? DataAvailability.Available(
+                DocumentationMarkdownDataKey,
+                timeProvider.GetUtcNow()),
+            warnings);
+    }
+
     private async Task<ContentResult> CollectFileContentAsync(
         GitHubRepositoryUrl repository,
         string headCommitSha,
@@ -372,24 +497,34 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
             new RepositoryCollection<RepositoryFile>(isComplete: false),
             new RepositoryCollection<RepositoryFile>(isComplete: false),
             new RepositoryCollection<RepositoryFile>(isComplete: false),
+            new RepositoryCollection<RepositoryFile>(isComplete: false),
             DataAvailability.Unavailable(FileTreeDataKey, DataAvailabilityStatus.NotRequested, reason),
             DataAvailability.Unavailable(ProjectFilesDataKey, DataAvailabilityStatus.NotRequested, reason),
             DataAvailability.Unavailable(WorkflowsDataKey, DataAvailabilityStatus.NotRequested, reason),
+            DataAvailability.Unavailable(
+                DocumentationMarkdownDataKey,
+                DataAvailabilityStatus.NotRequested,
+                reason),
             [reason]);
     }
 
     private GitHubRepositoryContentsCollection CreateUnavailableTreeResult(DataAvailability availability)
     {
-        const string reason = "File tree must be available before project files and workflows are collected.";
+        const string reason = "File tree must be available before selected contents are collected.";
 
         return new GitHubRepositoryContentsCollection(
             HeadCommitSha: null,
             new RepositoryCollection<RepositoryFile>(isComplete: false),
             new RepositoryCollection<RepositoryFile>(isComplete: false),
             new RepositoryCollection<RepositoryFile>(isComplete: false),
+            new RepositoryCollection<RepositoryFile>(isComplete: false),
             availability,
             DataAvailability.Unavailable(ProjectFilesDataKey, DataAvailabilityStatus.NotRequested, reason),
             DataAvailability.Unavailable(WorkflowsDataKey, DataAvailabilityStatus.NotRequested, reason),
+            DataAvailability.Unavailable(
+                DocumentationMarkdownDataKey,
+                DataAvailabilityStatus.NotRequested,
+                reason),
             [reason]);
     }
 
@@ -402,9 +537,11 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
             new RepositoryCollection<RepositoryFile>(),
             new RepositoryCollection<RepositoryFile>(),
             new RepositoryCollection<RepositoryFile>(),
+            new RepositoryCollection<RepositoryFile>(),
             DataAvailability.Available(FileTreeDataKey, retrievedAt),
             DataAvailability.Available(ProjectFilesDataKey, retrievedAt),
             DataAvailability.Available(WorkflowsDataKey, retrievedAt),
+            DataAvailability.Available(DocumentationMarkdownDataKey, retrievedAt),
             Array.Empty<string>());
     }
 
@@ -440,6 +577,11 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
         && file.Path.StartsWith(".github/workflows/", StringComparison.Ordinal)
         && (file.Path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)
             || file.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsDocumentationMarkdownFile(RepositoryFile file) =>
+        !file.IsDirectory
+        && file.Path.StartsWith("docs/", StringComparison.Ordinal)
+        && file.Path.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
 
     private static string DecodeBase64Content(string? content, string? encoding, string dataName)
     {

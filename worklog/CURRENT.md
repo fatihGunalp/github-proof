@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Three deterministic evaluator slices are complete; Installation Guide semantic contract is executable and snapshot alignment is next.
+Focus: Three deterministic evaluator slices are complete; bounded documentation evidence is aligned and Installation Guide evaluator retry is next.
 ```
 
 ---
@@ -45,55 +45,58 @@ None.
 ## Current Problem
 
 ```text
-Installation Guide semantic contract is now executable; documentation evidence is not yet available in RepositorySnapshot.
+None.
 ```
 
 ## Next Immediate Action
 
 ```text
-Session 025 — Documentation Evidence Snapshot Alignment: define bounded collection limits, then carry normalized docs/**/*.md content and completeness/availability into RepositorySnapshot.
+Session 026 — Installation Guide Signal Evaluator Retry.
 ```
 
 ## Working Set
 
 ```text
-Session 024 canonical docs and worklog changes only; production and test code are unchanged.
+Session 025 Domain, Infrastructure, canonical docs, tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 7401793
-Last verified working tree: Session 024 canonical docs and worklog changes only
+Last verified HEAD: 8c12f28
+Last verified working tree: Session 025 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 024 — Installation Guide Semantic Contract: PASS
+Session 025 — Documentation Evidence Snapshot Alignment: PASS
 
-- Defined the bounded README plus exact docs/**/*.md documentation corpus.
-- Locked README/docs fallback, source-local evaluation, exact heading forms, and section boundaries.
-- Defined actionable steps and all six Strong feature detectors with distinct evidence counting.
-- Bounded Strong, Present, Partial, Missing, UnavailableEvidence, and RequiresHumanReview behavior.
-- Preserved Version 1, all scores, 15-signal/4-category contracts, and provider isolation.
-- Added high-level future snapshot evidence semantics without choosing C# fields or arbitrary collection limits.
+- Added provider-independent RepositorySnapshot.DocumentationMarkdown evidence with source-compatible unknown/incomplete defaults.
+- Collected exact docs/**/*.md paths at the resolved head SHA in deterministic Ordinal order.
+- Enforced 16-file, 128 KiB per-file, and 512 KiB corpus limits before and after content decoding.
+- Preserved complete empty, bounded partial, tree-truncated, and API failure semantics separately.
+- Added and propagated the dedicated documentation-markdown availability key and deterministic warnings.
+- Kept README, LicenseFile, evaluator, score, and signal Version 1 semantics unchanged.
 ```
 
 ## Last Validation
 
 ```text
-Contract review matrix: PASS — all 18 checks YES
-Canonical contradiction review: PASS
-Versioning review: PASS — Version 1 remains the first executable pre-publication contract
-Docs consistency review: PASS — canonical and example Missing evidence use the complete corpus rule
-Production code changed: NONE
-Tests changed: NONE
-dotnet test/build/format: NOT RUN — docs-only session
+focused RepositorySnapshot tests: PASS — 13 passed
+focused documentation Markdown collector tests: PASS — 9 passed
+existing contents collector regression: PASS — 9 passed
+orchestrator focused/regression: PASS — 10 passed
+README/Description/License evaluator regression: PASS — 38 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 89 passed
+dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 88 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 177 passed
+dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
+dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 024 canonical docs and worklog changes only
+git status --short: Session 025 changes only
 ```
 
 ## Critical Invariants
@@ -121,8 +124,7 @@ and presentation-completeness exclusion are contract-locked in docs/.
 ## Known Problems
 
 ```text
-RepositorySnapshot and Infrastructure do not yet carry the canonical docs/**/*.md content corpus or its completeness/availability semantics.
-Exact deterministic file-count/content-size collection bounds must be selected before production collection implementation.
+None currently confirmed.
 ```
 
 ## Git Rule

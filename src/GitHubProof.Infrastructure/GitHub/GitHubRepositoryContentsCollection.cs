@@ -8,7 +8,9 @@ public sealed record GitHubRepositoryContentsCollection(
     RepositoryCollection<RepositoryFile> FileTree,
     RepositoryCollection<RepositoryFile> ProjectFiles,
     RepositoryCollection<RepositoryFile> Workflows,
+    RepositoryCollection<RepositoryFile> DocumentationMarkdownFiles,
     DataAvailability FileTreeAvailability,
     DataAvailability ProjectFilesAvailability,
     DataAvailability WorkflowsAvailability,
+    DataAvailability DocumentationMarkdownAvailability,
     IReadOnlyList<string> CollectionWarnings);

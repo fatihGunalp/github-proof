@@ -112,6 +112,7 @@ RepositorySnapshot
 ├── HeadCommitSha
 ├── Metadata
 ├── Readme
+├── DocumentationMarkdown
 ├── FileTree
 ├── Commits
 ├── Issues
@@ -151,7 +152,7 @@ Bu iki alan bağımsızdır:
 
 ### Installation documentation corpus kanıtı
 
-`documentation.installation-guide` sinyali için normalize snapshot gelecekte provider-independent olarak şu semantiği taşıyabilmelidir:
+`documentation.installation-guide` sinyali için normalize snapshot provider-independent `RepositoryCollection<RepositoryFile> DocumentationMarkdown` alanını taşır.
 
 - Mevcut README path, content ve availability sözleşmesi
 - Exact `docs/**/*.md` kapsamındaki normalize Markdown dosyaları
@@ -161,9 +162,20 @@ Bu iki alan bağımsızdır:
 
 Docs collection en az `Available + Complete`, `Available + Partial` ve `Unavailable` durumlarını ayırabilmelidir. Scoped path'lerin tamamı başarıyla seçilip içerikleri alındığında complete; tree truncation, collection bound veya content failure nedeniyle eksik kaldığında partial olmalıdır.
 
-Bu semantik, incomplete evidence'ın `Missing` olarak yorumlanmasını engellerken mevcut kanıttan güvenilir positive sonuç üretilmesine izin verir. Exact C# type/field tasarımı snapshot alignment implementasyonuna bırakılır.
+Bu semantik, incomplete evidence'ın `Missing` olarak yorumlanmasını engellerken mevcut kanıttan güvenilir positive sonuç üretilmesine izin verir. Collection için dedicated availability key `documentation-markdown` değeridir.
 
-Docs Markdown collection başlamadan önce deterministic file-count/content-size bound, path selection order ve bound'a takılan collection davranışı kilitlenmelidir. Mevcut canonical belgeler henüz exact limit tanımlamaz.
+MVP v1 bounded collection policy:
+
+~~~text
+Maximum docs Markdown files:       16
+Maximum decoded bytes per file:    131072 (128 KiB)
+Maximum decoded corpus bytes:      524288 (512 KiB)
+Candidate ordering:                StringComparer.Ordinal ascending
+~~~
+
+Yalnız ilk 16 eligible Ordinal candidate selection scope'a girer. Tree size null veya 131072 byte'tan büyükse content fetch yapılmaz. Candidate'ın declared size'ı kalan total budget'ı aşıyorsa candidate skip edilir; daha küçük sonraki candidate'lar değerlendirilebilir. Decode sonrasında gerçek UTF-8 byte count per-file ve total limitlere karşı yeniden doğrulanır.
+
+File-count, size, total-budget veya tree-truncation sınırına takılmak collection'ı incomplete yapar ancak API availability'yi otomatik unavailable yapmaz. Content request failure gerçek `RateLimited`, `Forbidden` veya `Failed` availability durumunu korur ve önceki başarılı items kaybedilmez. Complete tree içinde eligible dosya bulunmaması `Available`, complete ve empty corpus'tur.
 
 ### Kural
 

@@ -146,7 +146,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 tags,
                 contributors),
             MapTags(tags.Tags),
-            descriptive.LicenseFile);
+            descriptive.LicenseFile,
+            contents.DocumentationMarkdownFiles);
 
         return new GitHubRepositorySnapshotResult(snapshot, metadata.Availability);
     }
@@ -241,6 +242,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             contents.FileTreeAvailability,
             contents.ProjectFilesAvailability,
             contents.WorkflowsAvailability,
+            contents.DocumentationMarkdownAvailability,
             .. descriptive.Availability,
             commits.Availability,
             issues.Availability,
