@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="status.Strong" xml:space="preserve"><value>Güçlü</value></data>
+  <data name="status.Present" xml:space="preserve"><value>Mevcut</value></data>
+  <data name="status.Partial" xml:space="preserve"><value>Kısmi</value></data>
+  <data name="status.Missing" xml:space="preserve"><value>Eksik</value></data>
+  <data name="status.NotApplicable" xml:space="preserve"><value>Uygulanamaz</value></data>
+  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Kanıta erişilemiyor</value></data>
+  <data name="status.RequiresHumanReview" xml:space="preserve"><value>İnsan incelemesi gerekli</value></data>
+  <data name="explanation.Strong" xml:space="preserve"><value>{0} için güçlü ve görünür kanıt var.</value></data>
+  <data name="explanation.Present" xml:space="preserve"><value>{0} için görünür kanıt var.</value></data>
+  <data name="explanation.Partial" xml:space="preserve"><value>{0} için kısmi görünür kanıt var.</value></data>
+  <data name="explanation.Missing" xml:space="preserve"><value>{0} için görünür kanıt bulunamadı.</value></data>
+  <data name="explanation.NotApplicable" xml:space="preserve"><value>{0} bu repository için uygulanabilir değil.</value></data>
+  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>Gerekli kanıta erişilemediği için {0} değerlendirilemedi.</value></data>
+  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} hakkında sonuca varmadan önce insan incelemesi gerekiyor.</value></data>
+  <data name="limitation.Strong" xml:space="preserve"><value>Bu sonuç yalnız analiz edilen repository snapshot'ında görünür olan kanıtı yansıtır.</value></data>
+  <data name="limitation.Present" xml:space="preserve"><value>Bu sonuç varlığı doğrular; bütünlük, doğruluk veya kaliteyi doğrulamaz.</value></data>
+  <data name="limitation.Partial" xml:space="preserve"><value>Beklenen kanıtın yalnız bir bölümü görünür.</value></data>
+  <data name="limitation.Missing" xml:space="preserve"><value>Eksik, incelenen kapsamda niteleyici kanıt bulunmadığı anlamına gelir.</value></data>
+  <data name="limitation.NotApplicable" xml:space="preserve"><value>Bu sinyal uygulanabilirlik kuralı nedeniyle kapsam dışında kaldı.</value></data>
+  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>Bu bir veri toplama sınırıdır; sinyalin eksik olduğunu kanıtlamaz.</value></data>
+  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>Mevcut kanıt deterministik bir sonucu desteklemiyor.</value></data>
+  <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Dokümantasyon</value></data>
+  <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Geliştirme Süreci</value></data>
+  <data name="category.ValidationAndUsability" xml:space="preserve"><value>Doğrulama</value></data>
+  <data name="category.PortfolioPresentation" xml:space="preserve"><value>İş Birliği</value></data>
+  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof repository üzerinde görünür olan kanıtı değerlendirir. Geliştirici kıdemi, işe alınabilirlik, yazarlık, özgünlük, AI kullanımı veya genel geliştirici kalitesi hakkında çıkarım yapmaz.</value></data>
+
+  <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>
+  <data name="repository.readme.exists.description" xml:space="preserve"><value>GitHub'ın repository içinde bir README tanıyıp tanımadığını kontrol eder.</value></data>
+  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>README, değerlendirene projeyi anlamak için doğrudan bir giriş noktası verir.</value></data>
+  <data name="repository.readme.exists.recommendation" xml:space="preserve"><value>Projeyi ve nasıl inceleneceğini anlatan repository düzeyinde bir README ekleyin.</value></data>
+  <data name="repository.description.present.title" xml:space="preserve"><value>Repository açıklaması</value></data>
+  <data name="repository.description.present.description" xml:space="preserve"><value>GitHub repository açıklamasının proje amacını kısa biçimde aktarıp aktarmadığını kontrol eder.</value></data>
+  <data name="repository.description.present.whyItMatters" xml:space="preserve"><value>Açıklama, hızlı taramada görülen ilk proje bağlamlarından biridir.</value></data>
+  <data name="repository.description.present.recommendation" xml:space="preserve"><value>Projenin ne yaptığını söyleyen kısa bir GitHub açıklaması ekleyin.</value></data>
+  <data name="repository.license.present.title" xml:space="preserve"><value>Lisans</value></data>
+  <data name="repository.license.present.description" xml:space="preserve"><value>Repository içinde görünür lisans kanıtını kontrol eder.</value></data>
+  <data name="repository.license.present.whyItMatters" xml:space="preserve"><value>Görünür lisans, yeniden kullanım koşullarını netleştirir.</value></data>
+  <data name="repository.license.present.recommendation" xml:space="preserve"><value>Bir lisans dosyası ekleyin veya repository'nin lisans koşullarını açıkça belirtin.</value></data>
+  <data name="documentation.installation-guide.title" xml:space="preserve"><value>Kurulum rehberi</value></data>
+  <data name="documentation.installation-guide.description" xml:space="preserve"><value>Uygulanabilir kurulum veya ortam hazırlama adımlarını kontrol eder.</value></data>
+  <data name="documentation.installation-guide.whyItMatters" xml:space="preserve"><value>Kurulum adımları başka birinin proje ortamını yeniden oluşturmasını kolaylaştırır.</value></data>
+  <data name="documentation.installation-guide.recommendation" xml:space="preserve"><value>Ön koşulları ve çalıştırılabilir adımları içeren ayrı bir kurulum bölümü ekleyin.</value></data>
+  <data name="documentation.usage-or-demo.title" xml:space="preserve"><value>Kullanım veya demo</value></data>
+  <data name="documentation.usage-or-demo.description" xml:space="preserve"><value>Projenin nasıl kullanıldığını gösteren talimat veya medya kanıtını kontrol eder.</value></data>
+  <data name="documentation.usage-or-demo.whyItMatters" xml:space="preserve"><value>Kullanım kanıtı, değerlendirene çıktıyı yeniden kurmadan anlama imkânı verir.</value></data>
+  <data name="documentation.usage-or-demo.recommendation" xml:space="preserve"><value>Somut bir kullanım örneği, ekran görüntüsü, kayıt veya çalıştırılabilir demo yolu ekleyin.</value></data>
+  <data name="process.commit-history.title" xml:space="preserve"><value>Commit geçmişi</value></data>
+  <data name="process.commit-history.description" xml:space="preserve"><value>Repository'nin görünür commit geçmişi derinliğini kontrol eder.</value></data>
+  <data name="process.commit-history.whyItMatters" xml:space="preserve"><value>Commit geçmişi iteratif geliştirme izini görünür kılabilir.</value></data>
+  <data name="process.commit-history.recommendation" xml:space="preserve"><value>Yalnız son snapshot'ı yayımlamak yerine anlamlı artımlı commit'leri koruyun.</value></data>
+  <data name="process.commit-distribution.title" xml:space="preserve"><value>Commit dağılımı</value></data>
+  <data name="process.commit-distribution.description" xml:space="preserve"><value>Görünür commit'lerin zamana yayılıp yayılmadığını kontrol eder.</value></data>
+  <data name="process.commit-distribution.whyItMatters" xml:space="preserve"><value>Zamana yayılan çalışma, tek seferlik toplu aktarımdan daha güçlü süreç kanıtıdır.</value></data>
+  <data name="process.commit-distribution.recommendation" xml:space="preserve"><value>Geliştirme izini görünür tutmak için proje ilerledikçe artımlı commit'ler kullanın.</value></data>
+  <data name="process.issue-usage.title" xml:space="preserve"><value>Issue kullanımı</value></data>
+  <data name="process.issue-usage.description" xml:space="preserve"><value>Görünür GitHub Issues kullanımını kontrol eder.</value></data>
+  <data name="process.issue-usage.whyItMatters" xml:space="preserve"><value>Issue'lar planlama, hata takibi ve karar bağlamını gösterebilir.</value></data>
+  <data name="process.issue-usage.recommendation" xml:space="preserve"><value>Proje akışına uygunsa anlamlı işleri veya hataları issue'larla takip edin.</value></data>
+  <data name="process.pull-request-usage.title" xml:space="preserve"><value>Pull request kullanımı</value></data>
+  <data name="process.pull-request-usage.description" xml:space="preserve"><value>Görünür pull request etkinliğini kontrol eder.</value></data>
+  <data name="process.pull-request-usage.whyItMatters" xml:space="preserve"><value>Pull request'ler incelenebilir değişiklikleri ve iş birliği akışını gösterebilir.</value></data>
+  <data name="process.pull-request-usage.recommendation" xml:space="preserve"><value>İnceleme veya değişiklik tartışması yararlıysa anlamlı değişiklikler için pull request kullanın.</value></data>
+  <data name="process.release-usage.title" xml:space="preserve"><value>Release kullanımı</value></data>
+  <data name="process.release-usage.description" xml:space="preserve"><value>Görünür release veya sürüm tag'lerini kontrol eder.</value></data>
+  <data name="process.release-usage.whyItMatters" xml:space="preserve"><value>Release'ler proje kilometre taşlarını ve kullanılabilir sürümleri görünür kılar.</value></data>
+  <data name="process.release-usage.recommendation" xml:space="preserve"><value>Proje kullanılabilir bir aşamaya geldiğinde anlamlı bir release veya sürüm tag'i yayımlayın.</value></data>
+  <data name="validation.test-structure.title" xml:space="preserve"><value>Test yapısı</value></data>
+  <data name="validation.test-structure.description" xml:space="preserve"><value>Repository içinde görünür otomatik test yapısını kontrol eder.</value></data>
+  <data name="validation.test-structure.whyItMatters" xml:space="preserve"><value>Testler, davranışın tekrarlanabilir biçimde doğrulanabildiğine dair görünür kanıt sağlar.</value></data>
+  <data name="validation.test-structure.recommendation" xml:space="preserve"><value>Tanınabilir bir test yapısı içinde odaklı otomatik testler ekleyin.</value></data>
+  <data name="validation.continuous-integration.title" xml:space="preserve"><value>Sürekli entegrasyon</value></data>
+  <data name="validation.continuous-integration.description" xml:space="preserve"><value>Repository içinde görünür CI workflow yapılandırmasını kontrol eder.</value></data>
+  <data name="validation.continuous-integration.whyItMatters" xml:space="preserve"><value>CI, tekrarlanabilir kontrollerin geliştirme akışına bağlandığını gösterir.</value></data>
+  <data name="validation.continuous-integration.recommendation" xml:space="preserve"><value>Repository için ilgili doğrulama komutlarını çalıştıran bir CI workflow'u ekleyin.</value></data>
+  <data name="portfolio.topics.title" xml:space="preserve"><value>GitHub topics</value></data>
+  <data name="portfolio.topics.description" xml:space="preserve"><value>Repository topic'lerinin yararlı sınıflandırma sağlayıp sağlamadığını kontrol eder.</value></data>
+  <data name="portfolio.topics.whyItMatters" xml:space="preserve"><value>Topic'ler değerlendirene teknoloji ve problem alanını hızla gösterir.</value></data>
+  <data name="portfolio.topics.recommendation" xml:space="preserve"><value>Teknoloji yığınını ve problem alanını anlatan az sayıda özgül topic ekleyin.</value></data>
+  <data name="portfolio.homepage-or-live-demo.title" xml:space="preserve"><value>Ana sayfa veya canlı demo</value></data>
+  <data name="portfolio.homepage-or-live-demo.description" xml:space="preserve"><value>Repository ana sayfası veya canlı demo URL'sini kontrol eder.</value></data>
+  <data name="portfolio.homepage-or-live-demo.whyItMatters" xml:space="preserve"><value>Doğrudan hedef bağlantısı proje çıktısını inceleme eforunu azaltır.</value></data>
+  <data name="portfolio.homepage-or-live-demo.recommendation" xml:space="preserve"><value>Proje çevrimiçi deneyimlenebiliyorsa ilgili bir ana sayfa veya canlı demo URL'si ekleyin.</value></data>
+  <data name="portfolio.presentation-completeness.title" xml:space="preserve"><value>Sunum bütünlüğü</value></data>
+  <data name="portfolio.presentation-completeness.description" xml:space="preserve"><value>Overall skoru etkilemeden README, açıklama, topic ve ana sayfa sunum kanıtını özetler.</value></data>
+  <data name="portfolio.presentation-completeness.whyItMatters" xml:space="preserve"><value>Bu giriş noktaları birlikte repository'nin ilk izlenimini oluşturur.</value></data>
+  <data name="portfolio.presentation-completeness.recommendation" xml:space="preserve"><value>Bileşen sinyallerin gösterdiği eksik repository sunum öğelerini tamamlayın.</value></data>
+</root>

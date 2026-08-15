@@ -11,11 +11,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
 
     private const string ReleasesDataKey = "releases";
     private const string TagsDataKey = "tags";
-    private const string Recommendation =
-        "Anlamlı teslim noktaları için version tag ve açıklayıcı GitHub Release oluşturun.";
-    private const string Limitation =
-        "Release varlığı semantic versioning, production kararlılığı veya aktif bakım kanıtı değildir.";
-
     private readonly TimeProvider _timeProvider;
 
     public ReleaseUsageSignalEvaluator(TimeProvider? timeProvider = null)
@@ -25,29 +20,9 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Release Kullanımı",
         AnalysisCategory.DevelopmentProcessVisibility,
-        "Published ve draft GitHub Releases ile tag kanıtlarının görünür kullanımını değerlendirir.",
         maximumScore: 6,
         requiredDataKeys: [ReleasesDataKey, TagsDataKey],
-        applicabilityRules:
-        [
-            "Bütün public repository'lerde uygulanır.",
-            "Repository türü veya amacı tahmin edilerek NotApplicable sonucu üretilmez."
-        ],
-        evaluationRules:
-        [
-            "Release note içeren published release Present sonucu ve tam puan üretir.",
-            "Notes alanı olmayan published release Partial sonucu ve dört puan üretir.",
-            "Published release yokken tag veya yalnız draft release bulunması ilgili Partial sonucunu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Published, notes içeren published, draft ve tag sayıları.",
-            "Releases ve Tags koleksiyonlarının ayrı bütünlük ve erişilebilirlik durumları."
-        ],
-        explanationTemplate: "Normalize release/tag kanıtı ve bağımsız veri bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -78,9 +53,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 6,
                 evidence,
-                $"Açıklayıcı note içeren {Format(publishedWithNotesCount)} published release bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -91,7 +63,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
         {
             return CreateUnavailableResult(
                 evidence,
-                "Published release ve release-note sonucu için Releases verisi erişilebilir ve tam değildir.",
                 evaluatedAt);
         }
 
@@ -101,9 +72,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 4,
                 evidence,
-                "Published release bulundu ancak normalize edilmiş açıklayıcı release note bulunamadı.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -113,9 +81,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 3,
                 evidence,
-                $"Published release bulunmadı ancak {Format(tagCount)} tag gözlendi.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -126,7 +91,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
         {
             return CreateUnavailableResult(
                 evidence,
-                "Tag bulunmadığı sonucunu doğrulamak için Tags verisi erişilebilir ve tam değildir.",
                 evaluatedAt);
         }
 
@@ -136,9 +100,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 2,
                 evidence,
-                "Published release veya tag bulunmadı; yalnız draft release kanıtı bulundu.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -146,24 +107,17 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "Releases ve Tags verisi tam olarak incelendi ancak release veya tag bulunamadı.",
-            Recommendation,
-            [Limitation],
             evaluatedAt);
     }
 
     private SignalResult CreateUnavailableResult(
         EvidenceCollection evidence,
-        string explanation,
         DateTimeOffset evaluatedAt)
     {
         return CreateResult(
             SignalStatus.UnavailableEvidence,
             score: null,
             evidence,
-            explanation,
-            recommendation: null,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -228,9 +182,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -242,9 +193,6 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

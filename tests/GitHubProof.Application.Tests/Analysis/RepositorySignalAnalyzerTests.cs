@@ -309,9 +309,6 @@ public sealed class RepositorySignalAnalyzerTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 
@@ -324,16 +321,9 @@ public sealed class RepositorySignalAnalyzerTests
             _resultKey = resultKey ?? definitionKey;
             Definition = new SignalDefinition(
                 definitionKey,
-                definitionKey,
                 AnalysisCategory.RepositoryUnderstandability,
-                "Synthetic evaluator.",
                 maximumScore: 1,
                 requiredDataKeys: ["synthetic"],
-                applicabilityRules: ["Synthetic."],
-                evaluationRules: ["Synthetic."],
-                evidenceRequirements: ["Synthetic."],
-                explanationTemplate: "Synthetic.",
-                recommendationTemplate: "Synthetic.",
                 includeInOverallScore: true,
                 version: 1);
         }
@@ -356,9 +346,6 @@ public sealed class RepositorySignalAnalyzerTests
                 maximumScore: 1,
                 includeInOverallScore: true,
                 evidence: null,
-                explanation: "Synthetic result.",
-                recommendation: null,
-                limitations: null,
                 EvaluatedAt);
         }
     }

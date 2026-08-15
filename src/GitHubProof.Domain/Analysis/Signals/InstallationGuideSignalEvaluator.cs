@@ -13,17 +13,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
 
     private const string ReadmeDataKey = "readme";
     private const string DocumentationDataKey = "documentation-markdown";
-    private const string MissingRecommendation =
-        "README veya docs içerisinde açık bir Kurulum / Installation bölümü ekleyin; ön koşulları, bağımlılık kurulumunu, yapılandırmayı ve çalıştırma adımlarını belirtin.";
-    private const string PartialRecommendation =
-        "Mevcut kurulum bölümünü uygulanabilir komutlar veya numaralı adımlarla tamamlayın.";
-    private const string HumanReviewRecommendation =
-        "Belirsiz kurulum bölümünü açık canonical heading ve uygulanabilir adımlarla netleştirin.";
-    private const string PresenceLimitation =
-        "Kurulum talimatlarının bulunması, talimatların gerçekten çalıştığını, güncel olduğunu veya tüm ortamlarda geçerli olduğunu kanıtlamaz.";
-    private const string IncompleteStrongLimitation =
-        "Dokümantasyon corpus'u eksik olduğu için daha güçlü bir Strong sınıflandırması bütünüyle doğrulanamadı.";
-
     private static readonly string[] InstallationHeadings =
     [
         "kurulum",
@@ -202,28 +191,9 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Kurulum Talimatı",
         AnalysisCategory.RepositoryUnderstandability,
-        "README ve indekslenebilir dokümantasyon içindeki uygulanabilir kurulum talimatlarını değerlendirir.",
         maximumScore: 8,
         requiredDataKeys: [ReadmeDataKey, DocumentationDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Aynı kurulum bölümündeki en az üç distinct feature Strong sonucu üretir.",
-            "Canonical kurulum bölümündeki actionable step Present sonucu üretir.",
-            "Complete corpus içindeki yalnız başlık düzeyindeki kanıt Partial sonucu üretir.",
-            "Complete corpus içinde canonical bölüm bulunmaması Missing sonucu üretir.",
-            "Eksik veya erişilemeyen corpus güvenilir positive kanıt yoksa UnavailableEvidence sonucu üretir.",
-            "Yalnız bounded Markdown yapısal belirsizliği RequiresHumanReview sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Normalize edilmiş README içeriği ve erişilebilirliği.",
-            "Ordinal sıralı docs/**/*.md içerikleri, collection completeness ve erişilebilirlik."
-        ],
-        explanationTemplate: "Kurulum başlıkları, actionable adımlar, distinct feature'lar ve corpus erişilebilirliği deterministik olarak değerlendirilir.",
-        recommendationTemplate: MissingRecommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -314,9 +284,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 [evidence],
-                $"'{ambiguity.SourcePath}' içindeki kurulum bölümü yapısal belirsizlik nedeniyle güvenilir biçimde sınıflandırılamadı.",
-                HumanReviewRecommendation,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -337,9 +304,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 4,
                 [evidence],
-                $"'{partial.SourcePath}' içinde kurulum bölümü bulundu ancak uygulanabilir kurulum adımı bulunamadı.",
-                PartialRecommendation,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -378,24 +342,10 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
             EvidenceConfidence.High,
             notes);
 
-        List<string> limitations = [PresenceLimitation];
-
-        if (status == SignalStatus.Present && !corpusComplete)
-        {
-            limitations.Add(IncompleteStrongLimitation);
-        }
-
-        string explanation = status == SignalStatus.Strong
-            ? $"'{section.SourcePath}' içindeki kurulum bölümü en az üç distinct kurulum feature'ı taşıyor."
-            : $"'{section.SourcePath}' içindeki kurulum bölümünde uygulanabilir bir adım bulundu.";
-
         return CreateResult(
             status,
             Definition.MaximumScore,
             [evidence],
-            explanation,
-            recommendation: null,
-            limitations,
             evaluatedAt);
     }
 
@@ -429,9 +379,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
             SignalStatus.UnavailableEvidence,
             score: null,
             evidence,
-            "Güvenilir bir Strong veya Present kanıtı bulunamadı ve gerekli README/docs corpus'u exact sonucu belirleyecek kadar complete değildi.",
-            recommendation: null,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -465,9 +412,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "README ve complete docs Markdown corpus'u başarıyla incelendi ancak canonical kurulum bölümü bulunamadı.",
-            MissingRecommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -1549,9 +1493,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         IEnumerable<EvidenceItem> evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -1563,9 +1504,6 @@ public sealed class InstallationGuideSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 

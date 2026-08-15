@@ -51,7 +51,7 @@ RepositoryAnalysis
 ├── Strengths
 ├── CriticalGaps
 ├── ImprovementPlan
-├── Limitations
+├── LimitationKeys
 └── Warnings
 ~~~
 
@@ -320,32 +320,22 @@ Bir sinyalin sabit ürün ve kural tanımını temsil eder.
 ~~~text
 SignalDefinition
 ├── Key
-├── Name
 ├── Category
-├── Description
 ├── MaximumScore
-├── RequiredData
-├── ApplicabilityRules
-├── EvaluationRules
-├── StatusRules
-├── EvidenceRules
-├── ExplanationTemplate
-├── RecommendationTemplate
-├── Limitations
+├── RequiredDataKeys
 ├── IncludeInOverallScore
-└── Version
+├── Version
+├── ApplicabilityRuleKey
+├── EvaluationRuleKey
+└── EvidenceRequirementKey
 ~~~
 
 ### Sorumlulukları
 
 - Sinyalin hangi kategoriye ait olduğunu tanımlamak
 - Değerlendirme için gerekli veri anahtarlarını tanımlamak
-- Hangi repository bağlamında uygulanabilir olduğunu belirtmek
-- Deterministik değerlendirme kurallarını tanımlamak
-- Status üretme kurallarını tanımlamak
-- Kanıt üretme kurallarını tanımlamak
+- Versioned evaluator kural kimliklerini dil bağımsız biçimde taşımak
 - Maksimum puanı sabitlemek
-- Açıklama, öneri ve sınırlama çerçevesini belirlemek
 - Sinyalin genel toplam görünür kanıt skoruna dahil edilip edilmeyeceğini belirtmek
 - Kural sürümünü taşımak
 
@@ -354,6 +344,8 @@ SignalDefinition
 - `MaximumScore` tam sayıdır.
 - Aynı snapshot ve aynı sinyal `Version` değeri aynı sonucu üretmelidir.
 - Bir sinyalin semantik değerlendirme kuralı değişirse `Version` artırılmalıdır.
+- `ApplicabilityRuleKey`, `EvaluationRuleKey` ve `EvidenceRequirementKey`, `SignalKey + Version` üzerinden deterministik üretilir; kullanıcıya gösterilecek prose değildir.
+- Signal title, description, explanation, recommendation ve limitation copy'si Domain'de tutulmaz.
 - MVP v1 kodlanmadan önce yapılan bu contract lock, mevcut `Version: 1` tanımlarının ilk uygulanabilir sürümüdür.
 
 ## 9. SignalResult
@@ -368,10 +360,8 @@ SignalResult
 ├── Status
 ├── Score
 ├── MaximumScore
+├── IncludeInOverallScore
 ├── Evidence
-├── Explanation
-├── Recommendation
-├── Limitations
 └── EvaluatedAt
 ~~~
 
@@ -430,9 +420,9 @@ RequiresHumanReview
 - `Missing` yalnızca gerekli veri başarıyla incelendiyse kullanılabilir.
 - `Missing`, denominator'a dahil edilir ve `Score: 0` üretir.
 - `UnavailableEvidence`, eksik kanıt anlamına gelmez.
-- Her sonuç en az bir açıklama taşımalıdır.
-- `Partial`, `Missing` ve `RequiresHumanReview` mümkünse uygulanabilir öneri taşımalıdır.
 - `EvaluatedAt` UTC tutulmalıdır.
+- Kullanıcıya gösterilecek açıklama, öneri ve sınırlama `SignalKey + Status + Evidence` girdisinden Application presentation boundary'de üretilir.
+- Locale değişikliği bu nesneyi veya evaluator çalışmasını değiştirmez.
 
 ## 10. CategoryResult
 
@@ -445,9 +435,7 @@ CategoryResult
 ├── MaximumScore
 ├── NormalizedScore
 ├── Status
-├── SignalResults
-├── Summary
-└── Limitations
+└── SignalResults
 ~~~
 
 ### Category değerleri
@@ -561,8 +549,6 @@ Güçlü sinyalleri ve kritik eksikleri ortak bir modelle temsil eder.
 AnalysisHighlight
 ├── Type
 ├── SignalKey
-├── Title
-├── Summary
 ├── ScoreImpact
 └── EvidenceReferences
 ~~~
@@ -606,9 +592,7 @@ Tek bir uygulanabilir geliştirme adımıdır.
 ~~~text
 ImprovementAction
 ├── Priority
-├── Title
-├── Reason
-├── ExpectedImpact
+├── PresentationKey
 ├── RelatedSignals
 ├── Effort
 └── EvidenceReferences
@@ -670,7 +654,7 @@ Analiz sırasında kullanıcıya gösterilmesi gereken sınırlama veya uyarıy�
 AnalysisWarning
 ├── Code
 ├── Severity
-├── Message
+├── PresentationKey
 ├── RelatedDataKeys
 └── RelatedSignals
 ~~~
@@ -691,9 +675,21 @@ Critical
 - Test klasörü bulundu ancak test framework'ü doğrulanamadı.
 - Repository çok yeni olduğu için zamana yayılım sinyali sınırlıdır.
 
+Uyarı metni Domain'de tutulmaz. `PresentationKey`, locale-aware presentation catalog tarafından çözülür.
+
 ---
 
-## 17. Domain Sınırları
+## 17. Localization Boundary
+
+Domain/Application analysis truth locale bağımsızdır. `SignalKey`, `SignalStatus`, kategori, score, evidence, applicability, rule version ve ranking locale'e göre değişmez.
+
+`SignalPresentationLocalizer`, aynı `SignalResult` için source-controlled `.resx` catalog'larından `en` veya `tr` copy üretir. Bilinmeyen locale `en` fallback kullanır. Evidence path, filename, command, URL, SHA ve repository'den gelen diğer literal değerler opaque kabul edilir ve çevrilmeden aynı `EvidenceItem` koleksiyonu olarak taşınır.
+
+Bu sınır LLM veya yeniden evaluator çalıştırması kullanmaz.
+
+---
+
+## 18. Domain Sınırları
 
 Domain modeli aşağıdaki bağımlılıkları bilmemelidir:
 

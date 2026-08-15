@@ -293,9 +293,6 @@ public sealed class GitHubRepositorySnapshotLiveTests(ITestOutputHelper output)
             Assert.Equal(first[index].MaximumScore, second[index].MaximumScore);
             Assert.Equal(first[index].IncludeInOverallScore, second[index].IncludeInOverallScore);
             Assert.Equal(first[index].Evidence, second[index].Evidence);
-            Assert.Equal(first[index].Explanation, second[index].Explanation);
-            Assert.Equal(first[index].Recommendation, second[index].Recommendation);
-            Assert.Equal(first[index].Limitations, second[index].Limitations);
             Assert.Equal(first[index].EvaluatedAt, second[index].EvaluatedAt);
         }
     }
@@ -305,13 +302,11 @@ public sealed class GitHubRepositorySnapshotLiveTests(ITestOutputHelper output)
         string outputText = string.Join(
             '\n',
             results.SelectMany(result =>
-                new string?[] { result.Explanation, result.Recommendation }
-                    .Concat(result.Limitations)
-                    .Concat(result.Evidence.SelectMany(evidence => new[]
+                result.Evidence.SelectMany(evidence => new[]
                     {
                         evidence.Value,
                         evidence.Notes
-                    })))
+                    }))
                 .Where(value => !string.IsNullOrWhiteSpace(value)));
         string[] forbiddenInferencePhrases =
         [

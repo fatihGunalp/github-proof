@@ -21,7 +21,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
         SignalDefinition definition = new InstallationGuideSignalEvaluator().Definition;
 
         Assert.Equal("documentation.installation-guide", definition.Key);
-        Assert.Equal("Kurulum Talimatı", definition.Name);
         Assert.Equal(AnalysisCategory.RepositoryUnderstandability, definition.Category);
         Assert.Equal(8, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -209,15 +208,12 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Strong, result.Status);
         Assert.Equal(8, result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal(EvaluatedAt, result.EvaluatedAt);
         Assert.Equal(1, timeProvider.CallCount);
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Contains("dependency installation", evidence.Value);
         Assert.Contains("build", evidence.Value);
         Assert.Contains("run", evidence.Value);
-        Assert.Single(result.Limitations);
-        Assert.Contains("gerçekten çalıştığını", result.Limitations[0]);
     }
 
     [Fact]
@@ -298,7 +294,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(4, result.Score);
-        Assert.Contains("uygulanabilir", result.Recommendation);
     }
 
     [Fact]
@@ -327,7 +322,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -381,8 +375,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(8, result.Score);
-        Assert.Equal(2, result.Limitations.Count);
-        Assert.Contains("Strong", result.Limitations[1]);
     }
 
     [Fact]
@@ -398,7 +390,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(8, result.Score);
-        Assert.Contains(result.Limitations, item => item.Contains("Strong", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -409,7 +400,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.RequiresHumanReview, result.Status);
         Assert.Null(result.Score);
-        Assert.Contains("canonical heading", result.Recommendation);
         Assert.Equal(EvidenceConfidence.Medium, Assert.Single(result.Evidence).Confidence);
     }
 
@@ -553,9 +543,6 @@ public sealed class InstallationGuideSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

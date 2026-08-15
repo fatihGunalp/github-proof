@@ -23,7 +23,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
         SignalDefinition definition = new HomepageLiveDemoSignalEvaluator().Definition;
 
         Assert.Equal("portfolio.homepage-or-live-demo", definition.Key);
-        Assert.Equal("Homepage veya Canlı Demo Bağlantısı", definition.Name);
         Assert.Equal(AnalysisCategory.PortfolioPresentation, definition.Category);
         Assert.Equal(5, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -47,8 +46,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(5, result.Score);
         Assert.Equal(1, timeProvider.CallCount);
-        Assert.Null(result.Recommendation);
-        Assert.Contains("remote URL health", Assert.Single(result.Limitations));
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("RepositoryMetadata", evidence.Source);
@@ -161,7 +158,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(2, result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Contains("ambiguous presentation intent", result.Evidence[1].Notes);
     }
 
@@ -176,7 +172,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Equal("0", result.Evidence[1].Value);
     }
 
@@ -263,7 +258,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.RequiresHumanReview, result.Status);
         Assert.Null(result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Contains("malformed", result.Evidence[1].Notes);
     }
 
@@ -293,7 +287,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(5, result.Score);
-        Assert.Contains("remote URL health", Assert.Single(result.Limitations));
     }
 
     [Fact]
@@ -312,9 +305,6 @@ public sealed class HomepageLiveDemoSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

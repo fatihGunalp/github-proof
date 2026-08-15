@@ -21,7 +21,7 @@ public sealed record RepositoryAnalysis
         IEnumerable<AnalysisHighlight>? strengths,
         IEnumerable<AnalysisHighlight>? criticalGaps,
         ImprovementPlan improvementPlan,
-        IEnumerable<string>? limitations,
+        IEnumerable<string>? limitationKeys,
         IEnumerable<AnalysisWarning>? warnings)
     {
         if (analysisId == Guid.Empty)
@@ -67,7 +67,7 @@ public sealed record RepositoryAnalysis
             nameof(criticalGaps));
         ImprovementPlan = improvementPlan
             ?? throw new ArgumentNullException(nameof(improvementPlan));
-        Limitations = NormalizeStrings(limitations);
+        LimitationKeys = NormalizeStrings(limitationKeys);
         Warnings = NormalizeWarnings(warnings);
 
         ValidateResultGraph();
@@ -105,7 +105,7 @@ public sealed record RepositoryAnalysis
 
     public ImprovementPlan ImprovementPlan { get; }
 
-    public IReadOnlyList<string> Limitations { get; }
+    public IReadOnlyList<string> LimitationKeys { get; }
 
     public IReadOnlyList<AnalysisWarning> Warnings { get; }
 

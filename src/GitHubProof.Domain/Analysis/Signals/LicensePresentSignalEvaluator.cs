@@ -9,13 +9,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "repository.license.present";
 
     private const string LicenseDataKey = "license";
-    private const string MissingRecommendation =
-        "Projenin kullanım ve katkı koşullarını açıklayan uygun bir açık kaynak lisansı ekleyin.";
-    private const string PartialRecommendation =
-        "Mevcut lisans dosyasını yaygın ve açık biçimde tanınabilir bir açık kaynak lisans metniyle netleştirin.";
-    private const string PresenceLimitation =
-        "Lisans bulunması, yasal uygunluğun bütünüyle doğrulandığı anlamına gelmez.";
-
     private readonly TimeProvider _timeProvider;
 
     public LicensePresentSignalEvaluator(TimeProvider? timeProvider = null)
@@ -25,26 +18,9 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Lisans",
         AnalysisCategory.RepositoryUnderstandability,
-        "Repository'nin kullanım ve katkı koşullarına ilişkin görünür lisans kanıtını değerlendirir.",
         maximumScore: 3,
         requiredDataKeys: [LicenseDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Tanınmış lisans metadata'sı Present sonucu ve tam puan üretir.",
-            "Tanınmış metadata olmadan normalize edilmiş lisans dosyası Partial sonucu üretir.",
-            "Lisans verisi başarıyla incelenip kanıt bulunamadığında Missing sonucu üretilir.",
-            "Lisans verisine erişilemediğinde UnavailableEvidence sonucu üretilir."
-        ],
-        evidenceRequirements:
-        [
-            "Tanınmış lisans metadata'sı veya normalize edilmiş lisans dosyası.",
-            "Lisans verisinin erişilebilirlik durumu."
-        ],
-        explanationTemplate: "Lisans metadata'sı, normalize edilmiş lisans dosyası ve veri erişilebilirliği deterministik olarak değerlendirilir.",
-        recommendationTemplate: MissingRecommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -62,9 +38,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Lisans verisi alınamadığı için lisans kanıtı değerlendirilemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -74,9 +47,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 Definition.MaximumScore,
                 evidence,
-                $"Tanınmış '{snapshot.License.Name}' lisans metadata'sı bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -86,9 +56,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 1,
                 evidence,
-                $"'{snapshot.LicenseFile.Path}' lisans dosyası bulundu ancak tanınmış lisans metadata'sı yok.",
-                PartialRecommendation,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -96,9 +63,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "Lisans verisi başarıyla incelendi ancak tanınmış lisans veya normalize edilmiş lisans dosyası bulunamadı.",
-            MissingRecommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -160,9 +124,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -174,9 +135,6 @@ public sealed class LicensePresentSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

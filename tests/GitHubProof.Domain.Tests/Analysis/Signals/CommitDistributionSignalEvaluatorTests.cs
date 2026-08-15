@@ -21,7 +21,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
         SignalDefinition definition = new CommitDistributionSignalEvaluator().Definition;
 
         Assert.Equal("process.commit-distribution", definition.Key);
-        Assert.Equal("Commitlerin Zamana Yayılımı", definition.Name);
         Assert.Equal(AnalysisCategory.DevelopmentProcessVisibility, definition.Category);
         Assert.Equal(8, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -46,8 +45,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.NotApplicable, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
-        Assert.Contains("14", result.Explanation);
         Assert.Contains("activeDays=not-evaluated", Assert.Single(result.Evidence).Value);
         Assert.Contains("firstCommitAt=not-evaluated", result.Evidence[0].Value);
         Assert.Contains("lastCommitAt=not-evaluated", result.Evidence[0].Value);
@@ -65,7 +62,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Theory]
@@ -86,9 +82,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
 
         Assert.Equal(expectedStatus, result.Status);
         Assert.Equal(expectedScore, result.Score);
-        Assert.Equal(expectedStatus is SignalStatus.Partial or SignalStatus.Missing,
-            result.Recommendation is not null);
-        Assert.Equal(2, result.Limitations.Count);
     }
 
     [Fact]
@@ -111,7 +104,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Strong, result.Status);
         Assert.Equal(8, result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Contains("activeDays=8", Assert.Single(result.Evidence).Value);
         Assert.Contains("firstCommitAt=", result.Evidence[0].Value);
         Assert.Contains("lastCommitAt=", result.Evidence[0].Value);
@@ -162,7 +154,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -290,9 +281,6 @@ public sealed class CommitDistributionSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

@@ -7,6 +7,22 @@ namespace GitHubProof.Domain.Tests.Analysis.Models;
 public sealed class SignalResultTests
 {
     [Fact]
+    public void SignalDefinition_ExposesLanguageNeutralVersionedRuleKeys()
+    {
+        SignalDefinition definition = new(
+            " repository.readme.exists ",
+            AnalysisCategory.RepositoryUnderstandability,
+            maximumScore: 5,
+            requiredDataKeys: ["readme"],
+            includeInOverallScore: true,
+            version: 2);
+
+        Assert.Equal("repository.readme.exists.applicability.v2", definition.ApplicabilityRuleKey);
+        Assert.Equal("repository.readme.exists.evaluation.v2", definition.EvaluationRuleKey);
+        Assert.Equal("repository.readme.exists.evidence.v2", definition.EvidenceRequirementKey);
+    }
+
+    [Fact]
     public void Constructor_RejectsNonZeroMissingScore()
     {
         ArgumentException exception = Assert.Throws<ArgumentException>(() =>
@@ -19,9 +35,6 @@ public sealed class SignalResultTests
                 maximumScore: 5,
                 includeInOverallScore: true,
                 evidence: [CreateEvidence()],
-                explanation: "The README was inspected.",
-                recommendation: "Add a README.",
-                limitations: null,
                 evaluatedAt: DateTimeOffset.UtcNow));
 
         Assert.Equal("Score", exception.ParamName);

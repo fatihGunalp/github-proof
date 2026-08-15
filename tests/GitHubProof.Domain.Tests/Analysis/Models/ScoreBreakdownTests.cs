@@ -113,7 +113,7 @@ public sealed class ScoreBreakdownTests
     private static CategoryResult CreateCategory(
         AnalysisCategory category,
         IEnumerable<SignalResult> signals) =>
-        new(category, signals, "Category summary.", limitations: null);
+        new(category, signals);
 
     private static SignalResult CreateSignal(
         string signalKey,
@@ -131,13 +131,6 @@ public sealed class ScoreBreakdownTests
             maximumScore,
             includeInOverallScore,
             evidence: status == SignalStatus.Missing ? [CreateEvidence()] : null,
-            explanation: "Signal explanation.",
-            recommendation: status is SignalStatus.Partial
-                or SignalStatus.Missing
-                or SignalStatus.RequiresHumanReview
-                ? "Do the next useful thing."
-                : null,
-            limitations: null,
             evaluatedAt: DateTimeOffset.UtcNow);
 
     private static EvidenceItem CreateEvidence() =>

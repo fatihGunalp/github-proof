@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 4 — Report Generation
-Focus: Evidence-first and language-neutral report information architecture is contractually defined; no active meaningful session.
+Focus: Session 043 completed the language-neutral signal presentation boundary; Session 044 composer is next.
 ```
 
 ---
@@ -27,68 +27,69 @@ NONE
 ## Model Gate State
 
 ```text
-NONE
+No pending model gate. A new meaningful task requires routing.
 ```
 
 ## Current Task
 
 ```text
-No active task.
+Session 043 complete; waiting for the next user task.
 ```
 
 ## In Progress
 
 ```text
-NONE
+None.
 ```
 
 ## Current Problem
 
 ```text
-None currently confirmed.
+None for Session 043.
 ```
 
 ## Next Immediate Action
 
 ```text
-Session 043 — implement language-neutral report contract and deterministic RepositoryAnalysis composition only after a new mandatory model gate and explicit user approval.
+Session 044: implement the locale-independent RepositoryAnalysis composer and shared report projection contract defined in docs/product/report-information-architecture.md.
 ```
 
 ## Working Set
 
 ```text
-Phase 3 is COMPLETE. Session 042 defined the evidence-first and language-neutral Phase 4 report order, deterministic strength/gap/action selection, uncertainty presentation, global TR/EN presentation boundary, existing domain reuse, and the bounded Session 043 composer handoff. The 15 signals, four categories, scoring method, and evaluator semantics remain unchanged. Session 039 and validation-011 remain blocked, exploratory, and non-gating.
+Phase 3 is COMPLETE. Session 043 removed presentation prose from semantic signal/domain results, migrated all 15 evaluators without score/status/evidence drift, and added deterministic EN/TR signal presentation with English fallback. RepositoryAnalysis composition remains Session 044 scope. Session 039 and validation-011 remain blocked, exploratory, and non-gating.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: d3e9146
-Pre-existing working tree: CLEAN
-Session 042 changes: report/product/roadmap docs and worklog only
+Last verified HEAD: 0709411
+Pre-existing working tree at Session 043 start: CLEAN
+Current working tree: Session 043 changes present; not committed or pushed
 ```
 
 ## Last Completed Work
 
 ```text
-Session 042 — Report Information Architecture: DOCS
+Session 043 — Language-Neutral Signal Presentation Boundary: PASS
 
-- Reframed Phase 4 from score-first to evidence-first without changing scoring.
-- Defined the 10-second reading order, uncertainty semantics, deterministic selection rules, and canonical category presentation.
-- Defined a global language-neutral contract: locale-independent analysis, stable section/message keys, EN fallback and TR first-launch presentation.
-- Mapped current domain fields, recorded the existing Turkish-copy contract drift, and bounded Session 043 to language-neutral RepositoryAnalysis composition.
+- Separated locale-independent signal truth from localized presentation copy across all 15 evaluators.
+- Added versioned semantic rule keys and locale-neutral downstream presentation identities.
+- Added deterministic EN/TR signal presentation resources with English fallback and unchanged evidence literals.
+- Left RepositoryAnalysis composition, report aggregation, Markdown, Web UI, and validation-011 out of scope.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at d3e9146; clean before Session 042
-Canonical report contract review: PASS
-Domain/report field mapping review: PASS
-Scoring and uncertainty drift review: PASS
-Localization boundary and global-product review: PASS
-Build/tests: NOT RUN — documentation-only session
+Repository baseline: PASS — main at 0709411; clean before Session 043
+Domain tests: PASS — 417/417
+Application tests: PASS — 18/18
+Infrastructure tests: PASS — 101/101
+Total: PASS — 536/536
+Canonical 15/order and presentation-completeness exclusion tests: PASS
+EN/TR, unknown-locale fallback, no-rerun semantic identity, and literal preservation tests: PASS
 git diff --check: PASS
 ```
 

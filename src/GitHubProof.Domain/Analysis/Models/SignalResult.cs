@@ -13,9 +13,6 @@ public sealed record SignalResult
         int maximumScore,
         bool includeInOverallScore,
         IEnumerable<EvidenceItem>? evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         SignalKey = RequireValue(signalKey, nameof(signalKey));
@@ -50,19 +47,6 @@ public sealed record SignalResult
             .ToArray()
             ?? Array.Empty<EvidenceItem>();
 
-        Explanation = RequireValue(
-            explanation,
-            nameof(explanation));
-
-        Recommendation = NormalizeOptional(recommendation);
-
-        Limitations = limitations?
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(value => value.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToArray()
-            ?? Array.Empty<string>();
-
         EvaluatedAt = evaluatedAt.ToUniversalTime();
 
         Validate();
@@ -83,12 +67,6 @@ public sealed record SignalResult
     public bool IncludeInOverallScore { get; }
 
     public IReadOnlyList<EvidenceItem> Evidence { get; }
-
-    public string Explanation { get; }
-
-    public string? Recommendation { get; }
-
-    public IReadOnlyList<string> Limitations { get; }
 
     public DateTimeOffset EvaluatedAt { get; }
 
@@ -136,18 +114,6 @@ public sealed record SignalResult
                 nameof(Score));
         }
 
-        if (Status is SignalStatus.Partial
-            or SignalStatus.Missing
-            or SignalStatus.RequiresHumanReview)
-        {
-            if (string.IsNullOrWhiteSpace(Recommendation))
-            {
-                throw new ArgumentException(
-                    $"{Status} results must include a recommendation.",
-                    nameof(Recommendation));
-            }
-        }
-
         if (Status == SignalStatus.Missing
             && Score != 0)
         {
@@ -177,12 +143,5 @@ public sealed record SignalResult
         }
 
         return value.Trim();
-    }
-
-    private static string? NormalizeOptional(string? value)
-    {
-        return string.IsNullOrWhiteSpace(value)
-            ? null
-            : value.Trim();
     }
 }

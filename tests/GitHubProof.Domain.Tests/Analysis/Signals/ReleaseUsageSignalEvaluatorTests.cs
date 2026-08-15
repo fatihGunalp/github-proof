@@ -36,8 +36,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(6, result.Score);
-        Assert.Null(result.Recommendation);
-        Assert.Single(result.Limitations);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Contains("published=1", evidence.Value);
@@ -59,7 +57,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(4, result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Contains("publishedWithNotes=0", Assert.Single(result.Evidence).Value);
     }
 
@@ -72,7 +69,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(3, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -84,7 +80,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(2, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -94,7 +89,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -196,7 +190,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -350,9 +343,6 @@ public sealed class ReleaseUsageSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

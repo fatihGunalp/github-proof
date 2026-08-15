@@ -17,11 +17,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
     private const string FrameworkEvidence = "TestFramework";
     private const string SpecFileEvidence = "SpecFile";
     private const string TestFileEvidence = "TestFile";
-    private const string Recommendation =
-        "Kritik davranışları doğrulayan ve proje yapısından açıkça ayrılan otomatik testler ekleyin.";
-    private const string Limitation =
-        "Test dosyalarının bulunması testlerin yeterli, doğru, güncel veya başarılı olduğunu kanıtlamaz.";
-
     private static readonly string[] TestDirectoryNames = ["tests", "test", "__tests__"];
     private readonly TimeProvider _timeProvider;
 
@@ -32,25 +27,9 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Test Yapısı",
         AnalysisCategory.ValidationAndUsability,
-        "Repository file tree ve project/dependency içeriklerindeki görünür otomatik test yapısını değerlendirir.",
         maximumScore: 10,
         requiredDataKeys: [FileTreeDataKey, ProjectFilesDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Birden fazla bağımsız test kanıt türü veya organized test dizini Strong sonucu üretir.",
-            "Açık test projesi veya framework kanıtı Present sonucu üretir.",
-            "Yalnız güvenilir spec/test dosya deseni Partial sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Recognized test project, config, dependency, file ve directory evidence türleri ile path'leri.",
-            "File tree bütünlüğü ve file-tree/project-files erişilebilirliği."
-        ],
-        explanationTemplate: "Kilitli Version 1 test göstergeleri ve evidence bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -78,9 +57,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Test yapısını değerlendirmek için file tree ve project/dependency evidence erişilebilir ve tam değildir.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -90,9 +66,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
                 SignalStatus.Strong,
                 score: 10,
                 evidence,
-                "Birden fazla bağımsız test kanıt türü veya organized test dizini doğrulandı.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -102,9 +75,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 8,
                 evidence,
-                "Açık test projesi veya test framework kanıtı doğrulandı.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -114,9 +84,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 4,
                 evidence,
-                "Sınırlı ancak güvenilir bir spec/test dosya deseni doğrulandı.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -126,9 +93,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 evidence,
-                "Exact test dizini adı bulundu ancak otomatik test yapısı ek kanıtla doğrulanamadı.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -136,9 +100,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "File tree ve project/dependency evidence tam olarak incelendi ancak tanımlı test yapısı kanıtı bulunamadı.",
-            Recommendation,
-            [Limitation],
             evaluatedAt);
     }
 
@@ -408,9 +369,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -422,9 +380,6 @@ public sealed class TestStructureSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 

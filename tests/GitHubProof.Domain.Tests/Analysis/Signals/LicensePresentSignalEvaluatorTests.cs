@@ -21,7 +21,6 @@ public sealed class LicensePresentSignalEvaluatorTests
         SignalDefinition definition = new LicensePresentSignalEvaluator().Definition;
 
         Assert.Equal("repository.license.present", definition.Key);
-        Assert.Equal("Lisans", definition.Name);
         Assert.Equal(AnalysisCategory.RepositoryUnderstandability, definition.Category);
         Assert.Equal(3, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -43,7 +42,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(3, result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal(EvaluatedAt, result.EvaluatedAt);
         Assert.Equal(1, timeProvider.CallCount);
 
@@ -52,9 +50,6 @@ public sealed class LicensePresentSignalEvaluatorTests
         Assert.Equal("MIT", evidence.Value);
         Assert.Equal("LICENSE", evidence.Location);
         Assert.Equal(RetrievedAt, evidence.ObservedAt);
-        Assert.Single(result.Limitations);
-        Assert.Contains("yasal uygunluğun", result.Limitations[0]);
-        Assert.DoesNotContain("yasal olarak uygundur", result.Limitations[0]);
     }
 
     [Fact]
@@ -86,8 +81,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(1, result.Score);
-        Assert.NotNull(result.Recommendation);
-        Assert.DoesNotContain("dosyayı ekleyin", result.Recommendation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("LicenseFile", evidence.Source);
@@ -110,8 +103,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
-        Assert.Contains("açık kaynak lisansı ekleyin", result.Recommendation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("License", evidence.Source);
@@ -144,8 +135,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
-        Assert.DoesNotContain("açık kaynak lisansı ekleyin", result.Explanation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("LicenseAvailability", evidence.Source);
@@ -171,7 +160,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("LicenseAvailability", evidence.Source);
         Assert.Equal("unavailable", evidence.Value);
@@ -190,7 +178,6 @@ public sealed class LicensePresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal("unavailable", Assert.Single(result.Evidence).Value);
     }
 
@@ -255,9 +242,6 @@ public sealed class LicensePresentSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

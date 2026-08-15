@@ -10,11 +10,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "process.pull-request-usage";
 
     private const string PullRequestsDataKey = "pull-requests";
-    private const string Recommendation =
-        "Önemli değişiklikleri ayrı branch ve pull request akışıyla görünür hâle getirin.";
-    private const string Limitation =
-        "Pull request varlığı gerçek code review veya ekip çalışmasını garanti etmez.";
-
     private readonly TimeProvider _timeProvider;
 
     public PullRequestUsageSignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,29 +19,9 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Pull Request Kullanımı",
         AnalysisCategory.DevelopmentProcessVisibility,
-        "Açık, kapalı-unmerged ve merged pull request kayıtlarının görünür kullanımını değerlendirir.",
         maximumScore: 6,
         requiredDataKeys: [PullRequestsDataKey],
-        applicabilityRules:
-        [
-            "Bütün public repository'lerde uygulanır.",
-            "Repository büyüklüğü veya sahiplik yapısı NotApplicable sonucu üretmez."
-        ],
-        evaluationRules:
-        [
-            "İki veya daha fazla merged pull request Strong sonucu ve tam puan üretir.",
-            "Tek merged pull request Present sonucu üretir.",
-            "Merged olmayan en az bir pull request Partial sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Toplam, merged, açık ve kapalı-unmerged pull request sayıları.",
-            "Pull request koleksiyonu bütünlüğü ve erişilebilirliği."
-        ],
-        explanationTemplate: "Normalize pull request durumları ve veri bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -65,9 +40,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Strong,
                 score: 6,
                 evidence,
-                $"Repository üzerinde {Format(mergedCount)} merged pull request bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -77,9 +49,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Pull request koleksiyonu exact sonucu belirlemek için erişilebilir ve tam değildir.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -89,9 +58,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 4,
                 evidence,
-                "Repository üzerinde tam olarak bir merged pull request bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -101,9 +67,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 2,
                 evidence,
-                "Merged pull request bulunmadı ancak açık veya kapalı-unmerged pull request kanıtı bulundu.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -111,9 +74,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "Pull request verisi tam olarak incelendi ancak pull request bulunamadı.",
-            Recommendation,
-            [Limitation],
             evaluatedAt);
     }
 
@@ -150,9 +110,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -164,9 +121,6 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

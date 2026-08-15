@@ -10,11 +10,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "validation.continuous-integration";
 
     private const string WorkflowsDataKey = "workflows";
-    private const string Recommendation =
-        "Push ve pull requestlerde build ile test komutlarını çalıştıran temel bir GitHub Actions workflow'u ekleyin.";
-    private const string Limitation =
-        "Workflow dosyasının bulunması workflow'un aktif, başarılı veya güvenli yapılandırıldığını garanti etmez.";
-
     private readonly TimeProvider _timeProvider;
 
     public ContinuousIntegrationSignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,25 +19,9 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Continuous Integration",
         AnalysisCategory.ValidationAndUsability,
-        "GitHub Actions workflow `run:` komutlarındaki görünür build, test ve deploy otomasyonunu değerlendirir.",
         maximumScore: 8,
         requiredDataKeys: [WorkflowsDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Workflow corpus'unda build ve test komutları birlikte Strong sonucu üretir.",
-            "Yalnız build veya test komutu Present sonucu üretir.",
-            "Deploy-only veya amacı doğrulanamayan workflow ilgili Partial sonucunu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Workflow path'i ve recognized build/test/deploy evidence türü.",
-            "Workflow koleksiyonu bütünlüğü ve erişilebilirliği."
-        ],
-        explanationTemplate: "Kilitli Version 1 run-command aileleri ve workflow bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -66,9 +45,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.Strong,
                 score: 8,
                 evidence,
-                "Workflow corpus'unda recognized build ve test komutları birlikte bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -81,9 +57,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Workflow content corpus'u exact sonucu belirlemek için erişilebilir ve tam değildir.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -93,9 +66,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 evidence,
-                "En az bir workflow bounded YAML run-scalar kurallarıyla güvenilir biçimde yorumlanamadı.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -105,9 +75,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.Missing,
                 score: 0,
                 evidence,
-                "Workflow corpus'u tam olarak incelendi ancak workflow bulunamadı.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -119,9 +86,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 6,
                 evidence,
-                $"Workflow corpus'unda recognized {recognized} komutu bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -133,9 +97,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 3,
                 evidence,
-                "Workflow corpus'unda yalnız recognized deploy amacı bulundu.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -143,9 +104,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
             SignalStatus.Partial,
             score: 2,
             evidence,
-            "Workflow bulundu ancak amacı kilitli Version 1 komut aileleriyle doğrulanamadı.",
-            Recommendation,
-            [Limitation],
             evaluatedAt);
     }
 
@@ -519,9 +477,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -533,9 +488,6 @@ public sealed class ContinuousIntegrationSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 

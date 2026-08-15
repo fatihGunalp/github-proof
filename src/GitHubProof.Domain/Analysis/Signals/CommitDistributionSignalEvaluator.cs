@@ -14,13 +14,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
 
     private const string CommitsDataKey = "commits";
     private const string MetadataDataKey = "metadata";
-    private const string Recommendation =
-        "Geliştirme sürecini yalnızca son hâli yüklemek yerine, anlamlı ilerleme adımlarını ayrı commitlerle görünür kılın.";
-    private const string DistributionLimitation =
-        "Zamana yayılım planlı, düzenli veya kaliteli çalışma kanıtı değildir.";
-    private const string ImportedRepositoryLimitation =
-        "Repository başka bir kaynaktan import edilmiş olabilir; görünen commit zamanları GitHub üzerindeki geliştirme sürecinin tamamını kanıtlamaz.";
-
     private readonly TimeProvider _timeProvider;
 
     public CommitDistributionSignalEvaluator(TimeProvider? timeProvider = null)
@@ -30,30 +23,9 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Commitlerin Zamana Yayılımı",
         AnalysisCategory.DevelopmentProcessVisibility,
-        "Default branch commitlerinin farklı UTC günlerine ve dönemlere yayılımını değerlendirir.",
         maximumScore: 8,
         requiredDataKeys: [CommitsDataKey, MetadataDataKey],
-        applicabilityRules:
-        [
-            "Repository yaşı 14 günden azsa NotApplicable sonucu üretilir.",
-            "Tam 14 günlük veya daha eski repository'lerde sinyal uygulanır."
-        ],
-        evaluationRules:
-        [
-            "Tam ve erişilebilir commit koleksiyonu farklı UTC aktif gün sayısına göre puanlanır.",
-            "Strong sonucu için en az sekiz aktif gün ve en az 14 günlük ilk-son commit aralığı gerekir.",
-            "Erişilemeyen veya eksik sayfalanmış gerekli veri UnavailableEvidence sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Snapshot capture zamanı ile metadata creation zamanı arasındaki UTC repository yaşı.",
-            "Farklı UTC aktif gün sayısı ve ilk-son commit aralığı.",
-            "Metadata ve commit erişilebilirliği ile commit koleksiyonu bütünlüğü."
-        ],
-        explanationTemplate: "Repository yaşı, aktif UTC günleri ve commit zaman aralığı deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -69,7 +41,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             return CreateUnavailableResult(
                 snapshot,
                 metadataAvailability,
-                "Repository oluşturulma zamanı erişilebilir olmadığı için commit dağılımı değerlendirilemedi.",
                 evaluatedAt);
         }
 
@@ -80,7 +51,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             return CreateUnavailableResult(
                 snapshot,
                 metadataAvailability,
-                "Repository oluşturulma zamanı snapshot capture zamanından sonra olduğu için repository yaşı güvenilir biçimde belirlenemedi.",
                 evaluatedAt);
         }
 
@@ -97,9 +67,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
                 SignalStatus.NotApplicable,
                 score: null,
                 evidence,
-                $"Repository yaşı {FormatDays(repositoryAge)} gündür ve 14 günlük uygulanabilirlik eşiğinin altındadır.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -110,7 +77,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             return CreateUnavailableResult(
                 snapshot,
                 commitsAvailability,
-                "Commit koleksiyonu erişilebilir ve tam olmadığı için commit dağılımı puanlanamadı.",
                 evaluatedAt,
                 repositoryAge);
         }
@@ -138,11 +104,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             classification.Status,
             classification.Score,
             resultEvidence,
-            CreateExplanation(activeDayCount, commitSpan, classification.Status),
-            classification.Status is SignalStatus.Partial or SignalStatus.Missing
-                ? Recommendation
-                : null,
-            [DistributionLimitation, ImportedRepositoryLimitation],
             evaluatedAt);
     }
 
@@ -165,19 +126,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             1 => (SignalStatus.Partial, 1),
             _ => (SignalStatus.Missing, 0)
         };
-    }
-
-    private static string CreateExplanation(
-        int activeDayCount,
-        TimeSpan commitSpan,
-        SignalStatus status)
-    {
-        if (status == SignalStatus.Missing)
-        {
-            return "Commit verisi tam olarak incelendi ancak dağılım oluşturacak commit bulunamadı.";
-        }
-
-        return $"Commitler {activeDayCount.ToString(CultureInfo.InvariantCulture)} farklı UTC gününe ve {FormatDays(commitSpan)} günlük ilk-son aralığına yayılmıştır; sonuç {status} olarak sınıflandırıldı.";
     }
 
     private static EvidenceCollection CollectDistributionEvidence(
@@ -261,7 +209,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
     private SignalResult CreateUnavailableResult(
         RepositorySnapshot snapshot,
         DataAvailability? availability,
-        string explanation,
         DateTimeOffset evaluatedAt,
         TimeSpan? repositoryAge = null)
     {
@@ -269,9 +216,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             SignalStatus.UnavailableEvidence,
             score: null,
             CollectUnavailableEvidence(snapshot, availability, repositoryAge),
-            explanation,
-            recommendation: null,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -297,9 +241,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -311,9 +252,6 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

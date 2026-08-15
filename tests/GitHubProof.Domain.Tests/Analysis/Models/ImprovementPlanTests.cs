@@ -69,9 +69,7 @@ public sealed class ImprovementPlanTests
     private static ImprovementAction CreateAction(int priority) =>
         new(
             priority,
-            $"Action {priority}",
-            "Reason.",
-            "Expected impact.",
+            $"action.{priority}",
             [$"signal.{priority}"],
             EffortLevel.Low,
             [$"evidence.{priority}"]);

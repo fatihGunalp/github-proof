@@ -6,17 +6,13 @@ public sealed record ImprovementAction
 {
     public ImprovementAction(
         int priority,
-        string title,
-        string reason,
-        string expectedImpact,
+        string presentationKey,
         IEnumerable<string> relatedSignals,
         EffortLevel effort,
         IEnumerable<string> evidenceReferences)
     {
         Priority = priority;
-        Title = RequireValue(title, nameof(title));
-        Reason = RequireValue(reason, nameof(reason));
-        ExpectedImpact = RequireValue(expectedImpact, nameof(expectedImpact));
+        PresentationKey = RequireValue(presentationKey, nameof(presentationKey));
         RelatedSignals = NormalizeReferences(relatedSignals, nameof(relatedSignals));
         Effort = effort;
         EvidenceReferences = NormalizeReferences(
@@ -26,11 +22,7 @@ public sealed record ImprovementAction
 
     public int Priority { get; }
 
-    public string Title { get; }
-
-    public string Reason { get; }
-
-    public string ExpectedImpact { get; }
+    public string PresentationKey { get; }
 
     public IReadOnlyList<string> RelatedSignals { get; }
 

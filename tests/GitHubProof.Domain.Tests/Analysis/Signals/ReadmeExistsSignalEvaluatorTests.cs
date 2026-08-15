@@ -21,7 +21,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
         SignalDefinition definition = new ReadmeExistsSignalEvaluator().Definition;
 
         Assert.Equal("repository.readme.exists", definition.Key);
-        Assert.Equal("README Varlığı", definition.Name);
         Assert.Equal(AnalysisCategory.RepositoryUnderstandability, definition.Category);
         Assert.Equal(1, definition.Version);
         Assert.Equal(5, definition.MaximumScore);
@@ -43,7 +42,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(5, result.Score);
         Assert.Equal(5, result.MaximumScore);
-        Assert.Null(result.Recommendation);
         Assert.Equal(EvaluatedAt, result.EvaluatedAt);
         Assert.Equal(1, timeProvider.CallCount);
 
@@ -54,8 +52,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
         Assert.Equal("README.md", evidence.Location);
         Assert.Equal(RetrievedAt, evidence.ObservedAt);
         Assert.Equal(EvidenceConfidence.High, evidence.Confidence);
-        Assert.Single(result.Limitations);
-        Assert.Contains("yeterli, doğru veya güncel", result.Limitations[0]);
     }
 
     [Fact]
@@ -70,8 +66,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
-        Assert.Contains("README ekleyin", result.Recommendation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("false", evidence.Value);
@@ -102,8 +96,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
-        Assert.DoesNotContain("README ekleyin", result.Explanation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("unavailable", evidence.Value);
@@ -120,7 +112,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal("unavailable", Assert.Single(result.Evidence).Value);
     }
 
@@ -144,9 +135,6 @@ public sealed class ReadmeExistsSignalEvaluatorTests
         Assert.Equal(firstResult.MaximumScore, secondResult.MaximumScore);
         Assert.Equal(firstResult.IncludeInOverallScore, secondResult.IncludeInOverallScore);
         Assert.Equal(firstResult.Evidence, secondResult.Evidence);
-        Assert.Equal(firstResult.Explanation, secondResult.Explanation);
-        Assert.Equal(firstResult.Recommendation, secondResult.Recommendation);
-        Assert.Equal(firstResult.Limitations, secondResult.Limitations);
         Assert.Equal(firstResult.EvaluatedAt, secondResult.EvaluatedAt);
     }
 

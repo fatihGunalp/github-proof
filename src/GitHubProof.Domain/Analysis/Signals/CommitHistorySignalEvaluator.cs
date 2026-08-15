@@ -10,11 +10,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
     public const string SignalKey = "process.commit-history";
 
     private const string CommitsDataKey = "commits";
-    private const string Recommendation =
-        "Değişiklikleri amaçlarına göre küçük ve açıklanabilir commitler hâlinde kaydedin.";
-    private const string Limitation =
-        "Commit sayısı commit kalitesini, geliştirici yetkinliğini veya özgün üretimi kanıtlamaz.";
-
     private readonly TimeProvider _timeProvider;
 
     public CommitHistorySignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,25 +19,9 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Commit Geçmişi",
         AnalysisCategory.DevelopmentProcessVisibility,
-        "Default branch üzerindeki görünür commit geçmişinin büyüklüğünü değerlendirir.",
         maximumScore: 7,
         requiredDataKeys: [CommitsDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Tam ve erişilebilir commit koleksiyonu Version 1 commit sayısı eşiklerine göre puanlanır.",
-            "Tam koleksiyonda commit bulunmaması Missing sonucu üretir.",
-            "Erişilemeyen veya eksik sayfalanmış commit koleksiyonu UnavailableEvidence sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Normalize edilmiş default branch commit sayısı.",
-            "Commit erişilebilirliği ve koleksiyon bütünlüğü."
-        ],
-        explanationTemplate: "Default branch commit sayısı ve veri bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -60,9 +39,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Commit koleksiyonu erişilebilir ve tam olmadığı için commit geçmişi puanlanamadı.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -73,11 +49,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
             classification.Status,
             classification.Score,
             evidence,
-            CreateExplanation(commitCount, classification.Status),
-            classification.Status is SignalStatus.Partial or SignalStatus.Missing
-                ? Recommendation
-                : null,
-            [Limitation],
             evaluatedAt);
     }
 
@@ -93,15 +64,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
             1 => (SignalStatus.Partial, 1),
             _ => (SignalStatus.Missing, 0)
         };
-    }
-
-    private static string CreateExplanation(int commitCount, SignalStatus status)
-    {
-        string count = commitCount.ToString(CultureInfo.InvariantCulture);
-
-        return status == SignalStatus.Missing
-            ? "Default branch commit verisi tam olarak incelendi ancak commit bulunamadı."
-            : $"Default branch üzerinde {count} normalize edilmiş commit bulundu; sonuç {status} olarak sınıflandırıldı.";
     }
 
     private static EvidenceCollection CollectEvidence(
@@ -147,9 +109,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -161,9 +120,6 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

@@ -36,7 +36,6 @@ public sealed class PullRequestUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -69,7 +68,6 @@ public sealed class PullRequestUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(4, result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -120,7 +118,6 @@ public sealed class PullRequestUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -237,9 +234,6 @@ public sealed class PullRequestUsageSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

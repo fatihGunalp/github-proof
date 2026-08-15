@@ -9,11 +9,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "repository.readme.exists";
 
     private const string ReadmeDataKey = "readme";
-    private const string Recommendation =
-        "Repository'nin amacını, kurulumunu ve kullanımını açıklayan bir README ekleyin.";
-    private const string PresenceLimitation =
-        "README'nin bulunması içeriğin yeterli, doğru veya güncel olduğunu kanıtlamaz.";
-
     private readonly TimeProvider _timeProvider;
 
     public ReadmeExistsSignalEvaluator(TimeProvider? timeProvider = null)
@@ -23,26 +18,9 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "README Varlığı",
         AnalysisCategory.RepositoryUnderstandability,
-        "GitHub tarafından README olarak tanınan bir dosyanın varlığını değerlendirir.",
         maximumScore: 5,
         requiredDataKeys: ["file-tree", ReadmeDataKey],
-        applicabilityRules: ["Public ve boş olmayan repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "README bulunduğunda Present sonucu ve tam puan üretilir.",
-            "README verisi başarıyla incelenip dosya bulunamadığında Missing sonucu üretilir.",
-            "README verisine erişilemediğinde UnavailableEvidence sonucu üretilir.",
-            "Birden fazla belirsiz README adayı varsa insan incelemesi gerekir."
-        ],
-        evidenceRequirements:
-        [
-            "GitHub tarafından README olarak tanınan dosyanın bulunma durumu.",
-            "README verisinin erişilebilirlik durumu."
-        ],
-        explanationTemplate: "README varlığı ve veri erişilebilirliği deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -60,9 +38,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "README verisi alınamadığı için README varlığı değerlendirilemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -72,9 +47,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 Definition.MaximumScore,
                 evidence,
-                $"GitHub tarafından README olarak tanınan '{snapshot.Readme.Path}' dosyası bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -82,9 +54,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "README verisi başarıyla incelendi ancak GitHub tarafından tanınan bir README bulunamadı.",
-            Recommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -131,9 +100,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -145,9 +111,6 @@ public sealed class ReadmeExistsSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

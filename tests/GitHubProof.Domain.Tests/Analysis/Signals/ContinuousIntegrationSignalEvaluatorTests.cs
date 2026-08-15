@@ -33,7 +33,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -53,7 +52,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Strong, result.Status);
         Assert.Equal(8, result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Contains(result.Evidence, item => item.Source == "WorkflowBuild");
         Assert.Contains(result.Evidence, item => item.Source == "WorkflowTest");
     }
@@ -107,7 +105,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(3, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -138,7 +135,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -180,7 +176,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.RequiresHumanReview, result.Status);
         Assert.Null(result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Contains(result.Evidence, item => item.Source == "WorkflowAmbiguity");
     }
 
@@ -297,9 +292,6 @@ public sealed class ContinuousIntegrationSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

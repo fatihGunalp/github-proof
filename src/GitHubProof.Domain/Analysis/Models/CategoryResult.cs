@@ -6,14 +6,10 @@ public sealed record CategoryResult
 {
     public CategoryResult(
         AnalysisCategory category,
-        IEnumerable<SignalResult>? signalResults,
-        string summary,
-        IEnumerable<string>? limitations)
+        IEnumerable<SignalResult>? signalResults)
     {
         Category = category;
         SignalResults = NormalizeSignalResults(signalResults, category);
-        Summary = RequireValue(summary, nameof(summary));
-        Limitations = NormalizeValues(limitations);
 
         SignalResult[] scoredResults = SignalResults
             .Where(IsScored)
@@ -38,10 +34,6 @@ public sealed record CategoryResult
     public CategoryStatus Status { get; }
 
     public IReadOnlyList<SignalResult> SignalResults { get; }
-
-    public string Summary { get; }
-
-    public IReadOnlyList<string> Limitations { get; }
 
     private static bool IsScored(SignalResult result) =>
         result.Status is SignalStatus.Strong
@@ -85,29 +77,6 @@ public sealed record CategoryResult
         }
 
         return normalized;
-    }
-
-    private static IReadOnlyList<string> NormalizeValues(
-        IEnumerable<string>? values) =>
-        values?
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(value => value.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToArray()
-            ?? Array.Empty<string>();
-
-    private static string RequireValue(
-        string value,
-        string parameterName)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            throw new ArgumentException(
-                "Value cannot be null, empty, or whitespace.",
-                parameterName);
-        }
-
-        return value.Trim();
     }
 
     private static int RoundHalfUp(decimal value) =>

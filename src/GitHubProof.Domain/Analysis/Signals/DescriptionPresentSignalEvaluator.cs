@@ -10,11 +10,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "repository.description.present";
 
     private const string MetadataDataKey = "metadata";
-    private const string Recommendation =
-        "Repository'nin çözdüğü problemi tek cümlede açıklayan kısa bir GitHub description ekleyin.";
-    private const string PresenceLimitation =
-        "Description bulunması, projenin kapsamının veya değer önerisinin tamamen anlaşılır olduğunu kanıtlamaz.";
-
     private readonly TimeProvider _timeProvider;
 
     public DescriptionPresentSignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,25 +19,9 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Proje Açıklaması",
         AnalysisCategory.RepositoryUnderstandability,
-        "Repository metadata içindeki kısa proje açıklamasının varlığını değerlendirir.",
         maximumScore: 4,
         requiredDataKeys: [MetadataDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Dolu description alanı Present sonucu ve tam puan üretir.",
-            "Metadata başarıyla incelenip description bulunamadığında Missing sonucu üretilir.",
-            "Metadata verisine erişilemediğinde UnavailableEvidence sonucu üretilir."
-        ],
-        evidenceRequirements:
-        [
-            "Repository metadata description alanının incelendiğine dair kanıt.",
-            "Description bulunduğunda normalize edilmiş karakter sayısı."
-        ],
-        explanationTemplate: "Repository metadata description alanı ve veri erişilebilirliği deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -60,9 +39,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Repository metadata erişilebilir olmadığı için description değerlendirilemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -74,9 +50,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 Definition.MaximumScore,
                 evidence,
-                $"Repository metadata içerisinde {description.Length.ToString(CultureInfo.InvariantCulture)} karakterlik görünür bir description bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -84,9 +57,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "Repository metadata başarıyla incelendi ancak description bulunamadı.",
-            Recommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -138,9 +108,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -152,9 +119,6 @@ public sealed class DescriptionPresentSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

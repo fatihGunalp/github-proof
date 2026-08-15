@@ -7,15 +7,11 @@ public sealed record AnalysisHighlight
     public AnalysisHighlight(
         HighlightType type,
         string signalKey,
-        string title,
-        string summary,
         int scoreImpact,
         IEnumerable<string> evidenceReferences)
     {
         Type = type;
         SignalKey = RequireValue(signalKey, nameof(signalKey));
-        Title = RequireValue(title, nameof(title));
-        Summary = RequireValue(summary, nameof(summary));
         ScoreImpact = scoreImpact;
         EvidenceReferences = NormalizeEvidenceReferences(evidenceReferences);
     }
@@ -23,10 +19,6 @@ public sealed record AnalysisHighlight
     public HighlightType Type { get; }
 
     public string SignalKey { get; }
-
-    public string Title { get; }
-
-    public string Summary { get; }
 
     public int ScoreImpact { get; }
 

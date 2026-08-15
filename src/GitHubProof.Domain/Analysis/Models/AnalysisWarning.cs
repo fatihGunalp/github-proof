@@ -7,13 +7,13 @@ public sealed record AnalysisWarning
     public AnalysisWarning(
         string code,
         WarningSeverity severity,
-        string message,
+        string presentationKey,
         IEnumerable<string>? relatedDataKeys,
         IEnumerable<string>? relatedSignals)
     {
         Code = RequireValue(code, nameof(code));
         Severity = severity;
-        Message = RequireValue(message, nameof(message));
+        PresentationKey = RequireValue(presentationKey, nameof(presentationKey));
         RelatedDataKeys = NormalizeReferences(relatedDataKeys);
         RelatedSignals = NormalizeReferences(relatedSignals);
     }
@@ -22,7 +22,7 @@ public sealed record AnalysisWarning
 
     public WarningSeverity Severity { get; }
 
-    public string Message { get; }
+    public string PresentationKey { get; }
 
     public IReadOnlyList<string> RelatedDataKeys { get; }
 

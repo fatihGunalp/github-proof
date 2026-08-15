@@ -30,12 +30,12 @@ SignalResult
 ├── Status
 ├── Score
 ├── MaximumScore
+├── IncludeInOverallScore
 ├── Evidence
-├── Explanation
-├── Recommendation
-├── Limitations
 └── EvaluatedAt
 ~~~
+
+Bu yapı locale-independent analysis truth'tür. Signal title, description, explanation, recommendation ve limitation metinleri `SignalResult` içinde tutulmaz; Application presentation boundary bunları `SignalKey + Status + Evidence` üzerinden deterministik olarak localize eder.
 
 ### Score türü
 
@@ -379,9 +379,7 @@ Her adım şu alanları taşımalıdır:
 ~~~text
 ImprovementAction
 ├── Priority
-├── Title
-├── Reason
-├── ExpectedImpact
+├── PresentationKey
 ├── RelatedSignals
 ├── Effort
 └── EvidenceReferences
@@ -396,7 +394,9 @@ High
 Unknown
 ~~~
 
-### Örnek
+`PresentationKey`, action identity'sidir; title, reason ve expected-impact copy'si locale catalog'undan üretilir.
+
+### Localized örnek
 
 ~~~text
 Öncelik: 1

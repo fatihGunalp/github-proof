@@ -213,8 +213,6 @@ public sealed class UsageDemoSignalEvaluatorTests
         Assert.Equal(SignalStatus.Strong, result.Status);
         Assert.Equal(7, result.Score);
         Assert.Equal(2, result.Evidence.Count);
-        Assert.Null(result.Recommendation);
-        Assert.Single(result.Limitations);
         Assert.Equal(EvaluatedAt, result.EvaluatedAt);
         Assert.Equal(1, timeProvider.CallCount);
     }
@@ -365,7 +363,6 @@ public sealed class UsageDemoSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -605,9 +602,6 @@ public sealed class UsageDemoSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

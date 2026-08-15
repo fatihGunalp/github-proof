@@ -21,7 +21,6 @@ public sealed class CommitHistorySignalEvaluatorTests
         SignalDefinition definition = new CommitHistorySignalEvaluator().Definition;
 
         Assert.Equal("process.commit-history", definition.Key);
-        Assert.Equal("Commit Geçmişi", definition.Name);
         Assert.Equal(AnalysisCategory.DevelopmentProcessVisibility, definition.Category);
         Assert.Equal(7, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -55,9 +54,6 @@ public sealed class CommitHistorySignalEvaluatorTests
 
         Assert.Equal(expectedStatus, result.Status);
         Assert.Equal(expectedScore, result.Score);
-        Assert.Equal(expectedStatus is SignalStatus.Partial or SignalStatus.Missing,
-            result.Recommendation is not null);
-        Assert.Single(result.Limitations);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("RepositoryCommits", evidence.Source);
@@ -88,7 +84,6 @@ public sealed class CommitHistorySignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Contains("availability=", Assert.Single(result.Evidence).Value);
     }
 
@@ -168,9 +163,6 @@ public sealed class CommitHistorySignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

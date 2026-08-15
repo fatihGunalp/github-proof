@@ -11,9 +11,7 @@ public sealed class ImprovementActionTests
     {
         ImprovementAction action = new(
             priority: 1,
-            title: " Add an installation section ",
-            reason: " The repository cannot be reproduced from its visible documentation. ",
-            expectedImpact: " Visitors can set up and run the repository. ",
+            presentationKey: " action.add-installation-guide ",
             relatedSignals:
             [
                 " documentation.installation-guide ",
@@ -28,13 +26,7 @@ public sealed class ImprovementActionTests
             ]);
 
         Assert.Equal(1, action.Priority);
-        Assert.Equal("Add an installation section", action.Title);
-        Assert.Equal(
-            "The repository cannot be reproduced from its visible documentation.",
-            action.Reason);
-        Assert.Equal(
-            "Visitors can set up and run the repository.",
-            action.ExpectedImpact);
+        Assert.Equal("action.add-installation-guide", action.PresentationKey);
         Assert.Equal(["documentation.installation-guide"], action.RelatedSignals);
         Assert.Equal(EffortLevel.Low, action.Effort);
         Assert.Equal(["evidence.readme-inspected"], action.EvidenceReferences);
@@ -50,19 +42,13 @@ public sealed class ImprovementActionTests
         Assert.Equal(priority, action.Priority);
     }
 
-    [Theory]
-    [InlineData("title")]
-    [InlineData("reason")]
-    [InlineData("expectedImpact")]
-    public void Constructor_RejectsMissingRequiredText(string missingParameter)
+    [Fact]
+    public void Constructor_RejectsMissingPresentationKey()
     {
         ArgumentException exception = Assert.Throws<ArgumentException>(() =>
-            CreateAction(
-                title: missingParameter == "title" ? " " : "Title",
-                reason: missingParameter == "reason" ? " " : "Reason",
-                expectedImpact: missingParameter == "expectedImpact" ? " " : "Impact"));
+            CreateAction(presentationKey: " "));
 
-        Assert.Equal(missingParameter, exception.ParamName);
+        Assert.Equal("presentationKey", exception.ParamName);
     }
 
     [Theory]
@@ -80,16 +66,12 @@ public sealed class ImprovementActionTests
 
     private static ImprovementAction CreateAction(
         int priority = 1,
-        string title = "Title",
-        string reason = "Reason",
-        string expectedImpact = "Impact",
+        string presentationKey = "action.test",
         IEnumerable<string>? relatedSignals = null,
         IEnumerable<string>? evidenceReferences = null) =>
         new(
             priority,
-            title,
-            reason,
-            expectedImpact,
+            presentationKey,
             relatedSignals ?? ["repository.readme.exists"],
             EffortLevel.Medium,
             evidenceReferences ?? ["evidence.readme"]);

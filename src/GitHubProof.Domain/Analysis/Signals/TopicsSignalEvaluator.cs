@@ -10,11 +10,6 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "portfolio.topics";
 
     private const string MetadataDataKey = "metadata";
-    private const string Recommendation =
-        "Repository'nin teknoloji ve problem alanını açıklayan doğru ve sınırlı sayıda GitHub topic ekleyin.";
-    private const string PresenceLimitation =
-        "Topics bulunması, belirtilen teknolojilerin doğru veya etkin kullanıldığını kanıtlamaz.";
-
     private readonly TimeProvider _timeProvider;
 
     public TopicsSignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,26 +19,9 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "GitHub Topics",
         AnalysisCategory.PortfolioPresentation,
-        "Repository metadata içindeki normalize topic sayısını değerlendirir.",
         maximumScore: 4,
         requiredDataKeys: [MetadataDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Üç veya daha fazla distinct topic Strong sonucu üretir.",
-            "İki distinct topic 3 puan, bir distinct topic 2 puan ile Present sonucu üretir.",
-            "Metadata başarıyla incelenip topic bulunmadığında Missing sonucu üretilir.",
-            "Metadata erişilebilir olmadığında UnavailableEvidence sonucu üretilir."
-        ],
-        evidenceRequirements:
-        [
-            "Normalize distinct topic sayısı ve concise topic değerleri.",
-            "Metadata veri erişilebilirlik durumu."
-        ],
-        explanationTemplate: "Normalize topic sayısı ve metadata erişilebilirliği deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -62,9 +40,6 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Repository metadata erişilebilir olmadığı için GitHub topics değerlendirilemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -74,33 +49,21 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
                 SignalStatus.Strong,
                 score: 4,
                 evidence,
-                $"Repository metadata içinde {FormatCount(topics.Count)} distinct topic bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt),
             2 => CreateResult(
                 SignalStatus.Present,
                 score: 3,
                 evidence,
-                "Repository metadata içinde iki distinct topic bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt),
             1 => CreateResult(
                 SignalStatus.Present,
                 score: 2,
                 evidence,
-                "Repository metadata içinde bir topic bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt),
             _ => CreateResult(
                 SignalStatus.Missing,
                 score: 0,
                 evidence,
-                "Repository metadata başarıyla incelendi ancak topic bulunamadı.",
-                Recommendation,
-                limitations: null,
                 evaluatedAt)
         };
     }
@@ -167,9 +130,6 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt) =>
         new(
             Definition.Key,
@@ -180,8 +140,5 @@ public sealed class TopicsSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
 }

@@ -18,7 +18,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
         SignalDefinition definition = CreateEvaluator().Definition;
 
         Assert.Equal("portfolio.presentation-completeness", definition.Key);
-        Assert.Equal("Repository Sunum Bütünlüğü", definition.Name);
         Assert.Equal(AnalysisCategory.PortfolioPresentation, definition.Category);
         Assert.Equal(5, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -41,7 +40,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
         Assert.Equal(SignalStatus.Strong, result.Status);
         Assert.Equal(5, result.Score);
         Assert.False(result.IncludeInOverallScore);
-        Assert.Null(result.Recommendation);
         Assert.Equal(5, result.Evidence.Count);
         Assert.All(result.Evidence, evidence => Assert.Equal("SignalResult", evidence.Source));
     }
@@ -53,7 +51,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(4, result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Theory]
@@ -67,7 +64,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Partial, result.Status);
         Assert.Equal(positiveCount, result.Score);
-        Assert.NotNull(result.Recommendation);
     }
 
     [Fact]
@@ -77,7 +73,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Equal(5, result.Evidence.Count);
     }
 
@@ -96,7 +91,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -111,7 +105,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.RequiresHumanReview, result.Status);
         Assert.Null(result.Score);
-        Assert.NotNull(result.Recommendation);
         Assert.Contains(result.Evidence, evidence =>
             evidence.Value == SignalStatus.RequiresHumanReview.ToString());
     }
@@ -175,9 +168,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
         Assert.Equal(
             PresentationCompletenessSignalEvaluator.RequiredSignalKeys,
@@ -234,13 +224,6 @@ public sealed class PresentationCompletenessSignalEvaluatorTests
                     EvidenceConfidence.High,
                     notes: null)
             ],
-            explanation: "Synthetic upstream result.",
-            recommendation: status is SignalStatus.Partial
-                or SignalStatus.Missing
-                or SignalStatus.RequiresHumanReview
-                ? "Resolve the synthetic condition."
-                : null,
-            limitations: null,
             UpstreamEvaluatedAt);
     }
 

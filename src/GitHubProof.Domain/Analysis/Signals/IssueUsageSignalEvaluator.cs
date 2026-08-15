@@ -10,11 +10,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "process.issue-usage";
 
     private const string IssuesDataKey = "issues";
-    private const string Recommendation =
-        "Hata, görev veya geliştirme fikirlerini görünür issue kayıtlarıyla yönetin.";
-    private const string Limitation =
-        "Issue varlığı düzenli proje yönetimi veya kaliteli içerik kanıtı değildir.";
-
     private readonly TimeProvider _timeProvider;
 
     public IssueUsageSignalEvaluator(TimeProvider? timeProvider = null)
@@ -24,29 +19,9 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Issue Kullanımı",
         AnalysisCategory.DevelopmentProcessVisibility,
-        "Pull requestlerden ayrıştırılmış görünür issue kayıtlarının kullanımını değerlendirir.",
         maximumScore: 5,
         requiredDataKeys: [IssuesDataKey],
-        applicabilityRules:
-        [
-            "GitHub Issues kapalıysa NotApplicable sonucu üretilir.",
-            "Repository büyüklüğü veya amacı NotApplicable sonucu üretmez."
-        ],
-        evaluationRules:
-        [
-            "İki veya daha fazla qualifying issue Present sonucu ve tam puan üretir.",
-            "Tek qualifying issue Partial sonucu üretir.",
-            "Tam ve erişilebilir koleksiyonda issue bulunmaması Missing sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Qualifying, açık ve kapalı issue sayıları.",
-            "Issue koleksiyonu bütünlüğü ve erişilebilirliği."
-        ],
-        explanationTemplate: "Normalize issue sayıları ve veri bütünlüğü deterministik olarak değerlendirilir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -65,9 +40,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.NotApplicable,
                 score: null,
                 evidence,
-                "GitHub Issues özelliği kapalı olduğu için issue kullanımı uygulanabilir değildir.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -77,9 +49,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 5,
                 evidence,
-                $"Pull requestlerden ayrıştırılmış {Format(qualifyingCount)} issue kaydı bulundu.",
-                recommendation: null,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -89,9 +58,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 evidence,
-                "Issue koleksiyonu exact sonucu belirlemek için erişilebilir ve tam değildir.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -101,9 +67,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 2,
                 evidence,
-                "Pull requestlerden ayrıştırılmış tek bir issue kaydı bulundu.",
-                Recommendation,
-                [Limitation],
                 evaluatedAt);
         }
 
@@ -111,9 +74,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "Issue verisi tam olarak incelendi ancak qualifying issue bulunamadı.",
-            Recommendation,
-            [Limitation],
             evaluatedAt);
     }
 
@@ -148,9 +108,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         EvidenceCollection evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -162,9 +119,6 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence.Items,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 }

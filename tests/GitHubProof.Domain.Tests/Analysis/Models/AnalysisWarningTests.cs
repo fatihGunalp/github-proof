@@ -18,22 +18,20 @@ public sealed class AnalysisWarningTests
 
         Assert.Equal("github.rate-limit", warning.Code);
         Assert.Equal(WarningSeverity.Warning, warning.Severity);
-        Assert.Equal(
-            "Commit history could not be fully collected.",
-            warning.Message);
+        Assert.Equal("Commit history could not be fully collected.", warning.PresentationKey);
         Assert.Equal(["commits"], warning.RelatedDataKeys);
         Assert.Equal(["process.commit-history"], warning.RelatedSignals);
     }
 
     [Theory]
     [InlineData("code")]
-    [InlineData("message")]
+    [InlineData("presentationKey")]
     public void Constructor_RejectsMissingRequiredText(string missingParameter)
     {
         ArgumentException exception = Assert.Throws<ArgumentException>(() =>
             CreateWarning(
                 code: missingParameter == "code" ? " " : "warning.code",
-                message: missingParameter == "message" ? " " : "Message."));
+                presentationKey: missingParameter == "presentationKey" ? " " : "warning.message"));
 
         Assert.Equal(missingParameter, exception.ParamName);
     }
@@ -51,13 +49,13 @@ public sealed class AnalysisWarningTests
 
     private static AnalysisWarning CreateWarning(
         string code = "warning.code",
-        string message = "Message.",
+        string presentationKey = "warning.message",
         IEnumerable<string>? relatedDataKeys = null,
         IEnumerable<string>? relatedSignals = null) =>
         new(
             code,
             WarningSeverity.Info,
-            message,
+            presentationKey,
             relatedDataKeys,
             relatedSignals);
 }

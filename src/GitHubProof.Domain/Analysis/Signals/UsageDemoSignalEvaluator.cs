@@ -14,15 +14,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
     private const string ReadmeDataKey = "readme";
     private const string DocumentationDataKey = "documentation-markdown";
     private const string MetadataDataKey = "metadata";
-    private const string MissingRecommendation =
-        "README veya docs içinde gerçek bir kullanım örneği ekleyin; mümkünse örnek komut, request/response veya sample output gösterin.";
-    private const string PartialRecommendation =
-        "Görsel/demo kanıtını açık bir kullanım örneğiyle tamamlayın; belirsiz kanıt varsa demo veya screenshot bağlamını da netleştirin.";
-    private const string HumanReviewRecommendation =
-        "Belirsiz Markdown kullanım/demo gösterimini açık heading, label ve geçerli Markdown yapısıyla netleştirin.";
-    private const string PresenceLimitation =
-        "Usage/demo evidence bulunması örneğin gerçekten çalıştığını, demo URL'sinin erişilebilir olduğunu veya ürünün production kalitesini kanıtlamaz.";
-
     private static readonly string[] UsageHeadings =
     [
         "usage",
@@ -205,29 +196,9 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Kullanım Örneği veya Demo",
         AnalysisCategory.RepositoryUnderstandability,
-        "README ve bounded dokümantasyon corpus'u içindeki açık kullanım ve demo/görsel kanıtını değerlendirir.",
         maximumScore: 7,
         requiredDataKeys: [ReadmeDataKey, DocumentationDataKey, MetadataDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Aynı source içindeki clear usage ile distinct high-confidence demo/visual evidence Strong sonucu üretir.",
-            "Complete corpus içindeki clear usage evidence Present sonucu üretir.",
-            "Clear usage olmadan high-confidence veya bounded weak demo/visual evidence Partial sonucu üretir.",
-            "Complete corpus içinde usage veya demo/visual evidence bulunmaması Missing sonucu üretir.",
-            "Eksik corpus terminal Strong yoksa UnavailableEvidence sonucu üretir.",
-            "Yalnız bounded malformed Markdown ambiguity RequiresHumanReview sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Normalize README ve Ordinal sıralı DocumentationMarkdown içerikleri.",
-            "README/docs availability ve documentation collection completeness.",
-            "Yalnız explicit live-demo link corroboration'ı gerektiğinde metadata homepage ve availability."
-        ],
-        explanationTemplate: "Usage, screenshot, video, live-demo ve availability kanıtı deterministik olarak değerlendirilir.",
-        recommendationTemplate: MissingRecommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -356,9 +327,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.Strong,
             score: 7,
             evidence,
-            $"'{source.SourcePath}' içinde clear usage ve distinct high-confidence {demo.Type} evidence birlikte bulundu.",
-            recommendation: null,
-            limitations: [PresenceLimitation],
             evaluatedAt);
     }
 
@@ -372,9 +340,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.Present,
             score: 5,
             [CreateUsageEvidence(source, usage)],
-            $"'{source.SourcePath}' içinde clear usage evidence bulundu ancak aynı source içinde high-confidence demo/visual evidence bulunmadı.",
-            recommendation: null,
-            limitations: [PresenceLimitation],
             evaluatedAt);
     }
 
@@ -384,20 +349,13 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
         bool isHighConfidence,
         DateTimeOffset evaluatedAt)
     {
-        string explanation = isHighConfidence
-            ? $"'{source.SourcePath}' içinde high-confidence {demo.Type} evidence bulundu ancak clear usage example bulunmadı."
-            : $"'{source.SourcePath}' içinde bounded weak {demo.Type} evidence bulundu ancak clear usage example bulunmadı.";
-
         return CreateResult(
             SignalStatus.Partial,
             score: 4,
             [CreateDemoEvidence(
-                source,
-                demo,
-                isHighConfidence ? EvidenceConfidence.High : EvidenceConfidence.Medium)],
-            explanation,
-            PartialRecommendation,
-            limitations: [PresenceLimitation],
+                        source,
+                        demo,
+                        isHighConfidence ? EvidenceConfidence.High : EvidenceConfidence.Medium)],
             evaluatedAt);
     }
 
@@ -418,9 +376,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.RequiresHumanReview,
             score: null,
             [evidence],
-            $"'{ambiguity.SourcePath}' içindeki malformed Markdown exact Usage/Demo sınıflandırmasını engelliyor.",
-            HumanReviewRecommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -468,9 +423,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.UnavailableEvidence,
             score: null,
             evidence,
-            "Terminal Strong evidence bulunmadı ve gerekli corpus veya conditional homepage corroboration verisi exact sonucu belirleyecek kadar available/complete değildi.",
-            recommendation: null,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -504,9 +456,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             evidence,
-            "README ve complete docs Markdown corpus'u başarıyla incelendi ancak clear usage, high-confidence demo/visual veya bounded weak evidence bulunmadı.",
-            MissingRecommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -1728,9 +1677,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         IEnumerable<EvidenceItem> evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt)
     {
         return new SignalResult(
@@ -1742,9 +1688,6 @@ public sealed class UsageDemoSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
     }
 

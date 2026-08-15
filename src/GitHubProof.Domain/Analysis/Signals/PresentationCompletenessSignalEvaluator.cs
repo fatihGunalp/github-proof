@@ -7,14 +7,6 @@ namespace GitHubProof.Domain.Analysis.Signals;
 public sealed class PresentationCompletenessSignalEvaluator
 {
     public const string SignalKey = "portfolio.presentation-completeness";
-
-    private const string Recommendation =
-        "Eksik sunum parçalarını description, README, kullanım/demo, lisans ve GitHub topics kanıtlarıyla tamamlayın.";
-    private const string HumanReviewRecommendation =
-        "İnsan incelemesi gerektiren upstream sunum kanıtını netleştirdikten sonra sunum bütünlüğünü yeniden değerlendirin.";
-    private const string Limitation =
-        "Sunum bütünlüğü teknik kaliteyi, estetiği veya geliştirici seviyesini değerlendirmez.";
-
     public static IReadOnlyList<string> RequiredSignalKeys { get; } = Array.AsReadOnly(
     [
         DescriptionPresentSignalEvaluator.SignalKey,
@@ -33,27 +25,9 @@ public sealed class PresentationCompletenessSignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Repository Sunum Bütünlüğü",
         AnalysisCategory.PortfolioPresentation,
-        "Beş canonical upstream sunum sinyalinin birlikte bulunma durumunu özetler.",
         maximumScore: 5,
         requiredDataKeys: RequiredSignalKeys,
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Strong, Present veya Partial upstream sonucu ilgili sunum parçasını mevcut sayar.",
-            "Missing upstream sonucu ilgili sunum parçasını eksik sayar.",
-            "Herhangi bir required upstream UnavailableEvidence ise composite sonuç UnavailableEvidence olur.",
-            "UnavailableEvidence yokken required upstream RequiresHumanReview ise composite sonuç RequiresHumanReview olur.",
-            "Beş ile sıfır arasındaki mevcut parça sayısı canonical 5-0 skoruna dönüştürülür."
-        ],
-        evidenceRequirements:
-        [
-            "Beş canonical upstream signal key ve status değeri.",
-            "Her upstream sonucun evaluation timestamp'i."
-        ],
-        explanationTemplate: "Beş upstream SignalResult yeniden detection yapılmadan deterministik olarak özetlenir.",
-        recommendationTemplate: Recommendation,
         includeInOverallScore: false,
         version: 1);
 
@@ -100,9 +74,6 @@ public sealed class PresentationCompletenessSignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 required,
-                $"Required upstream signal '{unavailable.SignalKey}' erişilebilir olmadığı için sunum bütünlüğü değerlendirilemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -115,9 +86,6 @@ public sealed class PresentationCompletenessSignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 required,
-                $"Required upstream signal '{humanReview.SignalKey}' exact checklist sonucunu belirlemek için insan incelemesi gerektiriyor.",
-                HumanReviewRecommendation,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -148,17 +116,10 @@ public sealed class PresentationCompletenessSignalEvaluator
         IReadOnlyList<SignalResult> required,
         DateTimeOffset evaluatedAt)
     {
-        string explanation = score == 0
-            ? "Beş canonical sunum parçasının hiçbiri mevcut değil."
-            : $"Beş canonical sunum parçasından {score.ToString(CultureInfo.InvariantCulture)} tanesi mevcut.";
-
         return CreateResult(
             status,
             score,
             required,
-            explanation,
-            status is SignalStatus.Partial or SignalStatus.Missing ? Recommendation : null,
-            score > 0 ? [Limitation] : null,
             evaluatedAt);
     }
 
@@ -166,9 +127,6 @@ public sealed class PresentationCompletenessSignalEvaluator
         SignalStatus status,
         int? score,
         IReadOnlyList<SignalResult> required,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt) =>
         new(
             Definition.Key,
@@ -179,9 +137,6 @@ public sealed class PresentationCompletenessSignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             required.Select(CreateEvidence),
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
 
     private static EvidenceItem CreateEvidence(SignalResult result) =>

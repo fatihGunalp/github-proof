@@ -21,7 +21,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
         SignalDefinition definition = new DescriptionPresentSignalEvaluator().Definition;
 
         Assert.Equal("repository.description.present", definition.Key);
-        Assert.Equal("Proje Açıklaması", definition.Name);
         Assert.Equal(AnalysisCategory.RepositoryUnderstandability, definition.Category);
         Assert.Equal(4, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -42,7 +41,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Present, result.Status);
         Assert.Equal(4, result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal(EvaluatedAt, result.EvaluatedAt);
         Assert.Equal(1, timeProvider.CallCount);
 
@@ -52,8 +50,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
         Assert.Equal("description", evidence.Location);
         Assert.Equal(RetrievedAt, evidence.ObservedAt);
         Assert.Contains("33 karakterlik", evidence.Notes);
-        Assert.Single(result.Limitations);
-        Assert.Contains("değer önerisinin", result.Limitations[0]);
     }
 
     [Theory]
@@ -72,8 +68,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.Missing, result.Status);
         Assert.Equal(0, result.Score);
-        Assert.NotNull(result.Recommendation);
-        Assert.Contains("GitHub description ekleyin", result.Recommendation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("false", evidence.Value);
@@ -104,8 +98,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
-        Assert.DoesNotContain("description ekleyin", result.Explanation);
 
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("MetadataAvailability", evidence.Source);
@@ -124,7 +116,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         Assert.Equal("unavailable", Assert.Single(result.Evidence).Value);
     }
 
@@ -186,9 +177,6 @@ public sealed class DescriptionPresentSignalEvaluatorTests
         Assert.Equal(first.MaximumScore, second.MaximumScore);
         Assert.Equal(first.IncludeInOverallScore, second.IncludeInOverallScore);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

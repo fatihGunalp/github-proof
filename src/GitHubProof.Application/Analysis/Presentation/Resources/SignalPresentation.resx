@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="status.Strong" xml:space="preserve"><value>Strong</value></data>
+  <data name="status.Present" xml:space="preserve"><value>Present</value></data>
+  <data name="status.Partial" xml:space="preserve"><value>Partial</value></data>
+  <data name="status.Missing" xml:space="preserve"><value>Missing</value></data>
+  <data name="status.NotApplicable" xml:space="preserve"><value>Not applicable</value></data>
+  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Evidence unavailable</value></data>
+  <data name="status.RequiresHumanReview" xml:space="preserve"><value>Human review required</value></data>
+  <data name="explanation.Strong" xml:space="preserve"><value>{0} has strong visible evidence.</value></data>
+  <data name="explanation.Present" xml:space="preserve"><value>{0} has visible evidence.</value></data>
+  <data name="explanation.Partial" xml:space="preserve"><value>{0} has partial visible evidence.</value></data>
+  <data name="explanation.Missing" xml:space="preserve"><value>No visible evidence was found for {0}.</value></data>
+  <data name="explanation.NotApplicable" xml:space="preserve"><value>{0} does not apply to this repository.</value></data>
+  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>{0} could not be evaluated because the required evidence was unavailable.</value></data>
+  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} needs human review before a conclusion can be made.</value></data>
+  <data name="limitation.Strong" xml:space="preserve"><value>This result only reflects evidence visible in the analyzed repository snapshot.</value></data>
+  <data name="limitation.Present" xml:space="preserve"><value>This result confirms presence, not completeness, correctness, or quality.</value></data>
+  <data name="limitation.Partial" xml:space="preserve"><value>Only part of the expected evidence is visible.</value></data>
+  <data name="limitation.Missing" xml:space="preserve"><value>Missing means no qualifying evidence was found in the inspected scope.</value></data>
+  <data name="limitation.NotApplicable" xml:space="preserve"><value>This signal was excluded by its applicability rule.</value></data>
+  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>This is a collection limitation, not proof that the signal is missing.</value></data>
+  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>The available evidence cannot support a deterministic conclusion.</value></data>
+  <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Documentation</value></data>
+  <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Development Process</value></data>
+  <data name="category.ValidationAndUsability" xml:space="preserve"><value>Validation</value></data>
+  <data name="category.PortfolioPresentation" xml:space="preserve"><value>Collaboration</value></data>
+  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof evaluates visible repository evidence. It does not infer developer seniority, employability, authorship, originality, AI usage, or overall developer quality.</value></data>
+
+  <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>
+  <data name="repository.readme.exists.description" xml:space="preserve"><value>Checks whether GitHub recognizes a README in the repository.</value></data>
+  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>A README gives reviewers an immediate entry point to the project.</value></data>
+  <data name="repository.readme.exists.recommendation" xml:space="preserve"><value>Add a repository-level README that explains the project and how to explore it.</value></data>
+  <data name="repository.description.present.title" xml:space="preserve"><value>Repository description</value></data>
+  <data name="repository.description.present.description" xml:space="preserve"><value>Checks whether the GitHub repository description communicates a concise purpose.</value></data>
+  <data name="repository.description.present.whyItMatters" xml:space="preserve"><value>The description is often the first project context visible in a quick scan.</value></data>
+  <data name="repository.description.present.recommendation" xml:space="preserve"><value>Add a concise GitHub description that states what the project does.</value></data>
+  <data name="repository.license.present.title" xml:space="preserve"><value>License</value></data>
+  <data name="repository.license.present.description" xml:space="preserve"><value>Checks for repository-visible license evidence.</value></data>
+  <data name="repository.license.present.whyItMatters" xml:space="preserve"><value>A visible license clarifies intended reuse conditions.</value></data>
+  <data name="repository.license.present.recommendation" xml:space="preserve"><value>Add a license file or make the repository's licensing terms explicit.</value></data>
+  <data name="documentation.installation-guide.title" xml:space="preserve"><value>Installation guide</value></data>
+  <data name="documentation.installation-guide.description" xml:space="preserve"><value>Checks for actionable setup or installation instructions.</value></data>
+  <data name="documentation.installation-guide.whyItMatters" xml:space="preserve"><value>Setup instructions help another person reproduce the project environment.</value></data>
+  <data name="documentation.installation-guide.recommendation" xml:space="preserve"><value>Add a dedicated installation section with prerequisites and runnable steps.</value></data>
+  <data name="documentation.usage-or-demo.title" xml:space="preserve"><value>Usage or demo</value></data>
+  <data name="documentation.usage-or-demo.description" xml:space="preserve"><value>Checks for visible instructions or media showing how the project is used.</value></data>
+  <data name="documentation.usage-or-demo.whyItMatters" xml:space="preserve"><value>Usage evidence lets reviewers understand the outcome without reconstructing it.</value></data>
+  <data name="documentation.usage-or-demo.recommendation" xml:space="preserve"><value>Add a concrete usage example, screenshot, recording, or runnable demo path.</value></data>
+  <data name="process.commit-history.title" xml:space="preserve"><value>Commit history</value></data>
+  <data name="process.commit-history.description" xml:space="preserve"><value>Checks the visible depth of the repository's commit history.</value></data>
+  <data name="process.commit-history.whyItMatters" xml:space="preserve"><value>Commit history can expose an iterative development trail.</value></data>
+  <data name="process.commit-history.recommendation" xml:space="preserve"><value>Preserve meaningful incremental commits instead of publishing only a final snapshot.</value></data>
+  <data name="process.commit-distribution.title" xml:space="preserve"><value>Commit distribution</value></data>
+  <data name="process.commit-distribution.description" xml:space="preserve"><value>Checks whether visible commits are distributed across time.</value></data>
+  <data name="process.commit-distribution.whyItMatters" xml:space="preserve"><value>Work spread over time is stronger process evidence than one concentrated import.</value></data>
+  <data name="process.commit-distribution.recommendation" xml:space="preserve"><value>Use incremental commits as the project evolves so the development trail remains visible.</value></data>
+  <data name="process.issue-usage.title" xml:space="preserve"><value>Issue usage</value></data>
+  <data name="process.issue-usage.description" xml:space="preserve"><value>Checks for visible use of GitHub Issues.</value></data>
+  <data name="process.issue-usage.whyItMatters" xml:space="preserve"><value>Issues can show planning, defect tracking, and decision context.</value></data>
+  <data name="process.issue-usage.recommendation" xml:space="preserve"><value>Track meaningful work or defects with issues when that workflow fits the project.</value></data>
+  <data name="process.pull-request-usage.title" xml:space="preserve"><value>Pull request usage</value></data>
+  <data name="process.pull-request-usage.description" xml:space="preserve"><value>Checks for visible pull request activity.</value></data>
+  <data name="process.pull-request-usage.whyItMatters" xml:space="preserve"><value>Pull requests can expose reviewable changes and collaboration workflow.</value></data>
+  <data name="process.pull-request-usage.recommendation" xml:space="preserve"><value>Use pull requests for meaningful changes when review or change discussion is useful.</value></data>
+  <data name="process.release-usage.title" xml:space="preserve"><value>Release usage</value></data>
+  <data name="process.release-usage.description" xml:space="preserve"><value>Checks for visible releases or version tags.</value></data>
+  <data name="process.release-usage.whyItMatters" xml:space="preserve"><value>Releases make project milestones and consumable versions easier to identify.</value></data>
+  <data name="process.release-usage.recommendation" xml:space="preserve"><value>Publish a meaningful release or version tag when the project reaches a usable milestone.</value></data>
+  <data name="validation.test-structure.title" xml:space="preserve"><value>Test structure</value></data>
+  <data name="validation.test-structure.description" xml:space="preserve"><value>Checks for repository-visible automated test structure.</value></data>
+  <data name="validation.test-structure.whyItMatters" xml:space="preserve"><value>Tests provide visible evidence that behavior can be checked repeatedly.</value></data>
+  <data name="validation.test-structure.recommendation" xml:space="preserve"><value>Add focused automated tests in a recognizable test structure.</value></data>
+  <data name="validation.continuous-integration.title" xml:space="preserve"><value>Continuous integration</value></data>
+  <data name="validation.continuous-integration.description" xml:space="preserve"><value>Checks for repository-visible CI workflow configuration.</value></data>
+  <data name="validation.continuous-integration.whyItMatters" xml:space="preserve"><value>CI shows that repeatable checks are wired into the development workflow.</value></data>
+  <data name="validation.continuous-integration.recommendation" xml:space="preserve"><value>Add a CI workflow that runs the repository's relevant validation commands.</value></data>
+  <data name="portfolio.topics.title" xml:space="preserve"><value>GitHub topics</value></data>
+  <data name="portfolio.topics.description" xml:space="preserve"><value>Checks whether repository topics provide useful classification.</value></data>
+  <data name="portfolio.topics.whyItMatters" xml:space="preserve"><value>Topics help reviewers quickly identify the project's technologies and domain.</value></data>
+  <data name="portfolio.topics.recommendation" xml:space="preserve"><value>Add a small set of specific topics that describe the stack and problem domain.</value></data>
+  <data name="portfolio.homepage-or-live-demo.title" xml:space="preserve"><value>Homepage or live demo</value></data>
+  <data name="portfolio.homepage-or-live-demo.description" xml:space="preserve"><value>Checks for a repository homepage or live demo URL.</value></data>
+  <data name="portfolio.homepage-or-live-demo.whyItMatters" xml:space="preserve"><value>A direct destination reduces the effort required to inspect the project's output.</value></data>
+  <data name="portfolio.homepage-or-live-demo.recommendation" xml:space="preserve"><value>Add a relevant public homepage or live demo URL when the project can be experienced online.</value></data>
+  <data name="portfolio.presentation-completeness.title" xml:space="preserve"><value>Presentation completeness</value></data>
+  <data name="portfolio.presentation-completeness.description" xml:space="preserve"><value>Summarizes README, description, topics, and homepage presentation evidence without affecting the overall score.</value></data>
+  <data name="portfolio.presentation-completeness.whyItMatters" xml:space="preserve"><value>Together, these entry points shape the repository's first impression.</value></data>
+  <data name="portfolio.presentation-completeness.recommendation" xml:space="preserve"><value>Complete the missing repository presentation elements identified by the component signals.</value></data>
+</root>

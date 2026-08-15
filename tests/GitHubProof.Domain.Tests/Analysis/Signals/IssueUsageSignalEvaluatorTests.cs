@@ -42,7 +42,6 @@ public sealed class IssueUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.NotApplicable, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Theory]
@@ -61,9 +60,6 @@ public sealed class IssueUsageSignalEvaluatorTests
 
         Assert.Equal(expectedStatus, result.Status);
         Assert.Equal(expectedScore, result.Score);
-        Assert.Equal(expectedStatus is SignalStatus.Partial or SignalStatus.Missing,
-            result.Recommendation is not null);
-        Assert.Single(result.Limitations);
     }
 
     [Fact]
@@ -123,7 +119,6 @@ public sealed class IssueUsageSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
     }
 
     [Fact]
@@ -208,9 +203,6 @@ public sealed class IssueUsageSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 

@@ -12,15 +12,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
 
     private const string MetadataDataKey = "metadata";
     private const string ReadmeDataKey = "readme";
-    private const string MissingRecommendation =
-        "Çalışan ürün veya canlı demo için GitHub homepage alanına ya da README'ye açık bir bağlantı ekleyin.";
-    private const string PartialRecommendation =
-        "README bağlantısının demo veya canlı uygulama amacını canonical bir label ile açıkça belirtin.";
-    private const string HumanReviewRecommendation =
-        "Homepage veya README bağlantısını geçerli absolute HTTP/HTTPS URL ve açık bir demo label'ıyla düzeltin.";
-    private const string PresenceLimitation =
-        "Bağlantının bulunması erişilebilir, güncel, güvenli veya çalışan bir ürün olduğunu garanti etmez; remote URL health kontrol edilmez.";
-
     private static readonly string[] DemoIntentLabels =
     [
         "demo",
@@ -78,29 +69,9 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
 
     public SignalDefinition Definition { get; } = new(
         SignalKey,
-        "Homepage veya Canlı Demo Bağlantısı",
         AnalysisCategory.PortfolioPresentation,
-        "Meaningful repository homepage veya README içindeki açık demo/live-app bağlantısını değerlendirir.",
         maximumScore: 5,
         requiredDataKeys: [MetadataDataKey, ReadmeDataKey],
-        applicabilityRules: ["Bütün public repository'lerde uygulanır."],
-        evaluationRules:
-        [
-            "Meaningful metadata homepage terminal Present sonucu ve 5 puan üretir.",
-            "Metadata available ve meaningful homepage yokken README explicit demo link Present sonucu ve 4 puan üretir.",
-            "Bounded ambiguous README presentation link Partial sonucu ve 2 puan üretir.",
-            "Complete evidence içinde eligible link bulunmadığında Missing sonucu üretilir.",
-            "Exact skor erişilemeyen required data nedeniyle belirlenemediğinde UnavailableEvidence sonucu üretilir.",
-            "Yalnız bounded malformed link veya URL ambiguity RequiresHumanReview sonucu üretir."
-        ],
-        evidenceRequirements:
-        [
-            "Metadata homepage source ve normalize URL.",
-            "README link source, normalize URL ve label/intent türü.",
-            "Metadata ve README veri erişilebilirlik durumu."
-        ],
-        explanationTemplate: "Homepage, README link intent'i ve availability precedence deterministik olarak değerlendirilir.",
-        recommendationTemplate: MissingRecommendation,
         includeInOverallScore: true,
         version: 1);
 
@@ -117,9 +88,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 [CreateAvailabilityEvidence(snapshot, metadataAvailability, MetadataDataKey)],
-                "Repository metadata erişilebilir olmadığı için terminal homepage skoru belirlenemedi.",
-                recommendation: null,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -135,9 +103,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 5,
                 [homepageEvidence],
-                "Repository metadata içinde meaningful portfolio homepage bağlantısı bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -147,9 +112,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 [homepageEvidence],
-                "Metadata homepage URL yapısı 5 puanlık bağlantı kanıtını güvenilir biçimde sınıflandırmayı engelliyor.",
-                HumanReviewRecommendation,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -161,12 +123,9 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.UnavailableEvidence,
                 score: null,
                 [
-                    homepageEvidence,
-                    CreateAvailabilityEvidence(snapshot, readmeAvailability, ReadmeDataKey)
-                ],
-                "README erişilebilir olmadığı için exact lower homepage/demo skoru belirlenemedi.",
-                recommendation: null,
-                limitations: null,
+                                homepageEvidence,
+                                CreateAvailabilityEvidence(snapshot, readmeAvailability, ReadmeDataKey)
+                            ],
                 evaluatedAt);
         }
 
@@ -180,9 +139,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.Present,
                 score: 4,
                 [homepageEvidence, CreateReadmeLinkEvidence(snapshot, readmeAvailability, candidate)],
-                "README içinde canonical intent label taşıyan explicit demo/live-app bağlantısı bulundu.",
-                recommendation: null,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -194,9 +150,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.RequiresHumanReview,
                 score: null,
                 [homepageEvidence, CreateReadmeLinkEvidence(snapshot, readmeAvailability, candidate)],
-                "README içindeki bounded demo/presentation adayı malformed olduğu için Present ile Partial ayrımı yapılamadı.",
-                HumanReviewRecommendation,
-                limitations: null,
                 evaluatedAt);
         }
 
@@ -208,9 +161,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
                 SignalStatus.Partial,
                 score: 2,
                 [homepageEvidence, CreateReadmeLinkEvidence(snapshot, readmeAvailability, candidate)],
-                "README içinde presentation intent taşıyan ancak canonical demo amacı doğrulanamayan bounded bağlantı bulundu.",
-                PartialRecommendation,
-                limitations: [PresenceLimitation],
                 evaluatedAt);
         }
 
@@ -218,9 +168,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
             SignalStatus.Missing,
             score: 0,
             [homepageEvidence, CreateReadmeInspectionEvidence(snapshot, readmeAvailability)],
-            "Metadata ve README başarıyla incelendi ancak eligible homepage veya demo bağlantısı bulunamadı.",
-            MissingRecommendation,
-            limitations: null,
             evaluatedAt);
     }
 
@@ -617,9 +564,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
         SignalStatus status,
         int? score,
         IEnumerable<EvidenceItem> evidence,
-        string explanation,
-        string? recommendation,
-        IEnumerable<string>? limitations,
         DateTimeOffset evaluatedAt) =>
         new(
             Definition.Key,
@@ -630,9 +574,6 @@ public sealed class HomepageLiveDemoSignalEvaluator : ISignalEvaluator
             Definition.MaximumScore,
             Definition.IncludeInOverallScore,
             evidence,
-            explanation,
-            recommendation,
-            limitations,
             evaluatedAt);
 
     private enum HomepageKind

@@ -45,7 +45,7 @@ public sealed class RepositoryAnalysisTests
         Assert.Equal(1, analysis.ReportSchemaVersion);
         Assert.Equal(fixture.SignalResults, analysis.SignalResults);
         Assert.Equal(fixture.CategoryResults, analysis.CategoryResults);
-        Assert.Equal(["partial commit history"], analysis.Limitations);
+        Assert.Equal(["partial commit history"], analysis.LimitationKeys);
         Assert.Equal([fixture.Warning], analysis.Warnings);
     }
 
@@ -132,7 +132,7 @@ public sealed class RepositoryAnalysisTests
             strengths ?? [fixture.Strength],
             [fixture.CriticalGap],
             improvementPlan ?? fixture.ImprovementPlan,
-            limitations: null,
+            limitationKeys: null,
             warnings: null);
 
     private static AnalysisFixture CreateFixture()
@@ -165,22 +165,15 @@ public sealed class RepositoryAnalysisTests
             maximumScore: 5,
             includeInOverallScore: true,
             evidence: null,
-            explanation: "A README was found.",
-            recommendation: null,
-            limitations: null,
             evaluatedAt: DateTimeOffset.UtcNow);
         CategoryResult category = new(
             AnalysisCategory.RepositoryUnderstandability,
-            [signal],
-            "Repository documentation is visible.",
-            limitations: null);
+            [signal]);
         ScoreBreakdown breakdown = new([category]);
         AnalysisVersion version = new("0.1.0", "2026.08.01", 1);
         ImprovementAction action = new(
             priority: 1,
-            "Add installation instructions",
-            "The setup process is not documented.",
-            "Visitors can reproduce the repository.",
+            "action.add-installation-guide",
             [signal.SignalKey],
             EffortLevel.Low,
             ["evidence.readme"]);
@@ -222,10 +215,8 @@ public sealed class RepositoryAnalysisTests
         new(
             type,
             signalKey,
-            "Highlight title",
-            "Highlight summary.",
             scoreImpact: 1,
-            ["evidence.highlight"]);
+            evidenceReferences: ["evidence.highlight"]);
 
     private sealed record AnalysisFixture(
         RepositoryIdentity Repository,

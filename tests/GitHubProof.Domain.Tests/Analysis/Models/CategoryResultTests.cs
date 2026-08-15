@@ -87,9 +87,7 @@ public sealed class CategoryResultTests
     private static CategoryResult CreateResult(IEnumerable<SignalResult> signals) =>
         new(
             AnalysisCategory.RepositoryUnderstandability,
-            signals,
-            "Category summary.",
-            ["Known limitation.", " Known limitation. "]);
+            signals);
 
     private static SignalResult CreateSignal(
         SignalStatus status,
@@ -106,13 +104,6 @@ public sealed class CategoryResultTests
             maximumScore,
             includeInOverallScore,
             evidence: status == SignalStatus.Missing ? [CreateEvidence()] : null,
-            explanation: "Signal explanation.",
-            recommendation: status is SignalStatus.Partial
-                or SignalStatus.Missing
-                or SignalStatus.RequiresHumanReview
-                ? "Do the next useful thing."
-                : null,
-            limitations: null,
             evaluatedAt: DateTimeOffset.UtcNow);
 
     private static EvidenceItem CreateEvidence() =>

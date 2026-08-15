@@ -21,7 +21,6 @@ public sealed class TopicsSignalEvaluatorTests
         SignalDefinition definition = new TopicsSignalEvaluator().Definition;
 
         Assert.Equal("portfolio.topics", definition.Key);
-        Assert.Equal("GitHub Topics", definition.Name);
         Assert.Equal(AnalysisCategory.PortfolioPresentation, definition.Category);
         Assert.Equal(4, definition.MaximumScore);
         Assert.Equal(1, definition.Version);
@@ -63,13 +62,9 @@ public sealed class TopicsSignalEvaluatorTests
 
         if (expectedStatus == SignalStatus.Missing)
         {
-            Assert.NotNull(result.Recommendation);
-            Assert.Empty(result.Limitations);
         }
         else
         {
-            Assert.Null(result.Recommendation);
-            Assert.Single(result.Limitations);
         }
     }
 
@@ -108,7 +103,6 @@ public sealed class TopicsSignalEvaluatorTests
 
         Assert.Equal(SignalStatus.UnavailableEvidence, result.Status);
         Assert.Null(result.Score);
-        Assert.Null(result.Recommendation);
         EvidenceItem evidence = Assert.Single(result.Evidence);
         Assert.Equal("MetadataAvailability", evidence.Source);
         Assert.Equal("unavailable", evidence.Value);
@@ -186,9 +180,6 @@ public sealed class TopicsSignalEvaluatorTests
         Assert.Equal(first.Status, second.Status);
         Assert.Equal(first.Score, second.Score);
         Assert.Equal(first.Evidence, second.Evidence);
-        Assert.Equal(first.Explanation, second.Explanation);
-        Assert.Equal(first.Recommendation, second.Recommendation);
-        Assert.Equal(first.Limitations, second.Limitations);
         Assert.Equal(first.EvaluatedAt, second.EvaluatedAt);
     }
 
