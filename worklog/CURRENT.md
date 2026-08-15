@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: First deterministic signal slice completed for `repository.readme.exists`.
+Focus: Phase 3 is in progress; License signal contract correction is required before Session 020 can continue.
 ```
 
 ---
@@ -45,27 +45,27 @@ None.
 ## Current Problem
 
 ```text
-None.
+BLOCKED — the snapshot does not preserve unrecognized license-file evidence independently from generic FileTree entries.
 ```
 
 ## Next Immediate Action
 
 ```text
-Prepare the next bounded Phase 3 task and run the mandatory model gate.
+Resolve the License evidence contract in canonical docs before running a new model gate for the resumed task.
 ```
 
 ## Working Set
 
 ```text
-Session 019 evaluator, tests, and worklog changes are uncommitted.
+Session 020 worklog updates only; no production or test code was changed.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: b7a69eb
-Last verified working tree: Session 019 changes only
+Last verified HEAD: fe47257
+Last verified working tree: Session 020 worklog updates only
 Pre-existing unrelated changes: NONE
 ```
 
