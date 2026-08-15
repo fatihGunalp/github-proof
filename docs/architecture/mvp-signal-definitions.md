@@ -1273,6 +1273,17 @@ build.gradle içinde test dependency
 - File tree başarıyla incelendi ancak test kanıtı yoksa: `Missing`, 0 puan
 - File tree alınamadıysa: `UnavailableEvidence`, `Score: null`
 
+### Version 1 executable test semantiği
+
+- Path karşılaştırmaları `/` segmentleri üzerinde `OrdinalIgnoreCase` yapılır. Yalnız `tests`, `test` veya `__tests__` adlı tam path segmentleri test dizini kanıtıdır; `contest`, `latest`, `testing-notes` gibi genel isim benzerlikleri kanıt değildir.
+- Açık test projesi, basename'i `.Tests.csproj` veya `.Test.csproj` ile biten dosyadır.
+- Test framework kanıtı; `pytest.ini`, `jest.config.*` veya `vitest.config.*` config dosyası, `pom.xml` içinde `test` scope'lu dependency ya da `build.gradle` / `build.gradle.kts` içinde `testImplementation`, `testCompile`, `testRuntimeOnly` veya `testFixturesImplementation` dependency declaration bulunmasıdır.
+- Güvenilir sınırlı test dosyası, basename'inde tam `.spec.` veya `.test.` segmenti bulunan dosyadır. Genel `test` substring'i kullanılmaz.
+- `Strong`, şu durumlardan biriyle üretilir: en az iki açık test projesi; hem `.spec.` hem `.test.` dosya türü; exact test dizini altında en az bir açık proje/framework/güvenilir test dosyası; veya farklı path'lerde en az iki farklı yüksek güvenli kanıt türü.
+- Strong oluşmadığında açık test projesi veya framework kanıtı `Present`; yalnız güvenilir `.spec.` / `.test.` dosyası `Partial` üretir.
+- Yalnız exact test dizini adı bulunup açık proje/framework/güvenilir test dosyası doğrulanamazsa bounded name-only ambiguity nedeniyle `RequiresHumanReview` üretilir. Diğer genel isim benzerlikleri yok sayılır.
+- Puanlı sonuç, `Missing` veya `RequiresHumanReview` üretmek için `file-tree` ve `project-files` erişilebilirliği `Available`, file tree koleksiyonu da tam olmalıdır. Aksi durumda `UnavailableEvidence` üretilir; incomplete corpus için terminal skor çıkarımı yapılmaz.
+
 ### Öneri
 
 Kritik davranışları doğrulayan ve proje yapısından açıkça ayrılan otomatik testler ekleyin.
@@ -1312,6 +1323,18 @@ Build, test veya başka doğrulamaların otomatikleştirilmesine yönelik görü
 - Workflow dizini incelendi ancak dosya yoksa: `Missing`, 0 puan
 - İçerik alınamadıysa: `UnavailableEvidence`, `Score: null`
 - YAML yorumlama güvenilir değilse: `RequiresHumanReview`, `Score: null`
+
+### Version 1 executable workflow semantiği
+
+- MVP v1 yalnız workflow YAML içindeki inline veya block `run:` scalar komutlarını yorumlar. Workflow/step `name`, comment, environment text, `uses:` ve serbest metin build/test/deploy kanıtı üretmez.
+- Build komut aileleri: `dotnet build`, `npm run build`, `yarn build`, `yarn run build`, `pnpm build`, `pnpm run build`, Maven `package`/`verify`, Gradle `build`, `cargo build`, `go build` ve `make`.
+- Test komut aileleri: `dotnet test`, `npm test`, `npm run test`, `yarn test`, `yarn run test`, `pnpm test`, `pnpm run test`, `pytest`, `python -m pytest`, Maven `test`/`verify`, Gradle `test`, `cargo test` ve `go test`.
+- Deploy komut aileleri: npm/yarn/pnpm `deploy` scriptleri, `vercel deploy`, `netlify deploy`, `firebase deploy`, `kubectl apply`, `helm upgrade` ve `docker push`.
+- Aynı complete workflow corpus'unda build ve test komutlarının ikisi de bulunursa `Strong`; yalnız biri bulunursa `Present` üretilir. İki komutun aynı dosyada bulunması gerekmez.
+- Build/test yokken corpus'taki bütün doğrulanmış amaç komutları deploy ise `Partial`, 3 puan; en az bir workflow var ancak amacı bu bounded komut aileleriyle doğrulanamıyorsa `Partial`, 2 puan üretilir.
+- Tab ile girintilenmiş YAML, kapanmamış quoted `run:` scalar veya geçerli inline/block scalar taşımayan `run:` alanı bounded YAML ambiguity sayılır. Complete corpus'ta exact skoru değiştirebilecek böyle bir dosya `RequiresHumanReview` üretir.
+- `workflows` erişilebilirliği `Available` ve koleksiyon tam değilse `UnavailableEvidence` üretilir. Tek istisna, incomplete corpus içinde hem build hem test komutları gözlenerek maksimum `Strong` sonucunun terminal hâle gelmesidir.
+- `Missing` yalnız erişilebilir ve tam workflow corpus'u boş olduğunda üretilebilir. Workflow içeriği null ise required content unavailable kabul edilir.
 
 ### Öneri
 

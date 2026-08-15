@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Ten production evaluators are complete; test-structure and continuous-integration signals are next.
+Focus: Twelve production evaluators are complete; the three portfolio signals are next.
 ```
 
 ---
@@ -51,46 +51,46 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Implement `validation.test-structure` and `validation.continuous-integration` in the next bounded session.
+Implement `portfolio.topics`, `portfolio.homepage-or-live-demo`, and `portfolio.presentation-completeness` in the next bounded session.
 ```
 
 ## Working Set
 
 ```text
-Session 032 canonical clarification, three Domain evaluators, focused tests, and worklog changes only.
+Session 033 canonical clarification, two Domain evaluators, focused tests, and worklog changes only.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 86dee23
-Last verified working tree: CLEAN before Session 032
+Last verified HEAD: 63f3467
+Last verified working tree: CLEAN before Session 033
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 032 — Issue + Pull Request + Release Signals: PASS
+Session 033 — Test Structure + Continuous Integration: PASS
 
-- Confirmed normalized issue/PR separation, merge state, release/draft/notes data, tags, completeness, and independent availability.
-- Clarified qualifying issue, release-note presence, and terminal incomplete-evidence semantics for Version 1.
-- Added deterministic issue, pull-request, and release usage Domain evaluators.
-- Covered all score branches, Issues-disabled, separate Releases/Tags failures, terminal positive evidence, ordering, and determinism.
-- Production evaluators are now 10 / 15.
+- Confirmed file-tree/project-content/workflow content, completeness, and availability evidence is sufficient.
+- Clarified exact test indicators, evidence combinations, bounded run-command families, and YAML ambiguity semantics.
+- Added deterministic Test Structure and Continuous Integration Domain evaluators.
+- Covered every status/score branch, false positives, dependency evidence, malformed workflow content, incomplete evidence, ordering, and determinism.
+- Production evaluators are now 12 / 15.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 86dee23, clean before Session 032
-Contract/data audit: PASS — issue, PR, release, tag, completeness, and availability data sufficient
-Focused Issue + PR + Release tests: PASS — 46 passed
-All evaluator regression: PASS — 261 passed
-Domain tests: PASS — 312 passed
+Repository baseline: PASS — main at 63f3467, clean before Session 033
+Contract/data audit: PASS — test/project/workflow content and completeness data sufficient
+Focused Test Structure + CI tests: PASS — 46 passed
+All evaluator regression: PASS — 307 passed
+Domain tests: PASS — 358 passed
 Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 400 passed
+Solution tests: PASS — 446 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS
