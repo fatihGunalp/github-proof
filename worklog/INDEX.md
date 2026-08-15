@@ -17,6 +17,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | ImprovementAction domain model | PASS | Terra / medium | [006](./sessions/2026-08-15-006-improvement-action.md) | 5230a7b |
 | 2026-08-15 | ImprovementPlan domain model | PASS | Terra / medium | [007](./sessions/2026-08-15-007-improvement-plan.md) | e7ab44b |
 | 2026-08-15 | AnalysisWarning domain model | PASS | Terra / medium | [008](./sessions/2026-08-15-008-analysis-warning.md) | 050e496 |
+| 2026-08-15 | RepositoryAnalysis domain model | PASS | Terra / high | [009](./sessions/2026-08-15-009-repository-analysis.md) | 9ebf807 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
