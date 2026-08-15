@@ -8,6 +8,8 @@
 
 **Human review claimed:** No
 
+> Historical note: the preceding statements describe Session 037's automated run. The subsequent user-provided human comparison is complete; see [Session 038 Human Review and Automated Comparison Summary](./human-review-summary.md).
+
 ## Automated Run
 
 ```text

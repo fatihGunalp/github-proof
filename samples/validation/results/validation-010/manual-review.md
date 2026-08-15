@@ -4,8 +4,8 @@
 Validation ID: validation-010
 Frozen commit: 57523742631876181d95bc268e09fb3fd1a4d85e
 Repository profile: empty-or-insufficient-data
-ManualReviewStatus: Pending
-Human review completed: NO
+ManualReviewStatus: Completed
+Human review completed: YES — user provided all 15 comparison outcomes.
 ```
 
 This file is a human-review template. Automated Codex validation is not recorded as human review.
@@ -23,20 +23,20 @@ This file is a human-review template. Automated Codex validation is not recorded
 
 | Signal | Automated status | Score | Human result | Notes |
 |---|---|---:|---|---|
-| repository.readme.exists | Missing | 0 | Pending | |
-| repository.description.present | Missing | 0 | Pending | |
-| documentation.installation-guide | Missing | 0 | Pending | |
-| repository.license.present | Missing | 0 | Pending | |
-| documentation.usage-or-demo | Missing | 0 | Pending | |
-| process.commit-history | Partial | 1 | Pending | |
-| process.commit-distribution | Partial | 1 | Pending | |
-| process.issue-usage | NotApplicable | — | Pending | |
-| process.pull-request-usage | Partial | 2 | Pending | |
-| process.release-usage | Partial | 4 | Pending | |
-| validation.test-structure | Missing | 0 | Pending | |
-| validation.continuous-integration | Missing | 0 | Pending | |
-| portfolio.topics | Missing | 0 | Pending | |
-| portfolio.homepage-or-live-demo | Missing | 0 | Pending | |
-| portfolio.presentation-completeness | Missing | 0 | Pending | |
+| repository.readme.exists | Missing | 0 | Agreement | User-provided judgement |
+| repository.description.present | Missing | 0 | Agreement | User-provided judgement |
+| documentation.installation-guide | Missing | 0 | Agreement | User-provided judgement |
+| repository.license.present | Missing | 0 | Agreement | User-provided judgement |
+| documentation.usage-or-demo | Missing | 0 | Agreement | User-provided judgement |
+| process.commit-history | Partial | 1 | Agreement | User-provided judgement |
+| process.commit-distribution | Partial | 1 | Agreement | User-provided judgement |
+| process.issue-usage | NotApplicable | — | Agreement | User-provided judgement |
+| process.pull-request-usage | Partial | 2 | Agreement | User-provided judgement |
+| process.release-usage | Partial | 4 | Agreement | User-provided judgement |
+| validation.test-structure | Missing | 0 | Agreement | User-provided judgement |
+| validation.continuous-integration | Missing | 0 | Agreement | User-provided judgement |
+| portfolio.topics | Missing | 0 | Agreement | User-provided judgement |
+| portfolio.homepage-or-live-demo | Missing | 0 | Agreement | User-provided judgement |
+| portfolio.presentation-completeness | Missing | 0 | Agreement | User-provided judgement |
 
 Allowed human results: `Agreement`, `MinorDifference`, `MajorDifference`, `CannotDetermine`.

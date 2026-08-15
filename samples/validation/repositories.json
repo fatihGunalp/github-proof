@@ -15,7 +15,7 @@
       "tests-and-ci",
       "active-project"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Moderate-size active .NET library selected for documentation and validation evidence."
   },
   {
@@ -34,7 +34,7 @@
       "archived-training-repository",
       "no-primary-language"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "The default-branch README is intentionally very short; archive status is independently recorded."
   },
   {
@@ -53,7 +53,7 @@
       "short-readme",
       "no-primary-language"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "GitHub reports one default-branch commit; no authorship, copying, AI-use, or skill inference is permitted."
   },
   {
@@ -72,7 +72,7 @@
       "rust-library",
       "small-purpose-scope"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Established Rust library selected to exercise commit-history distribution without using a very large repository."
   },
   {
@@ -91,7 +91,7 @@
       "python",
       "archived"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Python plugin selected for explicit test and workflow evidence; archive state must not imply failure."
   },
   {
@@ -110,7 +110,7 @@
       "test-ci-absence-candidate",
       "intentional-bugs"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Training repository selected to inspect test/CI false positives; expected absence remains subject to human review."
   },
   {
@@ -129,7 +129,7 @@
       "completed-sample",
       "java"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Completed training sample selected to ensure archive state is recorded without value or quality inference."
   },
   {
@@ -148,7 +148,7 @@
       "single-purpose",
       "issues-empty-candidate"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Tiny queue package selected to verify that small scope is not itself treated as poor evidence."
   },
   {
@@ -167,7 +167,7 @@
       "java",
       "tests-and-ci"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Spring guide selected to keep educational intent separate from production-readiness assumptions."
   },
   {
@@ -187,7 +187,7 @@
       "single-commit",
       "no-primary-language"
     ],
-    "manualReviewStatus": "Pending",
+    "manualReviewStatus": "Completed",
     "notes": "Non-empty but intentionally insufficient-data candidate; a real SHA is retained because an actually empty repository has no commit to freeze."
   }
 ]
