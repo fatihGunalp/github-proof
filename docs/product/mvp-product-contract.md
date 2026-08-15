@@ -8,6 +8,8 @@ GitHub Proof bir geliştiricinin genel yetkinliğini, işe alınabilirliğini ve
 
 Sistem yalnızca analiz edilen repository içerisinde erişilebilen veriler üzerinden değerlendirme yapar.
 
+GitHub Proof global üründür. Analiz domain'i locale bağımsızdır; aynı `RepositoryAnalysis` en az Türkçe ve İngilizce olarak, yeniden analiz edilmeden sunulabilmelidir.
+
 ---
 
 ## 2. MVP Kullanıcı Problemi
@@ -80,15 +82,18 @@ Repository, yapılan üretimi dışarıdan inceleyen bir kişiye açık ve anlam
 Her analiz şu bölümleri içermelidir:
 
 - Repository özeti
-- Toplam görünür kanıt skoru
-- Dört kategori sonucu
-- Sinyal bazlı puan ve kanıt açıklaması
 - En güçlü üç sinyal
 - En kritik üç eksik
 - Üç öncelikli geliştirme adımı
+- Explicit uncertainty ve analiz sınırlamaları
+- Dört kategori sonucu
+- Sinyal bazlı puan ve kanıt açıklaması
+- İkincil toplam görünür kanıt skoru
 - Markdown raporu
 
-Toplam skor tek başına gösterilmemeli; dayandığı sinyallerle birlikte açıklanmalıdır.
+Toplam skor raporun ana kahramanı olmamalı ve tek başına gösterilmemelidir; dayandığı sinyallerle birlikte ikincil özet olarak açıklanmalıdır.
+
+Kullanıcıya görünen report copy localization katmanında üretilir. Signal key, status, category, score, evidence, rule semantics ve repository'den alınan literal değerler locale'e göre değişmez.
 
 ---
 

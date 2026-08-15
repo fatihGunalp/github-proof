@@ -29,11 +29,46 @@ AnalyzerVersion: 0.1.0
 RuleSetVersion: 2026.08.01
 ReportSchemaVersion: 1
 AnalysisStatus: Completed
+Report Locale: tr
 ~~~
 
 ---
 
-## Genel Sonuç
+## Bu Repository Neyi Kanıtlıyor?
+
+1. **Geliştirme zamana yayılmış:** Son 45 gündeki 27 commit, 11 farklı güne yayılıyor.
+2. **Değişiklik geçmişi görünür:** Default branch üzerinde 27 commit bulunuyor.
+3. **Doğrulama niyeti görünür:** `tests/SampleProject.UnitTests` altında test projesi ve test dosyaları bulunuyor.
+
+Bu maddeler geliştirici seviyesi hakkında hüküm vermez; yalnız repository üzerinde görülen kanıtları özetler.
+
+---
+
+## Kanıtı Ne Zayıflatıyor?
+
+1. Kurulum talimatı bulunamadı.
+2. Continuous Integration workflow'u bulunamadı.
+3. Yayınlanmış GitHub Release bulunamadı.
+
+---
+
+## Önce Bunları Yapın
+
+1. README içerisine bağımlılıkları ve çalıştırma komutlarını içeren bir kurulum bölümü ekleyin.
+2. Build ve test komutlarını çalıştıran temel bir GitHub Actions workflow'u ekleyin.
+3. Açıklayıcı release notlarıyla ilk anlamlı GitHub Release'i yayınlayın.
+
+---
+
+## Belirsizlik Durumu
+
+Bu örnek analizde `NotApplicable`, `UnavailableEvidence` veya `RequiresHumanReview` sonucu yoktur.
+
+`Missing`, verinin başarıyla incelendiğini ancak görünür kanıt bulunamadığını ifade eder; erişilemeyen veri anlamına gelmez.
+
+---
+
+## İkincil Skor Özeti
 
 ~~~text
 Toplam Görünür Kanıt Skoru: 56 / 100
@@ -263,6 +298,12 @@ Proje gelişimi ve kullanıcıya sunulan teslim noktaları daha anlaşılır olu
 ## Rapor Uyarısı
 
 > Bu rapor yalnızca analiz edilen public GitHub repository'sinde gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin genel yetkinliğini, kıdemini, işe alınabilirliğini veya projenin production güvenilirliğini belirlemez.
+
+Kodun sahipliği veya özgünlüğü ve AI kullanımı hakkında çıkarım yapmaz.
+
+## Localization Notu
+
+Bu örnek `tr` locale'inde gösterilmiştir. Aynı `RepositoryAnalysis`, signal sonuçları, skorlar, seçilmiş kanıtlar, aksiyon öncelikleri ve repository literal'leri değişmeden `en` locale'inde de render edilebilir; yalnız kullanıcıya görünen copy değişir.
 
 ---
 

@@ -342,11 +342,13 @@ README'yi geliştirin.
 
 Raporda en fazla üç güçlü sinyal gösterilir.
 
-Seçim sırası:
+Deterministic seçim sırası:
 
-1. `Strong` durumundaki en yüksek puanlı sinyaller
-2. Kullanıcı açısından yüksek açıklama değeri taşıyan sinyaller
-3. Aynı kategoriden tekrar eden sonuçların azaltılması
+1. Yalnız `Strong` sonuçlar candidate olur.
+2. Üçten az `Strong` varsa kalan yerler `Present` sonuçlarla doldurulur.
+3. Her status tier `Score / MaximumScore` azalan, `MaximumScore` azalan ve canonical signal order artan sırayla değerlendirilir.
+4. Aynı tier içinde önce farklı kategorilerden en yüksek sıradaki birer sonuç, sonra kalan sıralı sonuçlar seçilir.
+5. `Partial` sonuç güçlü kanıt olarak sunulmaz.
 
 Amaç, kullanıcıya yalnızca eksikleri değil, repository'nin hâlihazırda neyi iyi kanıtladığını da göstermektir.
 
@@ -356,12 +358,13 @@ Amaç, kullanıcıya yalnızca eksikleri değil, repository'nin hâlihazırda ne
 
 Raporda en fazla üç kritik eksik gösterilir.
 
-Öncelik sırası:
+Deterministic öncelik sırası:
 
-1. Yüksek maksimum puanlı `Missing` sinyaller
-2. Repository'nin çalıştırılabilirliğini engelleyen eksikler
-3. Portföy anlaşılabilirliğini ciddi biçimde azaltan eksikler
-4. İnsan değerlendirmesi gerektiren yüksek riskli belirsizlikler
+1. `Missing` sonuçlar `MaximumScore` azalan ve canonical signal order artan sırayla değerlendirilir.
+2. Üçten az `Missing` varsa kalan yerler `Partial` sonuçlarla doldurulur.
+3. `Partial` sonuçlar `MaximumScore - Score` azalan, `MaximumScore` azalan ve canonical signal order artan sırayla değerlendirilir.
+4. Aynı tier içinde önce farklı kategorilerden en yüksek sıradaki birer sonuç, sonra kalan sıralı sonuçlar seçilir.
+5. `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` kritik eksik gibi sunulmaz; explicit uncertainty olarak gösterilir.
 
 Aynı eksikliğin farklı biçimlerde tekrar edilmesinden kaçınılmalıdır.
 
@@ -420,19 +423,28 @@ Eylemler repository üzerinde uygulanabilir olmalı ve geliştirici hakkında ki
 
 ## 14. Rapor Yapısı
 
-MVP web ve Markdown raporu aşağıdaki sırayı izlemelidir:
+MVP web ve Markdown raporu evidence-first bilgi mimarisini izlemelidir:
 
 1. Repository kimliği
-2. Analiz zamanı
-3. Kural seti sürümü
-4. Toplam görünür kanıt skoru
-5. Skor etiketi
-6. Dört kategori sonucu
-7. En güçlü üç sinyal
-8. En kritik üç eksik
-9. Üç öncelikli geliştirme adımı
-10. Tüm sinyal sonuçları
-11. Sınırlamalar ve uyarılar
+2. Repository'nin neyi kanıtladığı — en fazla üç güçlü kanıt
+3. Kanıtı neyin zayıflattığı — en fazla üç kritik boşluk
+4. Önce yapılacaklar — en fazla üç geliştirme adımı
+5. Explicit uncertainty — varsa `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview`
+6. Dört kategori sonucu ve ikincil skor özeti
+7. Tüm sinyal sonuçları
+8. Sınırlamalar ve uyarılar
+9. Analiz zamanı, sürümler ve yöntem
+10. Product boundary disclaimer
+
+Toplam ve kategori skorları korunur ancak ilk okuma katmanının ana mesajı olmaz.
+
+Ayrıntılı bölüm sözleşmesi, deterministic seçim kuralları ve Phase 4 implementation sınırı için:
+
+~~~text
+docs/product/report-information-architecture.md
+~~~
+
+Rapor semantics locale bağımsızdır. Locale yalnız presentation katmanında çözülür; aynı `RepositoryAnalysis` TR veya EN render edilirken signal sonucu, score, evidence, selection veya ranking değişmez.
 
 ---
 
@@ -478,7 +490,7 @@ Bu alanlar sonuçların gelecekte tekrar üretilebilmesini ve sürümler arasın
 
 Her raporda aşağıdaki anlamı taşıyan bir uyarı bulunmalıdır:
 
-> Bu rapor yalnızca analiz edilen public GitHub repository'sinde gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin genel yetkinliğini, kıdemini, işe alınabilirliğini veya projenin production güvenilirliğini belirlemez.
+> Bu rapor yalnızca analiz edilen public GitHub repository'sinde gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin genel yetkinliğini, kıdemini, işe alınabilirliğini, kodun sahipliğini veya özgünlüğünü, AI kullanımını ya da projenin production güvenilirliğini belirlemez.
 
 ---
 

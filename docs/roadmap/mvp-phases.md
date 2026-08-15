@@ -276,13 +276,19 @@ Teknik analiz sonuçlarını, kullanıcının anlayabileceği ve uygulayabilece�
 ```text
 Repository Kanıt Profili
 
-Toplam görünür kanıt: 62 / 100
+Bu repository neyi kanıtlıyor?
+- Zamana yayılmış geliştirme geçmişi
+- Görünür test yapısı
 
-Güçlü alan:
-Geliştirme süreci
+Kanıtı ne zayıflatıyor?
+- Kurulum ve kullanım dokümantasyonu eksik
 
-En kritik eksik:
-Kurulum ve kullanım dokümantasyonu
+Önce bunları yap
+1. Kurulum adımlarını belgeleyin
+2. CI doğrulaması ekleyin
+3. Kullanım örneği ekleyin
+
+İkincil skor özeti: 62 / 100
 ```
 
 #### Kategori sonuçları

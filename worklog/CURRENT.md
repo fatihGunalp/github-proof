@@ -12,9 +12,8 @@
 
 ```text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 3 — COMPLETE
-Next Phase: Phase 4 — Report Generation
-Focus: Phase 3 exit validation passed; no active meaningful session.
+Delivery Phase: Phase 4 — Report Generation
+Focus: Evidence-first and language-neutral report information architecture is contractually defined; no active meaningful session.
 ```
 
 ---
@@ -52,49 +51,44 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Begin Phase 4 — Report Generation only after a new mandatory model gate and explicit user approval.
+Session 043 — implement language-neutral report contract and deterministic RepositoryAnalysis composition only after a new mandatory model gate and explicit user approval.
 ```
 
 ## Working Set
 
 ```text
-Phase 3 is COMPLETE. Session 041 passed without evaluator, signal, scoring, or canonical rule changes. The immutable acceptance result remains 10 repositories / 150 signals / 138 Agreement + MinorDifference / 92.00% / PASS. Session 039 and validation-011 remain blocked, exploratory, and non-gating.
+Phase 3 is COMPLETE. Session 042 defined the evidence-first and language-neutral Phase 4 report order, deterministic strength/gap/action selection, uncertainty presentation, global TR/EN presentation boundary, existing domain reuse, and the bounded Session 043 composer handoff. The 15 signals, four categories, scoring method, and evaluator semantics remain unchanged. Session 039 and validation-011 remain blocked, exploratory, and non-gating.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 8fe0d6d
-Pre-existing working tree: untracked samples/validation/exploratory/
-Session 041 changes: docs/roadmap and worklog completion state only
-Pre-existing non-gating change: samples/validation/exploratory/ preserved untouched
+Last verified HEAD: d3e9146
+Pre-existing working tree: CLEAN
+Session 042 changes: report/product/roadmap docs and worklog only
 ```
 
 ## Last Completed Work
 
 ```text
-Session 041 — Phase 3 Final Exit Validation: PASS
+Session 042 — Report Information Architecture: DOCS
 
-- Verified all 15 canonical signals, scoring/status invariants, orchestration fail-fast behavior, and deterministic output.
-- Recomputed the immutable acceptance result as 138 / 150 Agreement + MinorDifference (92.00%), above the 80% threshold.
-- Verified historical-ref regressions and the full 531-test solution with a clean 0-warning/0-error build.
+- Reframed Phase 4 from score-first to evidence-first without changing scoring.
+- Defined the 10-second reading order, uncertainty semantics, deterministic selection rules, and canonical category presentation.
+- Defined a global language-neutral contract: locale-independent analysis, stable section/message keys, EN fallback and TR first-launch presentation.
+- Mapped current domain fields, recorded the existing Turkish-copy contract drift, and bounded Session 043 to language-neutral RepositoryAnalysis composition.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 8fe0d6d; pre-existing exploratory directory preserved
-Signal engine and scoring contract audit: PASS
-Determinism artifacts: PASS — 10 / 10, 0 semantic differences
-Acceptance: PASS — 10 repositories, 150 comparisons, 138 Agreement + MinorDifference, 92.00%
-Historical-ref regression: PASS — explicit SHA, invalid/nonexistent SHA, no fallback, default-HEAD behavior, frozen/live warning
-Domain tests: PASS — 420 passed
-Application tests: PASS — 10 passed
-Infrastructure tests: PASS — 101 passed
-Solution tests: PASS — 531 passed
-Solution build: PASS — 0 warnings, 0 errors
-dotnet format verify: PASS
+Repository baseline: PASS — main at d3e9146; clean before Session 042
+Canonical report contract review: PASS
+Domain/report field mapping review: PASS
+Scoring and uncertainty drift review: PASS
+Localization boundary and global-product review: PASS
+Build/tests: NOT RUN — documentation-only session
 git diff --check: PASS
 ```
 
