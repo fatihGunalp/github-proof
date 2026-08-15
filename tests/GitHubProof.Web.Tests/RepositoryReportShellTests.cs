@@ -122,6 +122,25 @@ public sealed class RepositoryReportShellTests
     }
 
     [Fact]
+    public void Signal_details_expose_a_non_textual_disclosure_affordance()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Shared",
+            "_RepositoryReport.cshtml");
+
+        Assert.Contains(
+            "report-signal__chevron",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "aria-hidden=\"true\"",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Report_shell_does_not_parse_markdown()
     {
         string content = ReadWebFile(

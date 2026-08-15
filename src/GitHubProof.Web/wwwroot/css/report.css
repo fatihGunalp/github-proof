@@ -148,8 +148,19 @@
 }
 
 .report-evidence__source {
-    color: var(--fg-secondary);
+    color: var(--fg-tertiary);
     font-weight: var(--font-weight-label);
+}
+
+.report-section--decision,
+.report-section--uncertainty {
+    padding-block: var(--space-16);
+    border-top-color: var(--border-default);
+}
+
+.report-section--decision .report-section__title,
+.report-section--uncertainty .report-section__title {
+    margin-bottom: var(--space-10);
 }
 
 .report-action {
@@ -285,6 +296,29 @@
     outline: var(--focus-ring-width) solid var(--border-focus);
     outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-sm);
+}
+
+.report-signal__state {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.report-signal__chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--fg-tertiary);
+    font-size: var(--font-size-body-large);
+    line-height: 1;
+    transform-origin: center;
+}
+
+.report-signal[open] .report-signal__chevron {
+    transform: rotate(90deg);
 }
 
 .report-signal__title {

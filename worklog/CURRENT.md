@@ -14,19 +14,16 @@
 Product Stage: MVP Implementation
 Delivery Phase: Phase 5 — Minimal Web UI IN_PROGRESS
 Next Delivery Phase: Phase 6 — MVP Validation
-Focus: Session 047 — Web Foundation + Semantic UI System.
+Focus: No active session. Next: Session 048 — Live Repository Analysis Vertical Slice.
 ~~~
-
----
 
 ## Active Session
 
 ~~~text
-Session 047 — Web Foundation + Semantic UI System
-worklog/sessions/2026-08-16-047-web-foundation-semantic-ui-system.md
-Result: IN_PROGRESS
-Base HEAD: 89e7be3
-Execution: PowerShell / manual
+NONE
+
+Last completed:
+Session 047 — Web Foundation + Semantic UI System — PASS
 ~~~
 
 ## Model Gate State
@@ -38,39 +35,45 @@ Manual PowerShell workflow selected by the user after routing discussion.
 ## Current Task
 
 ~~~text
-Establish the Phase 5 Web foundation and semantic Light/Dark UI system while preserving RepositoryReport as the canonical presentation input.
+No active implementation session.
+
+Session 047 completed the Phase 5 Web foundation and typed RepositoryReport presentation surface.
+
+Next:
+Session 048 — Live Repository Analysis Vertical Slice.
+
+The next vertical slice should connect the canonical repository URL input to the existing analysis pipeline and typed RepositoryReport presentation.
+
+Do not parse Markdown.
+Do not redefine analysis or scoring truth.
 ~~~
 
 ## In Progress
 
 ~~~text
-Session 047 is active.
+No active session.
 
-Completed checkpoints:
-- Minimal GitHubProof.Web Razor Pages host.
+Session 047 completed:
+
+- Minimal ASP.NET Core Razor Pages Web host.
 - Semantic Light / Dark / System token architecture.
 - Canonical repository-URL-only Home.
-- Home visual refinement accepted in Dark and Light.
-- Canonical StatusBadge with seven SignalStatus semantics.
+- Minimal Home visual hierarchy.
+- Canonical seven-state StatusBadge semantics.
 - Typed RepositoryReport report shell.
-- Canonical evidence-first section order.
-- Progressive SignalDetails disclosure.
-- Secondary score placement after uncertainty.
-
-Step 8 implemented:
-- Development-only /report-preview route.
-- Typed RepositoryReport preview fixture.
-- Preview exercises all seven SignalStatus semantics.
-- English and Turkish presentation paths available.
-- Repository literals remain stable between locales.
-- Home remains unchanged.
-- Preview is not linked from Home.
-- Non-Development environments return NotFound for the preview route.
-
-Step 8 validation:
-- GitHubProof.Web.Tests PASS — 31/31.
-- GitHubProof.Web build PASS.
-- Home immutability PASS.
+- Exact canonical evidence-first section ordering.
+- Maximum-three first-reading strengths, gaps, and actions.
+- Uncertainty before secondary score.
+- Progressive SignalDetails disclosure using native details/summary.
+- Visible disclosure affordance without replacing native semantics.
+- Focus-visible disclosure treatment.
+- Quieter evidence metadata hierarchy.
+- Stronger decision / uncertainty section rhythm without card containers.
+- Development-only typed RepositoryReport preview.
+- English and Turkish preview fixtures.
+- Dark and Light desktop browser review.
+- Dark and Light narrow/mobile browser review.
+- Home remained unchanged throughout report work.
 
 Live repository analysis remains intentionally unwired.
 ~~~
@@ -84,25 +87,27 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Open the Development-only RepositoryReport preview in the browser and perform presentation review before further hardening.
+Initialize Session 048 — Live Repository Analysis Vertical Slice.
 
-Review:
-- Dark desktop,
-- Light desktop,
-- narrow/mobile width,
-- first-reading hierarchy,
-- evidence readability,
-- StatusBadge semantics,
-- uncertainty treatment,
-- secondary score prominence,
-- SignalDetails progressive disclosure,
-- keyboard/details behavior.
+Before implementation:
+1. run the model gate,
+2. load the minimum required context,
+3. initialize Session 048 worklog state,
+4. define the vertical-slice boundary,
+5. preserve repository URL as the canonical MVP input,
+6. preserve RepositoryReport as the Web presentation input.
 
-Preview routes:
-- /report-preview?locale=en
-- /report-preview?locale=tr
+Expected direction:
 
-Do not wire live GitHub analysis yet.
+Repository URL
+→ existing repository collection / analysis pipeline
+→ RepositoryAnalysis
+→ localized RepositoryReport
+→ existing Web report presentation
+
+Do not parse Markdown.
+Do not introduce username discovery.
+Do not invent fake analysis progress.
 ~~~
 
 ## Working Set
@@ -127,51 +132,83 @@ Live HEAD / commit / push state after session start should be read from Git dire
 ## Last Completed Work
 
 ~~~text
-Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
+Session 047 — Web Foundation + Semantic UI System: PASS
 
-- Added RepositoryReportMarkdownRenderer.
-- Renderer accepts only RepositoryReport.
-- Preserved exact evidence-first section order.
-- Preserved max-three strength/gap/action ordering.
-- Preserved Missing vs explicit uncertainty semantics.
-- Kept score secondary.
-- Preserved repository/evidence literals.
-- Added platform-independent deterministic LF output.
-- Kept versioned product-boundary disclaimer mandatory.
-- Closed Phase 4 and handed typed RepositoryReport to Phase 5 Web UI.
+Delivered:
+- Razor Pages Web foundation.
+- Light / Dark / System semantic design-token architecture.
+- Repository-URL-only Home.
+- Canonical seven-state StatusBadge.
+- Typed RepositoryReport presentation.
+- Evidence-first report hierarchy.
+- Progressive SignalDetails.
+- Development-only typed report preview.
+- Responsive presentation foundation.
+- Native disclosure and focus-visible accessibility foundation.
+- Dark / Light desktop and narrow/mobile browser review.
+- Presentation hardening without card soup, gauges, Markdown parsing, or product-scope expansion.
+
+Session 047 intentionally did not wire live GitHub analysis.
 ~~~
 
 ## Last Validation
 
 ~~~text
-Session 047 / Step 8:
+Session 047 final validation:
 
-GitHubProof.Web.Tests: PASS — 31/31
-GitHubProof.Web build: PASS
+GitHubProof.Web.Tests:
+PASS — 32/32
 
-Development-only RepositoryReport preview:
+GitHubProof.Web build:
 PASS
 
-Canonical RepositoryReport input:
+Full solution build:
 PASS
 
-Seven SignalStatus semantics represented:
+Full solution tests:
 PASS
 
-EN/TR preview paths:
+dotnet format --verify-no-changes:
 PASS
 
-Repository literals preserved across locale fixture:
-PASS
-
-Preview hidden outside Development:
+CSS semantic-token boundary:
 PASS
 
 Home:
 UNCHANGED
 
-Live GitHub analysis:
-NOT WIRED
+RepositoryReport direct typed input:
+PASS
+
+Canonical evidence-first section order:
+PASS
+
+Seven SignalStatus semantics:
+PASS
+
+Uncertainty before secondary score:
+PASS
+
+SignalDetails native details/summary:
+PASS
+
+Disclosure affordance:
+PASS
+
+Focus-visible foundation:
+PASS
+
+Markdown parsing in Web:
+NONE
+
+Browser visual review:
+- Dark desktop: PASS
+- Light desktop: PASS
+- Dark narrow/mobile: PASS
+- Light narrow/mobile: PASS
+
+Live repository analysis:
+NOT WIRED — intentionally deferred to Session 048.
 ~~~
 
 ## Critical Invariants
@@ -225,5 +262,9 @@ are contract-locked in docs/.
 
 ~~~text
 Development tooling may edit, test, review diff/status, and update worklog.
-Commit and push remain user-owned unless explicitly requested.
+
+Standing workflow:
+- do not push intermediate session work,
+- push when the active session is finalized,
+- session-final push occurs only after final validation and bounded diff review.
 ~~~

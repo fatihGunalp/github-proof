@@ -185,7 +185,7 @@
     </section>
 
     <section
-        class="report-section"
+        class="report-section report-section--decision"
         data-report-section="@RepositoryReportSectionKeys.DoFirst">
 
         <h2 class="report-section__title">
@@ -225,7 +225,7 @@
     </section>
 
     <section
-        class="report-section"
+        class="report-section report-section--uncertainty"
         data-report-section="@RepositoryReportSectionKeys.Uncertainty">
 
         <h2 class="report-section__title">
@@ -344,11 +344,19 @@
                             @signal.Title
                         </span>
 
-                        @await Html.PartialAsync(
-                            "_StatusBadge",
-                            new StatusBadgeModel(
-                                signal.Status,
-                                signal.StatusLabel))
+                        <span class="report-signal__state">
+                            @await Html.PartialAsync(
+                                "_StatusBadge",
+                                new StatusBadgeModel(
+                                    signal.Status,
+                                    signal.StatusLabel))
+
+                            <span
+                                class="report-signal__chevron"
+                                aria-hidden="true">
+                                ›
+                            </span>
+                        </span>
                     </summary>
 
                     <div class="report-signal__content">
