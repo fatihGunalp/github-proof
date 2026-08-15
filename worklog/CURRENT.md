@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 1 — Analysis Model / Domain Foundation
-Focus: ImprovementPlan domain model is implemented and verified.
+Focus: AnalysisWarning domain model is implemented and verified.
 ```
 
 ---
@@ -51,7 +51,7 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare the AnalysisWarning domain-model task and run its mandatory model gate before implementation.
+Prepare the RepositoryAnalysis domain-model task and run its mandatory model gate before implementation.
 ```
 
 ## Working Set
@@ -62,38 +62,38 @@ Modified:
 - worklog/INDEX.md
 
 Untracked:
-- src/GitHubProof.Domain/Analysis/Models/ImprovementPlan.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/ImprovementPlanTests.cs
-- worklog/sessions/2026-08-15-007-improvement-plan.md
+- src/GitHubProof.Domain/Analysis/Models/AnalysisWarning.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/AnalysisWarningTests.cs
+- worklog/sessions/2026-08-15-008-analysis-warning.md
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: e7ab44b
-Last verified working tree: completed Session 007 changes listed above
+Last verified HEAD: 050e496
+Last verified working tree: completed Session 008 changes listed above
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 007 — ImprovementPlan domain model: PASS
+Session 008 — AnalysisWarning domain model: PASS
 
-- Added the aggregate that owns the maximum-three-actions report limit.
-- Preserved action traceability while normalizing generation time and rule-set version.
+- Added an immutable warning model with severity, message, and optional related references.
+- Preserved warning visibility without requiring links that may not exist for every warning.
 - Added four focused invariant tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test GitHubProof.slnx --no-restore: PASS — 34 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 38 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: only completed Session 007 changes
+git status --short: only completed Session 008 changes
 ```
 
 ## Critical Invariants
