@@ -1,8 +1,9 @@
 @using GitHubProof.Web.Presentation
-@model GitHubProof.Application.Analysis.Presentation.SignalPresentation
+@model StatusBadgeModel
 
 @{
-    StatusBadgePresentation badge = StatusBadgePresentation.From(Model.Status);
+    StatusBadgePresentation badge =
+        StatusBadgePresentation.From(Model.Status);
 }
 
 <span

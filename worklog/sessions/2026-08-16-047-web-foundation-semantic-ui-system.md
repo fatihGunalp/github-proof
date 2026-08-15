@@ -271,11 +271,16 @@ Session status:
 ## Next
 
 ~~~text
-Build the first typed RepositoryReport report shell using the accepted semantic UI system.
+Harden the typed RepositoryReport shell before live orchestration.
 
-StatusBadge is the canonical signal-state visual primitive.
+Validate:
+- responsive semantic order,
+- evidence readability,
+- progressive disclosure,
+- Light/Dark equivalence,
+- score remains secondary,
+- accessibility foundations.
 
-Preserve exact report hierarchy and progressive disclosure.
 Do not parse Markdown.
 Do not wire live repository analysis yet.
 ~~~

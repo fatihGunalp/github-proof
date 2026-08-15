@@ -49,15 +49,25 @@ Session 047 is active.
 Completed:
 - Minimal GitHubProof.Web Razor Pages host.
 - Semantic Light / Dark / System token architecture.
-- Generic Button and Input primitives.
 - Canonical repository-URL-only Home.
 - Home visual refinement accepted in Dark and Light.
-- StatusBadge typed presentation mapping implemented.
-- StatusBadge consumes SignalPresentation.Status and localized StatusLabel.
-- All seven canonical SignalStatus values have explicit non-color visual cues.
-- Missing and UnavailableEvidence remain visually and semantically distinct.
-- StatusBadge consumes semantic status tokens only.
-- CSS primitive-token architecture guard now covers all consumer stylesheets.
+- Canonical StatusBadge with seven SignalStatus semantics.
+- Typed RepositoryReport report shell implemented.
+- Report shell consumes RepositoryReport directly.
+- Canonical evidence-first section order preserved.
+- Proves / Weakens / DoFirst remain primary reading layers.
+- Uncertainty precedes secondary score.
+- Signal details use progressive disclosure.
+- Evidence values remain visible without Markdown parsing.
+- StatusBadge generalized to reusable SignalStatus + localized StatusLabel input.
+
+Step 7 validation:
+- Web tests PASS 26/26.
+- Initial standalone Web build hit a transient ResolveAppHosts SDK assembly-load failure.
+- Build servers were reset.
+- Clean no-node-reuse Web build passed without source changes.
+- Home remained unchanged.
+- Current shell Git access recovered through Visual Studio embedded Git.
 
 Live repository analysis remains intentionally unwired.
 ~~~
@@ -71,13 +81,17 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Build the first typed RepositoryReport report shell.
+Review and harden the typed RepositoryReport shell before live orchestration.
 
-The Web UI must consume RepositoryReport directly and preserve:
-identity -> proves -> weakens -> do first -> uncertainty -> categories/secondary score -> signal details -> disclaimer.
+Validate:
+- responsive semantic order,
+- evidence readability,
+- keyboard/details behavior,
+- Light/Dark equivalence,
+- score-secondary treatment,
+- accessibility foundations.
 
 Do not parse Markdown.
-Do not recreate analysis truth in Web.
 Do not wire live GitHub analysis yet.
 ~~~
 
@@ -120,18 +134,29 @@ Session 046 — Deterministic Markdown Report + Phase 4 Exit: PASS
 ## Last Validation
 
 ~~~text
-Session 047 / Step 6:
+Session 047 / Step 7:
 
-GitHubProof.Web.Tests: PASS
-GitHubProof.Web build: PASS
-Seven canonical SignalStatus values: PASS
-Typed StatusBadge mapping: PASS
-Localized StatusLabel preservation: PASS
-Non-color status cues: PASS
-Missing != UnavailableEvidence: PASS
+GitHubProof.Web.Tests: PASS — 26/26
+GitHubProof.Web clean build: PASS
+RepositoryReport direct input: PASS
+Canonical section order: PASS
+Uncertainty before secondary score: PASS
+SignalDetails progressive disclosure: PASS
+Markdown parsing in Web: NONE
 CSS semantic-token boundary: PASS
-Primitive-token consumer guard: PASS
-git diff --check: PASS
+Home immutability guard: PASS
+
+Initial standalone build:
+TRANSIENT ResolveAppHosts SDK assembly-load failure.
+
+Recovery:
+build-server shutdown + /nr:false.
+
+Recovery result:
+PASS
+
+Git shell recovery:
+PASS — Visual Studio embedded Git.
 ~~~
 
 ## Critical Invariants
