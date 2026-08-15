@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 1 — Analysis Model / Domain Foundation
-Focus: ImprovementAction domain model is implemented and verified.
+Focus: ImprovementPlan domain model is implemented and verified.
 ```
 
 ---
@@ -51,7 +51,7 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare the ImprovementPlan domain-model task and run its mandatory model gate before implementation.
+Prepare the AnalysisWarning domain-model task and run its mandatory model gate before implementation.
 ```
 
 ## Working Set
@@ -62,38 +62,38 @@ Modified:
 - worklog/INDEX.md
 
 Untracked:
-- src/GitHubProof.Domain/Analysis/Models/ImprovementAction.cs
-- tests/GitHubProof.Domain.Tests/Analysis/Models/ImprovementActionTests.cs
-- worklog/sessions/2026-08-15-006-improvement-action.md
+- src/GitHubProof.Domain/Analysis/Models/ImprovementPlan.cs
+- tests/GitHubProof.Domain.Tests/Analysis/Models/ImprovementPlanTests.cs
+- worklog/sessions/2026-08-15-007-improvement-plan.md
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 5230a7b
-Last verified working tree: completed Session 006 changes listed above
+Last verified HEAD: e7ab44b
+Last verified working tree: completed Session 007 changes listed above
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 006 — ImprovementAction domain model: PASS
+Session 007 — ImprovementPlan domain model: PASS
 
-- Added an immutable action model with priority, effort, signal links, and evidence links.
-- Required concrete action text and source traceability without applying plan-level selection policy.
-- Added eight focused invariant tests.
+- Added the aggregate that owns the maximum-three-actions report limit.
+- Preserved action traceability while normalizing generation time and rule-set version.
+- Added four focused invariant tests.
 ```
 
 ## Last Validation
 
 ```text
-dotnet test GitHubProof.slnx --no-restore: PASS — 30 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 34 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: only completed Session 006 changes
+git status --short: only completed Session 007 changes
 ```
 
 ## Critical Invariants

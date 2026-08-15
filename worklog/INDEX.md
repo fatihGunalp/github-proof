@@ -15,6 +15,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | ScoreBreakdown domain model | PASS | Terra / high | [004](./sessions/2026-08-15-004-score-breakdown.md) | c3a5192 |
 | 2026-08-15 | AnalysisHighlight domain model | PASS | Terra / medium | [005](./sessions/2026-08-15-005-analysis-highlight.md) | d144a81 |
 | 2026-08-15 | ImprovementAction domain model | PASS | Terra / medium | [006](./sessions/2026-08-15-006-improvement-action.md) | 5230a7b |
+| 2026-08-15 | ImprovementPlan domain model | PASS | Terra / medium | [007](./sessions/2026-08-15-007-improvement-plan.md) | e7ab44b |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
