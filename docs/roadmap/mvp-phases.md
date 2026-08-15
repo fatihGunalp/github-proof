@@ -150,6 +150,7 @@ Public bir GitHub repository'sinden MVP için gereken verileri güvenilir ve nor
 - Issues
 - Pull requests
 - Releases
+- Tags
 - Workflow dosyaları
 - Repository contents
 - Topics

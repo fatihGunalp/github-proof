@@ -117,6 +117,7 @@ RepositorySnapshot
 ├── Issues
 ├── PullRequests
 ├── Releases
+├── Tags
 ├── Workflows
 ├── Topics
 ├── License

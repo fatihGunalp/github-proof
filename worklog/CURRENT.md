@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 2 — GitHub Data Collection
-Focus: Repository contents and workflow files collection is implemented; remaining Phase 2 collectors are pending.
+Focus: RepositorySnapshot now carries tag evidence independently; snapshot orchestration is the next bounded Phase 2 task.
 ```
 
 ---
@@ -51,44 +51,45 @@ None.
 ## Next Immediate Action
 
 ```text
-Run a new model gate before the next bounded Phase 2 data-collection slice.
+Run a new model gate for Session 017 — RepositorySnapshot Orchestration.
 ```
 
 ## Working Set
 
 ```text
-Session 015 implementation and worklog updates are uncommitted.
+Session 016 implementation and worklog updates are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: ef33bf0
-Last verified working tree: Session 015 changes present; no pre-existing unrelated changes
+Last verified HEAD: d5424b8
+Last verified working tree: Session 016 changes only; no pre-existing unrelated changes
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 015 — Repository contents and workflow files collection: PASS
+Session 016 — Tags Snapshot Contract Alignment: PASS
 
-- Added default-branch-pinned recursive file tree collection and selected project/workflow content collection.
-- Preserved workflow absence versus unavailable workflow content, plus partial content after later failures.
-- Preserved recursive-tree truncation as usable but incomplete data rather than a complete file tree.
-- Added nine focused repository contents and workflow collection tests.
+- Added Tags as a separate canonical RepositorySnapshot section and Phase 2 collection item.
+- Added provider-independent `RepositoryTag` and an immutable Tags snapshot collection.
+- Preserved independent Releases and Tags availability without changing release-usage signal semantics or version.
 ```
 
 ## Last Validation
 
 ```text
+focused RepositorySnapshot tests: PASS — 8 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 46 passed
 dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 68 passed
-dotnet test GitHubProof.slnx --no-restore: PASS — 111 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 114 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 015 changes only
+git status --short: Session 016 changes only
 ```
 
 ## Critical Invariants

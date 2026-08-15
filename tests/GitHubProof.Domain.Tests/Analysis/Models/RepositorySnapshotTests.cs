@@ -79,6 +79,56 @@ public sealed class RepositorySnapshotTests
     }
 
     [Fact]
+    public void Constructor_NormalizesTagsAndPreservesCollectionState()
+    {
+        RepositorySnapshot snapshot = CreateSnapshot(
+            tags: new RepositoryCollection<RepositoryTag>(
+                [new RepositoryTag(" v1.0.0 ")],
+                totalCount: 3,
+                isComplete: false));
+
+        RepositoryTag tag = Assert.Single(snapshot.Tags.Items);
+
+        Assert.Equal("v1.0.0", tag.Name);
+        Assert.Equal(3, snapshot.Tags.TotalCount);
+        Assert.False(snapshot.Tags.IsComplete);
+        Assert.Throws<NotSupportedException>(() =>
+            ((IList<RepositoryTag>)snapshot.Tags.Items).Add(new RepositoryTag("v2.0.0")));
+    }
+
+    [Fact]
+    public void Constructor_AllowsEmptyTagsCollection()
+    {
+        RepositorySnapshot snapshot = CreateSnapshot(tags: null);
+
+        Assert.Empty(snapshot.Tags.Items);
+        Assert.Equal(0, snapshot.Tags.TotalCount);
+        Assert.True(snapshot.Tags.IsComplete);
+    }
+
+    [Fact]
+    public void Constructor_PreservesTagAvailabilityIndependentlyFromReleases()
+    {
+        DateTimeOffset retrievedAt = new(2026, 8, 15, 9, 30, 0, TimeSpan.Zero);
+        RepositorySnapshot snapshot = CreateSnapshot(
+            availability:
+            [
+                DataAvailability.Available("releases", retrievedAt),
+                DataAvailability.Unavailable(
+                    "tags",
+                    DataAvailabilityStatus.RateLimited,
+                    "Tag collection was rate limited.")
+            ]);
+
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("releases")!.Status);
+        Assert.Equal(
+            DataAvailabilityStatus.RateLimited,
+            snapshot.FindAvailability("tags")!.Status);
+    }
+
+    [Fact]
     public void Constructor_RejectsDuplicateAvailabilityKeys()
     {
         DataAvailability first = DataAvailability.Unavailable(
@@ -127,7 +177,8 @@ public sealed class RepositorySnapshotTests
         IEnumerable<string>? topics = null,
         IReadOnlyDictionary<string, long>? languages = null,
         IEnumerable<DataAvailability>? availability = null,
-        IEnumerable<string>? collectionWarnings = null)
+        IEnumerable<string>? collectionWarnings = null,
+        RepositoryCollection<RepositoryTag>? tags = null)
     {
         return new RepositorySnapshot(
             new RepositoryIdentity(
@@ -155,6 +206,7 @@ public sealed class RepositorySnapshotTests
             languages,
             contributors: null,
             availability,
-            collectionWarnings);
+            collectionWarnings,
+            tags);
     }
 }

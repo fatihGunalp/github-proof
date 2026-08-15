@@ -22,7 +22,8 @@ public sealed record RepositorySnapshot
         IReadOnlyDictionary<string, long>? languages,
         RepositoryCollection<RepositoryContributor>? contributors,
         IEnumerable<DataAvailability>? availability,
-        IEnumerable<string>? collectionWarnings)
+        IEnumerable<string>? collectionWarnings,
+        RepositoryCollection<RepositoryTag>? tags = null)
     {
         Repository = repository
             ?? throw new ArgumentNullException(nameof(repository));
@@ -36,6 +37,7 @@ public sealed record RepositorySnapshot
         PullRequests = pullRequests
             ?? RepositoryCollection<RepositoryPullRequest>.Empty;
         Releases = releases ?? RepositoryCollection<RepositoryRelease>.Empty;
+        Tags = tags ?? RepositoryCollection<RepositoryTag>.Empty;
         Workflows = workflows ?? RepositoryCollection<RepositoryFile>.Empty;
         Topics = NormalizeTopics(topics);
         License = license;
@@ -65,6 +67,8 @@ public sealed record RepositorySnapshot
     public RepositoryCollection<RepositoryPullRequest> PullRequests { get; }
 
     public RepositoryCollection<RepositoryRelease> Releases { get; }
+
+    public RepositoryCollection<RepositoryTag> Tags { get; }
 
     public RepositoryCollection<RepositoryFile> Workflows { get; }
 

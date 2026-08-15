@@ -192,6 +192,16 @@ public sealed record RepositoryRelease
     public DateTimeOffset? PublishedAt { get; }
 }
 
+public sealed record RepositoryTag
+{
+    public RepositoryTag(string name)
+    {
+        Name = SnapshotValue.RequireValue(name, nameof(name));
+    }
+
+    public string Name { get; }
+}
+
 public sealed record RepositoryLicense
 {
     public RepositoryLicense(
