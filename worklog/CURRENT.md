@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Fourteen production evaluators are complete; Application orchestration and the derived presentation-completeness signal are next.
+Focus: All 15 production signals and Application orchestration are available; validation-set and cross-run determinism work is next.
 ```
 
 ---
@@ -33,7 +33,7 @@ NONE
 ## Current Task
 
 ```text
-No active coding task.
+No active task.
 ```
 
 ## In Progress
@@ -51,44 +51,46 @@ None currently confirmed.
 ## Next Immediate Action
 
 ```text
-Session 036 — Application Signal Orchestration + `portfolio.presentation-completeness`.
+Start Session 037 — Validation Repository Set + Signal Determinism after its mandatory model gate.
 ```
 
 ## Working Set
 
 ```text
-Session 035 canonical Homepage alignment, two Domain evaluators, focused tests, and worklog changes only.
+Session 036 Application orchestration, derived presentation completeness, and focused tests.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 14f4d48
-Last verified working tree: CLEAN before Session 035
+Last verified HEAD: 715114a
+Last verified working tree: CLEAN before Session 036
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 035 — Homepage Contract Fix + Portfolio Evaluators: PASS
+Session 036 — Application Signal Orchestration + Presentation Completeness: PASS
 
-- Closed the Homepage/Live Demo Version 1 semantic and availability-precedence gaps.
-- Added deterministic Topics and Homepage/Live Demo Domain evaluators.
-- Covered every score/status branch, URL/link exclusions, malformed ambiguity, availability, and determinism.
-- Production evaluators are now 14 / 15.
+- Added deterministic Application orchestration for the exact 14 independent production evaluators.
+- Added the derived `portfolio.presentation-completeness` Domain evaluator over five upstream signal results.
+- Enforced missing, duplicate, unknown, and returned-key contract guards without reflection or a generic registry.
+- Production signal output is now 15 / 15 in canonical order; the composite remains excluded from overall scoring.
 ```
 
 ## Last Validation
 
 ```text
-Repository baseline: PASS — main at 14f4d48, clean before Session 035
-Focused Topics + Homepage tests: PASS — 49 passed
-All evaluator regression: PASS — 356 passed
-Domain tests: PASS — 407 passed
+Repository baseline: PASS — main at 715114a, clean before Session 036
+Focused Presentation Completeness tests: PASS — 13 passed
+Focused Application orchestration tests: PASS — 8 passed
+All evaluator regression: PASS — 369 passed
+Domain tests: PASS — 420 passed
+Application tests: PASS — 8 passed
 Infrastructure tests: PASS — 88 passed
-Solution tests: PASS — 495 passed
+Solution tests: PASS — 516 passed
 Solution build: PASS — 0 warnings, 0 errors
 dotnet format verify: PASS
 git diff --check: PASS

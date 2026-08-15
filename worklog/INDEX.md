@@ -44,6 +44,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-15 | Test Structure and Continuous Integration | PASS | Sol / high | [033](./sessions/2026-08-15-033-test-structure-and-ci.md) | 63f3467 |
 | 2026-08-15 | Portfolio Topics and Homepage Signals | BLOCKED | Sol / high | [034](./sessions/2026-08-15-034-topics-and-homepage-signals.md) | d82884d |
 | 2026-08-15 | Homepage Contract Fix and Portfolio Evaluators | PASS | Sol / high | [035](./sessions/2026-08-15-035-homepage-contract-and-portfolio-signals.md) | 14f4d48 |
+| 2026-08-15 | Application Signal Orchestration and Presentation Completeness | PASS | Sol / high | [036](./sessions/2026-08-15-036-application-signal-orchestration.md) | 715114a |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
