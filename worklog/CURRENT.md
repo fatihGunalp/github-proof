@@ -12,8 +12,8 @@
 
 ```text
 Product Stage: MVP Implementation
-Delivery Phase: Phase 2 — GitHub Data Collection COMPLETE
-Focus: Phase 2 exit criterion passed; Phase 3 Signal Engine is next.
+Delivery Phase: Phase 3 — Rule-Based Signal Engine
+Focus: First deterministic signal slice completed for `repository.readme.exists`.
 ```
 
 ---
@@ -51,48 +51,48 @@ None.
 ## Next Immediate Action
 
 ```text
-Prepare Phase 3 — Signal Engine first bounded task and run mandatory model gate.
+Prepare the next bounded Phase 3 task and run the mandatory model gate.
 ```
 
 ## Working Set
 
 ```text
-Session 018 opt-in live validation harness and worklog updates are uncommitted.
+Session 019 evaluator, tests, and worklog changes are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: 25cec67
-Last verified working tree: Session 018 validation-only changes; no pre-existing unrelated changes
+Last verified HEAD: b7a69eb
+Last verified working tree: Session 019 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 018 — Phase 2 Final Integration Validation: PASS
+Session 019 — Signal Engine Foundation + README Exists: PASS
 
+- Added the minimal `ISignalEvaluator` Domain boundary.
+- Implemented only `repository.readme.exists` from normalized RepositorySnapshot data.
+- Preserved Missing versus UnavailableEvidence semantics with observable evidence.
+- Added deterministic TimeProvider-based evaluation and canonical Present limitation.
 - Full automated suite, build, format, and diff validation passed.
-- Two bounded public repositories produced coherent live RepositorySnapshot values with independently verified head SHAs.
-- A real GitHub 404 produced explicit unavailable metadata and no fake snapshot.
-- Phase 2 Exit Criterion: PASS.
 ```
 
 ## Last Validation
 
 ```text
-live integration: PASS — 2 snapshots + 1 not-found case
-focused orchestration tests: PASS — 7 passed
-dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 46 passed
+focused README evaluator tests: PASS — 11 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 57 passed
 dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 76 passed
 Application tests: N/A — no Application test project
-dotnet test GitHubProof.slnx --no-restore: PASS — 122 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 133 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 018 validation-only changes
+git status --short: Session 019 changes only
 ```
 
 ## Critical Invariants
