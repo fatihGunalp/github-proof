@@ -13,7 +13,7 @@
 ```text
 Product Stage: MVP Implementation
 Delivery Phase: Phase 3 — Rule-Based Signal Engine
-Focus: Phase 3 is in progress; License signal contract correction is required before Session 020 can continue.
+Focus: License evidence snapshot contract aligned; Phase 3 Signal Engine remains in progress.
 ```
 
 ---
@@ -45,54 +45,56 @@ None.
 ## Current Problem
 
 ```text
-BLOCKED — the snapshot does not preserve unrecognized license-file evidence independently from generic FileTree entries.
+None.
 ```
 
 ## Next Immediate Action
 
 ```text
-Resolve the License evidence contract in canonical docs before running a new model gate for the resumed task.
+Retry the bounded Description + License signal evaluator task using the corrected RepositorySnapshot license evidence contract.
 ```
 
 ## Working Set
 
 ```text
-Session 020 worklog updates only; no production or test code was changed.
+Session 021 snapshot contract, mapping, tests, docs, and worklog changes are uncommitted.
 ```
 
 ## Repository State
 
 ```text
 Branch: main
-Last verified HEAD: fe47257
-Last verified working tree: Session 020 worklog updates only
+Last verified HEAD: dce9f4b
+Last verified working tree: Session 021 changes only
 Pre-existing unrelated changes: NONE
 ```
 
 ## Last Completed Work
 
 ```text
-Session 019 — Signal Engine Foundation + README Exists: PASS
+Session 021 — License Evidence Snapshot Alignment: PASS
 
-- Added the minimal `ISignalEvaluator` Domain boundary.
-- Implemented only `repository.readme.exists` from normalized RepositorySnapshot data.
-- Preserved Missing versus UnavailableEvidence semantics with observable evidence.
-- Added deterministic TimeProvider-based evaluation and canonical Present limitation.
+- Added provider-independent `RepositoryFile? LicenseFile` to RepositorySnapshot.
+- Preserved constructor source compatibility with a nullable trailing parameter.
+- Mapped the existing descriptive LicenseFile into the snapshot without data loss.
+- Verified recognized, unrecognized-file, absent, and unavailable license states remain distinct.
+- Updated the canonical analysis domain model without changing signal semantics or version.
 - Full automated suite, build, format, and diff validation passed.
 ```
 
 ## Last Validation
 
 ```text
-focused README evaluator tests: PASS — 11 passed
-dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 57 passed
-dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 76 passed
+focused RepositorySnapshot tests: PASS — 11 passed
+focused descriptive/orchestrator tests: PASS — 16 passed
+dotnet test tests/GitHubProof.Domain.Tests/GitHubProof.Domain.Tests.csproj --no-restore: PASS — 60 passed
+dotnet test tests/GitHubProof.Infrastructure.Tests/GitHubProof.Infrastructure.Tests.csproj --no-restore: PASS — 79 passed
 Application tests: N/A — no Application test project
-dotnet test GitHubProof.slnx --no-restore: PASS — 133 passed
+dotnet test GitHubProof.slnx --no-restore: PASS — 139 passed
 dotnet build GitHubProof.slnx --no-restore: PASS — 0 warnings, 0 errors
 dotnet format GitHubProof.slnx --verify-no-changes --no-restore: PASS
 git diff --check: PASS
-git status --short: Session 019 changes only
+git status --short: Session 021 changes only
 ```
 
 ## Critical Invariants

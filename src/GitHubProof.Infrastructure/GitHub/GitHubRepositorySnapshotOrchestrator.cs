@@ -145,7 +145,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 releases,
                 tags,
                 contributors),
-            MapTags(tags.Tags));
+            MapTags(tags.Tags),
+            descriptive.LicenseFile);
 
         return new GitHubRepositorySnapshotResult(snapshot, metadata.Availability);
     }

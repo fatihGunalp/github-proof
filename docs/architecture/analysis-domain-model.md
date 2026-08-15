@@ -121,6 +121,7 @@ RepositorySnapshot
 ├── Workflows
 ├── Topics
 ├── License
+├── LicenseFile
 ├── Languages
 ├── Contributors
 ├── Availability
@@ -133,6 +134,20 @@ RepositorySnapshot
 - Analizin tekrar üretilebilmesi için snapshot zamanını ve commit SHA bilgisini saklamak
 - Hangi veri alanlarının başarıyla toplandığını görünür hâle getirmek
 - Veri toplama sırasında oluşan uyarıları taşımak
+
+### Lisans kanıtı
+
+`License`, provider tarafından tanınmış normalize lisans metadata'sını temsil eder.
+
+`LicenseFile`, collector tarafından lisans dosyası olarak tespit edilen provider-independent `RepositoryFile` kanıtını ayrı taşır. Dosyanın normalize path, size ve varsa content bilgisi korunur.
+
+Bu iki alan bağımsızdır:
+
+- `License != null`: tanınmış lisans kanıtı vardır; `LicenseFile` null veya dolu olabilir.
+- `License == null` ve `LicenseFile != null`: lisans dosyası vardır ancak tanınmış lisans metadata'sı yoktur.
+- Her ikisi de null ve `license` availability `Available`: başarılı inceleme sonrasında lisans kanıtı bulunmamıştır.
+
+`license` availability değeri `Available` değilse iki alanın null olması lisansın bulunmadığı anlamına gelmez.
 
 ### Kural
 

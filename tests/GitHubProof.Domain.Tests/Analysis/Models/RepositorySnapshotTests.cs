@@ -129,6 +129,65 @@ public sealed class RepositorySnapshotTests
     }
 
     [Fact]
+    public void Constructor_PreservesRecognizedLicenseAndLicenseFileIndependently()
+    {
+        RepositoryLicense license = new(
+            "mit",
+            "MIT License",
+            "MIT",
+            "LICENSE");
+        RepositoryFile licenseFile = new(
+            " LICENSE ",
+            isDirectory: false,
+            size: 1080,
+            content: "license text");
+
+        RepositorySnapshot snapshot = CreateSnapshot(
+            license: license,
+            licenseFile: licenseFile);
+
+        RepositoryFile actualLicenseFile = Assert.IsType<RepositoryFile>(snapshot.LicenseFile);
+
+        Assert.Same(license, snapshot.License);
+        Assert.Same(licenseFile, actualLicenseFile);
+        Assert.Equal("LICENSE", actualLicenseFile.Path);
+        Assert.Equal(1080, actualLicenseFile.Size);
+        Assert.Equal("license text", actualLicenseFile.Content);
+    }
+
+    [Fact]
+    public void Constructor_PreservesUnrecognizedLicenseFileWithoutCreatingLicenseMetadata()
+    {
+        RepositoryFile licenseFile = new(
+            " LICENSE.custom ",
+            isDirectory: false,
+            size: 42,
+            content: null);
+
+        RepositorySnapshot snapshot = CreateSnapshot(
+            license: null,
+            licenseFile: licenseFile);
+
+        RepositoryFile actualLicenseFile = Assert.IsType<RepositoryFile>(snapshot.LicenseFile);
+
+        Assert.Null(snapshot.License);
+        Assert.Same(licenseFile, actualLicenseFile);
+        Assert.Equal("LICENSE.custom", actualLicenseFile.Path);
+    }
+
+    [Fact]
+    public void Constructor_DefaultsToNoLicenseFileEvidence()
+    {
+        RepositorySnapshot snapshot = CreateSnapshot();
+
+        Assert.Null(snapshot.License);
+        Assert.Null(snapshot.LicenseFile);
+        Assert.Empty(snapshot.Tags.Items);
+        Assert.Empty(snapshot.Releases.Items);
+        Assert.Null(snapshot.Readme);
+    }
+
+    [Fact]
     public void Constructor_RejectsDuplicateAvailabilityKeys()
     {
         DataAvailability first = DataAvailability.Unavailable(
@@ -178,7 +237,9 @@ public sealed class RepositorySnapshotTests
         IReadOnlyDictionary<string, long>? languages = null,
         IEnumerable<DataAvailability>? availability = null,
         IEnumerable<string>? collectionWarnings = null,
-        RepositoryCollection<RepositoryTag>? tags = null)
+        RepositoryCollection<RepositoryTag>? tags = null,
+        RepositoryLicense? license = null,
+        RepositoryFile? licenseFile = null)
     {
         return new RepositorySnapshot(
             new RepositoryIdentity(
@@ -202,11 +263,12 @@ public sealed class RepositorySnapshotTests
             releases: null,
             workflows: null,
             topics,
-            license: null,
+            license,
             languages,
             contributors: null,
             availability,
             collectionWarnings,
-            tags);
+            tags,
+            licenseFile);
     }
 }

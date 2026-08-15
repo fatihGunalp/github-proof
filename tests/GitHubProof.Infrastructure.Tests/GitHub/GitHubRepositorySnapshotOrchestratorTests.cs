@@ -54,6 +54,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal("Repository description", snapshot.Metadata!.Description);
         Assert.Equal("README.md", snapshot.Readme!.Path);
         Assert.Equal("MIT", snapshot.License!.SpdxIdentifier);
+        Assert.Equal("LICENSE", snapshot.LicenseFile!.Path);
+        Assert.Equal(7, snapshot.LicenseFile.Size);
         Assert.Equal(1200, snapshot.Languages["C#"]);
         Assert.Equal(["dotnet", "github-api"], snapshot.Topics);
 
@@ -78,6 +80,84 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             Assert.Equal(DataAvailabilityStatus.Available, availability.Status));
         Assert.Single(snapshot.CollectionWarnings);
         Assert.Contains("may not be atomic", snapshot.CollectionWarnings[0]);
+    }
+
+    [Fact]
+    public async Task CollectAsync_PreservesUnrecognizedLicenseFileWithoutLicenseMetadata()
+    {
+        StubCollectors collectors = new();
+        RepositoryFile licenseFile = new(
+            "LICENSE.custom",
+            isDirectory: false,
+            size: 42,
+            content: "custom license text");
+        collectors.Descriptive = collectors.Descriptive with
+        {
+            License = null,
+            LicenseFile = licenseFile
+        };
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAsync("https://github.com/octocat/hello-world");
+
+        RepositorySnapshot snapshot = Assert.IsType<RepositorySnapshot>(result.Snapshot);
+        RepositoryFile actualLicenseFile = Assert.IsType<RepositoryFile>(snapshot.LicenseFile);
+
+        Assert.Null(snapshot.License);
+        Assert.Same(licenseFile, actualLicenseFile);
+        Assert.Equal("LICENSE.custom", actualLicenseFile.Path);
+        Assert.Equal(42, actualLicenseFile.Size);
+        Assert.Equal("custom license text", actualLicenseFile.Content);
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("license")!.Status);
+    }
+
+    [Fact]
+    public async Task CollectAsync_PreservesNoLicenseEvidenceAfterSuccessfulInspection()
+    {
+        StubCollectors collectors = new();
+        collectors.Descriptive = collectors.Descriptive with
+        {
+            License = null,
+            LicenseFile = null
+        };
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAsync("https://github.com/octocat/hello-world");
+
+        RepositorySnapshot snapshot = Assert.IsType<RepositorySnapshot>(result.Snapshot);
+        Assert.Null(snapshot.License);
+        Assert.Null(snapshot.LicenseFile);
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("license")!.Status);
+    }
+
+    [Fact]
+    public async Task CollectAsync_PreservesUnavailableLicenseStateWithoutEvidence()
+    {
+        StubCollectors collectors = new();
+        collectors.Descriptive = new GitHubRepositoryDescriptiveDataCollection(
+            collectors.Descriptive.Readme,
+            License: null,
+            LicenseFile: null,
+            collectors.Descriptive.Languages,
+            [
+                Available("readme"),
+                Unavailable("license", DataAvailabilityStatus.Forbidden, "License unavailable."),
+                Available("languages")
+            ]);
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAsync("https://github.com/octocat/hello-world");
+
+        RepositorySnapshot snapshot = Assert.IsType<RepositorySnapshot>(result.Snapshot);
+        Assert.Null(snapshot.License);
+        Assert.Null(snapshot.LicenseFile);
+        Assert.Equal(
+            DataAvailabilityStatus.Forbidden,
+            snapshot.FindAvailability("license")!.Status);
     }
 
     [Fact]
