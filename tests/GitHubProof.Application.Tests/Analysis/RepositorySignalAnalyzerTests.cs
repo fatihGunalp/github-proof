@@ -38,10 +38,8 @@ public sealed class RepositorySignalAnalyzerTests
     public void Analyze_WithAllProductionEvaluators_ProducesEveryCanonicalSignalOnce()
     {
         FixedTimeProvider timeProvider = new(EvaluatedAt);
-        ISignalEvaluator[] evaluators = CreateProductionEvaluators(timeProvider);
-        RepositorySignalAnalyzer analyzer = new(
-            evaluators.Reverse(),
-            new PresentationCompletenessSignalEvaluator(timeProvider));
+        RepositorySignalAnalyzer analyzer =
+            RepositorySignalAnalyzer.CreateDefault(timeProvider);
 
         IReadOnlyList<SignalResult> results = analyzer.Analyze(CreateSnapshot());
 
@@ -197,31 +195,11 @@ public sealed class RepositorySignalAnalyzerTests
             .Select(key => new FakeSignalEvaluator(key))
             .ToList();
 
-    private static ISignalEvaluator[] CreateProductionEvaluators(TimeProvider timeProvider) =>
-    [
-        new ReadmeExistsSignalEvaluator(timeProvider),
-        new DescriptionPresentSignalEvaluator(timeProvider),
-        new InstallationGuideSignalEvaluator(timeProvider),
-        new LicensePresentSignalEvaluator(timeProvider),
-        new UsageDemoSignalEvaluator(timeProvider),
-        new CommitHistorySignalEvaluator(timeProvider),
-        new CommitDistributionSignalEvaluator(timeProvider),
-        new IssueUsageSignalEvaluator(timeProvider),
-        new PullRequestUsageSignalEvaluator(timeProvider),
-        new ReleaseUsageSignalEvaluator(timeProvider),
-        new TestStructureSignalEvaluator(timeProvider),
-        new ContinuousIntegrationSignalEvaluator(timeProvider),
-        new TopicsSignalEvaluator(timeProvider),
-        new HomepageLiveDemoSignalEvaluator(timeProvider)
-    ];
 
     private static RepositorySignalAnalyzer CreateProductionAnalyzer(DateTimeOffset evaluatedAt)
     {
         FixedTimeProvider timeProvider = new(evaluatedAt);
-
-        return new RepositorySignalAnalyzer(
-            CreateProductionEvaluators(timeProvider),
-            new PresentationCompletenessSignalEvaluator(timeProvider));
+        return RepositorySignalAnalyzer.CreateDefault(timeProvider);
     }
 
     private static RepositorySnapshot CreateSnapshot() =>

@@ -1,25 +1,44 @@
 @page
+@model IndexModel
 
 @{
     ViewData["Title"] = "GitHub Proof";
 }
 
-<section class="home" aria-labelledby="home-title">
-    <div class="home__content">
-        <p class="home__eyebrow">
-            Observable repository evidence
-        </p>
+@if (Model.Report is null)
+{
+    <section
+        class="home"
+        aria-labelledby="home-title">
 
-        <h1 class="home__title" id="home-title">
-            What does this repository prove?
-        </h1>
+        <div class="home__content">
+            <p class="home__eyebrow">
+                Observable repository evidence
+            </p>
 
-        <p class="home__summary">
-            Understand what a public GitHub repository makes visible:
-            its strongest evidence, its most important gaps,
-            and what to improve first.
-        </p>
+            <h1
+                class="home__title"
+                id="home-title">
+                What does this repository prove?
+            </h1>
 
-        <partial name="_RepositoryInput" />
-    </div>
-</section>
+            <p class="home__summary">
+                Understand what a public GitHub repository makes visible:
+                its strongest evidence, its most important gaps,
+                and what to improve first.
+            </p>
+
+            <partial
+                name="_RepositoryInput"
+                model="@(new RepositoryInputModel(
+                    Model.RepositoryUrl,
+                    Model.ErrorMessage))" />
+        </div>
+    </section>
+}
+else
+{
+    <partial
+        name="_RepositoryReport"
+        model="Model.Report" />
+}

@@ -1,5 +1,13 @@
-<div class="repository-input">
-    <label class="repository-input__label" for="repository-url">
+@model RepositoryInputModel
+
+<form
+    class="repository-input"
+    method="post"
+    asp-page="/Index">
+
+    <label
+        class="repository-input__label"
+        for="repository-url">
         Public GitHub repository URL
     </label>
 
@@ -7,27 +15,47 @@
         <input
             class="input repository-input__field"
             id="repository-url"
-            name="repositoryUrl"
+            name="RepositoryUrl"
             type="url"
             inputmode="url"
             autocomplete="url"
+            value="@Model.RepositoryUrl"
             placeholder="https://github.com/owner/repository"
-            aria-describedby="repository-input-context" />
+            required
+            aria-invalid="@(Model.HasError ? "true" : "false")"
+            aria-describedby="@(Model.HasError
+                ? "repository-input-context repository-input-error"
+                : "repository-input-context")" />
 
         <button
             class="button button--primary repository-input__action"
-            type="button"
-            disabled>
+            type="submit">
             <span>Analyze</span>
             <span aria-hidden="true">→</span>
         </button>
     </div>
 
-    <div class="repository-input__context" id="repository-input-context">
+    @if (Model.HasError)
+    {
+        <p
+            class="field__message field__message--error"
+            id="repository-input-error"
+            role="alert">
+            @Model.ErrorMessage
+        </p>
+    }
+
+    <div
+        class="repository-input__context"
+        id="repository-input-context">
         <span>Public repositories only</span>
-        <span class="repository-input__separator" aria-hidden="true">·</span>
+        <span
+            class="repository-input__separator"
+            aria-hidden="true">·</span>
         <span>15 deterministic signals</span>
-        <span class="repository-input__separator" aria-hidden="true">·</span>
+        <span
+            class="repository-input__separator"
+            aria-hidden="true">·</span>
         <span>No developer judgment</span>
     </div>
-</div>
+</form>

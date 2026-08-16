@@ -4,9 +4,29 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 namespace GitHubProof.Infrastructure.GitHub;
 
 public sealed class GitHubRepositorySnapshotOrchestrator
+    : IGitHubRepositorySnapshotCollector
 {
     private const string SnapshotConsistencyWarning =
         "Repository sections other than default-branch contents are collected from live GitHub state and may not be atomic with HeadCommitSha.";
+
+    public static GitHubRepositorySnapshotOrchestrator CreateDefault(
+        HttpClient httpClient,
+        TimeProvider? timeProvider = null)
+    {
+        ArgumentNullException.ThrowIfNull(httpClient);
+
+        return new GitHubRepositorySnapshotOrchestrator(
+            new GitHubRepositoryMetadataCollector(httpClient),
+            new GitHubRepositoryContentsCollector(httpClient),
+            new GitHubRepositoryDescriptiveDataCollector(httpClient),
+            new GitHubRepositoryCommitCollector(httpClient),
+            new GitHubRepositoryIssueCollector(httpClient),
+            new GitHubRepositoryPullRequestCollector(httpClient),
+            new GitHubRepositoryReleaseCollector(httpClient),
+            new GitHubRepositoryTagCollector(httpClient),
+            new GitHubRepositoryContributorCollector(httpClient),
+            timeProvider);
+    }
 
     private readonly IGitHubRepositoryMetadataCollector metadataCollector;
     private readonly IGitHubRepositoryContentsCollector contentsCollector;

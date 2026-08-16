@@ -88,27 +88,120 @@ public sealed class HomeCompositionTests
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string ReadWebFile(params string[] relativeSegments)
+    [Fact]
+    public void Repository_input_posts_to_real_analysis_flow()
     {
-        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        string content = ReadWebFile(
+            "Pages",
+            "Shared",
+            "_RepositoryInput.cshtml");
+
+        Assert.Contains(
+            "method=\"post\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "asp-page=\"/Index\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "type=\"submit\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "disabled",
+            content,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Home_renders_existing_typed_report_after_success()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Index.cshtml");
+
+        Assert.Contains(
+            "_RepositoryReport",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "Model.Report",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "Markdown",
+            content,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Composition_root_uses_canonical_live_seams()
+    {
+        string content = ReadWebFile(
+            "Program.cs");
+
+        Assert.Contains(
+            "GitHubRepositorySnapshotOrchestrator.CreateDefault",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "RepositoryAnalysisRunner",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "RepositoryReportProjector",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "LiveRepositoryReportService",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "new GitHubRepositoryMetadataCollector",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "new GitHubRepositoryContentsCollector",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    private static string ReadWebFile(
+        params string[] relativeSegments)
+    {
+        DirectoryInfo? directory =
+            new(AppContext.BaseDirectory);
 
         while (directory is not null)
         {
-            string solutionPath = Path.Combine(
-                directory.FullName,
-                "GitHubProof.slnx");
+            string solutionPath =
+                Path.Combine(
+                    directory.FullName,
+                    "GitHubProof.slnx");
 
             if (File.Exists(solutionPath))
             {
-                string path = Path.Combine(
-                    new[]
-                    {
-                        directory.FullName,
-                        "src",
-                        "GitHubProof.Web"
-                    }
-                    .Concat(relativeSegments)
-                    .ToArray());
+                string path =
+                    Path.Combine(
+                        new[]
+                        {
+                            directory.FullName,
+                            "src",
+                            "GitHubProof.Web"
+                        }
+                        .Concat(relativeSegments)
+                        .ToArray());
 
                 if (!File.Exists(path))
                 {

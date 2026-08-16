@@ -34,7 +34,8 @@ public sealed class GitHubRepositorySnapshotLiveTests(ITestOutputHelper output)
 
         using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(15));
         using HttpClient httpClient = CreateHttpClient();
-        GitHubRepositorySnapshotOrchestrator orchestrator = CreateOrchestrator(httpClient);
+        GitHubRepositorySnapshotOrchestrator orchestrator =
+            GitHubRepositorySnapshotOrchestrator.CreateDefault(httpClient);
         IReadOnlyList<ValidationRepository> repositories = ValidationRepositoryManifest.Load();
         string? outputRoot = Environment.GetEnvironmentVariable(ValidationOutputVariable);
         List<string> failures = [];
@@ -208,43 +209,11 @@ public sealed class GitHubRepositorySnapshotLiveTests(ITestOutputHelper output)
         return httpClient;
     }
 
-    private static GitHubRepositorySnapshotOrchestrator CreateOrchestrator(
-        HttpClient httpClient) =>
-        new(
-            new GitHubRepositoryMetadataCollector(httpClient),
-            new GitHubRepositoryContentsCollector(httpClient),
-            new GitHubRepositoryDescriptiveDataCollector(httpClient),
-            new GitHubRepositoryCommitCollector(httpClient),
-            new GitHubRepositoryIssueCollector(httpClient),
-            new GitHubRepositoryPullRequestCollector(httpClient),
-            new GitHubRepositoryReleaseCollector(httpClient),
-            new GitHubRepositoryTagCollector(httpClient),
-            new GitHubRepositoryContributorCollector(httpClient));
 
     private static RepositorySignalAnalyzer CreateAnalyzer(DateTimeOffset evaluationTime)
     {
         FixedTimeProvider timeProvider = new(evaluationTime);
-        ISignalEvaluator[] evaluators =
-        [
-            new ReadmeExistsSignalEvaluator(timeProvider),
-            new DescriptionPresentSignalEvaluator(timeProvider),
-            new InstallationGuideSignalEvaluator(timeProvider),
-            new LicensePresentSignalEvaluator(timeProvider),
-            new UsageDemoSignalEvaluator(timeProvider),
-            new CommitHistorySignalEvaluator(timeProvider),
-            new CommitDistributionSignalEvaluator(timeProvider),
-            new IssueUsageSignalEvaluator(timeProvider),
-            new PullRequestUsageSignalEvaluator(timeProvider),
-            new ReleaseUsageSignalEvaluator(timeProvider),
-            new TestStructureSignalEvaluator(timeProvider),
-            new ContinuousIntegrationSignalEvaluator(timeProvider),
-            new TopicsSignalEvaluator(timeProvider),
-            new HomepageLiveDemoSignalEvaluator(timeProvider)
-        ];
-
-        return new RepositorySignalAnalyzer(
-            evaluators,
-            new PresentationCompletenessSignalEvaluator(timeProvider));
+        return RepositorySignalAnalyzer.CreateDefault(timeProvider);
     }
 
     private static void AssertSignalContract(IReadOnlyList<SignalResult> results)

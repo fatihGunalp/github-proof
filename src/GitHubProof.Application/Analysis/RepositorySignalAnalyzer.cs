@@ -23,6 +23,34 @@ public sealed class RepositorySignalAnalyzer
         HomepageLiveDemoSignalEvaluator.SignalKey
     ]);
 
+    public static RepositorySignalAnalyzer CreateDefault(
+        TimeProvider? timeProvider = null)
+    {
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
+
+        ISignalEvaluator[] evaluators =
+        [
+            new ReadmeExistsSignalEvaluator(clock),
+            new DescriptionPresentSignalEvaluator(clock),
+            new InstallationGuideSignalEvaluator(clock),
+            new LicensePresentSignalEvaluator(clock),
+            new UsageDemoSignalEvaluator(clock),
+            new CommitHistorySignalEvaluator(clock),
+            new CommitDistributionSignalEvaluator(clock),
+            new IssueUsageSignalEvaluator(clock),
+            new PullRequestUsageSignalEvaluator(clock),
+            new ReleaseUsageSignalEvaluator(clock),
+            new TestStructureSignalEvaluator(clock),
+            new ContinuousIntegrationSignalEvaluator(clock),
+            new TopicsSignalEvaluator(clock),
+            new HomepageLiveDemoSignalEvaluator(clock)
+        ];
+
+        return new RepositorySignalAnalyzer(
+            evaluators,
+            new PresentationCompletenessSignalEvaluator(clock));
+    }
+
     private readonly IReadOnlyDictionary<string, ISignalEvaluator> _evaluators;
     private readonly PresentationCompletenessSignalEvaluator _presentationCompleteness;
 
