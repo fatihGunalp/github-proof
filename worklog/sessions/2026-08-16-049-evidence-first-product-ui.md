@@ -232,11 +232,29 @@ Read the canonical UI/design guidance and the current report presentation tests,
 ## Git
 
 ~~~text
-Commit:
-PENDING — session-end
+Session base:
+ae2bb94
+
+Verified production checkpoint:
+40cab55 — feat(web): implement modern report composition
+
+Pre-closure worklog checkpoint:
+7e3e5d1 — docs(worklog): record repository hero checkpoint
+
+Session 049 closure:
+2dcae4d — docs(worklog): finalize session 049 partial
+
+Session result:
+PARTIAL
 
 Push:
-PENDING — session-end
+PASS — closure commit pushed to origin/main
+
+Local / origin synchronization:
+PASS — verified at 2dcae4d
+
+Production code changed during closure:
+NO
 ~~~
 
 ---
