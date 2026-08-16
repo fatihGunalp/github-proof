@@ -10,30 +10,30 @@
 
 ## Current Phase
 
-~~~text
-Product Stage: MVP Implementation / Product Scope Expansion
+    Product Stage:
+    Product Direction Refinement
 
-Repository MVP V1:
-PRESERVED
+    Repository MVP V1:
+    PRESERVED
 
-Public Profile Evidence V1:
-P0 Product Contract — CONTRACT LOCKED
+    Public Profile Evidence V1:
+    P0 Product Contract — CONTRACT LOCKED
+    P1 Profile Domain Model Contract — PARTIAL / PAUSED
 
-Profile Roadmap:
-P0–P12 DEFINED
+    New top-level direction:
+    Job Evidence Alignment
 
-Next Workstream:
-Profile P1 — Profile Domain Model Contract
-~~~
+    Target user question:
+    For this job, what does my public GitHub actually prove?
 
 ## Active Session
 
-~~~text
-NONE
-~~~
+    NONE
 
-Session 050 — Public Profile Evidence Product Contract
-was finalized as `DOCS`.
+Session 051 — Public Profile Evidence Domain Model Contract
+is locally finalized as `PARTIAL`.
+
+Remote checkpoint is still pending.
 
 ## Model Gate State
 
@@ -52,102 +52,105 @@ NONE
 
 ## Current Task
 
-~~~text
-NONE — Session 050 finalized locally as DOCS.
+    NONE — Session 051 finalized as PARTIAL.
 
-Next planned independent task:
+    The next independent workstream is:
 
-Profile P1 — Profile Domain Model Contract
+    Job Evidence Alignment — Product Direction / Contract Delta
 
-P1 must not begin until Session 050 Push Gate 1 has been completed and
-origin/main has been remotely verified.
-~~~
+    It must not begin until the Session 051 checkpoint is present on
+    origin/main and independently verified.
 
 ## In Progress
 
-~~~text
-None.
+    None.
 
-Public Profile Evidence V1 product contract:
-CONTRACT LOCKED
+    Preserved P1 epistemic work:
 
-Public Profile Evidence roadmap:
-P0–P12 DEFINED
+    Observed Evidence
+    ↓
+    Repeated Pattern
+    ↓
+    Evidence-backed Bounded Inference
 
-Production implementation:
-NOT STARTED
-~~~
+    Canonical P1 domain contract:
+    NOT CREATED
+
+    Production implementation:
+    NOT STARTED
 
 ## Current Problem
 
-~~~text
-None confirmed.
-~~~
+    No defect is blocking development.
+
+    Strategic product direction changed before P1 canonical lock.
+
+    Public Profile Evidence remains valid, but is now intended to become a
+    job-agnostic evidence foundation for a higher-level Job Evidence Alignment
+    product flow.
 
 ## Next Immediate Action
 
-~~~text
-Before Profile P1 begins, Session 050 closure must have completed Push Gate 1
-and remote origin/main verification.
+    After the Session 051 checkpoint is committed and pushed:
 
-After that prerequisite is satisfied:
+    1. independently verify origin/main,
+    2. verify Session 051 = PARTIAL remotely,
+    3. verify canonical docs were not changed,
+    4. verify the repository checkpoint contains only the three worklog files.
 
-Start Profile P1 — Profile Domain Model Contract.
+    Only after those checks PASS:
 
-Do not begin profile production implementation.
-
-Profile P2 — Repository Eligibility Contract must also be locked before
-profile production implementation begins.
-~~~
+    start the Job Evidence Alignment product-direction workstream with
+    PRESERVE / EXTEND / NEW / PROHIBITED analysis.
 
 ## Working Set
 
-~~~text
-Session 050 closure scope:
+    Session 051 checkpoint scope:
 
-- docs/product/public-profile-evidence-product-contract.md
-- docs/roadmap/mvp-phases.md
-- worklog/CURRENT.md
-- worklog/INDEX.md
-- worklog/sessions/2026-08-16-050-public-profile-evidence-product-contract.md
+    - worklog/CURRENT.md
+    - worklog/INDEX.md
+    - worklog/sessions/2026-08-16-051-public-profile-evidence-domain-model-contract.md
 
-Production code:
-UNCHANGED
+    Canonical docs:
+    UNCHANGED
 
-Tests:
-UNCHANGED
-~~~
+    Production code:
+    UNCHANGED
+
+    Tests:
+    UNCHANGED
+
+    Expected repository state after checkpoint commit:
+    CLEAN
 
 ## Repository State
 
-~~~text
-Branch:
-main
+    Branch:
+    main
 
-Session 050 base:
-5c168d8
+    Session 051 base:
+    96e51e3
 
-Session 050 final result:
-DOCS
+    Session 051 result:
+    PARTIAL
 
-Public Profile Evidence V1 product contract:
-CONTRACT LOCKED
+    Reason:
+    Strategic pause before canonical P1 contract creation.
 
-Profile roadmap:
-P0–P12 DEFINED
+    Public Profile Evidence V1:
+    P0 CONTRACT LOCKED
 
-Repository MVP V1:
-PRESERVED
+    Canonical P1 domain contract:
+    NOT CREATED
 
-Production code changed:
-NO
+    New product direction:
+    Job Evidence Alignment
 
-Execution:
-ChatGPT-guided / macOS Terminal / manual
+    Production code changed:
+    NO
 
-Implementation Agent:
-NONE
-~~~
+    Implementation Agent:
+    NONE
 
 ## Last Completed Work
 
@@ -175,36 +178,34 @@ UNCHANGED
 
 ## Last Validation
 
-~~~text
-Session 050 local final validation:
+    Session 051 PARTIAL checkpoint validation:
 
-Product contract lock:
-PASS
+    Preserved epistemic work:
+    PASS
 
-Cross-contract consistency:
-PASS
+    Strategic pause semantics:
+    PASS
 
-Real canonical conflicts:
-NONE
+    Public Profile Evidence job-agnostic boundary:
+    PASS
 
-Profile roadmap P0–P12:
-PASS
+    Session 050 P0:
+    PRESERVED / UNCHANGED
 
-Repository MVP history:
-PRESERVED
+    Canonical P1 domain contract:
+    NOT CREATED
 
-Production/test code changes:
-NONE
+    Canonical docs changed:
+    NO
 
-Text quality:
-PASS
+    Production/test code changed:
+    NO
 
-git diff --check:
-PASS
+    Text quality:
+    PASS
 
-Remote verification:
-performed separately at Push Gate 1 before Profile P1 begins.
-~~~
+    git diff --check:
+    PASS
 
 ## Critical Invariants
 

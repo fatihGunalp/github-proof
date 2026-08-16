@@ -59,6 +59,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-16 | Live Repository Analysis Vertical Slice | PASS | Sol / medium — PowerShell / manual | [048](./sessions/2026-08-16-048-live-repository-analysis-vertical-slice.md) | bd26ecf |
 | 2026-08-16 | Evidence-first Product UI + Progressive Disclosure | PARTIAL | Terra / medium — macOS Terminal / manual | [049](./sessions/2026-08-16-049-evidence-first-product-ui.md) | ae2bb94 |
 | 2026-08-16 | Public Profile Evidence Product Contract | DOCS | ChatGPT-guided — macOS Terminal / manual | [050](./sessions/2026-08-16-050-public-profile-evidence-product-contract.md) | 5c168d8 |
+| 2026-08-16 | Public Profile Evidence Domain Model Contract | PARTIAL | ChatGPT-guided — macOS Terminal / manual | [051](./sessions/2026-08-16-051-public-profile-evidence-domain-model-contract.md) | 96e51e3 |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
