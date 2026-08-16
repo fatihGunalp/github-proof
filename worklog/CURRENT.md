@@ -34,7 +34,7 @@ Session File:
 worklog/sessions/2026-08-16-062-profile-p3-data-collection.md
 
 Status:
-READY_FOR_CLAUDE_MODEL_GATE
+READY_FOR_MANUAL_COMMIT
 
 ## Git
 
@@ -74,7 +74,17 @@ Out:
 
 NONE
 
+## Validation
+
+Full suite: 711/711 PASS
+Build: 0 warning / 0 error
+Acceptance criteria 1–12: PASS
+Independent review: no BLOCKER/HIGH/MEDIUM open
+
+P1/P2 contracts, repository analysis behaviour and tracked files: UNCHANGED
+
 ## Next Action
 
-Open Claude Code and continue from CURRENT.
-Claude must recommend model + effort and STOP before implementation.
+User manually commits and pushes the Session 062 branch.
+
+After remote verification, continue with P4 — RepositoryAnalysis Orchestration.
