@@ -15,8 +15,17 @@ Implementation yapma; mevcut işi bağımsız değerlendir.
 1. branch ve working tree'yi incele.
 2. `worklog/CURRENT.md` oku.
 3. Active Session varsa oku.
-4. bounded changed-file set'i belirle.
-5. pre-existing/unrelated changes'i ayır.
+4. CURRENT içindeki Active Branch / Session Base ile actual Git state'i doğrula.
+5. bounded changed-file set'i belirle.
+6. pre-existing/unrelated changes'i ayır.
+
+Meaningful session branch'i varsa primary structural review scope:
+
+`git diff <session-base>...HEAD`
+
+Artı henüz commit edilmemiş relevant working-tree/cached diff.
+
+Worklog'daki prose changed-file listesini Git diff'in yerine authority sayma.
 
 CURRENT operational state'tir; product truth değildir.
 

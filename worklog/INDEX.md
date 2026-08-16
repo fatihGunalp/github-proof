@@ -89,3 +89,4 @@ Update the same index row from IN_PROGRESS to its final result.
 Set CURRENT.Active Session to NONE when finalizing.
 Do not use worklog as product or domain source of truth; docs/ prevails.
 ```
+| 2026-08-16 | Branch-Based Workflow + CURRENT Compaction | PASS | ChatGPT-guided — macOS Terminal / manual | [059](./sessions/2026-08-16-059-branch-workflow-current-compaction.md) | 758e6fd |

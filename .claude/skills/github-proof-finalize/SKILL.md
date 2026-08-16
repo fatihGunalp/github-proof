@@ -25,6 +25,19 @@ Yetki current explicit user instruction + active workflow'dan gelir.
 
 Dirty olan her dosyayı session'a ait varsayma.
 
+## Session Branch
+
+Dedicated meaningful-session branch varsa doğrula:
+
+- actual branch == CURRENT Active Branch,
+- session base == CURRENT Session Base,
+- base-to-HEAD diff intended scope ile uyumlu.
+
+Push count branch count değildir.
+
+Main transition, merge veya branch deletion ayrı explicit user-owned Git side
+effect'tir; otomatik varsayma.
+
 ## Readiness
 
 Finalization öncesi doğrula:
@@ -69,6 +82,18 @@ Cached checks:
 
 Unexpected staged file veya checkpoint'i eksik bırakan relevant unstaged remainder
 varsa DUR.
+
+## Human-Owned Git Identity
+
+Commit/push kullanıcı tarafından kendi terminalinde manuel çalıştırılır.
+
+Claude:
+
+- `git commit` çalıştırmaz,
+- `git push` çalıştırmaz,
+- Git identity değiştirmez.
+
+Claude yalnız readiness doğrular ve exact bounded commands hazırlayabilir.
 
 ## Commit
 

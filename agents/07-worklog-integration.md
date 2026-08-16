@@ -133,3 +133,32 @@ Bütün session history'yi varsayılan olarak yükleme.
 ## Security
 
 Worklog içine secret, token, private key, credential veya gereksiz PII koyma.
+
+
+## CURRENT Compaction
+
+`worklog/CURRENT.md` append-only history değildir; live operational snapshot'tır.
+
+CURRENT yalnız gerekli semantic state'i taşır:
+
+- current/next stage,
+- active session,
+- active branch + session base,
+- goal/scope,
+- blocker/risk,
+- exact next action,
+- last remote-verified main.
+
+Closed-session detail session dosyasında kalır.
+Git structural facts'i worklog prose'unda tekrar etme.
+
+Dedicated session branch'te:
+
+Git = structural memory.
+Worklog = semantic memory.
+
+Primary structural scope evidence:
+session base → branch HEAD diff.
+
+Meaningful session başlangıcında obsolete CURRENT state'i replace/compact et.
+Amaç ucuz ve güvenilir first operational read'dir.

@@ -115,6 +115,32 @@ Açıklama, progress, review finding, warning ve final rapor Türkçe olsun.
 Code, identifier, enum, path, command ve canonical technical term gerektiğinde
 orijinal biçiminde kalabilir.
 
+## Branch-Based Session Model
+
+Default meaningful workflow:
+
+1 meaningful session → 1 working branch.
+
+Push count does not define branch count.
+Explicitly trivial/mechanical work may be exempt.
+
+`CURRENT.md` records Active Branch + Session Base.
+
+Git = structural memory:
+branch, base, commits, changed files, diff.
+
+Worklog = semantic memory:
+goal, scope, acceptance criteria, decisions, blockers, validation/review result,
+exact next action.
+
+Use session-base → branch HEAD diff as primary structural scope evidence.
+Do not duplicate Git facts in worklog prose.
+
+CURRENT is a compact live snapshot, not append-only history.
+Closed-session detail belongs in the session file.
+
+Branch/base mismatch → DUR before mutation.
+
 ## Skills
 
 Meaningful implementation, debug, refactor, test veya contract işi:
@@ -135,6 +161,19 @@ Sonra `agents/02-context-loading.md`.
 
 Yalnız mevcut kararı değiştirebilecek context'i yükle.
 Tüm docs, tüm session history veya tüm repository'yi eager-load etme.
+
+## User-Owned Commit / Push
+
+Claude prepares readiness and exact bounded commands only.
+
+Claude does not:
+
+- commit,
+- push,
+- modify Git identity,
+- create author/committer identity for the user.
+
+The user runs commit/push manually in their own terminal.
 
 ## Safety
 

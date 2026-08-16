@@ -18,7 +18,17 @@ Pending gate varken implementation veya broad context loading başlatma.
 1. `git status --short`, branch ve HEAD'i kontrol et.
 2. `worklog/CURRENT.md` oku.
 3. Active Session varsa aynı scope'a ait session'ı oku.
-4. Pre-existing changes ve scope collision kontrol et.
+4. CURRENT içindeki Active Branch / Session Base ile actual Git state'i doğrula.
+5. Pre-existing changes ve scope collision kontrol et.
+
+Meaningful session branch'i kullanılıyorsa structural working set için öncelikle:
+
+`git diff <session-base>...HEAD`
+
+ve gerektiğinde working-tree diff'ini kullan.
+
+Git'in zaten taşıdığı changed-file/commit bilgisini worklog prose'undan yeniden
+üretmeye çalışma.
 
 ChatGPT handoff'u varsa canonical docs ile uyumlu olduğu sürece goal/scope/
 acceptance criteria/next action'ı yeniden tasarlama; uygula.
