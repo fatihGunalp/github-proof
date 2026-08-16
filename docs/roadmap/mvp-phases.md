@@ -1866,10 +1866,32 @@ semantics değişmeden kalmalıdır.
 
 # Roadmap V2 — Canonical Execution Order
 
-Bu sıra semantic dependency sırasıdır.
+Bu bölüm canonical execution order'ı tanımlar.
 
-Session sınırları gerektiğinde daha küçük parçalara ayrılabilir; ancak aşağıdaki
-dependency order sessizce değiştirilemez.
+Stage numaraları planlanan execution sequencing'i gösterir; her ardışık stage
+zorunlu bir semantic dependency anlamına gelmez.
+
+Authoritative semantic dependencies aşağıdaki `Dependency Gates` bölümünde
+tanımlanır.
+
+Özellikle:
+
+    J1 — JobRequirementProfile Domain Contract
+    J2 — Job Requirement Extraction Contract
+
+job-source truth sahibidir ve Profile P3–P9'un tamamen tamamlanmasına semantik
+olarak bağımlı değildir.
+
+Mevcut Roadmap V2'de J1/J2'nin Stage 8–9 olarak Profile Stage 7'den sonra
+planlanması:
+
+    execution sequencing decision
+
+olarak okunmalıdır; semantic dependency iddiası değildir.
+
+Session sınırları gerektiğinde daha küçük parçalara ayrılabilir; ancak canonical
+stage numbering ve `Dependency Gates` içinde tanımlanan semantic dependencies
+sessizce değiştirilemez.
 
     Stage 1   Job Evidence Alignment Product Direction              COMPLETE
     Stage 2   Job Evidence Alignment Product Contract               COMPLETE

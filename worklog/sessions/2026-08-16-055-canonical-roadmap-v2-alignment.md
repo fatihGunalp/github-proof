@@ -1358,3 +1358,65 @@ Required correction:
 Stage 5 gate:
 
     CLOSED until final remote verification PASS
+
+
+## Step 4.6 — Bounded Execution-Order Clarification
+
+Independent review found one wording issue in the canonical roadmap.
+
+Previous wording implied:
+
+    every Stage 5–18 adjacency
+    =
+    semantic dependency
+
+That implication was stronger than the intended domain dependency model.
+
+Clarification applied:
+
+    Stage 5–18
+    =
+    canonical execution order
+
+Stage adjacency:
+
+    does not automatically imply
+    semantic dependency
+
+Authoritative semantic dependencies:
+
+    Dependency Gates
+
+Important explicit clarification:
+
+    J1 JobRequirementProfile Domain Contract
+    and
+    J2 Job Requirement Extraction Contract
+
+own job-source truth.
+
+Therefore J1/J2 are not semantically dependent on completion of all
+Profile P3–P9 work.
+
+Their current placement after Profile Stage 7 is:
+
+    execution sequencing
+
+not:
+
+    semantic dependency
+
+Preserved:
+
+- Stage numbering,
+- Stage 5–18 execution order,
+- product direction,
+- Profile P1/P2 gate,
+- usable DeveloperPublicEvidenceProfile requirement for J3/J4,
+- JobRequirementProfile requirement for J3/J4,
+- validation and presentation gates.
+
+CURRENT remote-checkpoint state is intentionally not changed here.
+
+It will be advanced naturally during Stage 5 session initialization rather
+than through a checkpoint-only PENDING → VERIFIED commit chain.
