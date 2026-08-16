@@ -642,6 +642,29 @@ identified set of semantic rule versions.
 Results from different analysis executions or incompatible rule versions must
 not be silently merged into one canonical root.
 
+### Analyzer Version Ownership
+
+AnalyzerVersion identifies the versioned profile-analysis orchestration and
+aggregate semantic contract that produced this DeveloperPublicEvidenceProfile.
+
+AnalyzerVersion does not replace or subsume the individual version identities
+owned by:
+
+- repository eligibility policy,
+- observation rules,
+- pattern promotion rules,
+- representative repository rules,
+- generic role evidence definitions or alignment rules.
+
+The profile result must make it possible to verify that it was produced from
+one coherent and compatible set of rule versions.
+
+AnalyzerVersion and the individual rule-version identities therefore have
+distinct semantic ownership.
+
+P1 locks this version ownership and coherence requirement without prescribing
+the exact implementation type, serialization shape or storage representation.
+
 ## 15. Aggregate Invariants
 
 DeveloperPublicEvidenceProfile must satisfy the following invariants.
@@ -651,6 +674,20 @@ DeveloperPublicEvidenceProfile must satisfy the following invariants.
 - ProfileIdentity must be present.
 - SnapshotReference must identify the analyzed profile snapshot.
 - Repository references must belong to that profile evidence surface.
+
+### Snapshot Traceability
+
+SnapshotReference must provide stable and deterministic traceability to the
+exact normalized GitHubProfileSnapshot consumed by this profile analysis.
+
+Its semantic identity and equality must be sufficient to distinguish that
+snapshot from another normalized profile snapshot.
+
+A DeveloperPublicEvidenceProfile must not silently rebind to or be interpreted
+as having been produced from a different GitHubProfileSnapshot.
+
+P1 locks this traceability requirement without prescribing the exact
+implementation type or storage representation.
 
 ### Repository Analysis Integrity
 

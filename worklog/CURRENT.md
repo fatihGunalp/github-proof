@@ -11,22 +11,23 @@
 ## Current Phase
 
 Product Stage:
-Stage 5 — Resume Profile P1
+Stage 6 — Profile P2
 
 Public Profile Evidence V1:
 P0 — CONTRACT LOCKED / REVISION 2
 P1 — CONTRACT LOCKED
+P2 — IN_PROGRESS
 
 Production code:
 NOT IN SCOPE
 
 ## Active Session
 
-worklog/sessions/2026-08-16-056-resume-public-profile-domain-contract.md
+worklog/sessions/2026-08-16-057-repository-eligibility-contract.md
 
-Session 056 — Resume Public Profile Evidence Domain Model Contract
-Result: DOCS
-Base HEAD: 993bfcc
+Session 057 — Repository Eligibility Contract
+Result: IN_PROGRESS
+Base HEAD: 4c93400
 
 ## Model Gate State
 
@@ -45,16 +46,13 @@ NONE
 
 ## Current Task
 
-Complete the Stage 5 session-final git checkpoint.
+Define and contract-lock repository eligibility semantics for
+Public Profile Evidence V1.
 
-Semantic work:
-COMPLETE
-
-Canonical P1 contract:
-docs/architecture/public-profile-evidence-domain-model.md
-
-Status:
-CONTRACT LOCKED
+Goal:
+determine whether and how each public repository may contribute to
+profile-level evidence without introducing repository/developer quality
+judgments.
 
 ## In Progress
 
@@ -67,19 +65,24 @@ a concrete defect.
 
 None currently blocking.
 
-Stage 4 remote checkpoint:
+Stage 5 remote checkpoint:
 VERIFIED
 
-Stage 5 semantic work may now proceed.
+Stage 6 contract work may proceed.
 
 ## Next Immediate Action
 
-Stage 5 session-final validation.
+Session 057 / Step 6.1
 
-If PASS:
-commit → push origin/main → independent GitHub remote verification.
+Extract and classify:
 
-Do not start Stage 6 before the Stage 5 remote checkpoint is verified.
+- eligibility dimensions
+- eligibility statuses
+- eligibility reasons
+- contribution semantics
+- independence semantics
+
+Do not write production code.
 
 ## Working Set
 
@@ -98,30 +101,25 @@ UNCHANGED
 Branch:
 main
 
-Stage 5 base HEAD:
-993bfcc
+Stage 6 base HEAD:
+4c93400
+
+Previous completed stage:
+Stage 5 — Profile P1 Domain Model Contract
+
+Stage 5 commit:
+4c934006556bfa9a4caf7a802f9d5270cea512b6
+
+Remote verification:
+PASS
 
 Public Profile Evidence V1:
 P0 — CONTRACT LOCKED / REVISION 2
 P1 — CONTRACT LOCKED
+P2 — IN_PROGRESS
 
-Session 056:
-DOCS
-
-Stage 5 semantic work:
-COMPLETE
-
-Local final checkpoint:
-PENDING
-
-Commit:
-PENDING
-
-Push:
-PENDING
-
-Independent remote verification:
-PENDING
+Session 057:
+IN_PROGRESS
 
 Production code/tests:
 UNCHANGED
