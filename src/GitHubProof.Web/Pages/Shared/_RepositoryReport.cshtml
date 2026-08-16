@@ -21,54 +21,80 @@
         class="report-section report-identity"
         data-report-section="@RepositoryReportSectionKeys.Identity">
 
-        <p class="report-section__eyebrow">
-            @Model.Identity.SectionTitle
-        </p>
-
         <div class="report-identity__heading">
-            <div>
+            <div class="report-identity__primary">
                 <h1 class="report-identity__name">
-                    @Model.Identity.FullName
+                    <a
+                        class="report-identity__name-link"
+                        href="@Model.Identity.Url"
+                        rel="noreferrer">
+                        @Model.Identity.FullName
+                    </a>
                 </h1>
 
-                <a
-                    class="report-identity__url"
-                    href="@Model.Identity.Url"
-                    rel="noreferrer">
-                    @Model.Identity.Url
-                </a>
+                <div class="report-identity__context">
+                    <span>@Model.Identity.DefaultBranch</span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Identity.PrimaryLanguage))
+                    {
+                        <span>@Model.Identity.PrimaryLanguage</span>
+                    }
+
+                    <details class="report-identity-details">
+                        <summary class="report-identity-details__summary">
+                            <span>@Model.Identity.SectionTitle</span>
+
+                            <span
+                                class="report-identity-details__chevron"
+                                aria-hidden="true">
+                                @await Html.PartialAsync(
+                                    "_UiIcon",
+                                    UiIcon.ChevronRight)
+                            </span>
+                        </summary>
+
+                        <div class="report-identity-details__content">
+                            <a
+                                href="@Model.Identity.Url"
+                                rel="noreferrer">
+                                @Model.Identity.Url
+                            </a>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Identity.HeadCommitSha))
+                            {
+                                <code>@Model.Identity.HeadCommitSha</code>
+                            }
+
+                            <time datetime="@Model.Identity.CapturedAt.ToString("O")">
+                                @Model.Identity.CapturedAt.ToString("O")
+                            </time>
+                        </div>
+                    </details>
+                </div>
             </div>
 
             <span class="report-identity__status">
                 @Model.Identity.AnalysisStatusLabel
             </span>
         </div>
-
-        <div class="report-identity__meta">
-            <span>@Model.Identity.DefaultBranch</span>
-
-            @if (!string.IsNullOrWhiteSpace(Model.Identity.PrimaryLanguage))
-            {
-                <span>@Model.Identity.PrimaryLanguage</span>
-            }
-
-            @if (!string.IsNullOrWhiteSpace(Model.Identity.HeadCommitSha))
-            {
-                <code>@Model.Identity.HeadCommitSha</code>
-            }
-
-            <time datetime="@Model.Identity.CapturedAt.ToString("O")">
-                @Model.Identity.CapturedAt.ToString("O")
-            </time>
-        </div>
     </section>
 
-    <section
-        class="report-section"
-        data-report-section="@RepositoryReportSectionKeys.Proves">
+    <div class="report-first-reading">
+        <div class="report-evidence-snapshot">
+        <section
+            class="report-section report-section--first-reading"
+            data-report-section="@RepositoryReportSectionKeys.Proves">
 
-        <h2 class="report-section__title">
-            @Model.Proves.Title
+        <h2 class="report-section__title report-section__title--semantic">
+            <span
+                class="report-section__title-icon"
+                aria-hidden="true">
+                @await Html.PartialAsync(
+                    "_StatusIcon",
+                    StatusIcon.CircleCheck)
+            </span>
+
+            <span>@Model.Proves.Title</span>
         </h2>
 
         <ol class="report-list">
@@ -87,45 +113,25 @@
                                 item.StatusLabel))
                     </div>
 
-                    <p class="report-item__primary">
-                        @item.Explanation
-                    </p>
-
-                    <p class="report-item__secondary">
-                        @item.WhyItMatters
-                    </p>
-
-                    @if (item.Evidence.Count > 0)
-                    {
-                        <ul class="report-evidence">
-                            @foreach (var evidence in item.Evidence)
-                            {
-                                <li>
-                                    <span class="report-evidence__source">
-                                        @evidence.Source
-                                    </span>
-
-                                    <span>@evidence.Value</span>
-
-                                    @if (!string.IsNullOrWhiteSpace(evidence.Location))
-                                    {
-                                        <code>@evidence.Location</code>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    }
                 </li>
             }
         </ol>
     </section>
 
-    <section
-        class="report-section"
-        data-report-section="@RepositoryReportSectionKeys.Weakens">
+        <section
+            class="report-section report-section--first-reading"
+            data-report-section="@RepositoryReportSectionKeys.Weakens">
 
-        <h2 class="report-section__title">
-            @Model.Weakens.Title
+        <h2 class="report-section__title report-section__title--semantic">
+            <span
+                class="report-section__title-icon"
+                aria-hidden="true">
+                @await Html.PartialAsync(
+                    "_StatusIcon",
+                    StatusIcon.CircleX)
+            </span>
+
+            <span>@Model.Weakens.Title</span>
         </h2>
 
         <ol class="report-list">
@@ -144,52 +150,27 @@
                                 item.StatusLabel))
                     </div>
 
-                    <p class="report-item__primary">
-                        @item.Explanation
-                    </p>
-
-                    <p class="report-item__secondary">
-                        @item.WhyItMatters
-                    </p>
-
-                    @if (!string.IsNullOrWhiteSpace(item.Recommendation))
-                    {
-                        <p class="report-item__recommendation">
-                            @item.Recommendation
-                        </p>
-                    }
-
-                    @if (item.Evidence.Count > 0)
-                    {
-                        <ul class="report-evidence">
-                            @foreach (var evidence in item.Evidence)
-                            {
-                                <li>
-                                    <span class="report-evidence__source">
-                                        @evidence.Source
-                                    </span>
-
-                                    <span>@evidence.Value</span>
-
-                                    @if (!string.IsNullOrWhiteSpace(evidence.Location))
-                                    {
-                                        <code>@evidence.Location</code>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    }
                 </li>
             }
         </ol>
     </section>
 
-    <section
-        class="report-section report-section--decision"
-        data-report-section="@RepositoryReportSectionKeys.DoFirst">
+        </div>
 
-        <h2 class="report-section__title">
-            @Model.DoFirst.Title
+        <section
+            class="report-section report-section--decision report-section--first-reading"
+            data-report-section="@RepositoryReportSectionKeys.DoFirst">
+
+        <h2 class="report-section__title report-section__title--semantic">
+            <span
+                class="report-section__title-icon"
+                aria-hidden="true">
+                @await Html.PartialAsync(
+                    "_UiIcon",
+                    UiIcon.ListTree)
+            </span>
+
+            <span>@Model.DoFirst.Title</span>
         </h2>
 
         <ol class="report-actions">
@@ -206,136 +187,232 @@
                                 @action.Title
                             </h3>
 
-                            <span class="report-action__effort">
-                                @action.EffortLabel
-                            </span>
                         </div>
 
                         <p class="report-item__primary">
                             @action.Recommendation
                         </p>
 
-                        <p class="report-item__secondary">
-                            @action.WhyItMatters
-                        </p>
                     </div>
                 </li>
             }
         </ol>
-    </section>
+        </section>
+    </div>
 
-    <section
-        class="report-section report-section--uncertainty"
-        data-report-section="@RepositoryReportSectionKeys.Uncertainty">
+    @if (
+        Model.Uncertainty.Items.Count > 0
+        || Model.Warnings.Count > 0
+        || Model.Limitations.Count > 0)
+    {
+        string[] warningMessages =
+            Model.Warnings
+                .Select(warning => warning.Message)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
 
-        <h2 class="report-section__title">
-            @Model.Uncertainty.Title
-        </h2>
+        string[] limitationMessages =
+            Model.Limitations
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
 
-        <div class="report-list">
-            @foreach (RepositoryReportUncertainty item in Model.Uncertainty.Items)
-            {
-                <div class="report-item">
-                    <div class="report-item__heading">
-                        <h3 class="report-item__title">
-                            @item.Title
-                        </h3>
+        <section
+            class="report-section report-section--uncertainty"
+            data-report-section="@RepositoryReportSectionKeys.Uncertainty">
 
-                        @await Html.PartialAsync(
-                            "_StatusBadge",
-                            new StatusBadgeModel(
-                                item.Status,
-                                item.StatusLabel))
-                    </div>
-
-                    <p class="report-item__primary">
-                        @item.Explanation
-                    </p>
-                </div>
-            }
-        </div>
-
-        @if (Model.Warnings.Count > 0)
-        {
-            <ul class="report-notes">
-                @foreach (RepositoryReportWarning warning in Model.Warnings)
-                {
-                    <li>@warning.Message</li>
-                }
-            </ul>
-        }
-
-        @if (Model.Limitations.Count > 0)
-        {
-            <ul class="report-notes">
-                @foreach (string limitation in Model.Limitations)
-                {
-                    <li>@limitation</li>
-                }
-            </ul>
-        }
-    </section>
-
-    <section
-        class="report-section report-score"
-        data-report-section="@RepositoryReportSectionKeys.CategoriesAndScore">
-
-        <h2 class="report-section__title">
-            @Model.ScoreSummary.SectionTitle
-        </h2>
-
-        <div class="report-categories">
-            @foreach (RepositoryReportCategory category in Model.ScoreSummary.Categories)
-            {
-                <div class="report-category">
-                    <div>
-                        <h3 class="report-category__title">
-                            @category.Label
-                        </h3>
-
-                        <span class="report-category__status">
-                            @category.StatusLabel
+            <details class="report-uncertainty">
+                <summary class="report-uncertainty__summary">
+                    <h2 class="report-uncertainty__title">
+                        <span
+                            class="report-uncertainty__icon"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_StatusIcon",
+                                StatusIcon.CircleHelp)
                         </span>
-                    </div>
 
-                    <div class="report-category__score">
-                        @if (category.NormalizedScore is not null)
+                        <span class="report-uncertainty__title-text">
+                            @Model.Uncertainty.Title
+                        </span>
+
+                        @if (Model.Uncertainty.Items.Count > 0)
                         {
-                            <strong>@category.NormalizedScore/100</strong>
+                            <span class="report-uncertainty__count">
+                                @Model.Uncertainty.Items.Count
+                            </span>
                         }
 
-                        <span>
-                            @category.Score / @category.MaximumScore
+                        <span
+                            class="report-uncertainty__chevron"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_DisclosureIcon")
                         </span>
-                    </div>
+                    </h2>
+                </summary>
+
+                <div class="report-uncertainty__content">
+                    @if (Model.Uncertainty.Items.Count > 0)
+                    {
+                        <div class="report-uncertainty__items">
+                            @foreach (
+                                RepositoryReportUncertainty item
+                                in Model.Uncertainty.Items)
+                            {
+                                <div class="report-uncertainty__row">
+                                    <div>
+                                        <h3 class="report-uncertainty__item-title">
+                                            @item.Title
+                                        </h3>
+
+                                        <p class="report-uncertainty__explanation">
+                                            @item.Explanation
+                                        </p>
+                                    </div>
+
+                                    @await Html.PartialAsync(
+                                        "_StatusBadge",
+                                        new StatusBadgeModel(
+                                            item.Status,
+                                            item.StatusLabel))
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (warningMessages.Length > 0)
+                    {
+                        <ul class="report-notes">
+                            @foreach (string message in warningMessages)
+                            {
+                                <li>@message</li>
+                            }
+                        </ul>
+                    }
+
+                    @if (limitationMessages.Length > 0)
+                    {
+                        <ul class="report-notes">
+                            @foreach (string message in limitationMessages)
+                            {
+                                <li>@message</li>
+                            }
+                        </ul>
+                    }
                 </div>
-            }
-        </div>
+            </details>
+        </section>
+    }
 
-        <div class="report-score-summary">
-            @if (Model.ScoreSummary.NormalizedScore is not null)
-            {
-                <strong>
-                    @Model.ScoreSummary.NormalizedScore/100
-                </strong>
-            }
+    <section
+        class="report-section report-score report-layer"
+        data-report-section="@RepositoryReportSectionKeys.CategoriesAndScore">
 
-            @if (!string.IsNullOrWhiteSpace(Model.ScoreSummary.Label))
-            {
-                <span>@Model.ScoreSummary.Label</span>
-            }
-        </div>
+        <details class="report-layer__details report-layer__details--categories">
+            <summary class="report-layer__summary">
+                <span class="report-layer__leading">
+                    <span
+                        class="report-layer__icon"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.ChartNoAxesColumnIncreasing)
+                    </span>
+
+                    <span class="report-layer__title">
+                        @Model.ScoreSummary.SectionTitle
+                    </span>
+                </span>
+
+                <span class="report-layer__meta">
+                    @if (Model.ScoreSummary.NormalizedScore is not null)
+                    {
+                        <strong class="report-layer__score">
+                            @Model.ScoreSummary.NormalizedScore/100
+                        </strong>
+                    }
+
+                    <span
+                        class="report-layer__chevron"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.ChevronRight)
+                    </span>
+                </span>
+            </summary>
+
+            <div class="report-layer__content">
+                <div class="report-categories">
+                    @foreach (
+                        RepositoryReportCategory category
+                        in Model.ScoreSummary.Categories)
+                    {
+                        <div class="report-category">
+                            <div>
+                                <h3 class="report-category__title">
+                                    @category.Label
+                                </h3>
+
+                                <span class="report-category__status">
+                                    @category.StatusLabel
+                                </span>
+                            </div>
+
+                            <div class="report-category__score">
+                                @if (category.NormalizedScore is not null)
+                                {
+                                    <strong>
+                                        @category.NormalizedScore/100
+                                    </strong>
+                                }
+
+                                <span>
+                                    @category.Score / @category.MaximumScore
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ScoreSummary.Label))
+                {
+                    <div class="report-score-summary">
+                        <span>@Model.ScoreSummary.Label</span>
+                    </div>
+                }
+            </div>
+        </details>
     </section>
 
     <section
         class="report-section"
         data-report-section="@RepositoryReportSectionKeys.SignalDetails">
 
-        <h2 class="report-section__title">
-            @Model.SignalDetails.Title
-        </h2>
+        <details class="report-signal-section">
+            <summary class="report-signal-section__summary">
+                <h2 class="report-signal-section__title">
+                    <span>
+                        @Model.SignalDetails.Title
+                    </span>
 
-        <div class="report-signals">
+                    <span class="report-signal-section__meta">
+                        <span class="report-signal-section__count">
+                            @Model.SignalDetails.Items.Count
+                        </span>
+
+                        <span
+                            class="report-signal-section__chevron"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_DisclosureIcon")
+                        </span>
+                    </span>
+                </h2>
+            </summary>
+
+            <div class="report-signal-section__content">
+                <div class="report-signals">
             @foreach (SignalPresentation signal in Model.SignalDetails.Items)
             {
                 <details class="report-signal">
@@ -354,7 +431,8 @@
                             <span
                                 class="report-signal__chevron"
                                 aria-hidden="true">
-                                ›
+                                @await Html.PartialAsync(
+                                    "_DisclosureIcon")
                             </span>
                         </span>
                     </summary>
@@ -411,21 +489,47 @@
                     </div>
                 </details>
             }
-        </div>
+                </div>
+            </div>
+        </details>
     </section>
 
     <section
-        class="report-section report-disclaimer"
+        class="report-section report-disclaimer report-layer"
         data-report-section="@RepositoryReportSectionKeys.Disclaimer">
 
-        <h2 class="report-section__title">
-            @Model.Disclaimer.SectionTitle
-        </h2>
+        <details class="report-layer__details report-layer__details--disclaimer">
+            <summary class="report-layer__summary">
+                <span class="report-layer__leading">
+                    <span
+                        class="report-layer__icon"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.Info)
+                    </span>
 
-        <p>@Model.Disclaimer.Text</p>
+                    <span class="report-layer__title">
+                        @Model.Disclaimer.SectionTitle
+                    </span>
+                </span>
 
-        <span class="report-disclaimer__version">
-            v@Model.Disclaimer.PolicyVersion
-        </span>
+                <span
+                    class="report-layer__chevron"
+                    aria-hidden="true">
+                    @await Html.PartialAsync(
+                        "_UiIcon",
+                        UiIcon.ChevronRight)
+                </span>
+            </summary>
+
+            <div class="report-layer__content report-layer__content--disclaimer">
+                <p>@Model.Disclaimer.Text</p>
+
+                <span class="report-disclaimer__version">
+                    v@(Model.Disclaimer.PolicyVersion)
+                </span>
+            </div>
+        </details>
     </section>
 </article>

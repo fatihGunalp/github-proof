@@ -9,10 +9,10 @@
 <span
     class="status-badge @badge.CssModifier"
     data-status="@Model.Status">
-    <span
-        class="status-badge__icon"
-        aria-hidden="true">
-        @badge.Glyph
+    <span class="status-badge__icon">
+        @await Html.PartialAsync(
+            "_StatusIcon",
+            badge.Icon)
     </span>
 
     <span class="status-badge__label">

@@ -32,12 +32,61 @@ public sealed class StatusBadgeContractTests
             StringComparison.Ordinal);
 
         Assert.Contains(
+            "_StatusIcon",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
             "status-badge__label",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Status_icon_uses_one_geometric_outline_svg_language()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Shared",
+            "_StatusIcon.cshtml");
+
+        Assert.Contains(
+            "<svg",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "stroke=\"currentColor\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "stroke-width=\"1.75\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "stroke-linecap=\"round\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "stroke-linejoin=\"round\"",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
             "aria-hidden=\"true\"",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "✓",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "◐",
             content,
             StringComparison.Ordinal);
     }
