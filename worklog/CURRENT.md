@@ -16,7 +16,7 @@ Stage 6 — Profile P2
 Public Profile Evidence V1:
 P0 — CONTRACT LOCKED / REVISION 2
 P1 — CONTRACT LOCKED
-P2 — IN_PROGRESS
+P2 — CONTRACT LOCKED
 
 Production code:
 NOT IN SCOPE
@@ -26,7 +26,7 @@ NOT IN SCOPE
 worklog/sessions/2026-08-16-057-repository-eligibility-contract.md
 
 Session 057 — Repository Eligibility Contract
-Result: IN_PROGRESS
+Result: DOCS
 Base HEAD: 4c93400
 
 ## Model Gate State
@@ -46,13 +46,16 @@ NONE
 
 ## Current Task
 
-Define and contract-lock repository eligibility semantics for
-Public Profile Evidence V1.
+Complete the Stage 6 session-final git checkpoint.
 
-Goal:
-determine whether and how each public repository may contribute to
-profile-level evidence without introducing repository/developer quality
-judgments.
+Semantic work:
+COMPLETE
+
+Canonical P2 contract:
+docs/architecture/public-profile-evidence-repository-eligibility.md
+
+Status:
+CONTRACT LOCKED
 
 ## In Progress
 
@@ -72,17 +75,12 @@ Stage 6 contract work may proceed.
 
 ## Next Immediate Action
 
-Session 057 / Step 6.1
+Stage 6 session-final validation.
 
-Extract and classify:
+If PASS:
+commit → push origin/main → independent GitHub remote verification.
 
-- eligibility dimensions
-- eligibility statuses
-- eligibility reasons
-- contribution semantics
-- independence semantics
-
-Do not write production code.
+Do not start Stage 7 before the Stage 6 remote checkpoint is verified.
 
 ## Working Set
 
@@ -116,7 +114,7 @@ PASS
 Public Profile Evidence V1:
 P0 — CONTRACT LOCKED / REVISION 2
 P1 — CONTRACT LOCKED
-P2 — IN_PROGRESS
+P2 — CONTRACT LOCKED
 
 Session 057:
 IN_PROGRESS
@@ -144,21 +142,22 @@ Canonical execution order and Dependency Gates are aligned.
 
 ## Last Validation
 
-origin/main:
-993bfccd1b630ffa26958aafffb85e20474b4dcb
+Independent GitHub remote verification:
 
-Independent remote verification:
+origin/main:
+a4e5f9321b238318b5db6ed52826712f4a25d929
+
+Result:
 PASS
 
 Verified:
 
-- Stage 4 canonical roadmap complete
-- bounded dependency clarification present
-- J1/J2 independence preserved
-- Dependency Gates authoritative
-- Stage 5 canonical next stage preserved
-- product contracts unchanged
-- production code/tests unchanged
+- Stage 5 P1 CONTRACT LOCKED
+- bounded SnapshotReference clarification
+- bounded AnalyzerVersion clarification
+- exact four-file clarification checkpoint
+- P1 safety boundaries unchanged
+- P2 semantic work authorized to begin
 
 ## Critical Invariants
 
