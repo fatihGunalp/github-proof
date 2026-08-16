@@ -3,7 +3,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 
 namespace GitHubProof.Application.Analysis;
 
-public sealed class RepositoryAnalysisRunner
+public sealed class RepositoryAnalysisRunner : IRepositoryAnalysisRunner
 {
     private readonly RepositorySignalAnalyzer signalAnalyzer;
     private readonly RepositoryAnalysisComposer composer;
