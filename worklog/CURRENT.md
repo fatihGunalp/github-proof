@@ -51,13 +51,13 @@ NONE
 ## Current Task
 
 ~~~text
-Implement the user-approved modern card-based RepositoryReport composition.
+Continue Session 049 product UI refinement section-by-section.
 
-Target:
-- compact repository hero,
-- four-card decision viewport,
-- collapsed secondary inspection layers,
-- responsive Light/Dark presentation.
+Repository hero:
+PASS / LOCKED
+
+Next target:
+Overall Score Card visual refinement.
 
 Preserve typed RepositoryReport and all analysis/scoring semantics.
 ~~~
@@ -67,21 +67,22 @@ Preserve typed RepositoryReport and all analysis/scoring semantics.
 ~~~text
 Session 049 remains IN_PROGRESS.
 
-The visual target is now locked to the approved modern report mockup.
-
 Current production checkpoint:
-522852d
+40cab55
 
-Validated presentation foundation:
-- evidence-first report hierarchy,
-- progressive disclosure,
-- semantic status icons,
-- curated Lucide UI icon foundation,
-- compact repository identity,
-- compact uncertainty/category/signal/disclaimer layers,
-- Light/Dark-compatible styling.
+Completed and validated in the current implementation pass:
+- bounded RepositoryReport Razor composition,
+- four-card decision viewport foundation,
+- score summary card,
+- strength / weakness evidence cards,
+- priority-action card,
+- progressive secondary inspection layers,
+- user-approved repository hero.
 
-Next implementation begins from component boundaries.
+Repository hero browser acceptance:
+PASS / LOCKED
+
+Do not redesign the hero during subsequent section passes unless a concrete regression is found.
 ~~~
 
 ## Current Problem
@@ -93,15 +94,16 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Session 049 / Step 27:
+Session 049 — next section:
 
-Split the report presentation into bounded reusable Razor components before
-implementing the approved four-card decision viewport.
+Isolate the Overall Score Card and refine it against the approved report mockup.
+
+Work section-by-section.
 
 Do not change:
+- locked repository hero,
 - analysis semantics,
-- scoring,
-- localization semantics,
+- scoring semantics,
 - RepositoryReport truth,
 - canonical signal/category contracts.
 ~~~
@@ -112,16 +114,18 @@ Do not change:
 Active Session:
 worklog/sessions/2026-08-16-049-evidence-first-product-ui.md
 
-Locked implementation target:
-modern four-card GitHub Proof report mockup
+Current production checkpoint:
+40cab55
 
-Next primary surfaces:
-- src/GitHubProof.Web/Pages/Shared/_RepositoryReport.cshtml
-- new bounded report partials under Pages/Shared/
-- src/GitHubProof.Web/wwwroot/css/report.css
-- tests/GitHubProof.Web.Tests/
+Locked:
+- Repository hero — visual PASS
 
-Current checkpoint production changes are committed.
+Next presentation surface:
+- _RepositoryReportScoreCard.cshtml
+- score-card-specific report.css rules
+- directly related Web presentation tests
+
+Session remains IN_PROGRESS.
 ~~~
 
 ## Repository State
@@ -176,46 +180,22 @@ PASS
 ## Last Validation
 
 ~~~text
-Session 048 final validation:
+Session 049 repository hero checkpoint:
 
-Full solution build:
-PASS
+GitHubProof.Application.Tests:
+54 / 54 PASS
 
-Full solution tests:
-PASS
-
-dotnet format --verify-no-changes:
-PASS
+GitHubProof.Web.Tests:
+68 / 68 PASS
 
 git diff --check:
 PASS
 
-Canonical repository URL boundary:
-PASS
+Browser visual acceptance:
+Repository hero PASS / LOCKED
 
-Canonical 15-signal analysis:
-PASS
-
-Typed RepositoryReport:
-PASS
-
-Markdown in Web flow:
-NONE
-
-Live browser analysis:
-PASS
-
-Malformed URL browser feedback:
-PASS
-
-Single Light/Dark theme button:
-PASS
-
-Theme persistence:
-PASS
-
-Phase 5:
-IN_PROGRESS
+Analysis/scoring contract:
+UNCHANGED
 ~~~
 
 ## Critical Invariants

@@ -393,3 +393,78 @@ PASS
 Step 27 — split the current report composition into bounded presentation components before implementing the approved four-card decision viewport.
 
 The implementation must preserve report semantics and existing analysis contracts.
+
+## Checkpoint — Repository Hero Visual Acceptance
+
+Repository hero refinement is visually accepted and locked.
+
+Production checkpoint:
+
+~~~text
+40cab55
+feat(web): implement modern report composition
+~~~
+
+Delivered since the previous checkpoint:
+
+- RepositoryReport composition split into bounded Razor partials.
+- Four-card decision viewport foundation implemented.
+- Overall score summary card introduced without moving canonical score semantics.
+- Strong evidence, weak-point, and priority-action cards implemented.
+- Secondary inspection layers remain progressively disclosed.
+- Repository identity hero converged to the user-approved reference composition.
+- Repository URL, default branch, primary language, analysis status, score-context summary, and snapshot time are visible in the first layer.
+- GitHub, link, branch, code, clock, and report-status icon geometry added to the curated UI icon system.
+- Light/Dark-compatible semantic styling preserved.
+- Analysis, scoring, signal ranking, and RepositoryReport truth were not recreated in Web.
+
+Repository Hero Visual Acceptance:
+
+~~~text
+PASS
+LOCKED
+~~~
+
+Locked hero composition:
+
+~~~text
+GitHub repository mark
+→ repository full name
+→ repository URL
+→ default branch
+→ primary language
+
+right-side analysis panel
+→ AnalysisStatus
+→ short repository-evidence interpretation
+→ report snapshot time
+~~~
+
+The repository hero must not be redesigned during the remaining Session 049 section passes unless a concrete regression is discovered.
+
+Validation:
+
+~~~text
+GitHubProof.Application.Tests:
+54 / 54 PASS
+
+GitHubProof.Web.Tests:
+68 / 68 PASS
+
+git diff --check:
+PASS
+
+Browser visual acceptance:
+PASS — repository hero
+~~~
+
+Next:
+
+~~~text
+Continue Session 049 section-by-section.
+
+Next target:
+Overall Score Card visual refinement.
+
+Do not modify the locked repository hero while refining the next section.
+~~~
