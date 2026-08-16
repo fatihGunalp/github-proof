@@ -14,74 +14,74 @@
 Product Stage: MVP Implementation
 Delivery Phase: Phase 5 — Minimal Web UI IN_PROGRESS
 Next Delivery Phase: Phase 6 — MVP Validation
-Focus: No active session. Next: Session 049 — Evidence-first Product UI + Progressive Disclosure / visual refinement.
+Focus: Session 049 — Evidence-first Product UI + Progressive Disclosure / visual refinement.
 ~~~
 
 ## Active Session
 
 ~~~text
-NONE
+worklog/sessions/2026-08-16-049-evidence-first-product-ui.md
 
-Last completed:
-Session 048 — Live Repository Analysis Vertical Slice — PASS
+Session 049 — Evidence-first Product UI + Progressive Disclosure
+Result: IN_PROGRESS
+Base HEAD: ae2bb94
 ~~~
 
 ## Model Gate State
 
 ~~~text
-No active model gate.
+APPROVED
 
-Last completed session:
-Session 048
+Session:
+049
 
 Model:
-Sol
+Terra
 
 Reasoning:
 medium
 
 Execution:
-PowerShell / manual
+macOS Terminal / manual
+
+Implementation Agent:
+NONE
 ~~~
 
 ## Current Task
 
 ~~~text
-No active implementation session.
+Implement the user-approved modern card-based RepositoryReport composition.
 
-Session 048 completed the first real production vertical slice:
+Target:
+- compact repository hero,
+- four-card decision viewport,
+- collapsed secondary inspection layers,
+- responsive Light/Dark presentation.
 
-Repository URL
-→ live GitHub collection
-→ canonical analysis
-→ RepositoryAnalysis
-→ localized RepositoryReport
-→ typed Web report.
-
-Next planned work:
-Session 049 — Evidence-first Product UI + Progressive Disclosure / visual refinement.
+Preserve typed RepositoryReport and all analysis/scoring semantics.
 ~~~
 
 ## In Progress
 
 ~~~text
-No active session.
+Session 049 remains IN_PROGRESS.
 
-Session 048 completed:
-- canonical production analyzer composition,
-- RepositorySnapshot → RepositoryAnalysis execution boundary,
-- canonical Infrastructure snapshot composition,
-- live Web orchestration,
-- canonical repository URL validation reuse,
-- real Home POST analysis,
-- typed RepositoryReport rendering,
-- bounded repository failure states,
-- real browser analysis validation,
-- malformed URL browser validation,
-- compact Light/Dark theme interaction,
-- theme persistence.
+The visual target is now locked to the approved modern report mockup.
 
-Phase 5 remains IN_PROGRESS.
+Current production checkpoint:
+522852d
+
+Validated presentation foundation:
+- evidence-first report hierarchy,
+- progressive disclosure,
+- semantic status icons,
+- curated Lucide UI icon foundation,
+- compact repository identity,
+- compact uncertainty/category/signal/disclaimer layers,
+- Light/Dark-compatible styling.
+
+Next implementation begins from component boundaries.
 ~~~
 
 ## Current Problem
@@ -93,39 +93,58 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Initialize Session 049 separately.
+Session 049 / Step 27:
 
-Planned focus:
-Evidence-first Product UI + Progressive Disclosure / visual refinement.
+Split the report presentation into bounded reusable Razor components before
+implementing the approved four-card decision viewport.
 
-Preserve the live architecture completed in Session 048.
-
-Do not recreate:
-- repository collection,
-- signal analysis,
-- RepositoryAnalysis composition,
-- RepositoryReport projection.
-
-Session 049 should refine hierarchy, interaction, disclosure, and product polish around the now-working live vertical slice.
+Do not change:
+- analysis semantics,
+- scoring,
+- localization semantics,
+- RepositoryReport truth,
+- canonical signal/category contracts.
 ~~~
 
 ## Working Set
 
 ~~~text
-Phase 3 and Phase 4 are complete.
-Phase 5 / Session 047 is active.
-Sessions 042–046 established evidence-first report architecture, language-neutral semantic truth, deterministic RepositoryAnalysis composition, localized RepositoryReport projection, and deterministic Markdown rendering.
-The Phase 5 UI foundation is guided by github-proof-design-principles-v1.md and github-proof-ui-system-light-dark-v1.md without overriding canonical product/report contracts.
-Session 039 and validation-011 remain exploratory, blocked/non-gating, and outside the current MVP delivery path.
+Active Session:
+worklog/sessions/2026-08-16-049-evidence-first-product-ui.md
+
+Locked implementation target:
+modern four-card GitHub Proof report mockup
+
+Next primary surfaces:
+- src/GitHubProof.Web/Pages/Shared/_RepositoryReport.cshtml
+- new bounded report partials under Pages/Shared/
+- src/GitHubProof.Web/wwwroot/css/report.css
+- tests/GitHubProof.Web.Tests/
+
+Current checkpoint production changes are committed.
 ~~~
 
 ## Repository State
 
 ~~~text
 Branch: main
-Session 047 base HEAD: 89e7be3
+Session 049 base HEAD: ae2bb94
 Pre-existing working tree at session start: CLEAN
-Live HEAD / commit / push state after session start should be read from Git directly.
+
+Latest production checkpoint:
+522852d
+
+Checkpoint:
+feat(web): refine evidence-first report experience
+
+Session status:
+IN_PROGRESS
+
+Execution:
+macOS Terminal / manual
+
+Checkpoint push and final origin/main synchronization are verified by the
+Step 26 terminal command after the worklog commit.
 ~~~
 
 ## Last Completed Work
