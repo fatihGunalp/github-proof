@@ -30,7 +30,7 @@ Deployment dependency özeti:
 | Milestone | Development Dependency |
 |---|---|
 | A — Repository Proof Production Baseline | Existing Repository Proof |
-| B — Profile Proof Beta | P3–P10 + P9 validation PASS |
+| B — Profile Proof Beta | Stage 7 / P3–P9 + P9 validation PASS + P10 Web Flow |
 | C — Job Proof Engine Alpha | J1–J4 |
 | D — Candidate Job Proof Beta | J5–J9 + J8 validation PASS |
 | E — Candidate Job Proof V1 | Candidate beta maturity |
@@ -39,6 +39,13 @@ Deployment dependency özeti:
 
 Production gate ve release-level ayrıntıları için yalnız
 docs/roadmap/deployment-milestones.md canonical'dır.
+
+Milestone B clarification:
+
+- Stage 7 remains Profile P3–P9.
+- P10 Profile Web Flow is not part of Stage 7.
+- P10 is an additional deployment/presentation dependency for the public
+  Profile Proof Beta release.
 
 ---
 

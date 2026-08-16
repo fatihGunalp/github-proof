@@ -67,7 +67,7 @@ Profile Proof ve Repository Proof çalışmaya devam eder.
 | Milestone | Capability / Development Dependency | Release Level |
 |---|---|---|
 | A — Repository Proof Production Baseline | Existing Repository Proof capability | PUBLIC / STABLE BASELINE |
-| B — Profile Proof Beta | Profile P3–P10 complete + P9 validation PASS | PUBLIC BETA |
+| B — Profile Proof Beta | Stage 7 / P3–P9 COMPLETE + P9 validation PASS + P10 COMPLETE | PUBLIC BETA |
 | C — Job Proof Engine Alpha | J1–J4 complete | PRIVATE ALPHA |
 | D — Candidate Job Proof Beta | J5–J9 complete + J8 validation PASS | PUBLIC BETA |
 | E — Candidate Job Proof V1 | Candidate beta production maturity | PUBLIC STABLE / V1 |
@@ -162,11 +162,17 @@ Repository Proof ✅ canlı
 
 # Milestone B — Profile Proof Beta
 
-## Dependency
+## Development Dependency
 
-Profile P3–P10 complete
-+
-P9 validation PASS
+- Stage 7 / Profile P3–P9 COMPLETE
+- P9 Validation PASS
+- P10 — Profile Web Flow COMPLETE
+
+Important:
+
+P10 is a deployment/presentation dependency for the public Profile Proof Beta.
+It does not become part of Stage 7 Profile Evidence Foundation and does not
+change the canonical Stage 7 = P3–P9 execution boundary.
 
 ## Amaç
 
@@ -179,7 +185,7 @@ Bu public GitHub profilinde hangi teknik üretim örüntüleri tekrar tekrar gö
 
 ## Entry Condition
 
-- P3–P10 tamamlanmış,
+- Stage 7 / P3–P9 tamamlanmış,
 - profile-level structured truth mevcut,
 - deterministic validation PASS,
 - prohibited inference kontrolleri PASS.
@@ -218,7 +224,8 @@ Bu public GitHub profilinde hangi teknik üretim örüntüleri tekrar tekrar gö
 
 ## Production Gate
 
-- P3–P10 COMPLETE,
+- Stage 7 / P3–P9 COMPLETE,
+- P10 Profile Web Flow COMPLETE,
 - unsupported profile claim = 0,
 - broken evidence traceability = 0,
 - prohibited developer inference = 0,

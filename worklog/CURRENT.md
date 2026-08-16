@@ -15,25 +15,26 @@ Stage 7 — Public Profile Evidence Foundation P3–P9 — NOT STARTED
 
 ## Production Delivery
 
-Current Deployment Milestone:
-A — Repository Proof Production Baseline
+Current:
+Milestone A — Repository Proof Production Baseline — NOT_STARTED
 
-Status:
-NOT_STARTED
+Next:
+Milestone B — Profile Proof Beta
 
-Next Deployment Milestone:
-B — Profile Proof Beta
+Milestone B dependency:
+- Stage 7 / P3–P9 COMPLETE
+- P9 validation PASS
+- P10 Profile Web Flow COMPLETE
 
-Dependency:
-Profile P3–P10 + P9 validation PASS
+P10 is not part of Stage 7.
 
 ## Active Session
 
 Session:
-060 — Deployment Milestones Contract
+061 — Milestone B Dependency Clarification
 
 Session File:
-worklog/sessions/2026-08-16-060-deployment-milestones-contract.md
+worklog/sessions/2026-08-16-061-milestone-b-dependency-clarification.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
@@ -41,24 +42,17 @@ READY_FOR_MANUAL_COMMIT
 ## Git
 
 Active Branch:
-session/060-deployment-milestones-contract
+session/061-milestone-b-dependency-clarification
 
 Session Base:
-fd6f0481432a42ef5c461f1899933aaf6a68f3ba
+9b89b5e51f074363662ed99f7eb4e1740c8c611f
 
 Last Remote Verified Main:
-fd6f0481432a42ef5c461f1899933aaf6a68f3ba
+9b89b5e51f074363662ed99f7eb4e1740c8c611f
 
 ## Goal
 
-Lock the canonical deployment milestone roadmap without changing product/domain
-semantics or production code.
-
-## Scope
-
-- docs/roadmap/deployment-milestones.md
-- docs/roadmap/mvp-phases.md
-- worklog only
+Remove the Milestone B dependency ambiguity without changing Stage 7 scope.
 
 ## Blocker
 
@@ -66,10 +60,10 @@ NONE
 
 ## Validation
 
-Deployment milestone contract:
+Stage 7 boundary:
 PASS
 
-Development/deployment roadmap coordination:
+P10 deployment dependency:
 PASS
 
 Product/domain/code/tests:
@@ -77,10 +71,7 @@ UNCHANGED
 
 ## Next Action
 
-User manually commits and pushes Session 060 branch.
+User manually commits and pushes Session 061 branch.
 
-After remote verification, integrate the checkpoint into main using explicit
-user-owned Git actions.
-
-Do not start Milestone A deployment or Stage 7 implementation before Session 060
-is integrated and remote verified.
+After remote verification, integrate into main using explicit user-owned Git
+actions.
