@@ -7,10 +7,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_shell_is_strongly_typed_to_repository_report()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "@model RepositoryReport",
@@ -19,12 +16,56 @@ public sealed class RepositoryReportShellTests
     }
 
     [Fact]
-    public void Report_shell_preserves_canonical_evidence_first_section_order()
+    public void Report_shell_delegates_section_content_to_bounded_partials()
     {
-        string content = ReadWebFile(
+        string shell = ReadWebFile(
             "Pages",
             "Shared",
             "_RepositoryReport.cshtml");
+
+        string[] partials =
+        {
+            "_RepositoryReportIdentity",
+            "_RepositoryReportScoreCard",
+            "_RepositoryReportProves",
+            "_RepositoryReportWeakens",
+            "_RepositoryReportActions",
+            "_RepositoryReportUncertainty",
+            "_RepositoryReportScore",
+            "_RepositoryReportSignals",
+            "_RepositoryReportDisclaimer"
+        };
+
+        int previousIndex = -1;
+
+        foreach (string partial in partials)
+        {
+            int index = shell.IndexOf(
+                $"\"{partial}\"",
+                StringComparison.Ordinal);
+
+            Assert.True(
+                index > previousIndex,
+                $"Report partial order is invalid at {partial}.");
+
+            previousIndex = index;
+        }
+
+        Assert.DoesNotContain(
+            "foreach (RepositoryReportHighlight",
+            shell,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "foreach (SignalPresentation",
+            shell,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Report_shell_preserves_canonical_evidence_first_section_order()
+    {
+        string content = ReadReportComposition();
 
         string[] sectionMarkers =
         {
@@ -55,15 +96,16 @@ public sealed class RepositoryReportShellTests
     }
 
     [Fact]
-    public void Report_shell_groups_three_canonical_first_reading_sections_for_scan_first_layout()
+    public void Report_shell_builds_four_card_decision_viewport_without_changing_canonical_section_order()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
-        int group = content.IndexOf(
-            "<div class=\"report-first-reading\">",
+        int grid = content.IndexOf(
+            "report-first-reading report-decision-grid",
+            StringComparison.Ordinal);
+
+        int scoreCard = content.IndexOf(
+            "report-summary-card--score",
             StringComparison.Ordinal);
 
         int proves = content.IndexOf(
@@ -88,13 +130,9 @@ public sealed class RepositoryReportShellTests
                 StringSplitOptions.None)
             .Length - 1;
 
-        int evidenceSnapshot = content.IndexOf(
-            "<div class=\"report-evidence-snapshot\">",
-            StringComparison.Ordinal);
-
-        Assert.True(group >= 0);
-        Assert.True(group < evidenceSnapshot);
-        Assert.True(evidenceSnapshot < proves);
+        Assert.True(grid >= 0);
+        Assert.True(grid < scoreCard);
+        Assert.True(scoreCard < proves);
         Assert.True(proves < weakens);
         Assert.True(weakens < doFirst);
         Assert.True(doFirst < uncertainty);
@@ -104,10 +142,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void First_reading_layer_avoids_repeating_deep_action_and_evidence_detail()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.DoesNotContain(
             "@action.EffortLabel",
@@ -133,10 +168,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_shell_reuses_canonical_status_badge()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "new StatusBadgeModel(",
@@ -155,40 +187,106 @@ public sealed class RepositoryReportShellTests
     }
 
     [Fact]
-    public void Repository_identity_defers_deep_trust_metadata_behind_progressive_disclosure()
+    public void Repository_identity_matches_locked_reference_hero_composition()
+    {
+        string content = ReadReportComposition();
+
+        Assert.Contains(
+            "report-identity-card",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.Github",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.Link2",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.GitBranch",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.Code2",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "report-identity__url-chip",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "report-identity__status-card",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "report-identity__status-visual",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.ChartPie",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "report-identity__generated",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "UiIcon.Clock",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "report-identity-details",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "UiIcon.FolderGit2",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Repository_identity_surfaces_url_branch_language_and_snapshot_time_in_first_layer()
     {
         string content = ReadWebFile(
             "Pages",
             "Shared",
-            "_RepositoryReport.cshtml");
+            "_RepositoryReportIdentity.cshtml");
 
         Assert.Contains(
-            "<details class=\"report-identity-details\">",
+            "@Model.Identity.Url",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "report-identity__name-link",
+            "@Model.Identity.DefaultBranch",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
+            "@Model.Identity.PrimaryLanguage",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "@Model.Identity.CapturedAt",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
             "@Model.Identity.HeadCommitSha",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "@Model.Identity.CapturedAt.ToString(\"O\")",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.DoesNotContain(
-            "report-section__eyebrow",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.DoesNotContain(
-            "report-identity__meta",
             content,
             StringComparison.Ordinal);
     }
@@ -196,13 +294,10 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void First_reading_uses_semantic_icons_and_does_not_repeat_highlight_explanations()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         int start = content.IndexOf(
-            "<div class=\"report-first-reading\">",
+            "<div class=\"report-first-reading report-decision-grid\">",
             StringComparison.Ordinal);
 
         int end = content.IndexOf(
@@ -242,7 +337,7 @@ public sealed class RepositoryReportShellTests
     }
 
     [Fact]
-    public void First_reading_groups_proves_and_weakens_as_two_column_evidence_snapshot_on_desktop()
+    public void Decision_viewport_uses_proportional_four_two_one_responsive_card_grid()
     {
         string content = ReadWebFile(
             "wwwroot",
@@ -250,7 +345,22 @@ public sealed class RepositoryReportShellTests
             "report.css");
 
         Assert.Contains(
-            ".report-evidence-snapshot",
+            ".report-decision-grid",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "minmax(12rem, 0.85fr)",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "minmax(18rem, 1.45fr)",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "@media (max-width: 64rem)",
             content,
             StringComparison.Ordinal);
 
@@ -260,12 +370,88 @@ public sealed class RepositoryReportShellTests
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "border-left: 1px solid var(--border-subtle);",
+            "@media (max-width: 48rem)",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "@media (max-width: 64rem)",
+            "grid-template-columns: 1fr;",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            ".report-evidence-snapshot",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Decision_viewport_surfaces_overall_score_without_moving_canonical_score_section()
+    {
+        string content = ReadReportComposition();
+
+        int summaryCard = content.IndexOf(
+            "report-summary-card--score",
+            StringComparison.Ordinal);
+
+        int proves = content.IndexOf(
+            "data-report-section=\"@RepositoryReportSectionKeys.Proves\"",
+            StringComparison.Ordinal);
+
+        int canonicalScore = content.IndexOf(
+            "data-report-section=\"@RepositoryReportSectionKeys.CategoriesAndScore\"",
+            StringComparison.Ordinal);
+
+        Assert.True(summaryCard >= 0);
+        Assert.True(summaryCard < proves);
+        Assert.True(canonicalScore > proves);
+
+        Assert.Contains(
+            "@Model.ScoreSummary.NormalizedScore",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Score_summary_card_prioritizes_decision_counts_over_raw_scoring_metadata()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Shared",
+            "_RepositoryReportScoreCard.cshtml");
+
+        Assert.Contains(
+            "@Model.Proves.Items.Count",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "@Model.Weakens.Items.Count",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "@Model.Uncertainty.Items.Count",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "report-score-card__metrics",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "@Model.ScoreSummary.Categories.Count",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "@Model.ScoreSummary.EarnedScore",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "@Model.ScoreSummary.ApplicableMaximumScore",
             content,
             StringComparison.Ordinal);
     }
@@ -273,10 +459,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Category_summary_is_collapsed_by_default_and_surfaces_secondary_score()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "report-layer__details--categories",
@@ -302,10 +485,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_boundary_is_collapsed_by_default_as_a_secondary_layer()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "report-layer__details--disclaimer",
@@ -405,10 +585,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_shell_keeps_score_after_uncertainty_and_before_signal_details()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         int uncertainty = content.IndexOf(
             "data-report-section=\"@RepositoryReportSectionKeys.Uncertainty\"",
@@ -429,10 +606,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Uncertainty_uses_compact_progressive_disclosure_and_hides_when_empty()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "Model.Uncertainty.Items.Count > 0",
@@ -473,10 +647,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_disclosure_affordances_use_one_outline_svg_icon()
     {
-        string report = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string report = ReadReportComposition();
 
         string icon = ReadWebFile(
             "Pages",
@@ -522,10 +693,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Signal_details_layer_is_collapsed_by_default_behind_top_level_progressive_disclosure()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "<details class=\"report-signal-section\">",
@@ -561,10 +729,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Signal_details_use_progressive_disclosure()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "<details class=\"report-signal\">",
@@ -580,10 +745,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Signal_details_expose_a_non_textual_disclosure_affordance()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "report-signal__chevron",
@@ -599,10 +761,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_shell_renders_disclaimer_policy_version_with_explicit_razor_expression()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.Contains(
             "v@(Model.Disclaimer.PolicyVersion)",
@@ -618,10 +777,7 @@ public sealed class RepositoryReportShellTests
     [Fact]
     public void Report_shell_does_not_parse_markdown()
     {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReport.cshtml");
+        string content = ReadReportComposition();
 
         Assert.DoesNotContain(
             "RepositoryReportMarkdownRenderer",
@@ -632,6 +788,64 @@ public sealed class RepositoryReportShellTests
             "Markdown",
             content,
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ReadReportComposition()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Shared",
+            "_RepositoryReport.cshtml");
+
+        string[] partialNames =
+        {
+            "_RepositoryReportIdentity",
+            "_RepositoryReportScoreCard",
+            "_RepositoryReportProves",
+            "_RepositoryReportWeakens",
+            "_RepositoryReportActions",
+            "_RepositoryReportUncertainty",
+            "_RepositoryReportScore",
+            "_RepositoryReportSignals",
+            "_RepositoryReportDisclaimer"
+        };
+
+        foreach (string partialName in partialNames)
+        {
+            string contentValue = ReadWebFile(
+                "Pages",
+                "Shared",
+                $"{partialName}.cshtml");
+
+            string escapedPartialName =
+                System.Text.RegularExpressions.Regex.Escape(
+                    partialName);
+
+            string pattern =
+                $@"@await\s+Html\.PartialAsync\(\s*""{escapedPartialName}"",\s*Model\s*\)";
+
+            var regex =
+                new System.Text.RegularExpressions.Regex(
+                    pattern,
+                    System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+            System.Text.RegularExpressions.MatchCollection matches =
+                regex.Matches(content);
+
+            if (matches.Count != 1)
+            {
+                throw new InvalidOperationException(
+                    $"Expected exactly one report partial call for "
+                    + $"{partialName}, found {matches.Count}.");
+            }
+
+            content = regex.Replace(
+                content,
+                _ => contentValue,
+                1);
+        }
+
+        return content;
     }
 
     private static string ReadWebFile(params string[] relativeSegments)

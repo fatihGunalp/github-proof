@@ -1,0 +1,38 @@
+@model RepositoryReport
+
+<div class="report-summary-card__header">
+    <div class="report-summary-card__heading">
+        <span
+            class="report-summary-card__icon report-summary-card__icon--strength"
+            aria-hidden="true">
+            @await Html.PartialAsync(
+                "_StatusIcon",
+                StatusIcon.CircleCheck)
+        </span>
+
+        <h2 class="report-summary-card__title">
+            @Model.Proves.Title
+        </h2>
+    </div>
+
+    <span class="report-summary-card__count">
+        @Model.Proves.Items.Count
+    </span>
+</div>
+
+<ol class="report-summary-list">
+    @foreach (RepositoryReportHighlight item in Model.Proves.Items)
+    {
+        <li class="report-summary-item">
+            <h3 class="report-summary-item__title">
+                @item.Title
+            </h3>
+
+            @await Html.PartialAsync(
+                "_StatusBadge",
+                new StatusBadgeModel(
+                    item.Status,
+                    item.StatusLabel))
+        </li>
+    }
+</ol>

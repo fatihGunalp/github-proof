@@ -1,0 +1,99 @@
+@model RepositoryReport
+
+@{
+    string scoreLabel =
+        !string.IsNullOrWhiteSpace(Model.ScoreSummary.Label)
+            ? Model.ScoreSummary.Label
+            : Model.ScoreSummary.SectionTitle;
+}
+
+<div class="report-summary-card__header">
+    <span
+        class="report-summary-card__icon report-summary-card__icon--score"
+        aria-hidden="true">
+        @await Html.PartialAsync(
+            "_UiIcon",
+            UiIcon.ChartNoAxesColumnIncreasing)
+    </span>
+</div>
+
+<div class="report-score-card__body">
+    @if (Model.ScoreSummary.NormalizedScore is not null)
+    {
+        <div
+            class="report-score-card__ring"
+            style="--report-score: @Model.ScoreSummary.NormalizedScore">
+
+            <div class="report-score-card__value">
+                <strong>
+                    @Model.ScoreSummary.NormalizedScore
+                </strong>
+
+                <span>/100</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="report-score-card__unavailable">
+            —
+        </div>
+    }
+
+    <h2 class="report-summary-card__title">
+        @scoreLabel
+    </h2>
+</div>
+
+<div
+    class="report-score-card__metrics"
+    aria-label="@Model.ScoreSummary.SectionTitle">
+
+    <div class="report-score-card__metric">
+        <span
+            class="report-score-card__metric-icon report-score-card__metric-icon--strength"
+            aria-hidden="true">
+            @await Html.PartialAsync(
+                "_StatusIcon",
+                StatusIcon.CircleCheck)
+        </span>
+
+        <strong>@Model.Proves.Items.Count</strong>
+
+        <span class="report-score-card__metric-label">
+            @Model.Proves.Title
+        </span>
+    </div>
+
+    <div class="report-score-card__metric">
+        <span
+            class="report-score-card__metric-icon report-score-card__metric-icon--weakness"
+            aria-hidden="true">
+            @await Html.PartialAsync(
+                "_StatusIcon",
+                StatusIcon.CircleX)
+        </span>
+
+        <strong>@Model.Weakens.Items.Count</strong>
+
+        <span class="report-score-card__metric-label">
+            @Model.Weakens.Title
+        </span>
+    </div>
+
+    <div class="report-score-card__metric">
+        <span
+            class="report-score-card__metric-icon report-score-card__metric-icon--uncertainty"
+            aria-hidden="true">
+            @await Html.PartialAsync(
+                "_StatusIcon",
+                StatusIcon.CircleHelp)
+        </span>
+
+        <strong>@Model.Uncertainty.Items.Count</strong>
+
+        <span class="report-score-card__metric-label">
+            @Model.Uncertainty.Title
+        </span>
+    </div>
+</div>

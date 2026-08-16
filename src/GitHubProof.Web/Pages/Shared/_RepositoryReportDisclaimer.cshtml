@@ -1,0 +1,35 @@
+@model RepositoryReport
+
+<details class="report-layer__details report-layer__details--disclaimer">
+            <summary class="report-layer__summary">
+                <span class="report-layer__leading">
+                    <span
+                        class="report-layer__icon"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.Info)
+                    </span>
+
+                    <span class="report-layer__title">
+                        @Model.Disclaimer.SectionTitle
+                    </span>
+                </span>
+
+                <span
+                    class="report-layer__chevron"
+                    aria-hidden="true">
+                    @await Html.PartialAsync(
+                        "_UiIcon",
+                        UiIcon.ChevronRight)
+                </span>
+            </summary>
+
+            <div class="report-layer__content report-layer__content--disclaimer">
+                <p>@Model.Disclaimer.Text</p>
+
+                <span class="report-disclaimer__version">
+                    v@(Model.Disclaimer.PolicyVersion)
+                </span>
+            </div>
+        </details>

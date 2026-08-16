@@ -5,9 +5,9 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
 
-  <data name="report.section.identity" xml:space="preserve"><value>Repository bağlamı</value></data>
-  <data name="report.section.proves" xml:space="preserve"><value>Bu repository neyi kanıtlıyor?</value></data>
-  <data name="report.section.weakens" xml:space="preserve"><value>Kanıtı ne zayıflatıyor?</value></data>
+  <data name="report.section.identity" xml:space="preserve"><value>Analiz kaynağı</value></data>
+  <data name="report.section.proves" xml:space="preserve"><value>Güçlü Kanıtlar</value></data>
+  <data name="report.section.weakens" xml:space="preserve"><value>Zayıf Noktalar</value></data>
   <data name="report.section.do-first" xml:space="preserve"><value>Önce bunları yap</value></data>
   <data name="report.section.uncertainty" xml:space="preserve"><value>Belirsizlik</value></data>
   <data name="report.section.categories-score" xml:space="preserve"><value>Kategori özeti</value></data>

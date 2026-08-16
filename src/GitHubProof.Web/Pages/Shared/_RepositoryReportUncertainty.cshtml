@@ -1,0 +1,96 @@
+@model RepositoryReport
+
+@{
+    string[] warningMessages =
+        Model.Warnings
+            .Select(warning => warning.Message)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+    string[] limitationMessages =
+        Model.Limitations
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+}
+
+<details class="report-uncertainty">
+                <summary class="report-uncertainty__summary">
+                    <h2 class="report-uncertainty__title">
+                        <span
+                            class="report-uncertainty__icon"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_StatusIcon",
+                                StatusIcon.CircleHelp)
+                        </span>
+
+                        <span class="report-uncertainty__title-text">
+                            @Model.Uncertainty.Title
+                        </span>
+
+                        @if (Model.Uncertainty.Items.Count > 0)
+                        {
+                            <span class="report-uncertainty__count">
+                                @Model.Uncertainty.Items.Count
+                            </span>
+                        }
+
+                        <span
+                            class="report-uncertainty__chevron"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_DisclosureIcon")
+                        </span>
+                    </h2>
+                </summary>
+
+                <div class="report-uncertainty__content">
+                    @if (Model.Uncertainty.Items.Count > 0)
+                    {
+                        <div class="report-uncertainty__items">
+                            @foreach (
+                                RepositoryReportUncertainty item
+                                in Model.Uncertainty.Items)
+                            {
+                                <div class="report-uncertainty__row">
+                                    <div>
+                                        <h3 class="report-uncertainty__item-title">
+                                            @item.Title
+                                        </h3>
+
+                                        <p class="report-uncertainty__explanation">
+                                            @item.Explanation
+                                        </p>
+                                    </div>
+
+                                    @await Html.PartialAsync(
+                                        "_StatusBadge",
+                                        new StatusBadgeModel(
+                                            item.Status,
+                                            item.StatusLabel))
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (warningMessages.Length > 0)
+                    {
+                        <ul class="report-notes">
+                            @foreach (string message in warningMessages)
+                            {
+                                <li>@message</li>
+                            }
+                        </ul>
+                    }
+
+                    @if (limitationMessages.Length > 0)
+                    {
+                        <ul class="report-notes">
+                            @foreach (string message in limitationMessages)
+                            {
+                                <li>@message</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </details>

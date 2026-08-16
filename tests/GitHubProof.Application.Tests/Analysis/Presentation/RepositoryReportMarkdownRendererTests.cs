@@ -71,12 +71,12 @@ public sealed class RepositoryReportMarkdownRendererTests
         string turkishMarkdown = _renderer.Render(turkish);
 
         Assert.Contains(
-            "## What this repository proves",
+            "## Strong Evidence",
             englishMarkdown,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "## Bu repository neyi kanıtlıyor?",
+            "## Güçlü Kanıtlar",
             turkishMarkdown,
             StringComparison.Ordinal);
 
@@ -749,14 +749,14 @@ public sealed class RepositoryReportMarkdownRendererTests
             new RepositoryReportSection<RepositoryReportHighlight>(
                 RepositoryReportSectionKeys.Proves,
                 turkish
-                    ? "Bu repository neyi kanıtlıyor?"
-                    : "What this repository proves",
+                    ? "Güçlü Kanıtlar"
+                    : "Strong Evidence",
                 proves),
             new RepositoryReportSection<RepositoryReportHighlight>(
                 RepositoryReportSectionKeys.Weakens,
                 turkish
-                    ? "Kanıtı ne zayıflatıyor?"
-                    : "What weakens the evidence",
+                    ? "Zayıf Noktalar"
+                    : "Weak Points",
                 weakens),
             new RepositoryReportSection<RepositoryReportAction>(
                 RepositoryReportSectionKeys.DoFirst,

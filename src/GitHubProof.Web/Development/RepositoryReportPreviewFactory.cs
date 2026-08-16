@@ -32,7 +32,7 @@ public static class RepositoryReportPreviewFactory
 
         RepositoryReportIdentity identity = new(
             RepositoryReportSectionKeys.Identity,
-            L(tr, "Repository context", "Repository bağlamı"),
+            L(tr, "Analysis source", "Analiz kaynağı"),
             Guid.Parse("04700000-0000-0000-0000-000000000008"),
             "fatihGunalp",
             "github-proof",
@@ -368,15 +368,15 @@ public static class RepositoryReportPreviewFactory
                 RepositoryReportSectionKeys.Proves,
                 L(
                     tr,
-                    "What this repository proves",
-                    "Bu repository neyi kanıtlıyor?"),
+                    "Strong Evidence",
+                    "Güçlü Kanıtlar"),
                 proves),
             new(
                 RepositoryReportSectionKeys.Weakens,
                 L(
                     tr,
-                    "What weakens the evidence",
-                    "Kanıtı ne zayıflatıyor?"),
+                    "Weak Points",
+                    "Zayıf Noktalar"),
                 weakens),
             new(
                 RepositoryReportSectionKeys.DoFirst,

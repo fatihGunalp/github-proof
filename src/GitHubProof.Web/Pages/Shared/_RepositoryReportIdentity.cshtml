@@ -1,0 +1,191 @@
+@model RepositoryReport
+
+@{
+    bool isTurkish =
+        Model.Locale.StartsWith(
+            "tr",
+            StringComparison.OrdinalIgnoreCase);
+
+    string analysisStatusClass =
+        Model.Identity.AnalysisStatus switch
+        {
+            GitHubProof.Domain.Analysis.Enums.AnalysisStatus.Completed =>
+                "report-identity__status--completed",
+
+            GitHubProof.Domain.Analysis.Enums.AnalysisStatus.Partial =>
+                "report-identity__status--partial",
+
+            GitHubProof.Domain.Analysis.Enums.AnalysisStatus.InsufficientData =>
+                "report-identity__status--insufficient",
+
+            GitHubProof.Domain.Analysis.Enums.AnalysisStatus.Failed =>
+                "report-identity__status--failed",
+
+            _ =>
+                throw new InvalidOperationException(
+                    $"Unsupported analysis status: {Model.Identity.AnalysisStatus}")
+        };
+
+    string scoreLabel =
+        !string.IsNullOrWhiteSpace(Model.ScoreSummary.Label)
+            ? Model.ScoreSummary.Label
+            : Model.ScoreSummary.SectionTitle;
+
+    bool strongEvidenceLabel =
+        scoreLabel.Contains(
+            "Güçlü",
+            StringComparison.OrdinalIgnoreCase)
+        || scoreLabel.Contains(
+            "Strong",
+            StringComparison.OrdinalIgnoreCase);
+
+    string statusSummary =
+        Model.Identity.AnalysisStatus
+            == GitHubProof.Domain.Analysis.Enums.AnalysisStatus.Partial
+        && strongEvidenceLabel
+        && Model.Weakens.Items.Count > 0
+            ? isTurkish
+                ? "Güçlü, ancak bazı eksikler var."
+                : "Strong, with some gaps."
+            : scoreLabel;
+
+    bool capturedToday =
+        Model.Identity.CapturedAt.UtcDateTime.Date
+        == DateTimeOffset.UtcNow.UtcDateTime.Date;
+
+    string capturedAtDisplay =
+        capturedToday
+            ? $"{(isTurkish ? "Bugün" : "Today")} "
+              + Model.Identity.CapturedAt.ToString("HH:mm")
+            : Model.Identity.CapturedAt.ToString(
+                isTurkish
+                    ? "dd.MM.yyyy HH:mm"
+                    : "yyyy-MM-dd HH:mm");
+
+    string reportGeneratedLabel =
+        isTurkish
+            ? "Rapor oluşturulma:"
+            : "Report generated:";
+}
+
+<div class="report-identity-card">
+    <div
+        class="report-identity__mark"
+        aria-hidden="true">
+
+        <span class="report-identity__github-disc">
+            @await Html.PartialAsync(
+                "_UiIcon",
+                UiIcon.Github)
+        </span>
+    </div>
+
+    <div class="report-identity__primary">
+        <h1 class="report-identity__name">
+            <a
+                class="report-identity__name-link"
+                href="@Model.Identity.Url"
+                rel="noreferrer">
+                @Model.Identity.FullName
+            </a>
+        </h1>
+
+        <div class="report-identity__metadata">
+            <a
+                class="report-identity__url-chip"
+                href="@Model.Identity.Url"
+                rel="noreferrer">
+
+                <span
+                    class="report-identity__metadata-icon"
+                    aria-hidden="true">
+                    @await Html.PartialAsync(
+                        "_UiIcon",
+                        UiIcon.Link2)
+                </span>
+
+                <span class="report-identity__url-text">
+                    @Model.Identity.Url
+                </span>
+
+                <span
+                    class="report-identity__url-external"
+                    aria-hidden="true">
+                    @await Html.PartialAsync(
+                        "_UiIcon",
+                        UiIcon.ExternalLink)
+                </span>
+            </a>
+
+            <span class="report-identity__chip">
+                <span
+                    class="report-identity__metadata-icon"
+                    aria-hidden="true">
+                    @await Html.PartialAsync(
+                        "_UiIcon",
+                        UiIcon.GitBranch)
+                </span>
+
+                <span>@Model.Identity.DefaultBranch</span>
+            </span>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Identity.PrimaryLanguage))
+            {
+                <span class="report-identity__chip">
+                    <span
+                        class="report-identity__metadata-icon"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.Code2)
+                    </span>
+
+                    <span>@Model.Identity.PrimaryLanguage</span>
+                </span>
+            }
+        </div>
+    </div>
+
+    <aside class="report-identity__analysis">
+        <div
+            class="report-identity__status-card @analysisStatusClass">
+
+            <span
+                class="report-identity__status-visual"
+                aria-hidden="true">
+                @await Html.PartialAsync(
+                    "_UiIcon",
+                    UiIcon.ChartPie)
+            </span>
+
+            <div class="report-identity__status-copy">
+                <strong class="report-identity__status-title">
+                    @Model.Identity.AnalysisStatusLabel
+                </strong>
+
+                <span class="report-identity__status-summary">
+                    @statusSummary
+                </span>
+            </div>
+        </div>
+
+        <div class="report-identity__generated">
+            <span
+                class="report-identity__clock"
+                aria-hidden="true">
+                @await Html.PartialAsync(
+                    "_UiIcon",
+                    UiIcon.Clock)
+            </span>
+
+            <span>@reportGeneratedLabel</span>
+
+            <time
+                class="report-identity__captured-at"
+                datetime="@Model.Identity.CapturedAt.ToString("O")"
+                title="@Model.Identity.CapturedAt.ToString("O")">
+                @capturedAtDisplay
+            </time>
+        </div>
+    </aside>
+</div>

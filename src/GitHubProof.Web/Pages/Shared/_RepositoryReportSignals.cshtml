@@ -1,0 +1,105 @@
+@model RepositoryReport
+
+<details class="report-signal-section">
+            <summary class="report-signal-section__summary">
+                <h2 class="report-signal-section__title">
+                    <span>
+                        @Model.SignalDetails.Title
+                    </span>
+
+                    <span class="report-signal-section__meta">
+                        <span class="report-signal-section__count">
+                            @Model.SignalDetails.Items.Count
+                        </span>
+
+                        <span
+                            class="report-signal-section__chevron"
+                            aria-hidden="true">
+                            @await Html.PartialAsync(
+                                "_DisclosureIcon")
+                        </span>
+                    </span>
+                </h2>
+            </summary>
+
+            <div class="report-signal-section__content">
+                <div class="report-signals">
+            @foreach (SignalPresentation signal in Model.SignalDetails.Items)
+            {
+                <details class="report-signal">
+                    <summary class="report-signal__summary">
+                        <span class="report-signal__title">
+                            @signal.Title
+                        </span>
+
+                        <span class="report-signal__state">
+                            @await Html.PartialAsync(
+                                "_StatusBadge",
+                                new StatusBadgeModel(
+                                    signal.Status,
+                                    signal.StatusLabel))
+
+                            <span
+                                class="report-signal__chevron"
+                                aria-hidden="true">
+                                @await Html.PartialAsync(
+                                    "_DisclosureIcon")
+                            </span>
+                        </span>
+                    </summary>
+
+                    <div class="report-signal__content">
+                        @if (signal.Score is not null)
+                        {
+                            <p class="report-signal__score">
+                                @signal.Score / @signal.MaximumScore
+                            </p>
+                        }
+
+                        <p>@signal.Description</p>
+                        <p>@signal.Explanation</p>
+                        <p>@signal.WhyItMatters</p>
+
+                        @if (!string.IsNullOrWhiteSpace(signal.Recommendation))
+                        {
+                            <p class="report-item__recommendation">
+                                @signal.Recommendation
+                            </p>
+                        }
+
+                        @if (signal.Limitations.Count > 0)
+                        {
+                            <ul class="report-notes">
+                                @foreach (string limitation in signal.Limitations)
+                                {
+                                    <li>@limitation</li>
+                                }
+                            </ul>
+                        }
+
+                        @if (signal.Evidence.Count > 0)
+                        {
+                            <ul class="report-evidence">
+                                @foreach (var evidence in signal.Evidence)
+                                {
+                                    <li>
+                                        <span class="report-evidence__source">
+                                            @evidence.Source
+                                        </span>
+
+                                        <span>@evidence.Value</span>
+
+                                        @if (!string.IsNullOrWhiteSpace(evidence.Location))
+                                        {
+                                            <code>@evidence.Location</code>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </details>
+            }
+                </div>
+            </div>
+        </details>

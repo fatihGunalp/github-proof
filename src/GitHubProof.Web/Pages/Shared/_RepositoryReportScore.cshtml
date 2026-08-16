@@ -1,0 +1,77 @@
+@model RepositoryReport
+
+<details class="report-layer__details report-layer__details--categories">
+            <summary class="report-layer__summary">
+                <span class="report-layer__leading">
+                    <span
+                        class="report-layer__icon"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.ChartNoAxesColumnIncreasing)
+                    </span>
+
+                    <span class="report-layer__title">
+                        @Model.ScoreSummary.SectionTitle
+                    </span>
+                </span>
+
+                <span class="report-layer__meta">
+                    @if (Model.ScoreSummary.NormalizedScore is not null)
+                    {
+                        <strong class="report-layer__score">
+                            @Model.ScoreSummary.NormalizedScore/100
+                        </strong>
+                    }
+
+                    <span
+                        class="report-layer__chevron"
+                        aria-hidden="true">
+                        @await Html.PartialAsync(
+                            "_UiIcon",
+                            UiIcon.ChevronRight)
+                    </span>
+                </span>
+            </summary>
+
+            <div class="report-layer__content">
+                <div class="report-categories">
+                    @foreach (
+                        RepositoryReportCategory category
+                        in Model.ScoreSummary.Categories)
+                    {
+                        <div class="report-category">
+                            <div>
+                                <h3 class="report-category__title">
+                                    @category.Label
+                                </h3>
+
+                                <span class="report-category__status">
+                                    @category.StatusLabel
+                                </span>
+                            </div>
+
+                            <div class="report-category__score">
+                                @if (category.NormalizedScore is not null)
+                                {
+                                    <strong>
+                                        @category.NormalizedScore/100
+                                    </strong>
+                                }
+
+                                <span>
+                                    @category.Score / @category.MaximumScore
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ScoreSummary.Label))
+                {
+                    <div class="report-score-summary">
+                        <span>@Model.ScoreSummary.Label</span>
+                    </div>
+                }
+            </div>
+        </details>

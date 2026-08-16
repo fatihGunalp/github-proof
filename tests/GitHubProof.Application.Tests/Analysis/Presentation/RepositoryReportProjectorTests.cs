@@ -125,11 +125,11 @@ public sealed class RepositoryReportProjectorTests
             turkish.SectionOrder);
 
         Assert.Equal(
-            "What this repository proves",
+            "Strong Evidence",
             english.Proves.Title);
 
         Assert.Equal(
-            "Bu repository neyi kanıtlıyor?",
+            "Güçlü Kanıtlar",
             turkish.Proves.Title);
 
         Assert.Equal(

@@ -5,9 +5,9 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
 
-  <data name="report.section.identity" xml:space="preserve"><value>Repository context</value></data>
-  <data name="report.section.proves" xml:space="preserve"><value>What this repository proves</value></data>
-  <data name="report.section.weakens" xml:space="preserve"><value>What weakens the evidence</value></data>
+  <data name="report.section.identity" xml:space="preserve"><value>Analysis source</value></data>
+  <data name="report.section.proves" xml:space="preserve"><value>Strong Evidence</value></data>
+  <data name="report.section.weakens" xml:space="preserve"><value>Weak Points</value></data>
   <data name="report.section.do-first" xml:space="preserve"><value>Do these first</value></data>
   <data name="report.section.uncertainty" xml:space="preserve"><value>Uncertainty</value></data>
   <data name="report.section.categories-score" xml:space="preserve"><value>Category summary</value></data>

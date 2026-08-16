@@ -1,0 +1,42 @@
+@model RepositoryReport
+
+<div class="report-summary-card__header">
+    <div class="report-summary-card__heading">
+        <span
+            class="report-summary-card__icon report-summary-card__icon--action"
+            aria-hidden="true">
+            @await Html.PartialAsync(
+                "_UiIcon",
+                UiIcon.ListTree)
+        </span>
+
+        <h2 class="report-summary-card__title">
+            @Model.DoFirst.Title
+        </h2>
+    </div>
+
+    <span class="report-summary-card__count">
+        @Model.DoFirst.Items.Count
+    </span>
+</div>
+
+<ol class="report-summary-actions">
+    @foreach (RepositoryReportAction action in Model.DoFirst.Items)
+    {
+        <li class="report-summary-action">
+            <span class="report-summary-action__priority">
+                @action.Priority
+            </span>
+
+            <div class="report-summary-action__content">
+                <h3 class="report-summary-item__title">
+                    @action.Title
+                </h3>
+
+                <p class="report-summary-action__recommendation">
+                    @action.Recommendation
+                </p>
+            </div>
+        </li>
+    }
+</ol>
