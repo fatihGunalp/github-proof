@@ -92,3 +92,4 @@ Do not use worklog as product or domain source of truth; docs/ prevails.
 | 2026-08-16 | Branch-Based Workflow + CURRENT Compaction | PASS | ChatGPT-guided — macOS Terminal / manual | [059](./sessions/2026-08-16-059-branch-workflow-current-compaction.md) | 758e6fd |
 | 2026-08-16 | Deployment Milestones Contract | PASS | ChatGPT-guided — macOS Terminal / manual | [060](./sessions/2026-08-16-060-deployment-milestones-contract.md) | fd6f048 |
 | 2026-08-16 | Milestone B Dependency Clarification | PASS | ChatGPT-guided — macOS Terminal / manual | [061](./sessions/2026-08-16-061-milestone-b-dependency-clarification.md) | 9b89b5e |
+| 2026-08-16 | Profile P3 GitHub Profile Data Collection | IN_PROGRESS | ChatGPT → Claude | [062](./sessions/2026-08-16-062-profile-p3-data-collection.md) | 4ca1a21 |

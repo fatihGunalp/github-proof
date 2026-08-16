@@ -3,75 +3,78 @@
 **Last Updated:** 2026-08-16
 **Source of Truth:** docs/
 
-> Compact operational snapshot only.
-
 ## Development
 
 Completed:
 Stage 6 — Profile P2 — COMPLETE / REMOTE VERIFIED
 
+Current:
+Stage 7 — Public Profile Evidence Foundation
+
+Active:
+P3 — GitHub Profile Data Collection
+
 Next:
-Stage 7 — Public Profile Evidence Foundation P3–P9 — NOT STARTED
+P4 — RepositoryAnalysis Orchestration
 
 ## Production Delivery
 
-Current:
-Milestone A — Repository Proof Production Baseline — NOT_STARTED
+Milestone A:
+NOT_STARTED
 
-Next:
-Milestone B — Profile Proof Beta
-
-Milestone B dependency:
-- Stage 7 / P3–P9 COMPLETE
-- P9 validation PASS
-- P10 Profile Web Flow COMPLETE
-
-P10 is not part of Stage 7.
+Milestone B:
+BLOCKED
 
 ## Active Session
 
 Session:
-061 — Milestone B Dependency Clarification
+062 — Profile P3 GitHub Profile Data Collection
 
 Session File:
-worklog/sessions/2026-08-16-061-milestone-b-dependency-clarification.md
+worklog/sessions/2026-08-16-062-profile-p3-data-collection.md
 
 Status:
-READY_FOR_MANUAL_COMMIT
+READY_FOR_CLAUDE_MODEL_GATE
 
 ## Git
 
 Active Branch:
-session/061-milestone-b-dependency-clarification
+session/062-profile-p3-data-collection
 
 Session Base:
-9b89b5e51f074363662ed99f7eb4e1740c8c611f
+4ca1a2169989ba730149d9a2dc3233fba38e63a4
 
 Last Remote Verified Main:
-9b89b5e51f074363662ed99f7eb4e1740c8c611f
+4ca1a2169989ba730149d9a2dc3233fba38e63a4
 
 ## Goal
 
-Remove the Milestone B dependency ambiguity without changing Stage 7 scope.
+Implement deterministic normalized public GitHub profile collection.
+
+## Scope
+
+In:
+- identity
+- profile metadata
+- pagination
+- normalized repository manifest
+- GitHubProfileSnapshot
+- bounds
+- failure/rate-limit/unavailable semantics
+- deterministic ordering
+- tests
+
+Out:
+- P4+
+- P10
+- job evidence
+- developer-level inference
 
 ## Blocker
 
 NONE
 
-## Validation
-
-Stage 7 boundary:
-PASS
-
-P10 deployment dependency:
-PASS
-
-Product/domain/code/tests:
-UNCHANGED
-
 ## Next Action
 
-User manually commits and pushes Session 061 branch.
-
-After remote verification, integrate into main using explicit user-owned Git
-actions.
+Open Claude Code and continue from CURRENT.
+Claude must recommend model + effort and STOP before implementation.
