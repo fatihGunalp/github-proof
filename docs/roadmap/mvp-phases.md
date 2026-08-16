@@ -2,6 +2,46 @@
 
 Bu doküman, GitHub Proof projesinin MVP'ye ulaşması için izlenecek geliştirme fazlarını, kapsam sınırlarını ve çıkış kriterlerini tanımlar.
 
+## Development Roadmap ve Deployment Roadmap
+
+Bu doküman capability development sırasını tanımlar.
+
+Production release checkpoint'leri ayrı canonical roadmap belgesinde tutulur:
+
+docs/roadmap/deployment-milestones.md
+
+Temel ayrım:
+
+Stage / Phase
+= capability development
+
+Deployment Milestone
+= independently valuable validated production release point
+
+Kurallar:
+
+- stage completion deployment anlamına gelmez,
+- deployment milestone completion sonraki stage'lerin tamamlandığı anlamına gelmez,
+- daha sonraki capability development daha önce release edilmiş bağımsız
+  capability'yi gereksiz yere devre dışı bırakmamalıdır.
+
+Deployment dependency özeti:
+
+| Milestone | Development Dependency |
+|---|---|
+| A — Repository Proof Production Baseline | Existing Repository Proof |
+| B — Profile Proof Beta | P3–P10 + P9 validation PASS |
+| C — Job Proof Engine Alpha | J1–J4 |
+| D — Candidate Job Proof Beta | J5–J9 + J8 validation PASS |
+| E — Candidate Job Proof V1 | Candidate beta maturity |
+| F — Recruiter Evidence View | J10 |
+| G — Optional LLM Narration | J11 |
+
+Production gate ve release-level ayrıntıları için yalnız
+docs/roadmap/deployment-milestones.md canonical'dır.
+
+---
+
 ## MVP Tanımı
 
 GitHub Proof MVP'si:

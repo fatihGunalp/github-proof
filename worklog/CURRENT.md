@@ -1,84 +1,64 @@
 # GitHub Proof — Current Development State
 
 **Last Updated:** 2026-08-16
-**Source of Truth:** `docs/`
+**Source of Truth:** docs/
 
-> Operational snapshot only. Product/domain truth lives in `docs/`.
-> Historical session detail lives in `worklog/sessions/`.
+> Compact operational snapshot only.
 
-## Product State
+## Development
 
-Current completed stage:
+Completed:
 Stage 6 — Profile P2 — COMPLETE / REMOTE VERIFIED
 
-Next product stage:
+Next:
 Stage 7 — Public Profile Evidence Foundation P3–P9 — NOT STARTED
 
-Product/domain contracts:
-UNCHANGED
+## Production Delivery
 
-Production code/tests:
-UNCHANGED
+Current Deployment Milestone:
+A — Repository Proof Production Baseline
+
+Status:
+NOT_STARTED
+
+Next Deployment Milestone:
+B — Profile Proof Beta
+
+Dependency:
+Profile P3–P10 + P9 validation PASS
 
 ## Active Session
 
 Session:
-059 — Branch-Based Workflow + CURRENT Compaction
+060 — Deployment Milestones Contract
 
 Session File:
-worklog/sessions/2026-08-16-059-branch-workflow-current-compaction.md
+worklog/sessions/2026-08-16-060-deployment-milestones-contract.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
 
-## Git State
+## Git
 
 Active Branch:
-session/059-branch-workflow-current-compaction
+session/060-deployment-milestones-contract
 
 Session Base:
-758e6fd809b8475770b4d7375442eca861222e7d
+fd6f0481432a42ef5c461f1899933aaf6a68f3ba
 
 Last Remote Verified Main:
-758e6fd809b8475770b4d7375442eca861222e7d
+fd6f0481432a42ef5c461f1899933aaf6a68f3ba
 
-## Current Goal
+## Goal
 
-Establish a token-efficient branch-based development workflow where:
-
-- one meaningful session owns one working branch,
-- Git carries structural change history,
-- CURRENT carries only concise semantic/operational state,
-- session files carry historical detail,
-- ChatGPT and Claude can recover scope from branch + worklog without broad context loading.
+Lock the canonical deployment milestone roadmap without changing product/domain
+semantics or production code.
 
 ## Scope
 
-Operational developer workflow only.
-
-Expected areas:
-
-- CLAUDE.md
-- applicable Claude skills
-- applicable agents/worklog guidance
-- worklog/CURRENT.md
-- worklog/INDEX.md
-- Session 059
-
-No product/domain semantic changes.
-
-No production code/test changes.
-
-## Acceptance Criteria
-
-- meaningful session → dedicated branch is explicit,
-- active branch and session base are discoverable from CURRENT,
-- branch diff can act as structural working-set evidence,
-- CURRENT does not accumulate closed-session history,
-- ChatGPT handoff remains semantic and concise,
-- Claude minimum-context behavior is preserved,
-- review/finalization remain bounded and safe,
-- existing Session 058 cost-optimized routing remains intact.
+- docs/roadmap/deployment-milestones.md
+- docs/roadmap/mvp-phases.md
+- worklog only
 
 ## Blocker
 
@@ -86,13 +66,10 @@ NONE
 
 ## Validation
 
-Branch-based orchestration contract:
+Deployment milestone contract:
 PASS
 
-CURRENT compaction:
-PASS
-
-Session 058 cost-routing preservation:
+Development/deployment roadmap coordination:
 PASS
 
 Product/domain/code/tests:
@@ -100,10 +77,10 @@ UNCHANGED
 
 ## Next Action
 
-User manually commits and pushes the Session 059 branch.
+User manually commits and pushes Session 060 branch.
 
-After remote verification, integrate the completed workflow checkpoint into main
-using an explicit user-owned Git action.
+After remote verification, integrate the checkpoint into main using explicit
+user-owned Git actions.
 
-Do not start Stage 7 product implementation before Session 059 is integrated and
-remote verified.
+Do not start Milestone A deployment or Stage 7 implementation before Session 060
+is integrated and remote verified.
