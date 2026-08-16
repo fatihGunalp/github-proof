@@ -573,6 +573,68 @@ MVP tamamlanmış sayılır when:
 
 # Public Profile Evidence V1 — Expansion Roadmap
 
+## Canonical Product Dependency Direction
+
+GitHub Proof'un güncel expansion yönü üç ayrı structured truth katmanını
+birbirine bağlar:
+
+    Repository Evidence
+            ↓
+    Public Profile Evidence
+            ↓
+    DeveloperPublicEvidenceProfile
+
+ve:
+
+    Job Posting
+            ↓
+    Job Requirement Truth
+            ↓
+    JobRequirementProfile
+
+Bu iki bağımsız truth daha sonra:
+
+    DeveloperPublicEvidenceProfile
+            +
+    JobRequirementProfile
+            ↓
+    JobEvidenceAlignment
+
+ilişkisiyle birleştirilir.
+
+Zorunlu sınırlar:
+
+    DeveloperPublicEvidenceProfile
+    =
+    job-agnostic public GitHub evidence truth
+
+    JobRequirementProfile
+    =
+    one specific job posting's normalized requirement truth
+
+    JobEvidenceAlignment
+    =
+    structured comparison truth
+
+Aşağıdaki kavramlar birbirinin yerine geçmez:
+
+    RoleEvidenceAlignment
+    !=
+    JobEvidenceAlignment
+
+    JobEvidenceAlignment
+    !=
+    JobFit
+
+    JobEvidenceAlignment
+    !=
+    CandidateScore
+
+Canonical product contracts:
+
+    docs/product/public-profile-evidence-product-contract.md
+    docs/product/job-evidence-alignment-product-contract.md
+
 ## Roadmap Statüsü
 
 Bu bölüm mevcut Repository MVP V1 roadmap'inin replacement'ı değildir.
@@ -612,7 +674,11 @@ Bu profile roadmap boyunca:
 
 ## Profile P0 — Product Contract
 
-**Durum:** CONTRACT LOCKED — 2026-08-16 / Session 050
+**Durum:** CONTRACT LOCKED / REVISION 2
+
+**Original Lock:** 2026-08-16 / Session 050
+
+**Positioning Amendment:** 2026-08-16 / Session 054
 
 ### Amaç
 
@@ -1261,3 +1327,645 @@ ile Profile P12 aynı temel boundary'i paylaşır:
 
 > LLM deterministic evidence truth'un üstünde açıklama katmanı olabilir;
 > canonical truth veya scoring engine olamaz.
+
+---
+
+# Job Evidence Alignment V1 — Expansion Roadmap
+
+## Roadmap Statüsü
+
+Bu track, Repository Evidence ve Public Profile Evidence katmanlarını
+replacement olarak ele almaz.
+
+Doğru dependency:
+
+    Repository Evidence
+            ↓
+    Public Profile Evidence
+            ↓
+    DeveloperPublicEvidenceProfile
+
+ve:
+
+    Job Posting
+            ↓
+    Job Requirement Truth
+            ↓
+    JobRequirementProfile
+
+sonrasında:
+
+    DeveloperPublicEvidenceProfile
+            +
+    JobRequirementProfile
+            ↓
+    JobEvidenceAlignment
+
+Canonical product contract:
+
+    docs/product/job-evidence-alignment-product-contract.md
+
+Temel sınırlar:
+
+- candidate toplam skoru üretilmez,
+- job-fit yüzdesi üretilmez,
+- hire/no-hire sonucu üretilmez,
+- candidate ranking üretilmez,
+- seniority atanmaz,
+- public evidence yokluğu skill yokluğuna çevrilmez,
+- raw keyword eşleşmesi canonical truth değildir,
+- LLM canonical alignment truth üretmez.
+
+---
+
+## Job J0 — Product Contract
+
+**Durum:** CONTRACT LOCKED / VERSION 1 — 2026-08-16 / Session 053
+
+### Amaç
+
+Specific-job evidence alignment ürün sınırını kilitlemek.
+
+Canonical truth:
+
+    DeveloperPublicEvidenceProfile
+            +
+    JobRequirementProfile
+            ↓
+    JobEvidenceAlignment
+
+### Çıkış Kriteri
+
+    Job Evidence Alignment V1 Product Contract:
+    CONTRACT LOCKED
+
+---
+
+## Job J1 — JobRequirementProfile Domain Contract
+
+### Amaç
+
+Tek bir iş ilanındaki normalize teknik expectation truth için domain modelini
+kodlanabilir kesinlikte tanımlamak.
+
+Zorunlu sınırlar:
+
+- requirement source-faithful olmalıdır,
+- source statement/span traceability korunmalıdır,
+- importance source destekliyorsa korunabilir,
+- importance icat edilemez,
+- raw job posting canonical alignment input'u değildir.
+
+### Çıkış Kriteri
+
+`JobRequirementProfile` domain contract implementation öncesinde
+contract-locked olmalıdır.
+
+---
+
+## Job J2 — Job Requirement Extraction Contract
+
+### Amaç
+
+Raw job posting URL veya text içeriğini deterministik ve source-faithful
+`JobRequirementProfile` truth'una dönüştürme kurallarını tanımlamak.
+
+Zorunlu yön:
+
+    Raw Job Posting
+            ↓
+    Job Requirement Extraction
+            ↓
+    JobRequirementProfile
+
+Extraction:
+
+- requirement icat edemez,
+- unsupported importance ekleyemez,
+- ambiguity'yi certainty'ye çeviremez,
+- source traceability'yi kaybedemez.
+
+### Çıkış Kriteri
+
+Aynı normalized source ve aynı extraction rule version aynı structured
+requirement truth'u üretmelidir.
+
+---
+
+## Job J3 — JobEvidenceAlignment Domain Contract
+
+### Amaç
+
+`DeveloperPublicEvidenceProfile` ile `JobRequirementProfile` arasındaki
+structured comparison truth'u tanımlamak.
+
+Zorunlu sınırlar:
+
+    JobEvidenceAlignment
+    !=
+    JobFit
+
+    JobEvidenceAlignment
+    !=
+    CandidateScore
+
+    JobEvidenceAlignment
+    !=
+    HireRecommendation
+
+Requirement-level result'lar double traceability taşımalıdır:
+
+    alignment result
+    → job requirement
+    → job source
+
+ve:
+
+    alignment result
+    → profile evidence
+    → repository evidence
+
+### Çıkış Kriteri
+
+Alignment domain modeli implementation başlamadan önce contract-locked
+olmalıdır.
+
+---
+
+## Job J4 — Deterministic Alignment Engine
+
+### Amaç
+
+Her normalized job requirement için public GitHub evidence durumunu
+deterministik biçimde değerlendirmek.
+
+Temel input:
+
+    DeveloperPublicEvidenceProfile
+            +
+    JobRequirementProfile
+
+Temel output:
+
+    JobEvidenceAlignment
+
+Engine:
+
+- raw keyword intersection kullanmaz,
+- job context ile zayıf evidence'ı güçlendirmez,
+- public evidence yokluğunu skill yokluğuna dönüştürmez,
+- aggregate candidate suitability score üretmez,
+- versioned rules kullanır,
+- her meaningful sonucu double traceability ile açıklayabilir.
+
+### Çıkış Kriteri
+
+Aynı profile truth, aynı requirement truth ve aynı alignment rule versions
+aynı semantic alignment sonucunu üretmelidir.
+
+---
+
+## Job J5 — Job-Specific Representative Repositories
+
+### Amaç
+
+Belirli bir job requirement veya requirement grubu için en açıklayıcı
+supporting repository'leri seçmek.
+
+Bu kavram:
+
+    profile RepresentativeRepository
+
+ile aynı şey değildir.
+
+Profile-level representative repository:
+
+    genel profile pattern'lerini açıklamak için seçilir
+
+Job-specific representative repository:
+
+    belirli job requirement evidence'ını incelemek için seçilir
+
+Selection:
+
+- repository quality score değildir,
+- "best repository" kararı değildir,
+- stars/popularity skill evidence değildir,
+- açık evidence gerekçesi taşımalıdır.
+
+### Çıkış Kriteri
+
+Her job-specific repository selection ilgili requirement ve supporting
+repository evidence'a geri izlenebilmelidir.
+
+---
+
+## Job J6 — Evidence Visibility Improvement Actions
+
+### Amaç
+
+Belirli job requirement bağlamında public GitHub evidence görünürlüğünü
+iyileştirebilecek bounded aksiyonlar üretmek.
+
+Zorunlu sınır:
+
+    EvidenceVisibilityImprovementAction
+    !=
+    SkillGap
+
+Bu aksiyon:
+
+> GitHub'da bu requirement için daha güçlü görünür evidence nasıl
+> oluşturulabilir veya mevcut evidence nasıl daha açık sunulabilir?
+
+sorusuna cevap verir.
+
+Şu iddiayı yapmaz:
+
+> Kullanıcı bu teknolojiyi öğrenmelidir çünkü bilmiyor.
+
+Action yalnız mevcut structured truth ve evidence limitation'larından
+türetilmelidir.
+
+### Çıkış Kriteri
+
+Her action:
+
+- ilgili requirement'a,
+- mevcut evidence state'e,
+- supporting evidence veya limitation'a
+
+geri izlenebilir olmalıdır.
+
+---
+
+## Job J7 — Candidate Report Contract
+
+### Amaç
+
+`JobEvidenceAlignment` structured truth'unu candidate-facing,
+evidence-first ve açıklanabilir bir rapora dönüştürmek.
+
+Rapor en az şunları desteklemelidir:
+
+- normalized job requirement,
+- source importance varsa bunun görünürlüğü,
+- requirement-level evidence state,
+- neden bu sonuca ulaşıldığı,
+- supporting profile evidence,
+- supporting repositories,
+- repository-level evidence drill-down,
+- limitations / unavailable evidence,
+- evidence visibility improvement actions.
+
+Rapor:
+
+    JobEvidenceAlignment
+
+truth'unu tüketir.
+
+Presentation katmanı yeni alignment truth üretmez.
+
+Yasak:
+
+- overall candidate score,
+- job-fit yüzdesi,
+- "bu işe uygunsun / değilsin" sonucu,
+- hire recommendation,
+- seniority tahmini,
+- public evidence yokluğunu skill eksikliğine çevirme.
+
+### İlk Okuma Hedefi
+
+Candidate kısa sürede şunları anlayabilmelidir:
+
+1. İlandaki hangi teknik beklentiler public GitHub'da güçlü görünür evidence taşıyor?
+2. Hangileri sınırlı evidence taşıyor?
+3. Hangileri için evaluated public evidence bulunamadı?
+4. Sistem neden bu sonuca ulaştı?
+5. Hangi repository'ler bu requirement için anlamlı?
+6. Public evidence görünürlüğünü iyileştirmek için ne yapılabilir?
+
+### Çıkış Kriteri
+
+Candidate-facing report'taki her meaningful conclusion canonical
+`JobEvidenceAlignment` truth'una ve iki taraflı evidence chain'e geri
+izlenebilmelidir.
+
+---
+
+## Job J8 — Validation Set
+
+### Amaç
+
+Job Evidence Alignment'ın gerçek ilan ve public GitHub profilleri üzerinde
+yanıltıcı, aşırı iddialı veya semantic boundary dışı sonuç üretmediğini
+doğrulamak.
+
+Validation set en az farklı kombinasyonlar içermelidir:
+
+- .NET-heavy profile + .NET job,
+- frontend-heavy profile + frontend job,
+- mixed full-stack profile,
+- sparse public GitHub profile,
+- mostly-fork profile,
+- archived-heavy profile,
+- job'da Required / Preferred ayrımı,
+- ambiguous requirement wording,
+- technology keyword var ama supporting evidence zayıf,
+- supporting evidence var ama README keyword'ü yok,
+- requirement için unavailable evidence,
+- human-review gerektiren durumlar.
+
+### Özellikle Test Edilecek Riskler
+
+- raw keyword inflation,
+- README-only false support,
+- job context ile evidence güçlendirme,
+- negative mirror inference,
+- candidate score leakage,
+- false job-fit implication,
+- RoleEvidenceAlignment / JobEvidenceAlignment karışması,
+- broken job-source traceability,
+- broken GitHub evidence traceability,
+- non-deterministic alignment,
+- localization ile semantic truth değişmesi.
+
+### Minimum Validation Invariants
+
+    prohibited candidate inference:
+    0
+
+    unsupported requirement:
+    0
+
+    unsupported alignment claim:
+    0
+
+    broken double traceability:
+    0
+
+    deterministic replay:
+    PASS
+
+### Çıkış Kriteri
+
+Candidate-facing web flow başlamadan önce validation set:
+
+    PASS
+
+olmalıdır.
+
+---
+
+## Job J9 — GitHub Sign-In + Job Input Web Flow
+
+### Amaç
+
+Candidate'ın public GitHub identity'sini güvenilir biçimde bağlayıp belirli
+bir iş ilanı üzerinden Job Evidence Alignment raporuna ulaşmasını sağlamak.
+
+Hedef akış:
+
+    GitHub sign-in
+            ↓
+    trusted public GitHub identity
+            ↓
+    DeveloperPublicEvidenceProfile
+            ↓
+    job posting URL veya text
+            ↓
+    JobRequirementProfile
+            ↓
+    JobEvidenceAlignment
+            ↓
+    candidate-facing report
+
+Authenticated flow içerisinde kullanıcıdan GitHub username'i tekrar girmesi
+beklenmemelidir.
+
+OAuth / authentication:
+
+    App / Web concern
+
+olarak kalır.
+
+Domain truth değildir.
+
+Web katmanı:
+
+- profile truth üretmez,
+- requirement truth icat etmez,
+- alignment engine'i presentation içinde yeniden yazmaz,
+- locale değişiminde semantic analysis'i değiştirmez.
+
+### Çıkış Kriteri
+
+Authenticated candidate tek akışta:
+
+1. GitHub identity'sini bağlayabilmeli,
+2. job posting URL veya text verebilmeli,
+3. requirement-level evidence report'una ulaşabilmeli,
+4. her sonucu underlying evidence'a kadar inceleyebilmelidir.
+
+---
+
+## Job J10 — Recruiter Presentation
+
+### Amaç
+
+Aynı `JobEvidenceAlignment` structured truth'unu recruiter için hızlı teknik
+orientation ve evidence navigation görünümünde sunmak.
+
+Recruiter presentation şu amaçlarla kullanılabilir:
+
+- requirement-level evidence orientation,
+- supporting repository navigation,
+- interview preparation,
+- evidence-backed follow-up question routing,
+- limitations ve unavailable evidence görünürlüğü.
+
+Recruiter presentation:
+
+    same JobEvidenceAlignment truth
+
+tüketmelidir.
+
+Ayrı gizli candidate analysis engine üretmemelidir.
+
+Yasak:
+
+    Hire / No Hire
+
+    Automatic Rejection
+
+    Automatic Approval
+
+    Candidate Ranking
+
+    Seniority Assignment
+
+    Employability Score
+
+    Job Fit Score
+
+### Çıkış Kriteri
+
+Recruiter görünümü candidate görünümünden farklı presentation kullanabilir,
+ancak aynı canonical alignment truth ve aynı evidence chain'i korumalıdır.
+
+---
+
+## Job J11 — Optional LLM Narration
+
+### Amaç
+
+Yalnız deterministic structured Job Evidence Alignment truth tamamlandıktan
+sonra daha okunabilir explanation veya narration üretmek.
+
+Doğru yön:
+
+    JobEvidenceAlignment
+            ↓
+    structured evidence / limitations
+            ↓
+    optional LLM narration
+
+Yanlış yön:
+
+    raw job posting
+            +
+    raw GitHub
+            ↓
+    LLM
+            ↓
+    canonical candidate judgment
+
+LLM:
+
+- requirement icat edemez,
+- job importance icat edemez,
+- GitHub evidence icat edemez,
+- evidence state değiştiremez,
+- candidate score üretemez,
+- job-fit kararı veremez,
+- hire recommendation veremez,
+- seniority belirleyemez,
+- deterministic truth'u override edemez.
+
+Temel ilke:
+
+> LLM anlatır. Kanıt motoru kararın hammaddesini üretir.
+
+### Çıkış Kriteri
+
+LLM kapatıldığında canonical `JobEvidenceAlignment` truth ve candidate report
+semantics değişmeden kalmalıdır.
+
+---
+
+# Roadmap V2 — Canonical Execution Order
+
+Bu sıra semantic dependency sırasıdır.
+
+Session sınırları gerektiğinde daha küçük parçalara ayrılabilir; ancak aşağıdaki
+dependency order sessizce değiştirilemez.
+
+    Stage 1   Job Evidence Alignment Product Direction              COMPLETE
+    Stage 2   Job Evidence Alignment Product Contract               COMPLETE
+    Stage 3   Public Profile Evidence Positioning Amendment         COMPLETE
+    Stage 4   Canonical Roadmap V2 Alignment                        COMPLETE
+    Stage 5   Resume Profile P1 — Profile Domain Model Contract
+    Stage 6   Profile P2 — Repository Eligibility Contract
+    Stage 7   Profile Evidence Foundation — P3 through P9
+    Stage 8   Job J1 — JobRequirementProfile Domain Contract
+    Stage 9   Job J2 — Job Requirement Extraction Contract
+    Stage 10  Job J3 — JobEvidenceAlignment Domain Contract
+    Stage 11  Job J4 — Deterministic Alignment Engine
+    Stage 12  Job J5 — Job-Specific Representative Repositories
+    Stage 13  Job J6 — Evidence Visibility Improvement Actions
+    Stage 14  Job J7 — Candidate Report Contract
+    Stage 15  Job J8 — Validation Set
+    Stage 16  Job J9 — GitHub Sign-In + Job Input Web Flow
+    Stage 17  Job J10 — Recruiter Presentation
+    Stage 18  Job J11 — Optional LLM Narration
+
+## Dependency Gates
+
+### Profile Foundation Gate
+
+Before profile-dependent Job Evidence Alignment implementation:
+
+    Profile P1
+    and
+    Profile P2
+
+must be contract-locked.
+
+Profile P3–P9 then establish and validate usable:
+
+    DeveloperPublicEvidenceProfile
+
+truth.
+
+### Job Requirement Gate
+
+Before alignment-domain implementation:
+
+    J1 JobRequirementProfile Domain Contract
+    and
+    J2 Job Requirement Extraction Contract
+
+must define source-faithful job requirement truth.
+
+### Alignment Gate
+
+Before candidate report or web presentation:
+
+    J3 JobEvidenceAlignment Domain Contract
+    and
+    J4 Deterministic Alignment Engine
+
+must be complete.
+
+### Validation Gate
+
+Before the public candidate-facing web flow:
+
+    J8 Validation Set
+    =
+    PASS
+
+is required.
+
+### Presentation Gate
+
+The following are downstream consumers only:
+
+    J7 Candidate Report
+    J9 Candidate Web Flow
+    J10 Recruiter Presentation
+    J11 Optional LLM Narration
+
+They must not redefine canonical profile, requirement or alignment truth.
+
+## Preserved Parallel Profile Surfaces
+
+The existing profile roadmap items remain valid:
+
+    Profile P10 — Web Profile Flow
+    Profile P11 — Recruiter Pilot
+    Profile P12 — Optional LLM Narration
+
+They are separate Public Profile Evidence product surfaces.
+
+They are not prerequisites for the specific-job candidate flow once the
+required P1–P9 profile evidence foundation is deterministic and validated.
+
+## Next Canonical Stage
+
+After Stage 4 closes and its remote checkpoint is verified:
+
+    Stage 5 — Resume Profile P1
+
+is the only authorized next development stage.
