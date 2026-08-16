@@ -1,7 +1,7 @@
 # Session 049 — Evidence-first Product UI + Progressive Disclosure
 
 **Date:** 2026-08-16
-**Result:** IN_PROGRESS
+**Result:** PARTIAL
 **Scope:** web / product UI / presentation
 **Model Route:** Terra / medium
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -244,21 +244,18 @@ PENDING — session-end
 ## Completion Checklist
 
 ~~~text
-[ ] Goal completed
-[ ] Targeted Web validation passed
-[ ] Full solution tests passed
-[ ] Full solution build passed
-[ ] dotnet format --verify-no-changes passed
-[ ] Browser acceptance passed
-[ ] Light/Dark behavior preserved
-[ ] git diff --check passed
-[ ] git diff/status reviewed
-[ ] Contract/invariant drift checked
-[ ] Session Result updated
-[ ] INDEX row updated
-[ ] CURRENT.Active Session set to NONE
-[ ] Session commits pushed to origin/main
-[ ] Final local/remote sync verified
+[x] Session finalized with the correct PARTIAL result
+[x] Verified production checkpoint preserved
+[x] Targeted Application/Web validation already passed at checkpoint
+[x] Full solution tests passed at closure
+[x] Full solution build passed at closure
+[x] dotnet format --verify-no-changes passed at closure
+[x] Browser acceptance preserved for the locked repository hero
+[x] Light/Dark-compatible presentation preserved at checkpoint
+[x] Contract/invariant semantics remain unchanged
+[x] INDEX result updated
+[x] CURRENT.Active Session set to NONE
+[x] Closure commit/push included as final Push Gate 0 action
 ~~~
 
 ## Locked Visual Implementation Plan — Step 26
@@ -467,4 +464,94 @@ Next target:
 Overall Score Card visual refinement.
 
 Do not modify the locked repository hero while refining the next section.
+~~~
+
+## Finalization — Product Direction Expansion
+
+Session 049 is intentionally finalized as `PARTIAL`.
+
+### Reason
+
+The repository-report UI reached a verified and useful checkpoint, but the
+remaining visual refinement is no longer the highest-priority product work.
+
+A higher-level product direction was introduced:
+
+~~~text
+GitHub username / public profile
+→ public repositories
+→ repository-level evidence
+→ cross-repository patterns
+→ Developer Public Evidence Profile
+~~~
+
+This is a separate product/domain concern and must not be implemented as an
+incremental CSS or Razor extension inside Session 049.
+
+### Preserved Checkpoint
+
+~~~text
+Production:
+40cab55 — feat(web): implement modern report composition
+
+Worklog checkpoint:
+7e3e5d1 — docs(worklog): record repository hero checkpoint
+~~~
+
+Preserved and validated:
+
+- bounded RepositoryReport Razor composition,
+- four-card first-reading foundation,
+- overall score card foundation,
+- strong-evidence card,
+- weak-points card,
+- priority-action card,
+- progressive secondary inspection layers,
+- Light/Dark-compatible presentation,
+- repository hero visual acceptance.
+
+Repository hero:
+
+~~~text
+PASS
+LOCKED
+~~~
+
+The locked repository hero must not be redesigned unless a concrete regression
+is later demonstrated.
+
+### Intentionally Not Completed
+
+The following Session 049 work is deferred rather than silently discarded:
+
+- Overall Score Card visual refinement,
+- remaining section-by-section card refinement,
+- final responsive/accessibility acceptance for the complete refined layout,
+- final browser acceptance for the complete Session 049 visual target.
+
+These items may be resumed only after the new profile-level product direction
+is contractually defined and its effect on report information architecture is
+known.
+
+### Product / Domain Boundary
+
+No analysis, scoring, signal, localization, RepositoryAnalysis, or
+RepositoryReport semantics were changed during this finalization.
+
+The existing repository analyzer remains a preserved lower-level capability.
+
+### Next
+
+Start a new independent product/domain session whose first goal is:
+
+~~~text
+Define and lock the Public Profile Evidence product contract before writing
+profile-level production code or resuming repository-report visual refinement.
+~~~
+
+Execution remains:
+
+~~~text
+macOS Terminal / manual
+Implementation Agent: NONE
 ~~~
