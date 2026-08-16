@@ -468,7 +468,7 @@ MVP'yi gerçek repository'lerle test etmek, kullanıcı dili toplamak ve projeni
 
 ### İlk çağrı
 
-> İlk sürümü gerçek repolarla test etmek istiyorum.  
+> İlk sürümü gerçek repolarla test etmek istiyorum.
 > Analiz edilmesini istediğiniz public GitHub reponuzu yorumlara bırakın.
 
 ### Kullanıcıya verilen değer
@@ -567,3 +567,697 @@ MVP tamamlanmış sayılır when:
 - Kullanıcıya üç öncelikli geliştirme önerisi sunuluyor.
 - Web raporu ve Markdown çıktısı üretilebiliyor.
 - En az 20 gerçek repository ile doğrulama yapılmış oluyor.
+
+
+---
+
+# Public Profile Evidence V1 — Expansion Roadmap
+
+## Roadmap Statüsü
+
+Bu bölüm mevcut Repository MVP V1 roadmap'inin replacement'ı değildir.
+
+Repository MVP'nin Faz 0–7 hattı ve mevcut post-MVP Faz 8–12 kayıtları
+tarihsel ve ürün bağlamı olarak korunur.
+
+Yeni ürün yönü ayrı bir expansion track olarak ilerler:
+
+~~~text
+Repository Evidence
+        ↓
+preserved atomic evidence layer
+
+Public Profile Evidence
+        ↓
+new macro aggregation layer
+~~~
+
+Canonical product boundary:
+
+~~~text
+docs/product/public-profile-evidence-product-contract.md
+~~~
+
+Bu profile roadmap boyunca:
+
+- developer-level toplam skor üretilmez,
+- seniority üretilmez,
+- employability kararı verilmez,
+- hire/no-hire sonucu üretilmez,
+- sparse public GitHub negatif developer evidence sayılmaz,
+- profile claim'leri repository evidence'a geri izlenebilir olmalıdır,
+- LLM structured truth'tan önce karar verici olarak kullanılamaz.
+
+---
+
+## Profile P0 — Product Contract
+
+**Durum:** CONTRACT LOCKED — 2026-08-16 / Session 050
+
+### Amaç
+
+Public Profile Evidence'ın:
+
+- neyi temsil ettiğini,
+- neyi temsil etmediğini,
+- Repository MVP V1 ile ilişkisini,
+- recruiter kullanım sınırını,
+- evidence traceability zorunluluğunu,
+- sparse-profile davranışını,
+- LLM sınırını,
+- yasaklı developer-level çıkarımları
+
+kilitlemek.
+
+### Çıkış Kriteri
+
+~~~text
+Public Profile Evidence V1 product contract:
+CONTRACT LOCKED
+~~~
+
+Production implementation bu product boundary'i sessizce değiştiremez.
+
+---
+
+## Profile P1 — Profile Domain Model Contract
+
+### Amaç
+
+Profile-level structured truth için gerekli domain kavramlarını kodlanabilir
+kesinlikte tanımlamak.
+
+En az şu kavramlar ele alınmalıdır:
+
+~~~text
+GitHubProfileIdentity
+GitHubProfileSnapshot
+ProfileRepository
+RepositoryEligibilityResult
+CrossRepositoryEvidence
+TechnicalFocusArea
+EngineeringPracticePattern
+ProblemAreaPattern
+RepresentativeRepository
+RoleEvidenceAlignment
+DeveloperPublicEvidenceProfile
+ProfileLimitation
+ProfileWarning
+~~~
+
+### Zorunlu Kararlar
+
+- aggregate root sınırı,
+- identity/value object sınırları,
+- immutable veri modeli,
+- nullable / unavailable semantics,
+- evidence reference modeli,
+- analysis status,
+- versioning,
+- timestamps,
+- deterministic composer sınırı.
+
+### Çıkış Kriteri
+
+Profile domain modeli implementation başlamadan önce contract-locked olmalıdır.
+
+---
+
+## Profile P2 — Repository Eligibility Contract
+
+### Amaç
+
+Her public repository'nin profile-level çıkarımlara nasıl katkı
+sağlayabileceğini deterministik olarak belirlemek.
+
+En az şu durumlar açıkça ele alınmalıdır:
+
+~~~text
+Original
+Fork
+Template
+Archived
+Empty
+InsufficientEvidence
+Active
+Historical
+~~~
+
+### Temel Soru
+
+> Hangi repository hangi profile-level çıkarıma hangi koşullarda katkı
+> sağlayabilir?
+
+### Zorunlu Sınırlar
+
+- Fork repetition'ı otomatik şişiremez.
+- Template authorship kanıtı değildir.
+- Archived repository otomatik olarak değersiz değildir.
+- Empty repository negatif developer evidence değildir.
+- Insufficient evidence ile Missing birbirine karıştırılmamalıdır.
+- Eligibility sonucu geliştirici kalitesi değildir.
+
+### Çıkış Kriteri
+
+Aynı repository metadata/evidence girdisi ve aynı eligibility rule version aynı
+eligibility sonucunu üretmelidir.
+
+---
+
+## Profile P3 — GitHub Profile Data Collection
+
+### Amaç
+
+GitHub username veya canonical public profile identity üzerinden normalize
+profile snapshot üretmek.
+
+Temel akış:
+
+~~~text
+GitHub username
+↓
+public profile metadata
+↓
+public repositories
+↓
+pagination
+↓
+repository metadata
+↓
+GitHubProfileSnapshot
+~~~
+
+### Teknik Kapsam
+
+- username/profile identity validation,
+- public repository pagination,
+- fork/template/archive metadata,
+- empty repository metadata,
+- collection bounds,
+- partial API failure,
+- rate limit behavior,
+- unavailable data semantics,
+- deterministic repository ordering.
+
+### Çıkış Kriteri
+
+Aynı observable GitHub state ve aynı collection contract ile aynı normalize
+profile snapshot üretilebilmelidir.
+
+---
+
+## Profile P4 — RepositoryAnalysis Orchestration
+
+### Amaç
+
+Mevcut repository analyzer'ı yeniden yazmadan profile içerisinde reuse etmek.
+
+Doğru yön:
+
+~~~text
+GitHubProfileSnapshot
+↓
+eligible repository candidates
+↓
+existing repository collection / analysis pipeline
+↓
+RepositoryAnalysis[]
+~~~
+
+### Mimari Kural
+
+Profile orchestration:
+
+- mevcut 15 signal evaluator'ı kopyalamaz,
+- repository score hesaplamaz,
+- RepositoryAnalysis semantics'i değiştirmez,
+- Web içerisinde analysis logic oluşturmaz.
+
+### Çıkış Kriteri
+
+Profile orchestration ile repository analysis engine arasında semantic
+duplication bulunmamalıdır.
+
+---
+
+## Profile P5 — Cross-Repository Evidence Engine
+
+### Amaç
+
+Repository-level gözlemleri açıklanabilir profile-level aggregate evidence'a
+dönüştürmek.
+
+Temel trust chain:
+
+~~~text
+Profile claim
+↓
+CrossRepositoryEvidence
+↓
+Quantified observations
+↓
+Repository references
+↓
+Repository-level evidence
+~~~
+
+### Zorunlu Özellikler
+
+- deterministic aggregation,
+- versioned rules,
+- repository contribution traceability,
+- no hidden weighting,
+- unavailable/insufficient evidence semantics,
+- duplicate/fork inflation koruması.
+
+### Çıkış Kriteri
+
+Her aggregate observation kaynak repository ve underlying evidence'a geri
+izlenebilmelidir.
+
+---
+
+## Profile P6 — Technical, Practice ve Problem Patterns
+
+### Amaç
+
+Cross-repository evidence üzerinden üç ayrı profile pattern türü üretmek.
+
+~~~text
+TechnicalFocusArea
+EngineeringPracticePattern
+ProblemAreaPattern
+~~~
+
+### Technical Focus
+
+Teknolojinin public üretimde tekrar eden görünürlüğünü ifade eder.
+
+Tek bir README keyword'ü dominant technical focus üretmemelidir.
+
+### Engineering Practice
+
+Örnek evidence alanları:
+
+- automated testing,
+- Continuous Integration,
+- documentation,
+- release usage,
+- repository workflow evidence.
+
+Doğru ifade:
+
+> Test evidence birden fazla public repository'de tekrar ediyor.
+
+Yanlış ifade:
+
+> Bu geliştirici test konusunda iyidir.
+
+### Problem Area
+
+Yalnız bounded taxonomy ve açık evidence requirement ile üretilebilir.
+
+README keyword matching tek başına problem-area truth değildir.
+
+### Çıkış Kriteri
+
+Aynı structured evidence ve aynı rule versions aynı pattern sonuçlarını
+üretmelidir.
+
+---
+
+## Profile P7 — Representative Repositories ve Role Evidence Alignment
+
+### Amaç
+
+Profile-level örüntüleri incelemek için en açıklayıcı repository'leri ve bounded
+technical-role overlap'ı üretmek.
+
+### Representative Repository
+
+Şu soruya cevap verir:
+
+> Bu profile-level örüntüyü incelemek için hangi repository'lere önce
+> bakılmalı ve neden?
+
+Şu anlama gelmez:
+
+- best repository,
+- highest-quality repository,
+- most professional repository.
+
+Popularity varsayılan skill evidence değildir.
+
+### Role Evidence Alignment
+
+Yalnız:
+
+~~~text
+public GitHub evidence
+↔
+versioned technical role evidence definition
+~~~
+
+örtüşmesini ifade eder.
+
+Şunları üretmez:
+
+~~~text
+Job Fit
+Candidate Score
+Hire Recommendation
+Seniority
+Employability
+~~~
+
+### Çıkış Kriteri
+
+Her representative selection ve role alignment açık supporting evidence
+taşımalıdır.
+
+---
+
+## Profile P8 — Deterministic Profile Composer ve Report Contract
+
+### Amaç
+
+Tüm profile evidence sonuçlarını tek deterministic structured truth altında
+birleştirmek.
+
+Temel yapı:
+
+~~~text
+RepositoryAnalysis[]
+↓
+CrossRepositoryEvidence
+↓
+TechnicalFocusArea[]
+↓
+EngineeringPracticePattern[]
+↓
+ProblemAreaPattern[]
+↓
+RepresentativeRepository[]
+↓
+RoleEvidenceAlignment[]
+↓
+DeveloperPublicEvidenceProfile
+~~~
+
+### Report Contract
+
+İlk report en az şunları desteklemelidir:
+
+- Public Profile Summary,
+- Görünür Teknik Üretim Alanları,
+- Engineering Practice Patterns,
+- Problem Area Patterns,
+- Representative Repositories,
+- Role Evidence Alignment,
+- Why This Conclusion?,
+- Limitations,
+- Repository Drill-Down.
+
+### Presentation Boundary
+
+~~~text
+DeveloperPublicEvidenceProfile
+        ↓
+Developer View
+
+DeveloperPublicEvidenceProfile
+        ↓
+Recruiter View
+~~~
+
+İki presentation aynı structured truth'u tüketir.
+
+### Çıkış Kriteri
+
+Aynı profile analysis truth ve aynı presentation contract aynı semantic report
+çıktısını üretmelidir.
+
+---
+
+## Profile P9 — Validation Profile Set
+
+### Amaç
+
+Profile aggregation'ın farklı gerçek GitHub kullanım biçimlerinde yanıltıcı
+sonuç üretmediğini doğrulamak.
+
+En az şu profile tipleri değerlendirilmelidir:
+
+~~~text
+.NET-heavy
+frontend-heavy
+mixed full-stack
+AI/ML-heavy
+few repositories
+many repositories
+mostly forks
+mostly archived
+student/tutorial-heavy
+polyglot
+sparse public profile
+~~~
+
+### Özellikle Test Edilecek Riskler
+
+- false technical focus,
+- false role alignment,
+- fork inflation,
+- template inflation,
+- README keyword inflation,
+- single-repository dominance,
+- archived-repository distortion,
+- sparse-profile negative judgment,
+- missing/unavailable data confusion,
+- broken evidence traceability.
+
+### Çıkış Kriteri
+
+- prohibited inference: 0,
+- unsupported profile claim: 0,
+- evidence traceability: required for every meaningful claim,
+- determinism: PASS.
+
+---
+
+## Profile P10 — Web Profile Flow
+
+### Amaç
+
+Mevcut repository analysis girişini koruyarak yeni profile analysis akışını
+kullanıcıya sunmak.
+
+Ürün girişleri:
+
+~~~text
+Analyze a repository
+
+or
+
+Analyze a public GitHub profile
+~~~
+
+İlişki:
+
+~~~text
+Profile = macro view
+Repository = micro view
+~~~
+
+### İlk Okuma
+
+Profile raporunun ilk katmanı kısa sürede şunları göstermelidir:
+
+1. ana görünür technical focus,
+2. tekrar eden engineering practices,
+3. representative repositories,
+4. bounded role evidence alignment,
+5. neden bu sonuca ulaşıldığı.
+
+### Drill-Down
+
+~~~text
+Profile claim
+↓
+Repository
+↓
+RepositoryReport
+↓
+Signal
+↓
+Evidence
+~~~
+
+### Çıkış Kriteri
+
+Kullanıcı profile summary'den underlying repository evidence'a açık biçimde
+inebilmeli ve presentation analysis truth'u yeniden üretmemelidir.
+
+---
+
+## Profile P11 — Recruiter Pilot
+
+### Amaç
+
+Recruiter için ürünün hiring decision değil, hızlı evidence orientation ve
+routing değeri üretip üretmediğini doğrulamak.
+
+### Pilot Soruları
+
+- Teknik odağı kısa sürede anlayabildiniz mi?
+- Sonucun neden üretildiğini görebildiniz mi?
+- Önce incelenecek repository'leri bulabildiniz mi?
+- Teknik görüşmede doğrulanacak alanlar faydalı mı?
+- Yanıltıcı veya aşırı iddialı bir çıkarım gördünüz mü?
+
+### Kritik Sınır
+
+Pilot başarısı:
+
+~~~text
+better evidence navigation
+better technical orientation
+better interview preparation
+~~~
+
+ile ölçülür.
+
+Şunlarla ölçülmez:
+
+~~~text
+automatic rejection accuracy
+candidate ranking accuracy
+hire/no-hire accuracy
+~~~
+
+---
+
+## Profile P12 — Optional LLM Narration
+
+### Amaç
+
+Yalnız deterministic structured profile truth tamamlandıktan sonra insan
+tarafından daha kolay okunabilir narration üretmek.
+
+Doğru akış:
+
+~~~text
+structured profile truth
+↓
+LLM narration
+~~~
+
+Yanlış akış:
+
+~~~text
+raw GitHub
+↓
+LLM
+↓
+canonical profile judgment
+~~~
+
+LLM:
+
+- evidence yaratamaz,
+- count değiştiremez,
+- technical focus uyduramaz,
+- role alignment uyduramaz,
+- seniority belirleyemez,
+- employability kararı veremez.
+
+Bu faz Public Profile Evidence V1 core truth engine için zorunlu değildir.
+
+---
+
+# Public Profile Evidence V1 — Önerilen Geliştirme Sırası
+
+~~~text
+P0  Product Contract                         CONTRACT LOCKED
+ ↓
+P1  Profile Domain Model Contract
+ ↓
+P2  Repository Eligibility Contract
+ ↓
+P3  GitHub Profile Data Collection
+ ↓
+P4  RepositoryAnalysis Orchestration
+ ↓
+P5  Cross-Repository Evidence Engine
+ ↓
+P6  Technical / Practice / Problem Patterns
+ ↓
+P7  Representative Repositories + Role Alignment
+ ↓
+P8  Profile Composer + Report Contract
+ ↓
+P9  Validation Profile Set
+ ↓
+P10 Web Profile Flow
+ ↓
+P11 Recruiter Pilot
+ ↓
+P12 Optional LLM Narration
+~~~
+
+## Implementation Gate
+
+Profile production implementation başlamadan önce en az:
+
+~~~text
+P0 — Product Contract
+P1 — Profile Domain Model Contract
+P2 — Repository Eligibility Contract
+~~~
+
+kilitlenmiş olmalıdır.
+
+Bu sıra, yanlış profile semantics üzerine kod yazılmasını engellemek için
+zorunludur.
+
+## Profile Evidence V1 Definition of Done
+
+Public Profile Evidence V1 core capability tamamlanmış sayılmak için en az:
+
+- public GitHub profile identity alınabilmeli,
+- bounded public repository seti toplanabilmeli,
+- eligibility deterministik uygulanabilmeli,
+- mevcut RepositoryAnalysis pipeline'ı reuse edilmeli,
+- cross-repository evidence deterministic olmalı,
+- technical/practice/problem patterns evidence-backed olmalı,
+- representative repositories açıklanabilir seçilmeli,
+- role alignment bounded ve traceable olmalı,
+- developer-level toplam skor üretilmemeli,
+- seniority/employability/hire-no-hire üretilmemeli,
+- sparse public GitHub negatif developer judgment üretmemeli,
+- her meaningful claim repository evidence'a geri izlenebilmeli,
+- validation profile seti PASS olmalı,
+- developer ve recruiter views aynı structured truth'u tüketmelidir.
+
+## Existing Post-MVP Phase Compatibility Note
+
+Mevcut:
+
+~~~text
+Faz 10 — Recruiter View
+~~~
+
+repository-scoped roadmap fikri olarak korunur.
+
+Public Profile Evidence recruiter experience ise yalnız Profile P0–P10
+evidence foundation tamamlandıktan sonra Profile P11 kapsamında ele alınır.
+
+Mevcut:
+
+~~~text
+Faz 12 — LLM Destekli Yorumlama
+~~~
+
+ile Profile P12 aynı temel boundary'i paylaşır:
+
+> LLM deterministic evidence truth'un üstünde açıklama katmanı olabilir;
+> canonical truth veya scoring engine olamaz.

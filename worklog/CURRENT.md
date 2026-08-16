@@ -12,13 +12,18 @@
 
 ~~~text
 Product Stage: MVP Implementation / Product Scope Expansion
-Repository Analysis Capability: preserved
-Phase 5 Web UI: verified checkpoint preserved
-Next Workstream: Public Profile Evidence — Product Contract
 
-Focus:
-Define the profile-level public evidence product boundary before additional
-repository-report visual refinement or profile-level implementation.
+Repository MVP V1:
+PRESERVED
+
+Public Profile Evidence V1:
+P0 Product Contract — CONTRACT LOCKED
+
+Profile Roadmap:
+P0–P12 DEFINED
+
+Next Workstream:
+Profile P1 — Profile Domain Model Contract
 ~~~
 
 ## Active Session
@@ -27,18 +32,19 @@ repository-report visual refinement or profile-level implementation.
 NONE
 ~~~
 
-Session 049 was finalized as `PARTIAL` at its verified repository-report UI
-checkpoint.
+Session 050 — Public Profile Evidence Product Contract
+was finalized as `DOCS`.
 
 ## Model Gate State
 
 ~~~text
-NONE
+BYPASSED BY EXPLICIT USER INSTRUCTION
 
-Next independent task requires a new model-routing decision before execution.
+The user explicitly requested that model-routing gates not be used for this
+workstream.
 
-Execution mode:
-macOS Terminal / manual
+Execution:
+ChatGPT-guided / macOS Terminal / manual
 
 Implementation Agent:
 NONE
@@ -47,14 +53,14 @@ NONE
 ## Current Task
 
 ~~~text
-NONE — Session 049 is finalized.
+NONE — Session 050 finalized locally as DOCS.
 
 Next planned independent task:
 
-Public Profile Evidence — Product Contract
+Profile P1 — Profile Domain Model Contract
 
-Do not resume Overall Score Card refinement before the profile-level product
-boundary and information architecture implications are defined.
+P1 must not begin until Session 050 Push Gate 1 has been completed and
+origin/main has been remotely verified.
 ~~~
 
 ## In Progress
@@ -62,11 +68,14 @@ boundary and information architecture implications are defined.
 ~~~text
 None.
 
-Preserved repository-report production checkpoint:
-40cab55
+Public Profile Evidence V1 product contract:
+CONTRACT LOCKED
 
-Repository hero:
-PASS / LOCKED
+Public Profile Evidence roadmap:
+P0–P12 DEFINED
+
+Production implementation:
+NOT STARTED
 ~~~
 
 ## Current Problem
@@ -78,36 +87,35 @@ None confirmed.
 ## Next Immediate Action
 
 ~~~text
-Start a new independent product/domain session for:
+Before Profile P1 begins, Session 050 closure must have completed Push Gate 1
+and remote origin/main verification.
 
-Public Profile Evidence — Product Contract
+After that prerequisite is satisfied:
 
-The session must define, before production implementation:
+Start Profile P1 — Profile Domain Model Contract.
 
-- what a Developer Public Evidence Profile represents,
-- what it explicitly does not represent,
-- how public repositories contribute evidence,
-- how repository-level evidence is reused,
-- what cross-repository patterns may be inferred,
-- traceability from profile claim to repository evidence,
-- prohibited seniority/employability/capability conclusions,
-- recruiter-facing evidence boundaries.
+Do not begin profile production implementation.
 
-Do not modify production code before this contract is locked.
+Profile P2 — Repository Eligibility Contract must also be locked before
+profile production implementation begins.
 ~~~
 
 ## Working Set
 
 ~~~text
-NONE — no active development session.
+Session 050 closure scope:
 
-Preserved production checkpoint:
-40cab55 — feat(web): implement modern report composition
+- docs/product/public-profile-evidence-product-contract.md
+- docs/roadmap/mvp-phases.md
+- worklog/CURRENT.md
+- worklog/INDEX.md
+- worklog/sessions/2026-08-16-050-public-profile-evidence-product-contract.md
 
-Preserved visual decision:
-Repository hero — PASS / LOCKED
+Production code:
+UNCHANGED
 
-Next task has not started.
+Tests:
+UNCHANGED
 ~~~
 
 ## Repository State
@@ -116,30 +124,26 @@ Next task has not started.
 Branch:
 main
 
-Last verified pre-closure HEAD:
-7e3e5d1
+Session 050 base:
+5c168d8
 
-Session 049 base HEAD:
-ae2bb94
+Session 050 final result:
+DOCS
 
-Session 049 production checkpoint:
-40cab55
+Public Profile Evidence V1 product contract:
+CONTRACT LOCKED
 
-Session 049 final result:
-PARTIAL
+Profile roadmap:
+P0–P12 DEFINED
 
-Pre-existing working tree at Session 049 start:
-CLEAN
+Repository MVP V1:
+PRESERVED
 
-Closure reason:
-Product direction expanded from single-repository presentation refinement to a
-new profile-level Public Profile Evidence product/domain capability.
-
-Production code changed during closure:
+Production code changed:
 NO
 
 Execution:
-macOS Terminal / manual
+ChatGPT-guided / macOS Terminal / manual
 
 Implementation Agent:
 NONE
@@ -148,48 +152,58 @@ NONE
 ## Last Completed Work
 
 ~~~text
-Session 049 — Evidence-first Product UI + Progressive Disclosure
+Session 050 — Public Profile Evidence Product Contract
 
-Final result:
-PARTIAL
+Result:
+DOCS
 
-Verified production checkpoint:
-40cab55 — feat(web): implement modern report composition
+Delivered:
+- canonical Public Profile Evidence V1 product contract,
+- explicit Repository MVP V1 preservation boundary,
+- developer/public-evidence identity boundary,
+- claim → repository evidence traceability contract,
+- no developer/candidate aggregate score,
+- sparse-profile safety boundary,
+- recruiter screening/routing boundary,
+- LLM narration-only boundary,
+- additive Profile P0–P12 roadmap,
+- pre-implementation P0/P1/P2 contract gate.
 
-Delivered and preserved:
-- bounded RepositoryReport Razor partial composition,
-- four-card first-reading foundation,
-- score / strength / weakness / action card foundations,
-- progressive secondary inspection layers,
-- Light/Dark-compatible presentation,
-- repository hero visual acceptance.
-
-Repository hero:
-PASS / LOCKED
-
-Remaining Session 049 visual refinement was intentionally deferred because the
-product direction expanded to profile-level Public Profile Evidence analysis.
+Production code:
+UNCHANGED
 ~~~
 
 ## Last Validation
 
 ~~~text
-Session 049 repository hero checkpoint:
+Session 050 local final validation:
 
-GitHubProof.Application.Tests:
-54 / 54 PASS
+Product contract lock:
+PASS
 
-GitHubProof.Web.Tests:
-68 / 68 PASS
+Cross-contract consistency:
+PASS
+
+Real canonical conflicts:
+NONE
+
+Profile roadmap P0–P12:
+PASS
+
+Repository MVP history:
+PRESERVED
+
+Production/test code changes:
+NONE
+
+Text quality:
+PASS
 
 git diff --check:
 PASS
 
-Browser visual acceptance:
-Repository hero PASS / LOCKED
-
-Analysis/scoring contract:
-UNCHANGED
+Remote verification:
+performed separately at Push Gate 1 before Profile P1 begins.
 ~~~
 
 ## Critical Invariants
