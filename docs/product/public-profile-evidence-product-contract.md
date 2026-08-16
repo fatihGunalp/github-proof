@@ -2,9 +2,11 @@
 
 **Status:** CONTRACT LOCKED
 **Contract Scope:** Public Profile Evidence V1
-**Contract Version:** 1
+**Contract Version:** 2
 **Repository Dependency:** Repository MVP V1 preserved
 **Locked:** 2026-08-16
+**Amended:** 2026-08-16
+**Amendment Scope:** positioning / cross-reference only
 
 
 ## 1. Ürün Tanımı
@@ -15,6 +17,28 @@ yeteneğinin üzerinde çalışan ayrı bir ürün katmanıdır.
 Amaç, bir GitHub kullanıcısının public GitHub yüzeyinde tekrar eden teknik
 alanları, problem alanlarını ve mühendislik pratiklerini açıklanabilir
 kanıtlarla görünür hâle getirmektir.
+
+GitHub Proof'un daha geniş ürün yapısı içinde Public Profile Evidence V1:
+
+    reusable, job-agnostic structured evidence foundation
+
+olarak konumlanır.
+
+Bu structured profile truth daha üst seviye consumer'lar tarafından
+kullanılabilir.
+
+Contract-locked mevcut consumer:
+
+    Job Evidence Alignment V1
+
+Canonical downstream contract:
+
+    docs/product/job-evidence-alignment-product-contract.md
+
+Bu downstream ilişki JobEvidenceAlignment'ın
+DeveloperPublicEvidenceProfile içine taşınması anlamına gelmez.
+
+DeveloperPublicEvidenceProfile job-agnostic kalır.
 
 Temel akış:
 
@@ -911,9 +935,13 @@ Temel ürün:
 
 Kısa ürün tanımı:
 
-> GitHub Proof, public GitHub üretiminde hangi teknik alanların, problem
-> türlerinin ve mühendislik pratiklerinin tekrar eden kanıtlarla görünür
-> olduğunu açıklayan bir evidence translation layer'dır.
+> Public Profile Evidence, public GitHub üretiminde hangi teknik alanların,
+> problem türlerinin ve mühendislik pratiklerinin tekrar eden kanıtlarla
+> görünür olduğunu açıklayan bir evidence translation layer'dır.
+
+GitHub Proof'un daha geniş ürün yapısında bu katman job-agnostic structured
+profile evidence üretir; Job Evidence Alignment gibi higher-level consumer'lar
+bu truth'u downstream olarak tüketebilir.
 
 Repository report micro view'dur.
 

@@ -17,12 +17,13 @@
     PRESERVED
 
     Public Profile Evidence V1:
-    P0 Product Contract — CONTRACT LOCKED
+    P0 Product Contract — CONTRACT LOCKED / REVISION 2
     P1 Domain Contract — PARTIAL / PAUSED
 
     Roadmap V2:
     Stage 1 — PRODUCT DIRECTION COMPLETE
     Stage 2 — JOB EVIDENCE ALIGNMENT PRODUCT CONTRACT COMPLETE
+    Stage 3 — P0 POSITIONING / CROSS-REFERENCE REVIEW COMPLETE
 
     Job Evidence Alignment Product Contract:
     CONTRACT LOCKED / VERSION 1
@@ -31,9 +32,9 @@
 
     NONE
 
-    Session 053 — Job Evidence Alignment Product Contract
+    Session 054 — Public Profile Evidence Positioning Review
     Result: DOCS
-    Base HEAD: 934e06e
+    Base HEAD: 8f18fa5
 
     Local finalization:
     COMPLETE
@@ -58,26 +59,23 @@ NONE
 
 ## Current Task
 
-    NONE — Session 053 locally finalized.
+    NONE — Session 054 locally finalized.
 
-    Canonical Job Evidence Alignment Product Contract:
-    CONTRACT LOCKED / VERSION 1
+    Public Profile Evidence V1:
+    CONTRACT LOCKED / REVISION 2
 
-    Do not begin Stage 3 yet.
+    Positioning drift:
+    RESOLVED
 
-    Required next gate:
-
-    final validation
-    → commit
-    → push
-    → independent remote verification
+    Do not begin Stage 4 yet.
 
 ## In Progress
 
-    None.
+    Public Profile Evidence V1 positioning / cross-reference review.
 
-    Stage 2:
-    COMPLETE
+    Goal:
+
+    identify exact stale top-level wording without changing profile semantics.
 
     Production implementation:
     NOT STARTED
@@ -86,40 +84,36 @@ NONE
 
     None blocking.
 
-    Known deferred follow-up:
-
-    Public Profile Evidence V1 top-level positioning/cross-reference review.
+    Public Profile Evidence positioning drift:
+    RESOLVED
 
     Hard semantic conflict:
     NONE
 
-    This follow-up belongs to a later bounded stage.
-
 ## Next Immediate Action
 
-    Session 053 session-final checkpoint.
+    Session 054 session-final checkpoint.
 
-    Validate the exact four-file scope.
+    Validate exact four-file scope.
 
     If PASS:
 
-    - stage only the four Session 053 files,
-    - commit,
-    - push origin/main,
-    - independently verify remote commit and content.
+    commit
+    → push
+    → independent remote verification
 
-    Do not begin Stage 3 before remote verification.
+    Do not begin Stage 4 before remote verification.
 
 ## Working Set
 
-    Session 053 finalization scope:
+    Session 054 finalization scope:
 
-    - docs/product/job-evidence-alignment-product-contract.md
+    - docs/product/public-profile-evidence-product-contract.md
     - worklog/CURRENT.md
     - worklog/INDEX.md
-    - worklog/sessions/2026-08-16-053-job-evidence-alignment-product-contract.md
+    - worklog/sessions/2026-08-16-054-public-profile-evidence-positioning-review.md
 
-    Public Profile Evidence V1:
+    Job Evidence Alignment Product Contract:
     UNCHANGED
 
     Canonical roadmap:
@@ -136,29 +130,26 @@ NONE
     Branch:
     main
 
-    Session 053 base:
-    934e06e
+    Session 054 base:
+    8f18fa5
 
-    Session 053 result:
-    DOCS
+    Session 053:
+    DOCS / REMOTE VERIFIED
 
     Job Evidence Alignment Product Contract:
     CONTRACT LOCKED / VERSION 1
 
     Public Profile Evidence V1:
-    CONTRACT LOCKED / UNCHANGED
+    CONTRACT LOCKED / UNDER POSITIONING REVIEW
 
-    Session 051:
-    PARTIAL / PRESERVED
+    Profile P1:
+    PARTIAL / PAUSED
 
     Canonical roadmap:
     UNCHANGED
 
     Production code:
     UNCHANGED
-
-    Remote checkpoint:
-    PENDING
 
 ## Last Completed Work
 
