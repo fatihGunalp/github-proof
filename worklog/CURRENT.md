@@ -10,32 +10,35 @@
 
 ## Current Phase
 
-Product Stage:
-Stage 6 — Profile P2
+Product roadmap:
+Stage 6 — Profile P2 — COMPLETE / REMOTE VERIFIED
+
+Next product stage:
+Stage 7 — Public Profile Evidence Foundation P3–P9 — NOT STARTED
+
+Active work:
+Session 058 — Claude Code Orchestration Foundation
 
 Public Profile Evidence V1:
 P0 — CONTRACT LOCKED / REVISION 2
 P1 — CONTRACT LOCKED
 P2 — CONTRACT LOCKED
 
-Production code:
-NOT IN SCOPE
+Production code/tests:
+UNCHANGED
 
 ## Active Session
 
-worklog/sessions/2026-08-16-057-repository-eligibility-contract.md
+worklog/sessions/2026-08-16-058-claude-code-orchestration-foundation.md
 
-Session 057 — Repository Eligibility Contract
+Session 058 — Claude Code Orchestration Foundation
 Result: DOCS
-Base HEAD: 4c93400
+Base HEAD: d059d0f229b6ded90efcbd1dac2002b11b0543e5
 
 ## Model Gate State
 
 ~~~text
 BYPASSED BY EXPLICIT USER INSTRUCTION
-
-The user explicitly requested that model-routing gates not be used for this
-workstream.
 
 Execution:
 ChatGPT-guided / macOS Terminal / manual
@@ -44,52 +47,83 @@ Implementation Agent:
 NONE
 ~~~
 
+## Collaboration Workflow
+
+ChatGPT → Claude collaboration:
+
+ChatGPT analysis / decision
+→ worklog/session handoff
+→ Claude implementation
+→ Claude forked-context independent review
+→ worklog/session result
+→ next ChatGPT analysis.
+
+This is operational workflow only; canonical product/domain truth remains in
+`docs/`.
+
 ## Current Task
 
-Complete the Stage 6 session-final git checkpoint.
+Finalize the Session 058 Claude Code orchestration checkpoint.
 
-Semantic work:
+Claude foundation:
 COMPLETE
 
-Canonical P2 contract:
-docs/architecture/public-profile-evidence-repository-eligibility.md
+Artifacts:
 
-Status:
-CONTRACT LOCKED
+- CLAUDE.md
+- .claude/skills/github-proof-dev/SKILL.md
+- .claude/skills/github-proof-review/SKILL.md
+- .claude/skills/github-proof-finalize/SKILL.md
+
+Product/domain contracts:
+UNCHANGED
+
+Production code/tests:
+UNCHANGED
+
+Stage 7:
+NOT STARTED
 
 ## In Progress
 
 Session-final validation / commit / push / independent remote verification.
 
-No further Stage 5 semantic changes are planned unless final validation finds
-a concrete defect.
+No further Claude orchestration semantic work is planned unless final validation
+finds a concrete defect.
 
 ## Current Problem
 
 None currently blocking.
 
-Stage 5 remote checkpoint:
-VERIFIED
+Stage 6:
+COMPLETE / REMOTE VERIFIED
 
-Stage 6 contract work may proceed.
+Checkpoint:
+d059d0f229b6ded90efcbd1dac2002b11b0543e5
 
 ## Next Immediate Action
 
-Stage 6 session-final validation.
+Validate the exact Session 058 final scope.
 
 If PASS:
-commit → push origin/main → independent GitHub remote verification.
+stage → cached validation → commit → push → independent GitHub remote verification.
 
-Do not start Stage 7 before the Stage 6 remote checkpoint is verified.
+Do not start Stage 7 before Session 058 is remote verified.
 
 ## Working Set
 
-Stage 5 final checkpoint:
+Expected Session 058 scope begins with:
 
-- docs/architecture/public-profile-evidence-domain-model.md
+- CLAUDE.md
+- .claude/skills/github-proof-dev/SKILL.md
+- .claude/skills/github-proof-review/SKILL.md
+- .claude/skills/github-proof-finalize/SKILL.md
 - worklog/CURRENT.md
 - worklog/INDEX.md
-- worklog/sessions/2026-08-16-056-resume-public-profile-domain-contract.md
+- worklog/sessions/2026-08-16-058-claude-code-orchestration-foundation.md
+
+Product/domain docs:
+UNCHANGED
 
 Production code/tests:
 UNCHANGED
@@ -99,65 +133,50 @@ UNCHANGED
 Branch:
 main
 
-Stage 6 base HEAD:
-4c93400
+Session 058 base HEAD:
+d059d0f229b6ded90efcbd1dac2002b11b0543e5
+
+origin/main at session start:
+d059d0f229b6ded90efcbd1dac2002b11b0543e5
 
 Previous completed stage:
-Stage 5 — Profile P1 Domain Model Contract
+Stage 6 — Profile P2
 
-Stage 5 commit:
-4c934006556bfa9a4caf7a802f9d5270cea512b6
-
-Remote verification:
+Stage 6 remote verification:
 PASS
 
-Public Profile Evidence V1:
-P0 — CONTRACT LOCKED / REVISION 2
-P1 — CONTRACT LOCKED
-P2 — CONTRACT LOCKED
-
-Session 057:
-IN_PROGRESS
-
-Production code/tests:
-UNCHANGED
+Stage 7:
+NOT STARTED
 
 ## Last Completed Work
 
-Stage 4 — Canonical Roadmap V2 Alignment
+Stage 6 — Repository Eligibility Contract
 
 Result:
-PASS / REMOTE VERIFIED
+DOCS / REMOTE VERIFIED
 
 Checkpoint:
-17db53d
+d059d0f229b6ded90efcbd1dac2002b11b0543e5
 
-Bounded dependency clarification:
-993bfcc
-
-Remote verification:
-PASS
-
-Canonical execution order and Dependency Gates are aligned.
+Canonical contract:
+docs/architecture/public-profile-evidence-repository-eligibility.md
 
 ## Last Validation
 
 Independent GitHub remote verification:
 
 origin/main:
-a4e5f9321b238318b5db6ed52826712f4a25d929
+d059d0f229b6ded90efcbd1dac2002b11b0543e5
 
 Result:
 PASS
 
 Verified:
 
-- Stage 5 P1 CONTRACT LOCKED
-- bounded SnapshotReference clarification
-- bounded AnalyzerVersion clarification
-- exact four-file clarification checkpoint
-- P1 safety boundaries unchanged
-- P2 semantic work authorized to begin
+- exact Stage 6 four-file checkpoint
+- P2 CONTRACT LOCKED / Version 1
+- Session 057 DOCS / semantic COMPLETE
+- production code/tests unchanged
 
 ## Critical Invariants
 

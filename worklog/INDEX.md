@@ -66,6 +66,7 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-16 | Canonical Roadmap V2 Alignment | DOCS | ChatGPT-guided — macOS Terminal / manual | [055](./sessions/2026-08-16-055-canonical-roadmap-v2-alignment.md) | a0d73e1 |
 | 2026-08-16 | Resume Public Profile Evidence Domain Model Contract | DOCS | ChatGPT-guided — macOS Terminal / manual | [056](./sessions/2026-08-16-056-resume-public-profile-domain-contract.md) | 993bfcc |
 | 2026-08-16 | Repository Eligibility Contract | DOCS | ChatGPT-guided — macOS Terminal / manual | [057](./sessions/2026-08-16-057-repository-eligibility-contract.md) | 4c93400 |
+| 2026-08-16 | Claude Code Orchestration Foundation | DOCS | ChatGPT-guided — macOS Terminal / manual | [058](./sessions/2026-08-16-058-claude-code-orchestration-foundation.md) | d059d0f |
 
 Session 001 verified the existing domain enum and value-object foundation. It did not add or modify production code.
 
