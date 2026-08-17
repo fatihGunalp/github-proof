@@ -8,7 +8,7 @@ public sealed record AnalysisAdmissionResult
     public AnalysisAdmissionResult(
         ProfileRepositoryReference reference,
         AnalysisAdmissionDecision decision,
-        AnalysisAdmissionReason? reason,
+        EligibilityReason? reason,
         EligibilityPolicyVersion policyVersion)
     {
         Reference = reference
@@ -44,6 +44,17 @@ public sealed record AnalysisAdmissionResult
                 nameof(reason));
         }
 
+        // Stage A owns only these two canonical reason identities; the
+        // remaining identities belong to contribution evaluation.
+        if (reason is not null
+            and not EligibilityReason.EmptyRepository
+            and not EligibilityReason.RequiredInputUnavailable)
+        {
+            throw new ArgumentException(
+                "Analysis admission can only report EmptyRepository or RequiredInputUnavailable.",
+                nameof(reason));
+        }
+
         Decision = decision;
         Reason = reason;
         PolicyVersion = policyVersion
@@ -54,7 +65,7 @@ public sealed record AnalysisAdmissionResult
 
     public AnalysisAdmissionDecision Decision { get; }
 
-    public AnalysisAdmissionReason? Reason { get; }
+    public EligibilityReason? Reason { get; }
 
     public EligibilityPolicyVersion PolicyVersion { get; }
 }

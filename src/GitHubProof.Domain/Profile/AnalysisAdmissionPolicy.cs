@@ -26,7 +26,7 @@ public sealed class AnalysisAdmissionPolicy
             RepositoryConditionState.Present => Create(
                 repository,
                 AnalysisAdmissionDecision.Skip,
-                AnalysisAdmissionReason.EmptyRepository),
+                EligibilityReason.EmptyRepository),
 
             RepositoryConditionState.Absent => Create(
                 repository,
@@ -36,14 +36,14 @@ public sealed class AnalysisAdmissionPolicy
             _ => Create(
                 repository,
                 AnalysisAdmissionDecision.Undetermined,
-                AnalysisAdmissionReason.RequiredInputUnavailable)
+                EligibilityReason.RequiredInputUnavailable)
         };
     }
 
     private AnalysisAdmissionResult Create(
         ProfileRepository repository,
         AnalysisAdmissionDecision decision,
-        AnalysisAdmissionReason? reason) =>
+        EligibilityReason? reason) =>
         new(
             repository.Reference,
             decision,

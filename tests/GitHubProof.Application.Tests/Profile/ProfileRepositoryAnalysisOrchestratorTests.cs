@@ -68,7 +68,7 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
         Assert.Equal(ProfileRepositoryAnalysisOutcome.NotAdmitted, repository.Outcome);
         Assert.Equal(AnalysisAdmissionDecision.Skip, repository.Admission.Decision);
         Assert.Equal(
-            AnalysisAdmissionReason.EmptyRepository,
+            EligibilityReason.EmptyRepository,
             repository.Admission.Reason);
         Assert.Null(repository.Analysis);
         Assert.Empty(source.RequestedRepositories);
@@ -95,7 +95,7 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
             ProfileRepositoryAnalysisOutcome.AdmissionUndetermined,
             repository.Outcome);
         Assert.Equal(
-            AnalysisAdmissionReason.RequiredInputUnavailable,
+            EligibilityReason.RequiredInputUnavailable,
             repository.Admission.Reason);
         Assert.Null(repository.Analysis);
         Assert.Empty(source.RequestedRepositories);
@@ -326,13 +326,6 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
                 CreateAnalysisRunner(),
                 null!));
     }
-
-    private static FakeSnapshotSource CreateSource(
-        params (string FullName, Func<ProfileRepositorySnapshotResult> Response)[] responses) =>
-        new(responses.ToDictionary(
-            response => response.FullName,
-            response => response.Response,
-            StringComparer.Ordinal));
 
     private static ProfileRepositoryAnalysisOrchestrator CreateOrchestrator(
         FakeSnapshotSource source,

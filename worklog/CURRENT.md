@@ -6,16 +6,16 @@
 ## Development
 
 Completed:
-P3 — GitHub Profile Data Collection — COMPLETE / REMOTE VERIFIED
+P4 — RepositoryAnalysis Orchestration — COMPLETE / REMOTE VERIFIED
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
 
 Active:
-P4 — RepositoryAnalysis Orchestration
+P5 — Cross-Repository Evidence Engine
 
 Next:
-P5 — Cross-Repository Evidence Engine
+P6 — Technical, Practice and Problem Patterns
 
 ## Production Delivery
 
@@ -28,10 +28,10 @@ BLOCKED
 ## Active Session
 
 Session:
-063 — Profile P4 RepositoryAnalysis Orchestration
+064 — Profile P5 Cross-Repository Evidence Engine
 
 Session File:
-worklog/sessions/2026-08-17-063-profile-p4-repository-analysis-orchestration.md
+worklog/sessions/2026-08-17-064-profile-p5-cross-repository-evidence.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
@@ -39,51 +39,62 @@ READY_FOR_MANUAL_COMMIT
 ## Git
 
 Active Branch:
-session/063-profile-p4-repository-analysis-orchestration
+session/064-profile-p5-cross-repository-evidence
 
 Session Base:
-341a450a71eef20794a323b2725b07c11b9943ba
+f41f7483eedf201ef88417c56750b9fed7f2cf7c
 
 Last Remote Verified Main:
-341a450a71eef20794a323b2725b07c11b9943ba
+f41f7483eedf201ef88417c56750b9fed7f2cf7c
 
 ## Goal
 
-Reuse the existing RepositoryAnalysis pipeline for admitted profile repositories
-without semantic duplication.
+Build deterministic, versioned and traceable cross-repository aggregate evidence
+from repository-level structured evidence.
 
 ## Critical Boundary
 
-P4 implemented only the P2 Stage A bridge (AnalysisAdmissionDecision).
+P5 implemented P2 Stage B only for ProfileObservation and IndependentRepetition.
 
-Stage B RepositoryEligibilityResult, contribution decisions, independence and
-activity classification remain unimplemented and belong to full P2.
+CurrentFocus, HistoricalEvidence, ProfileContext, activity classification,
+CurrentActivityWindow and the overall RepositoryEligibilityStatus derivation
+remain unimplemented and belong to full P2.
 
-## P3 Carry-Forward
+No RepositoryEligibilityResult type exists yet.
 
-- inspect IsComplete, not only Availability.IsAvailable
-- do not redefine ProfileRepositoryReference equality silently
-- do not use snapshot record equality as semantic identity
-- metadata.Identity remains canonical across GitHub rename redirects
+## P4 Carry-Forward
+
+- preserve explicit repository outcome boundaries
+- technical failure is not insufficient evidence
+- one failed repository does not erase successful evidence
+- preserve deterministic ordering
+- preserve ProfileRepositoryReference traceability
+- do not add Infrastructure/Web profile wiring in P5
 
 ## Scope
 
 In:
-- P2 admission bridge where required
-- profile repository orchestration
-- existing RepositoryAnalysis pipeline reuse
-- deterministic ordering
-- traceability
-- partial failure semantics
+- minimum required P2 Stage B runtime bridge
+- deterministic CrossRepositoryEvidence
+- explicit quantification
+- repository contribution traceability
+- underlying evidence traceability
+- independent repetition protection
+- availability/insufficient/failure semantics
+- rule versioning
 - tests
 
 Out:
-- P5+
-- profile patterns
+- P6+
+- patterns
+- representative repository selection
+- profile assembly
 - profile scoring
-- P10
+- seniority/employability/hire decisions
 - job evidence
-- developer-level inference
+- P10
+- Web/Infrastructure profile wiring
+- LLM inference
 
 ## Blocker
 
@@ -91,23 +102,29 @@ NONE
 
 ## Validation
 
-Full suite: 748/748 PASS
+Full suite: 792/792 PASS
 Build: 0 warning / 0 error
-Acceptance criteria 1–16: PASS
-Independent review: PASS WITH FINDINGS, no BLOCKER/HIGH; accepted MEDIUM findings fixed
+Acceptance criteria 1–21: PASS
+Independent review: two rounds, PASS WITH FINDINGS, no BLOCKER/HIGH;
+accepted MEDIUM/LOW findings fixed
 
-Existing RepositoryAnalysis behaviour, Web and P1/P2 contracts: UNCHANGED
+Existing RepositoryAnalysis behaviour, Web and Infrastructure: UNCHANGED
 
 ## Remaining Risk
 
-IProfileRepositorySnapshotSource has no Infrastructure adapter yet; P4 is
-library-only until profile wiring (P10) or a bounded adapter session.
+P5 observations are repository-signal evidence only. Technical-area taxonomy
+(C#/.NET style grouping) is deliberately deferred to P6.
 
-RepositoryAnalysisComposer never emits AnalysisStatus.Failed, so P2 Stage B
-§22.5 must map technical failure from ProfileRepositoryAnalysisOutcome.
+Profile evidence still has no Infrastructure adapter or Web wiring
+(IProfileRepositorySnapshotSource unbound).
+
+ProfileRepositoryReference ordering has no URL tie-break in Domain; the
+Application-level comparer adds one. Unreachable today because collector URLs
+are derived from owner/name.
 
 ## Next Action
 
-User manually commits and pushes the Session 063 branch.
+User manually commits and pushes the Session 064 branch.
 
-After remote verification, continue with P5 — Cross-Repository Evidence Engine.
+After remote verification, continue with P6 — Technical, Practice and Problem
+Patterns.

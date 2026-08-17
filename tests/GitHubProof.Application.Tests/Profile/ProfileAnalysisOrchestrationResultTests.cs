@@ -143,6 +143,6 @@ public sealed class ProfileAnalysisOrchestrationResultTests
             new AnalysisAdmissionResult(
                 reference,
                 AnalysisAdmissionDecision.Undetermined,
-                AnalysisAdmissionReason.RequiredInputUnavailable,
+                EligibilityReason.RequiredInputUnavailable,
                 TestPolicyVersion));
 }

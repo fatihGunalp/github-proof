@@ -16,7 +16,7 @@ public sealed class AnalysisAdmissionResultTests
         Assert.Throws<ArgumentException>(() => new AnalysisAdmissionResult(
             CreateReference(),
             AnalysisAdmissionDecision.Analyze,
-            AnalysisAdmissionReason.EmptyRepository,
+            EligibilityReason.EmptyRepository,
             PolicyVersion));
     }
 
@@ -39,7 +39,21 @@ public sealed class AnalysisAdmissionResultTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new AnalysisAdmissionResult(
             CreateReference(),
             (AnalysisAdmissionDecision)99,
-            AnalysisAdmissionReason.EmptyRepository,
+            EligibilityReason.EmptyRepository,
+            PolicyVersion));
+    }
+
+    [Theory]
+    [InlineData(EligibilityReason.Archived)]
+    [InlineData(EligibilityReason.ForkDetected)]
+    [InlineData(EligibilityReason.InsufficientEvidence)]
+    public void Constructor_WhenReasonIsNotAnAdmissionReason_Rejects(
+        EligibilityReason reason)
+    {
+        Assert.Throws<ArgumentException>(() => new AnalysisAdmissionResult(
+            CreateReference(),
+            AnalysisAdmissionDecision.Skip,
+            reason,
             PolicyVersion));
     }
 

@@ -33,17 +33,26 @@ internal static class ProfileAnalysisTestSupport
     public static ProfileRepository CreateProfileRepository(
         string name,
         RepositoryConditionState empty = RepositoryConditionState.Absent,
-        string owner = "octocat") =>
+        string owner = "octocat",
+        RepositoryConditionState fork = RepositoryConditionState.Absent,
+        RepositoryConditionState templateDerived = RepositoryConditionState.Absent) =>
         new(
             CreateReference(name, owner),
             defaultBranch: "main",
             primaryLanguage: "C#",
-            RepositoryConditionState.Absent,
-            RepositoryConditionState.Absent,
+            fork,
+            templateDerived,
             RepositoryConditionState.Absent,
             empty,
             lastPushedAt: null,
             createdAt: null);
+
+    public static FakeSnapshotSource CreateSource(
+        params (string FullName, Func<ProfileRepositorySnapshotResult> Response)[] responses) =>
+        new(responses.ToDictionary(
+            response => response.FullName,
+            response => response.Response,
+            StringComparer.Ordinal));
 
     public static GitHubProfileSnapshot CreateProfileSnapshot(
         IEnumerable<ProfileRepository> repositories,
@@ -60,7 +69,10 @@ internal static class ProfileAnalysisTestSupport
 
     public static RepositorySnapshot CreateRepositorySnapshot(
         string name,
-        string owner = "octocat") =>
+        string owner = "octocat",
+        RepositoryReadme? readme = null,
+        RepositoryLicense? license = null,
+        IEnumerable<DataAvailability>? availability = null) =>
         new(
             new RepositoryIdentity(
                 owner,
@@ -75,7 +87,7 @@ internal static class ProfileAnalysisTestSupport
             CapturedAt,
             headCommitSha: "abc123",
             metadata: null,
-            readme: null,
+            readme,
             fileTree: null,
             commits: null,
             issues: null,
@@ -83,11 +95,33 @@ internal static class ProfileAnalysisTestSupport
             releases: null,
             workflows: null,
             topics: null,
-            license: null,
+            license,
             languages: null,
             contributors: null,
-            availability: null,
+            availability,
             collectionWarnings: null);
+
+    // README evidence is available and present, so the README signal carries
+    // structured evidence while the remaining signals stay unavailable.
+    public static RepositorySnapshot CreateReadmeEvidenceSnapshot(
+        string name,
+        string owner = "octocat") =>
+        CreateRepositorySnapshot(
+            name,
+            owner,
+            readme: new RepositoryReadme("README.md", "# Project\n\nOverview."),
+            availability: [DataAvailability.Available("readme", CapturedAt)]);
+
+    // License evidence is available while README evidence is not, so this
+    // repository is eligible but leaves the README signal undetermined.
+    public static RepositorySnapshot CreateLicenseEvidenceSnapshot(
+        string name,
+        string owner = "octocat") =>
+        CreateRepositorySnapshot(
+            name,
+            owner,
+            license: new RepositoryLicense("mit", "MIT License", "MIT", "LICENSE"),
+            availability: [DataAvailability.Available("license", CapturedAt)]);
 
     public static ProfileRepositorySnapshotResult CreateCollected(
         RepositorySnapshot snapshot) =>

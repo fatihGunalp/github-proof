@@ -18,7 +18,7 @@ public sealed class AnalysisAdmissionPolicyTests
             CreateRepository(empty: RepositoryConditionState.Present));
 
         Assert.Equal(AnalysisAdmissionDecision.Skip, result.Decision);
-        Assert.Equal(AnalysisAdmissionReason.EmptyRepository, result.Reason);
+        Assert.Equal(EligibilityReason.EmptyRepository, result.Reason);
         Assert.Equal(PolicyVersion, result.PolicyVersion);
     }
 
@@ -40,7 +40,7 @@ public sealed class AnalysisAdmissionPolicyTests
 
         Assert.Equal(AnalysisAdmissionDecision.Undetermined, result.Decision);
         Assert.Equal(
-            AnalysisAdmissionReason.RequiredInputUnavailable,
+            EligibilityReason.RequiredInputUnavailable,
             result.Reason);
     }
 
