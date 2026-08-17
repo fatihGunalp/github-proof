@@ -53,7 +53,7 @@ public sealed class CrossRepositoryEvidenceComposerTests
 
             Assert.Equal(analysis.AnalysisId, reference.Analysis.AnalysisId);
             Assert.Equal(analysis.Repository, reference.Analysis.Repository);
-            Assert.Equal(ReadmeSignalKey, reference.SignalKey);
+            Assert.Equal(ReadmeSignalKey, reference.EvidenceKey);
             Assert.Equal(
                 analysis.SignalResults
                     .Single(signal => signal.SignalKey == ReadmeSignalKey)

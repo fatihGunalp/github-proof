@@ -997,6 +997,10 @@ README keyword matching tek başına problem-area truth değildir.
 Aynı structured evidence ve aynı rule versions aynı pattern sonuçlarını
 üretmelidir.
 
+### Canonical Contract
+
+`docs/architecture/public-profile-evidence-patterns.md`
+
 ---
 
 ## Profile P7 — Representative Repositories ve Role Evidence Alignment

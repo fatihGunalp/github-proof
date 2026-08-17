@@ -6,16 +6,16 @@
 ## Development
 
 Completed:
-P4 — RepositoryAnalysis Orchestration — COMPLETE / REMOTE VERIFIED
+P5 — Cross-Repository Evidence Engine — COMPLETE / REMOTE VERIFIED
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
 
 Active:
-P5 — Cross-Repository Evidence Engine
+P6 — Technical, Practice and Problem Patterns
 
 Next:
-P6 — Technical, Practice and Problem Patterns
+P7 — Representative Repository Selection
 
 ## Production Delivery
 
@@ -28,10 +28,10 @@ BLOCKED
 ## Active Session
 
 Session:
-064 — Profile P5 Cross-Repository Evidence Engine
+065 — Profile P6 Technical, Practice and Problem Patterns
 
 Session File:
-worklog/sessions/2026-08-17-064-profile-p5-cross-repository-evidence.md
+worklog/sessions/2026-08-17-065-profile-p6-patterns.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
@@ -39,62 +39,40 @@ READY_FOR_MANUAL_COMMIT
 ## Git
 
 Active Branch:
-session/064-profile-p5-cross-repository-evidence
+session/065-profile-p6-patterns
 
 Session Base:
-f41f7483eedf201ef88417c56750b9fed7f2cf7c
+91b3040ed6c9c9f20477ff5dcf52e9bdfd83a770
 
 Last Remote Verified Main:
-f41f7483eedf201ef88417c56750b9fed7f2cf7c
+91b3040ed6c9c9f20477ff5dcf52e9bdfd83a770
 
 ## Goal
 
-Build deterministic, versioned and traceable cross-repository aggregate evidence
-from repository-level structured evidence.
+Promote canonical cross-repository observations into deterministic, versioned
+and traceable repeated profile patterns.
 
 ## Critical Boundary
 
-P5 implemented P2 Stage B only for ProfileObservation and IndependentRepetition.
+P6 V1 taxonomy, threshold and promotion rules are locked by
+docs/architecture/public-profile-evidence-patterns.md.
 
-CurrentFocus, HistoricalEvidence, ProfileContext, activity classification,
-CurrentActivityWindow and the overall RepositoryEligibilityStatus derivation
-remain unimplemented and belong to full P2.
+ProblemArea stays a canonical family with no V1 promotion rule; an empty
+ProblemArea collection is a contract boundary, not evidence of absence.
 
-No RepositoryEligibilityResult type exists yet.
+TechnicalFocus is language-literal evidence only. No grouping, no framework or
+role inference, and no P2 CurrentFocus/lifecycle runtime was introduced.
 
-## P4 Carry-Forward
+## P5 Carry-Forward
 
-- preserve explicit repository outcome boundaries
+- RepositoryAnalysis remains atomic truth
+- CrossRepositoryEvidence owns canonical observations
+- fork/template cannot inflate independent repetition
+- Missing is not profile/developer absence
 - technical failure is not insufficient evidence
-- one failed repository does not erase successful evidence
-- preserve deterministic ordering
-- preserve ProfileRepositoryReference traceability
-- do not add Infrastructure/Web profile wiring in P5
-
-## Scope
-
-In:
-- minimum required P2 Stage B runtime bridge
-- deterministic CrossRepositoryEvidence
-- explicit quantification
-- repository contribution traceability
-- underlying evidence traceability
-- independent repetition protection
-- availability/insufficient/failure semantics
-- rule versioning
-- tests
-
-Out:
-- P6+
-- patterns
-- representative repository selection
-- profile assembly
-- profile scoring
-- seniority/employability/hire decisions
-- job evidence
-- P10
-- Web/Infrastructure profile wiring
-- LLM inference
+- partial analysis contributes only available evidence
+- no hidden weighting
+- preserve evidence traceability
 
 ## Blocker
 
@@ -102,29 +80,31 @@ NONE
 
 ## Validation
 
-Full suite: 792/792 PASS
+Full suite: 831/831 PASS
 Build: 0 warning / 0 error
-Acceptance criteria 1–21: PASS
-Independent review: two rounds, PASS WITH FINDINGS, no BLOCKER/HIGH;
-accepted MEDIUM/LOW findings fixed
+Contract decisions 1-4: approved and implemented
+Independent review: PASS WITH FINDINGS, no BLOCKER/HIGH; accepted findings fixed
 
 Existing RepositoryAnalysis behaviour, Web and Infrastructure: UNCHANGED
 
 ## Remaining Risk
 
-P5 observations are repository-signal evidence only. Technical-area taxonomy
-(C#/.NET style grouping) is deliberately deferred to P6.
+ProblemArea is deferred; its four future conditions are in the patterns
+contract §9.4.
 
-Profile evidence still has no Infrastructure adapter or Web wiring
-(IProfileRepositorySnapshotSource unbound).
+RepeatedProfilePattern cannot structurally prove that its observations came
+from one evidence surface; the promoting policy guarantees it until P8 assembly
+holds both sides.
 
-ProfileRepositoryReference ordering has no URL tie-break in Domain; the
-Application-level comparer adds one. Unreachable today because collector URLs
-are derived from owner/name.
+Presentation must not regroup language literals later; canonical truth forbids
+grouping.
+
+IProfileRepositorySnapshotSource still has no Infrastructure adapter, so the
+profile pipeline remains library-only.
 
 ## Next Action
 
-User manually commits and pushes the Session 064 branch.
+User manually commits and pushes the Session 065 branch.
 
-After remote verification, continue with P6 — Technical, Practice and Problem
-Patterns.
+After remote verification, continue with P7 — Representative Repository
+Selection and Role Evidence Alignment.

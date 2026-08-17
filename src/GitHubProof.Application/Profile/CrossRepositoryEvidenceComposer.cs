@@ -33,7 +33,8 @@ public sealed class CrossRepositoryEvidenceComposer
                 repository => repository.Reference);
 
         List<RepositoryContributionAssessment> contributions = [];
-        Dictionary<string, SignalObservation> observations = new(StringComparer.Ordinal);
+        Dictionary<string, EvidenceObservation> observations = new(StringComparer.Ordinal);
+        int undeterminedLanguageRepositoryCount = 0;
 
         foreach (ProfileRepositoryAnalysisResult result in orchestration.Results)
         {
@@ -62,6 +63,15 @@ public sealed class CrossRepositoryEvidenceComposer
                 contribution,
                 analysisReference!,
                 observations);
+
+            if (!CollectLanguageEvidence(
+                    analysis,
+                    contribution,
+                    analysisReference!,
+                    observations))
+            {
+                undeterminedLanguageRepositoryCount++;
+            }
         }
 
         int eligibleRepositoryCount = contributions.Count(contribution =>
@@ -73,6 +83,7 @@ public sealed class CrossRepositoryEvidenceComposer
                 .Where(observation => observation.HasSupport)
                 .Select(observation => observation.Build(
                     eligibleRepositoryCount,
+                    undeterminedLanguageRepositoryCount,
                     ruleVersion)),
             ruleVersion,
             contributionPolicy.PolicyVersion,
@@ -83,17 +94,14 @@ public sealed class CrossRepositoryEvidenceComposer
         RepositoryAnalysis analysis,
         RepositoryContributionAssessment contribution,
         RepositoryAnalysisReference analysisReference,
-        Dictionary<string, SignalObservation> observations)
+        Dictionary<string, EvidenceObservation> observations)
     {
         foreach (SignalResult signal in analysis.SignalResults)
         {
-            if (!observations.TryGetValue(
-                    signal.SignalKey,
-                    out SignalObservation? observation))
-            {
-                observation = new SignalObservation(signal.SignalKey);
-                observations.Add(signal.SignalKey, observation);
-            }
+            EvidenceObservation observation = Resolve(
+                observations,
+                signal.SignalKey,
+                ObservedProfileEvidenceKind.RepositorySignalEvidence);
 
             switch (signal.Status)
             {
@@ -121,7 +129,76 @@ public sealed class CrossRepositoryEvidenceComposer
         }
     }
 
-    private sealed class SignalObservation(string signalKey)
+    // Returns false when language evidence is undetermined for this repository,
+    // which leaves every language observation undetermined for it rather than
+    // asserting that no language evidence exists.
+    private static bool CollectLanguageEvidence(
+        RepositoryAnalysis analysis,
+        RepositoryContributionAssessment contribution,
+        RepositoryAnalysisReference analysisReference,
+        Dictionary<string, EvidenceObservation> observations)
+    {
+        if (analysis.Snapshot
+                .FindAvailability(ProfileEvidenceKeys.LanguagesDataKey)?
+                .IsAvailable != true)
+        {
+            return false;
+        }
+
+        foreach (string language in FindDominantLanguages(analysis.Snapshot.Languages))
+        {
+            string observationKey =
+                ProfileEvidenceKeys.CreateLanguageObservationKey(language);
+
+            Resolve(
+                    observations,
+                    observationKey,
+                    ObservedProfileEvidenceKind.RepositoryLanguageEvidence)
+                .AddSupport(
+                    new ProfileEvidenceReference(
+                        contribution.Reference,
+                        analysisReference,
+                        observationKey,
+                        [ProfileEvidenceKeys.LanguagesDataKey]),
+                    contribution.IndependentRepetition.IsAllowed);
+        }
+
+        return true;
+    }
+
+    // Dominance requires a positive byte count and the repository maximum.
+    // Every language tied at that exact maximum is dominant.
+    private static IEnumerable<string> FindDominantLanguages(
+        IReadOnlyDictionary<string, long> languages)
+    {
+        long dominantBytes = languages.Values.DefaultIfEmpty(0).Max();
+
+        return dominantBytes <= 0
+            ? []
+            : languages
+                .Where(language => language.Value == dominantBytes)
+                .Select(language => language.Key);
+    }
+
+    private static EvidenceObservation Resolve(
+        Dictionary<string, EvidenceObservation> observations,
+        string observationKey,
+        ObservedProfileEvidenceKind kind)
+    {
+        if (!observations.TryGetValue(
+                observationKey,
+                out EvidenceObservation? observation))
+        {
+            observation = new EvidenceObservation(observationKey, kind);
+            observations.Add(observationKey, observation);
+        }
+
+        return observation;
+    }
+
+    private sealed class EvidenceObservation(
+        string observationKey,
+        ObservedProfileEvidenceKind kind)
     {
         private readonly List<ProfileEvidenceReference> evidenceReferences = [];
 
@@ -147,14 +224,18 @@ public sealed class CrossRepositoryEvidenceComposer
 
         public ObservedProfileEvidence Build(
             int eligibleRepositoryCount,
+            int undeterminedLanguageRepositoryCount,
             ObservationRuleVersion ruleVersion) =>
             new(
-                signalKey,
-                ObservedProfileEvidenceKind.RepositorySignalEvidence,
+                observationKey,
+                kind,
                 evidenceReferences,
                 IndependentSupportingRepositoryCount,
                 eligibleRepositoryCount,
-                UndeterminedEvidenceRepositoryCount,
+                UndeterminedEvidenceRepositoryCount
+                    + (kind == ObservedProfileEvidenceKind.RepositoryLanguageEvidence
+                        ? undeterminedLanguageRepositoryCount
+                        : 0),
                 ruleVersion);
     }
 }

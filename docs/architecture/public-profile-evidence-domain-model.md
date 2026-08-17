@@ -848,6 +848,10 @@ P6 owns:
 
 P6 must not create developer capability truth.
 
+These rules are locked by:
+
+docs/architecture/public-profile-evidence-patterns.md
+
 ### P7 — Representative Repository and Role Evidence Alignment
 
 P7 owns:

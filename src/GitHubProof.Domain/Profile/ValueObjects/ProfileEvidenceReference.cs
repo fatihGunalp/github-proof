@@ -1,20 +1,22 @@
 namespace GitHubProof.Domain.Profile.ValueObjects;
 
 // Canonical traceability pointer from profile-level evidence to the exact
-// repository-level signal evidence that supports it.
+// repository-level evidence that supports it. EvidenceKey names the observed
+// repository evidence source: a canonical signal key, or the normalized
+// snapshot data key for non-signal evidence such as languages.
 public sealed class ProfileEvidenceReference
 {
     public ProfileEvidenceReference(
         ProfileRepositoryReference repository,
         RepositoryAnalysisReference analysis,
-        string signalKey,
+        string evidenceKey,
         IEnumerable<string>? evidenceKeys)
     {
         Repository = repository
             ?? throw new ArgumentNullException(nameof(repository));
         Analysis = analysis
             ?? throw new ArgumentNullException(nameof(analysis));
-        SignalKey = ProfileValue.RequireValue(signalKey, nameof(signalKey));
+        EvidenceKey = ProfileValue.RequireValue(evidenceKey, nameof(evidenceKey));
         EvidenceKeys = NormalizeEvidenceKeys(evidenceKeys);
     }
 
@@ -22,7 +24,7 @@ public sealed class ProfileEvidenceReference
 
     public RepositoryAnalysisReference Analysis { get; }
 
-    public string SignalKey { get; }
+    public string EvidenceKey { get; }
 
     public IReadOnlyList<string> EvidenceKeys { get; }
 

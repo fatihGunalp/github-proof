@@ -3,6 +3,7 @@ using GitHubProof.Application.Profile;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
+using GitHubProof.Domain.Profile;
 using GitHubProof.Domain.Profile.Enums;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Domain.Profile.ValueObjects;
@@ -72,7 +73,8 @@ internal static class ProfileAnalysisTestSupport
         string owner = "octocat",
         RepositoryReadme? readme = null,
         RepositoryLicense? license = null,
-        IEnumerable<DataAvailability>? availability = null) =>
+        IEnumerable<DataAvailability>? availability = null,
+        IReadOnlyDictionary<string, long>? languages = null) =>
         new(
             new RepositoryIdentity(
                 owner,
@@ -96,7 +98,7 @@ internal static class ProfileAnalysisTestSupport
             workflows: null,
             topics: null,
             license,
-            languages: null,
+            languages,
             contributors: null,
             availability,
             collectionWarnings: null);
@@ -111,6 +113,24 @@ internal static class ProfileAnalysisTestSupport
             owner,
             readme: new RepositoryReadme("README.md", "# Project\n\nOverview."),
             availability: [DataAvailability.Available("readme", CapturedAt)]);
+
+    // README evidence plus available language byte counts.
+    public static RepositorySnapshot CreateLanguageEvidenceSnapshot(
+        string name,
+        IReadOnlyDictionary<string, long> languages,
+        string owner = "octocat") =>
+        CreateRepositorySnapshot(
+            name,
+            owner,
+            readme: new RepositoryReadme("README.md", "# Project\n\nOverview."),
+            availability:
+            [
+                DataAvailability.Available("readme", CapturedAt),
+                DataAvailability.Available(
+                    ProfileEvidenceKeys.LanguagesDataKey,
+                    CapturedAt)
+            ],
+            languages: languages);
 
     // License evidence is available while README evidence is not, so this
     // repository is eligible but leaves the README signal undetermined.

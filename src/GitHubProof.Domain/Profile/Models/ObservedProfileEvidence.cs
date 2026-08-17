@@ -106,12 +106,12 @@ public sealed class ObservedProfileEvidence
             ArgumentNullException.ThrowIfNull(reference);
 
             if (!string.Equals(
-                    reference.SignalKey,
+                    reference.EvidenceKey,
                     observationKey,
                     StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    $"Evidence reference '{reference.SignalKey}' does not support observation '{observationKey}'.",
+                    $"Evidence reference '{reference.EvidenceKey}' does not support observation '{observationKey}'.",
                     nameof(evidenceReferences));
             }
 

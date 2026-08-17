@@ -1,4 +1,6 @@
+using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
+using GitHubProof.Domain.Profile;
 using GitHubProof.Domain.Profile.Enums;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Domain.Profile.ValueObjects;
@@ -64,6 +66,103 @@ internal static class ProfileContributionTestSupport
                 isTemplate: false,
                 primaryLanguage: "C#"),
             TestAnalysisVersion);
+
+    public static readonly PatternRuleVersion TestPatternRuleVersion =
+        new("test-pattern-rules");
+
+    // Analyzed, evidence-bearing contribution. Lineage decides whether it can
+    // also count as independent repetition.
+    public static RepositoryContributionAssessment CreateContribution(
+        string name,
+        RepositoryConditionState fork = RepositoryConditionState.Absent,
+        RepositoryConditionState templateDerived = RepositoryConditionState.Absent)
+    {
+        ProfileRepository repository = CreateProfileRepository(
+            name,
+            fork,
+            templateDerived);
+
+        return new RepositoryContributionPolicy(PolicyVersion).Evaluate(
+            repository,
+            CreateAdmission(repository, AnalysisAdmissionDecision.Analyze),
+            AnalysisStatus.Completed,
+            CreateAnalysisReference(name));
+    }
+
+    public static RepositoryContributionAssessment CreateRestrictedContribution(
+        string name)
+    {
+        ProfileRepository repository = CreateProfileRepository(
+            name,
+            empty: RepositoryConditionState.Present);
+
+        return new RepositoryContributionPolicy(PolicyVersion).Evaluate(
+            repository,
+            CreateAdmission(repository, AnalysisAdmissionDecision.Skip),
+            analysisStatus: null,
+            analysisReference: null);
+    }
+
+    public static RepositoryContributionAssessment CreateUnresolvedContribution(
+        string name)
+    {
+        ProfileRepository repository = CreateProfileRepository(name);
+
+        return new RepositoryContributionPolicy(PolicyVersion).Evaluate(
+            repository,
+            CreateAdmission(repository, AnalysisAdmissionDecision.Analyze),
+            AnalysisStatus.Failed,
+            analysisReference: null);
+    }
+
+    public static ProfileEvidenceReference CreateEvidenceReference(
+        RepositoryContributionAssessment contribution,
+        string evidenceKey) =>
+        new(
+            contribution.Reference,
+            contribution.AnalysisReference
+                ?? CreateAnalysisReference(contribution.Reference.Name),
+            evidenceKey,
+            ["evidence-key"]);
+
+    public static ObservedProfileEvidence CreateObservation(
+        string observationKey,
+        IReadOnlyList<RepositoryContributionAssessment> contributions,
+        int eligibleRepositoryCount,
+        ObservedProfileEvidenceKind kind =
+            ObservedProfileEvidenceKind.RepositorySignalEvidence,
+        int undeterminedEvidenceRepositoryCount = 0) =>
+        new(
+            observationKey,
+            kind,
+            contributions.Select(contribution =>
+                CreateEvidenceReference(contribution, observationKey)),
+            contributions.Count(contribution =>
+                contribution.IndependentRepetition.IsAllowed),
+            eligibleRepositoryCount,
+            undeterminedEvidenceRepositoryCount,
+            RuleVersion);
+
+    public static ObservedProfileEvidence CreateLanguageObservation(
+        string language,
+        IReadOnlyList<RepositoryContributionAssessment> contributions,
+        int eligibleRepositoryCount) =>
+        CreateObservation(
+            ProfileEvidenceKeys.CreateLanguageObservationKey(language),
+            contributions,
+            eligibleRepositoryCount,
+            ObservedProfileEvidenceKind.RepositoryLanguageEvidence);
+
+    public static CrossRepositoryEvidence CreateEvidence(
+        IReadOnlyList<RepositoryContributionAssessment> contributions,
+        IEnumerable<ObservedProfileEvidence> observations,
+        bool isEvidenceSurfaceComplete = true) =>
+        new(
+            contributions,
+            observations,
+            RuleVersion,
+            PolicyVersion,
+            isEvidenceSurfaceComplete);
 
     private static EligibilityReason? DefaultReason(
         AnalysisAdmissionDecision decision) =>
