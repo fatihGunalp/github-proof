@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GitHubProof.Domain.Analysis;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
@@ -15,7 +16,8 @@ namespace GitHubProof.Infrastructure.GitHub;
 public sealed class GitHubRepositoryDependencyManifestCollector
     : IGitHubRepositoryDependencyManifestCollector
 {
-    public const string DependencyManifestsDataKey = "dependency-manifests";
+    public const string DependencyManifestsDataKey =
+        RepositoryDataKeys.DependencyManifests;
     public const int MaximumManifestFiles = 32;
     public const int MaximumManifestFileBytes = 131072;
     public const int MaximumManifestCorpusBytes = 524288;

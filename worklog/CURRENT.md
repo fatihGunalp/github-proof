@@ -8,11 +8,15 @@
 Completed:
 P6 — Technical, Practice and Problem Patterns — COMPLETE / REMOTE VERIFIED
 
+Completed Foundation:
+Session 066 — Repository Evidence Surface Expansion / ProblemArea Evidence
+Foundation — COMPLETE / REMOTE VERIFIED
+
 Current:
 Stage 7 — Public Profile Evidence Foundation
 
-Interposed Foundation Work:
-Repository Evidence Surface Expansion / ProblemArea Evidence Foundation
+Interposed Contract Work:
+ProblemArea Semantic Mapping Contract
 
 Next Profile Phase:
 P7 — Representative Repository Selection
@@ -28,10 +32,10 @@ BLOCKED
 ## Active Session
 
 Session:
-066 — Repository Evidence Surface Expansion / ProblemArea Evidence Foundation
+067 — ProblemArea Semantic Mapping Contract
 
 Session File:
-worklog/sessions/2026-08-17-066-repository-evidence-surface-expansion.md
+worklog/sessions/2026-08-17-067-problem-area-semantic-mapping-contract.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
@@ -39,45 +43,69 @@ READY_FOR_MANUAL_COMMIT
 ## Git
 
 Active Branch:
-session/066-repository-evidence-surface-expansion
+session/067-problem-area-semantic-mapping-contract
 
 Session Base:
-cbde2e51c1814829ba737acd5f574f866d78b8eb
+b9dd3bdd82fd4ee435d844a4e01d37166811a85d
 
 Last Remote Verified Main:
-cbde2e51c1814829ba737acd5f574f866d78b8eb
+b9dd3bdd82fd4ee435d844a4e01d37166811a85d
 
 ## Goal
 
-Define the repository-level structured evidence foundation required for future
-ProblemArea truth without silently changing Repository MVP V1's canonical
-15-signal scoring contract.
+Resolve the semantic boundary between normalized dependency declarations and
+future repository/profile ProblemArea truth without increasing epistemic
+strength beyond observable evidence.
 
 ## Critical Boundary
 
-Ownership option B is approved and implemented: dependency evidence is a
-non-scoring repository evidence surface locked by
-docs/architecture/repository-dependency-evidence.md.
+Session 066 locked dependency declarations as a non-scoring structured
+RepositorySnapshot evidence surface.
 
 Repository MVP V1 still owns exactly 15 scoring signals.
 
-ProblemArea taxonomy and promotion remain explicitly deferred under
-docs/architecture/public-profile-evidence-patterns.md. The declared-versus
-produced boundary is still unresolved.
+ProblemArea remains deferred.
+
+Session 067 must first resolve:
+
+dependency declaration
+!=
+semantic category
+!=
+produced-work evidence
+!=
+repository-level ProblemArea evidence
+!=
+repeated profile-level ProblemArea pattern
+
+before any taxonomy, mapping or production implementation.
+
+## Canonical Tension
+
+P6 §9.4 condition 1 uses the phrase "repository-level signal".
+
+Session 066 explicitly locked dependency evidence as a non-scoring structured
+repository evidence surface.
+
+This wording/ownership tension must be resolved explicitly and may not be
+silently reinterpreted.
 
 ## Carry-Forward
 
-- ecosystem-neutral manifest/config coverage
-- repository-level interpretation ownership
-- unavailable != absent
+- dependency declarations are declared-only evidence
+- package declaration != runtime use
+- package declaration != produced work
+- package declaration != developer capability
+- ecosystem neutrality must remain bounded and explicit
+- unsupported ecosystem/package != absence
+- unavailable != absence
 - incomplete != negative evidence
-- declared dependency != produced work
-- no profile-layer duplicate parsing
-- preserve full traceability
-- preserve deterministic replay
-- no silent signal 16+
+- no profile-layer manifest parsing
 - no hidden weighting
-- no developer capability/seniority/employability/hire inference
+- preserve deterministic replay
+- preserve full evidence traceability
+- no scoring signal 16+
+- no developer role/seniority/employability/hire inference
 
 ## Blocker
 
@@ -85,34 +113,67 @@ NONE
 
 ## Validation
 
-Full suite: 870/870 PASS
+Full suite: 911/911 PASS
 Build: 0 warning / 0 error
-Independent review: two rounds, no BLOCKER/HIGH open
-AnalyzerVersion: 0.1.0 -> 0.2.0
-RuleSetVersion and ReportSchemaVersion: UNCHANGED
+Independent review: PASS WITH FINDINGS, no BLOCKER; accepted findings fixed
 
-15 scoring signals, score normalization, RepositoryAnalysis.Status, report
-schema, presentation and FileTree signal inputs: UNCHANGED, locked by
-regression tests
+AnalyzerVersion:
+1.0.0
+
+RuleSetVersion:
+UNCHANGED
+
+ReportSchemaVersion:
+UNCHANGED
+
+DependencyCategoryMappingVersion:
+1.0.0
+
+15 scoring signals, score normalization, RepositoryAnalysis status, report
+schema and presentation: UNCHANGED
+
+## Result
+
+Repository Dependency Semantic Category Contract V1 is LOCKED with five category
+keys: database-access, web-application-framework, http-client, authentication,
+machine-learning. http-server stays deferred.
+
+The canonical registry artefact
+docs/architecture/registries/dependency-category-mapping/1.0.0.json carries the
+approved 46-entry seed and is embedded directly by Infrastructure, so no mirror
+exists.
+
+Domain owns the taxonomy, its canonical keys, lookup normalization, the typed
+registry and RepositorySemanticEvidence. Infrastructure owns JSON loading only.
+Domain references no JSON, stream or resource API.
+
+RepositorySemanticEvidence is non-scoring: one observation per category with one
+or more traceable supporting declarations, no counts, weights or scores, and it
+is never ProblemArea evidence.
+
+The manifest package identity blocker was closed earlier in this session: npm
+aliases and Cargo renames now record the referenced package identity, and an
+unresolvable alias is omitted rather than recorded falsely.
 
 ## Remaining Risk
 
-Semantic categorization of dependencies is not implemented; ProblemArea still
-has no evidence-to-area mapping contract.
+Go `// indirect` requires and Maven dependencyManagement entries can support a
+category observation for a dependency the author never declared directly. This
+is contracted as a known limitation and needs its own approval and
+AnalyzerVersion decision to change.
 
-An empty declaration collection reads as complete; consumers must inspect the
-dependency-manifests availability key before treating it as a completed scan.
+Nothing composes the registry loader or the semantic policy yet: no consumer, no
+persistence, no presentation.
 
-Manifest parsing is bounded per format. Unsupported ecosystems and unparseable
-content produce no declaration and must never be read as absence.
+Immutable-version retention across future mapping versions is structurally
+supported but no retention policy is written.
 
-IProfileRepositorySnapshotSource still has no Infrastructure adapter, so the
-profile pipeline remains library-only. This must be resolved before or during
-P7 wiring.
+produced-work evidence, repository ProblemArea evidence and profile ProblemArea
+promotion remain unimplemented and deferred.
 
 ## Next Action
 
-User manually commits and pushes the Session 066 branch.
+User manually commits and pushes the Session 067 branch.
 
 After remote verification, continue with P7 — Representative Repository
-Selection.
+Selection, or with the deferred produced-work evidence decision.

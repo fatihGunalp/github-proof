@@ -5,6 +5,8 @@
 **Profile Phase:** P6 — Technical, Practice and Problem Patterns
 **Roadmap Stage:** Stage 7 — Public Profile Evidence Foundation
 **Locked:** 2026-08-17 / Session 065
+**Amended:** 2026-08-17 / Session 067 — §9.4 condition 1 wording only; no
+pattern semantics and no `PatternRuleVersion` change
 
 ## 1. Purpose
 
@@ -294,8 +296,8 @@ It is not negative evidence and not developer absence.
 
 ProblemArea may be contracted later only when all of the following exist:
 
-1. a repository-level signal that emits framework/dependency category evidence
-   with structured evidence keys,
+1. repository-level structured semantic evidence that emits
+   framework/dependency category evidence with traceable evidence references,
 2. a manifest collection surface covering the major ecosystems,
 3. a versioned dependency-to-area mapping owned by a canonical contract,
 4. a structured boundary separating declared dependencies from produced work.

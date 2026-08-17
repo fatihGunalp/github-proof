@@ -133,6 +133,139 @@ public sealed class GitHubRepositoryDependencyManifestCollectorTests
             result.Availability.Status);
     }
 
+    [Theory]
+    // npm alias false positive: the manifest key is not the declared package.
+    [InlineData(
+        "{\"dependencies\":{\"lodash\":\"npm:not-lodash@^1.0.0\"}}",
+        "not-lodash",
+        "^1.0.0")]
+    // npm alias false negative: the real package was hidden behind a local name.
+    [InlineData(
+        "{\"dependencies\":{\"my-orm\":\"npm:sequelize@^6.0.0\"}}",
+        "sequelize",
+        "^6.0.0")]
+    [InlineData(
+        "{\"dependencies\":{\"ui\":\"npm:@scope/design-system@^2.1.0\"}}",
+        "@scope/design-system",
+        "^2.1.0")]
+    [InlineData(
+        "{\"dependencies\":{\"ui\":\"npm:@scope/design-system\"}}",
+        "@scope/design-system",
+        null)]
+    public async Task CollectAsync_NpmAlias_RecordsTheReferencedPackageIdentity(
+        string content,
+        string expectedPackageId,
+        string? expectedVersion)
+    {
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("package.json", content.Length)],
+            ContentResponse("package.json", content));
+
+        RepositoryDependencyDeclaration declaration =
+            Assert.Single(result.Declarations.Items);
+
+        Assert.Equal(expectedPackageId, declaration.PackageId);
+        Assert.Equal(expectedVersion, declaration.DeclaredVersion);
+    }
+
+    [Theory]
+    [InlineData("{\"dependencies\":{\"broken\":\"npm:\"}}")]
+    [InlineData("{\"dependencies\":{\"broken\":\"npm:@scope/\"}}")]
+    public async Task CollectAsync_UnresolvableNpmAlias_OmitsTheDeclaration(
+        string content)
+    {
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("package.json", content.Length)],
+            ContentResponse("package.json", content));
+
+        Assert.Empty(result.Declarations.Items);
+        Assert.True(result.Availability.IsAvailable);
+    }
+
+    [Fact]
+    public async Task CollectAsync_OrdinaryNpmDependencies_AreUnchangedByAliasHandling()
+    {
+        const string content =
+            "{\"dependencies\":{\"express\":\"^4.18.2\",\"aliased\":\"npm:fastify@^4.0.0\"},\"devDependencies\":{\"jest\":\"^29.0.0\"}}";
+
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("package.json", content.Length)],
+            ContentResponse("package.json", content));
+
+        Assert.Equal(
+            new[] { "express:^4.18.2", "fastify:^4.0.0", "jest:^29.0.0" },
+            result.Declarations.Items
+                .Select(declaration =>
+                    $"{declaration.PackageId}:{declaration.DeclaredVersion}")
+                .OrderBy(value => value, StringComparer.Ordinal));
+        Assert.DoesNotContain(
+            result.Declarations.Items,
+            declaration => declaration.PackageId == "aliased");
+    }
+
+    [Theory]
+    // Cargo rename false negative: the table key hid the referenced crate.
+    [InlineData(
+        "[dependencies]\ndb = { package = \"sqlx\", version = \"0.7\" }\n",
+        "sqlx",
+        "0.7")]
+    // Cargo rename false positive: the table key impersonated another crate.
+    [InlineData(
+        "[dependencies]\nserde = { package = \"some-fork\", version = \"1\" }\n",
+        "some-fork",
+        "1")]
+    [InlineData(
+        "[dev-dependencies]\nrt = { package = \"tokio\", features = [\"macros\", \"rt\"], version = \"1.36\" }\n",
+        "tokio",
+        "1.36")]
+    public async Task CollectAsync_CargoRename_RecordsTheReferencedCrateIdentity(
+        string content,
+        string expectedPackageId,
+        string expectedVersion)
+    {
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("Cargo.toml", content.Length)],
+            ContentResponse("Cargo.toml", content));
+
+        RepositoryDependencyDeclaration declaration =
+            Assert.Single(result.Declarations.Items);
+
+        Assert.Equal(expectedPackageId, declaration.PackageId);
+        Assert.Equal(expectedVersion, declaration.DeclaredVersion);
+    }
+
+    [Fact]
+    public async Task CollectAsync_UnreadableCargoRename_OmitsTheDeclaration()
+    {
+        const string content =
+            "[dependencies]\ndb = { package = renamed_ident, version = \"1\" }\n";
+
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("Cargo.toml", content.Length)],
+            ContentResponse("Cargo.toml", content));
+
+        Assert.Empty(result.Declarations.Items);
+        Assert.True(result.Availability.IsAvailable);
+    }
+
+    [Fact]
+    public async Task CollectAsync_OrdinaryCargoDependencies_AreUnchangedByRenameHandling()
+    {
+        const string content =
+            "[dependencies]\nserde = \"1.0.197\"\nanyhow = { version = \"1.0\", features = [\"backtrace\"] }\n";
+
+        GitHubRepositoryDependencyManifestCollection result = await CollectAsync(
+            [Manifest("Cargo.toml", content.Length)],
+            ContentResponse("Cargo.toml", content));
+
+        Assert.Equal(
+            new[] { "anyhow:1.0", "serde:1.0.197" },
+            result.Declarations.Items
+                .Select(declaration =>
+                    $"{declaration.PackageId}:{declaration.DeclaredVersion}")
+                .OrderBy(value => value, StringComparer.Ordinal));
+    }
+
     [Fact]
     public async Task CollectAsync_WhenNoManifestExistsInACompleteTree_IsAvailableCompleteAndEmpty()
     {

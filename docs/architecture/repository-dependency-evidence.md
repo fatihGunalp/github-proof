@@ -32,9 +32,9 @@ category result.
 
 Reasons this evidence cannot be a scoring signal:
 
-- signal acceptance criterion §9.4 of that contract requires an actionable
-  repository-improvement recommendation, which dependency presence cannot
-  honestly produce;
+- `docs/product/analysis-categories-and-signal-boundaries.md` §9 criterion 4
+  requires an actionable repository-improvement recommendation from every MVP
+  signal, which dependency presence cannot honestly produce;
 - `docs/product/scoring-and-report-contract.md` §6 normalizes the total against
   the applicable maximum of scored signals, so a new scoring signal would move
   every existing repository score.
@@ -210,6 +210,12 @@ No ecosystem-specific member exists. Version literals are preserved exactly as
 declared, including ranges and unresolved placeholders. An absent version
 literal stays absent and is never defaulted.
 
+Package identity means the actual declared dependency identity. When a manifest
+format distinguishes a local alias or table key from the referenced package, the
+referenced package is the identity and the manifest-local name is not. When such
+an alias is present but cannot be resolved deterministically, the declaration is
+omitted rather than recorded under a false identity.
+
 Deterministic ordering: manifest path, then package identity, then declared
 version literal, all `Ordinal` ascending. Identical triples collapse to one
 declaration.
@@ -223,12 +229,12 @@ Parsing is format normalization only. It reads exactly:
 | `*.csproj`, `*.fsproj`, `*.vbproj`, `Directory.Packages.props` | `PackageReference` and `PackageVersion` elements: `Include`/`Update` identity, `Version` attribute or child element |
 | `pom.xml` | `dependency` elements: `groupId:artifactId` identity, `version` element |
 | `build.gradle`, `build.gradle.kts` | quoted `group:artifact[:version]` coordinates, scanned per line after stripping `#` and `//` line comments; block comments are not stripped |
-| `package.json` | `dependencies` and `devDependencies` members |
+| `package.json` | `dependencies` and `devDependencies` members; an `npm:` alias value resolves to the referenced package identity |
 | `composer.json` | `require` and `require-dev` members |
 | `pyproject.toml` | `[project] dependencies` array and `[tool.poetry.dependencies]` table |
 | `requirements.txt`, `requirements-*.txt` | requirement lines, excluding comments and option lines |
 | `go.mod` | `require` lines and `require (...)` blocks |
-| `Cargo.toml` | `[dependencies]`, `[dev-dependencies]`, `[build-dependencies]` tables |
+| `Cargo.toml` | `[dependencies]`, `[dev-dependencies]`, `[build-dependencies]` tables; a `package =` rename resolves to the referenced crate identity |
 | `Gemfile` | `gem` declarations |
 | `*.gemspec` | `add_dependency`, `add_runtime_dependency`, `add_development_dependency` calls |
 
@@ -239,6 +245,24 @@ A manifest whose content was already collected by the contents collector is
 reused rather than requested again. Reused content obeys the same byte bounds.
 
 Parsing must not classify, group, weight or interpret a dependency.
+
+### 11.1 Known parsing limitations
+
+These are accepted limitations of this contract version. None of them may ever
+be read as runtime usage, production usage or produced work.
+
+- Composer platform requirements such as `php` and `ext-*` are recorded like
+  packages.
+- Go `require` entries marked `// indirect` are recorded, so transitive modules
+  appear beside direct ones.
+- Maven `dependencyManagement` entries are recorded, although they declare
+  versions rather than dependencies.
+- Gradle version-catalog references such as `libs.example` produce no
+  declaration, and `libs.versions.toml` is outside the manifest set.
+- MSBuild identities that are property references, for example
+  `Include="$(SomePackage)"`, are recorded as the literal placeholder.
+- Dependency scope is not recorded, so runtime, development, build and test
+  declarations are indistinguishable.
 
 ## 12. Declared-Only Semantic Ceiling
 
@@ -259,6 +283,10 @@ Scaffolds, templates and tutorial repositories declare identical dependencies.
 The declared-versus-produced boundary required by
 `public-profile-evidence-patterns.md` §9.4 condition 4 remains unresolved and is
 not addressed by this contract.
+
+Semantic categorization of these declarations is owned by
+`docs/architecture/repository-dependency-semantic-category.md`. That contract
+may not raise the ceiling stated here.
 
 ## 13. Traceability
 

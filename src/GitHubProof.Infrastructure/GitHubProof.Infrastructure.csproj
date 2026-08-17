@@ -4,6 +4,14 @@
     <ProjectReference Include="..\GitHubProof.Domain\GitHubProof.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The canonical registry artefact is embedded directly from docs/ so the
+         loader consumes the single source of truth rather than a mirror. -->
+    <EmbeddedResource
+      Include="..\..\docs\architecture\registries\dependency-category-mapping\1.0.0.json"
+      LogicalName="GitHubProof.Infrastructure.Registries.dependency-category-mapping.1.0.0.json" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

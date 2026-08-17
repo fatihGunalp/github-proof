@@ -10,6 +10,8 @@ namespace GitHubProof.Infrastructure.GitHub;
 // never classifies, groups or interprets a dependency.
 internal static class GitHubRepositoryDependencyManifestParser
 {
+    private const string NpmAliasPrefix = "npm:";
+
     private static readonly Regex GradleCoordinate = new(
         "[\"']([A-Za-z0-9_.\\-]+:[A-Za-z0-9_.\\-]+(?::[^\"']+)?)[\"']",
         RegexOptions.CultureInvariant);
@@ -234,14 +236,30 @@ internal static class GitHubRepositoryDependencyManifestParser
 
             foreach (JsonProperty dependency in element.EnumerateObject())
             {
-                Add(
-                    declarations,
-                    ecosystem,
-                    path,
-                    dependency.Name,
-                    dependency.Value.ValueKind == JsonValueKind.String
-                        ? dependency.Value.GetString()
-                        : null);
+                string? declaredVersion = dependency.Value.ValueKind == JsonValueKind.String
+                    ? dependency.Value.GetString()
+                    : null;
+
+                // An npm alias declares the referenced package inside the value;
+                // the manifest key is only the local name. An alias that cannot
+                // be resolved deterministically is omitted rather than recorded
+                // under a false identity.
+                if (ecosystem == DependencyEcosystem.JavaScript
+                    && declaredVersion is not null
+                    && declaredVersion.StartsWith(NpmAliasPrefix, StringComparison.Ordinal))
+                {
+                    if (TryReadNpmAlias(
+                            declaredVersion,
+                            out string? aliasPackageId,
+                            out string? aliasVersion))
+                    {
+                        Add(declarations, ecosystem, path, aliasPackageId, aliasVersion);
+                    }
+
+                    continue;
+                }
+
+                Add(declarations, ecosystem, path, dependency.Name, declaredVersion);
             }
         }
 
@@ -355,10 +373,33 @@ internal static class GitHubRepositoryDependencyManifestParser
 
         foreach (TomlEntry entry in TomlSubsetReader.Read(content))
         {
-            if (entry.Section is "dependencies" or "dev-dependencies" or "build-dependencies")
+            if (entry.Section is not ("dependencies"
+                or "dev-dependencies"
+                or "build-dependencies"))
             {
-                Add(declarations, DependencyEcosystem.Rust, path, entry.Key, entry.Value);
+                continue;
             }
+
+            // A renamed dependency declares the referenced crate in `package`;
+            // the table key is only the local name. When the rename is present
+            // but unreadable, the declaration is omitted rather than recorded
+            // under a false identity.
+            if (entry.HasPackageOverride)
+            {
+                if (!string.IsNullOrWhiteSpace(entry.PackageOverride))
+                {
+                    Add(
+                        declarations,
+                        DependencyEcosystem.Rust,
+                        path,
+                        entry.PackageOverride,
+                        entry.Value);
+                }
+
+                continue;
+            }
+
+            Add(declarations, DependencyEcosystem.Rust, path, entry.Key, entry.Value);
         }
 
         return declarations;
@@ -465,6 +506,49 @@ internal static class GitHubRepositoryDependencyManifestParser
         Add(declarations, DependencyEcosystem.Python, path, name, remainder);
     }
 
+    // npm alias syntax is `npm:<name>[@<range>]`, where the name may be scoped.
+    // The last `@` after the first character separates the range, so a scoped
+    // name keeps its leading `@`.
+    private static bool TryReadNpmAlias(
+        string value,
+        out string? packageId,
+        out string? declaredVersion)
+    {
+        packageId = null;
+        declaredVersion = null;
+
+        string remainder = value[NpmAliasPrefix.Length..].Trim();
+
+        if (remainder.Length == 0)
+        {
+            return false;
+        }
+
+        int separator = remainder.LastIndexOf('@');
+
+        if (separator > 0)
+        {
+            packageId = remainder[..separator].Trim();
+            string range = remainder[(separator + 1)..].Trim();
+            declaredVersion = range.Length == 0 ? null : range;
+        }
+        else
+        {
+            packageId = remainder;
+        }
+
+        if (string.IsNullOrWhiteSpace(packageId)
+            || string.Equals(packageId, "@", StringComparison.Ordinal)
+            || packageId.EndsWith('/'))
+        {
+            packageId = null;
+            declaredVersion = null;
+            return false;
+        }
+
+        return true;
+    }
+
     private static void Add(
         List<RepositoryDependencyDeclaration> declarations,
         DependencyEcosystem ecosystem,
@@ -528,7 +612,9 @@ internal sealed record TomlEntry(
     string Section,
     string Key,
     string? Value,
-    IReadOnlyList<string> ArrayValues);
+    IReadOnlyList<string> ArrayValues,
+    bool HasPackageOverride = false,
+    string? PackageOverride = null);
 
 // Bounded TOML subset: section headers, string values, inline tables read for
 // their version member, and single or multi line string arrays. Anything else
@@ -601,32 +687,130 @@ internal static class TomlSubsetReader
                 continue;
             }
 
+            if (!value.StartsWith('{'))
+            {
+                entries.Add(new TomlEntry(
+                    section,
+                    key,
+                    ReadQuotedValues(value).FirstOrDefault(),
+                    []));
+                continue;
+            }
+
+            IReadOnlyList<(string Key, string Value)> members = ReadInlineTable(value);
+
             entries.Add(new TomlEntry(
                 section,
                 key,
-                value.StartsWith('{')
-                    ? ReadInlineTableVersion(value)
-                    : ReadQuotedValues(value).FirstOrDefault(),
-                []));
+                FindMember(members, "version"),
+                [],
+                members.Any(member => string.Equals(
+                    member.Key,
+                    "package",
+                    StringComparison.Ordinal)),
+                FindMember(members, "package")));
         }
 
         return entries;
     }
 
-    private static string? ReadInlineTableVersion(string value)
+    private static string? FindMember(
+        IReadOnlyList<(string Key, string Value)> members,
+        string name)
     {
-        int version = value.IndexOf("version", StringComparison.Ordinal);
-
-        if (version < 0)
+        foreach ((string key, string value) in members)
         {
-            return null;
+            if (string.Equals(key, name, StringComparison.Ordinal))
+            {
+                return ReadQuotedValues(value).FirstOrDefault();
+            }
         }
 
-        int separator = value.IndexOf('=', version);
+        return null;
+    }
 
-        return separator < 0
-            ? null
-            : ReadQuotedValues(value[(separator + 1)..]).FirstOrDefault();
+    // Splits an inline table on top-level commas so a member value containing a
+    // comma, bracket or quote cannot be mistaken for another member.
+    private static IReadOnlyList<(string Key, string Value)> ReadInlineTable(string value)
+    {
+        string body = value.Trim();
+        body = body[1..];
+
+        int close = body.LastIndexOf('}');
+
+        if (close >= 0)
+        {
+            body = body[..close];
+        }
+
+        List<(string Key, string Value)> members = [];
+        int depth = 0;
+        bool inside = false;
+        char quote = '"';
+        int start = 0;
+
+        for (int index = 0; index <= body.Length; index++)
+        {
+            if (index == body.Length)
+            {
+                AddMember(members, body[start..]);
+                break;
+            }
+
+            char current = body[index];
+
+            if (inside)
+            {
+                if (current == quote)
+                {
+                    inside = false;
+                }
+
+                continue;
+            }
+
+            switch (current)
+            {
+                case '"':
+                case '\'':
+                    inside = true;
+                    quote = current;
+                    break;
+
+                case '[':
+                case '{':
+                    depth++;
+                    break;
+
+                case ']':
+                case '}':
+                    depth--;
+                    break;
+
+                case ',' when depth == 0:
+                    AddMember(members, body[start..index]);
+                    start = index + 1;
+                    break;
+            }
+        }
+
+        return members;
+    }
+
+    private static void AddMember(
+        List<(string Key, string Value)> members,
+        string member)
+    {
+        int separator = member.IndexOf('=', StringComparison.Ordinal);
+
+        if (separator <= 0)
+        {
+            return;
+        }
+
+        members.Add((
+            member[..separator].Trim().Trim('"', '\''),
+            member[(separator + 1)..].Trim()));
     }
 
     private static IEnumerable<string> ReadQuotedValues(string line)
