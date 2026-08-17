@@ -10,6 +10,12 @@ Projenin amacı geliştiricileri puanlamak değildir.
 
 Amaç, **analiz edilen repository'nin hangi kanıtları görünür biçimde taşıdığını ve hangi alanların geliştirilebileceğini göstermektir.**
 
+Aynı görünür kanıt, repository'yi dışarıdan inceleyen bir kişi tarafından da okunabilir. Her sonuç dayandığı kanıta kadar izlenebilir ve kanıtın sınırı açıkça belirtilir.
+
+Ürün konumlandırması ve epistemik sınır için:
+
+> [GitHub Proof Product Positioning](docs/product/product-positioning.md)
+
 ---
 
 ## Problem
@@ -34,6 +40,34 @@ GitHub Proof geliştiriciyi değerlendirmez.
 Yalnızca repository içerisinde dışarıdan gözlemlenebilen kanıtları değerlendirir.
 
 Bir geliştiricinin seviyesi tek bir repository'ye veya skora indirgenemez. Bu nedenle üretilen sonuçlar karar vermek için nihai hüküm değil, repository'yi geliştirmek için açıklanabilir bir rehberdir.
+
+Kısaca: **kanıt sunar, hüküm vermez.**
+
+### AI coding çağındaki sınır
+
+AI coding agent'ları, sofistike görünen repository çıktısı üretmenin maliyetini düşürmüştür. Bir kişi, yazılım bilgisi çok sınırlı olsa bile bir AI coding agent'ından güçlü görünen mühendislik yapısı taşıyan bir repository üretmesini isteyebilir.
+
+Bu nedenle repository çıktısı; insan authorship'inin, insan anlayışının veya insan yetkinliğinin kanıtı olarak ele alınamaz.
+
+Şu çıkarım zinciri public GitHub evidence'ından güvenilir biçimde kurulamaz; ilk geçiş bile garanti değildir:
+
+```text
+kod var
+→ geliştirici yazdı
+→ geliştirici anlıyor
+→ geliştirici bu konuda yetkin
+```
+
+Temel sınır:
+
+```text
+Repository Evidence
+!= Human Capability
+!= Human Authorship
+!= Human Understanding
+```
+
+GitHub Proof gözlemlenebilir kanıtı ve bu kanıtın sınırını gösterir. Kanıtın arkasındaki insan anlayışını repository'den çıkarsamaz.
 
 ---
 
@@ -72,6 +106,7 @@ MVP fazlarının ayrıntıları için:
 
 MVP'nin ürün sınırları, analiz kuralları ve raporlama yaklaşımı aşağıdaki belgelerde tanımlanmıştır:
 
+- [Ürün Konumlandırması](docs/product/product-positioning.md)
 - [MVP Ürün Sözleşmesi](docs/product/mvp-product-contract.md)
 - [Analiz Kategorileri ve Sinyal Sınırları](docs/product/analysis-categories-and-signal-boundaries.md)
 - [Puanlama ve Rapor Sözleşmesi](docs/product/scoring-and-report-contract.md)
@@ -145,6 +180,18 @@ MVP yalnızca tanımlı repository sinyallerini değerlendirir; örneğin:
 - Topics, homepage/demo ve repository sunum bütünlüğü
 
 Bu sinyallerin hiçbiri tek başına veya birlikte AI kullanıldığını, kodun kopyalandığını ya da geliştiricinin yetkinlik seviyesini kanıtlamaz.
+
+AI kullanımı olumlu veya olumsuz bir bulgu değildir.
+
+GitHub Proof aşağıdakileri belirlemeye çalışmaz:
+
+- kodu AI'ın yazıp yazmadığı,
+- hangi oranda AI tarafından yazıldığı,
+- kesin insan authorship'i,
+- özgünlük,
+- repository sahibinin implementasyonu anlayıp anlamadığı.
+
+Public repository kanıtı tek başına bu sonuçları kuramaz.
 
 ---
 

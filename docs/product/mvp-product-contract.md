@@ -6,6 +6,19 @@ GitHub Proof, public bir GitHub repository'sinde dışarıdan gözlemlenebilen m
 
 GitHub Proof bir geliştiricinin genel yetkinliğini, işe alınabilirliğini veya kıdem seviyesini ölçmez.
 
+Repository çıktısı, arkasındaki insan hakkında kanıt değildir:
+
+~~~text
+Repository Evidence
+!= Human Capability
+!= Human Authorship
+!= Human Understanding
+~~~
+
+Repository üzerinde gözlemlenen kanıt, kodun repository sahibi tarafından yazıldığını, anlaşıldığını veya ilgili konuda yetkin olunduğunu kurmaz.
+
+Ürün konumlandırması ve epistemik sınırın canonical sahibi `docs/product/product-positioning.md` dokümanıdır.
+
 Sistem yalnızca analiz edilen repository içerisinde erişilebilen veriler üzerinden değerlendirme yapar.
 
 GitHub Proof global üründür. Analiz domain'i locale bağımsızdır; aynı `RepositoryAnalysis` en az Türkçe ve İngilizce olarak, yeniden analiz edilmeden sunulabilmelidir.
@@ -105,6 +118,8 @@ GitHub Proof MVP:
 - İşe alınabilirlik kararı vermez.
 - Junior, mid veya senior sınıflandırması yapmaz.
 - Kodun AI tarafından yazılıp yazılmadığını tespit etmez.
+- Kodun repository sahibi tarafından yazıldığını doğrulamaz.
+- Repository sahibinin implementasyonu anladığını doğrulamaz.
 - Kod kalitesini bütünüyle değerlendirmez.
 - Güvenlik denetimi gerçekleştirmez.
 - Mimari olgunluk hakkında kesin hüküm vermez.

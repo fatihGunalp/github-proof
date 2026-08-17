@@ -563,16 +563,41 @@ Gerçek kullanıcı repository'leriyle tekrarlanabilir analizler üretilmesi ve 
 
 - Hızlı repository özeti
 - Kanıt kategorileri
-- Eksik veya riskli alanlar
-- Adayları sıralamadan karşılaştırılabilir sinyaller
+- Görünür kanıtın kaynağına kadar izlenebilmesi
+- Eksik veya erişilemeyen kanıtın ve otomatik analizin güvenilir deterministik
+  sonuç üretemediği durumların açıkça gösterilmesi
+
+Recruiter view yeni bir analysis truth üretmez; aynı canonical evidence truth'unu sunar.
+
+Bu görünüm şunları üretmez:
+
+- aday karşılaştırması veya aday sıralaması,
+- hire/no-hire,
+- seniority assignment,
+- employability score.
+
+Kilitli recruiter kullanım sınırı için:
+`docs/product/public-profile-evidence-product-contract.md` §19 ve bu dokümandaki
+`Job J10 — Recruiter Presentation`.
 
 ## Faz 11 — Derin Teknik Analiz
 
+**CONTRACT-GATED.** Bu faz kabul edilmiş ürün semantiği değildir.
+
+Aşağıdaki başlıklar yalnız olası konu başlıklarıdır ve her biri ayrı,
+onaylanmış bir contract olmadan implement edilemez:
+
 - Kod tabanı yapısı
-- Test kapsamı sinyalleri
-- Dependency riskleri
+- Test kapsamı gözlemleri
+- Dependency gözlemleri
 - Mimari karar kayıtları
-- Maintainability göstergeleri
+- Maintainability kavramları
+
+`dependency riski` ve `maintainability göstergesi` gibi kalite hükmü taşıyan
+ifadeler mevcut ürün sınırlarıyla çelişir:
+`docs/product/mvp-product-contract.md` §7 kod kalitesinin bütünüyle
+değerlendirilmeyeceğini ve mimari olgunluk hakkında kesin hüküm
+verilmeyeceğini kilitler.
 
 ## Faz 12 — LLM Destekli Yorumlama
 

@@ -16,6 +16,19 @@ Bu nedenle:
 - Puan yalnızca değerlendirilen sinyallerin sonucudur.
 - Her puan, dayandığı kanıtlarla birlikte gösterilmelidir.
 
+Puan tanımlı repository kanıt yüzeyini tarif eder; repository'nin arkasındaki insanı tarif etmez.
+
+Bu nedenle puan şu şekillerde sunulmamalıdır:
+
+- geliştirici kalitesi,
+- mühendislik yeteneği,
+- yetkinlik,
+- kıdem,
+- kod kalitesi,
+- işe uygunluk.
+
+Repository'nin AI destekli üretilmiş olması bu sınırı değiştirmez; puan hiçbir zaman insan üretimi veya insan anlayışı iddiasında bulunmamıştır.
+
 ---
 
 ## 2. Puanlama Modeli
@@ -502,7 +515,7 @@ Bu alanlar sonuçların gelecekte tekrar üretilebilmesini ve sürümler arasın
 
 Her raporda aşağıdaki anlamı taşıyan bir uyarı bulunmalıdır:
 
-> Bu rapor yalnızca analiz edilen public GitHub repository'sinde gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin genel yetkinliğini, kıdemini, işe alınabilirliğini, kodun sahipliğini veya özgünlüğünü, AI kullanımını ya da projenin production güvenilirliğini belirlemez.
+> Bu rapor yalnızca analiz edilen public GitHub repository'sinde gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin genel yetkinliğini, kıdemini, işe alınabilirliğini, kodun sahipliğini veya özgünlüğünü, AI kullanımını ya da projenin production güvenilirliğini belirlemez. Repository üzerinde gözlemlenen kanıt, kodun repository sahibi tarafından yazıldığını veya anlaşıldığını kurmaz.
 
 ---
 

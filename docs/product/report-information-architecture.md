@@ -194,7 +194,7 @@ Kullanıcı sancısı bağlantısı:
 
 Her format aynı anlamı taşıyan kısa ve tam sınır açıklamasını sunmalıdır:
 
-> Bu rapor yalnızca analiz edilen public repository'de dışarıdan gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin kıdemini, işe alınabilirliğini, kodun sahipliğini veya özgünlüğünü, AI kullanımını ya da genel geliştirici kalitesini belirlemez.
+> Bu rapor yalnızca analiz edilen public repository'de dışarıdan gözlemlenebilen sinyalleri değerlendirir. Geliştiricinin kıdemini, işe alınabilirliğini, kodun sahipliğini veya özgünlüğünü, AI kullanımını ya da genel geliştirici kalitesini belirlemez. Repository üzerinde gözlemlenen kanıt, kodun repository sahibi tarafından yazıldığını veya anlaşıldığını kurmaz.
 
 Kısa sınır cümlesi ilk okuma katmanında bulunabilir; tam disclaimer rapor sonunda zorunludur.
 
