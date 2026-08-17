@@ -494,6 +494,8 @@ ReportSchemaVersion: 1
 
 Bu alanlar sonuçların gelecekte tekrar üretilebilmesini ve sürümler arasında karşılaştırılmasını destekler.
 
+`AnalyzerVersion` collection ve snapshot normalization semantiğini sahiplenir. Bump kuralı canonical olarak `docs/architecture/repository-dependency-evidence.md` §9 içinde tanımlıdır ve yalnız dependency evidence için değil, her collection/normalization değişikliği için geçerlidir.
+
 ---
 
 ## 17. Rapor Uyarısı

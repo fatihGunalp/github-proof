@@ -6,15 +6,15 @@
 ## Development
 
 Completed:
-P5 — Cross-Repository Evidence Engine — COMPLETE / REMOTE VERIFIED
+P6 — Technical, Practice and Problem Patterns — COMPLETE / REMOTE VERIFIED
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
 
-Active:
-P6 — Technical, Practice and Problem Patterns
+Interposed Foundation Work:
+Repository Evidence Surface Expansion / ProblemArea Evidence Foundation
 
-Next:
+Next Profile Phase:
 P7 — Representative Repository Selection
 
 ## Production Delivery
@@ -28,10 +28,10 @@ BLOCKED
 ## Active Session
 
 Session:
-065 — Profile P6 Technical, Practice and Problem Patterns
+066 — Repository Evidence Surface Expansion / ProblemArea Evidence Foundation
 
 Session File:
-worklog/sessions/2026-08-17-065-profile-p6-patterns.md
+worklog/sessions/2026-08-17-066-repository-evidence-surface-expansion.md
 
 Status:
 READY_FOR_MANUAL_COMMIT
@@ -39,40 +39,45 @@ READY_FOR_MANUAL_COMMIT
 ## Git
 
 Active Branch:
-session/065-profile-p6-patterns
+session/066-repository-evidence-surface-expansion
 
 Session Base:
-91b3040ed6c9c9f20477ff5dcf52e9bdfd83a770
+cbde2e51c1814829ba737acd5f574f866d78b8eb
 
 Last Remote Verified Main:
-91b3040ed6c9c9f20477ff5dcf52e9bdfd83a770
+cbde2e51c1814829ba737acd5f574f866d78b8eb
 
 ## Goal
 
-Promote canonical cross-repository observations into deterministic, versioned
-and traceable repeated profile patterns.
+Define the repository-level structured evidence foundation required for future
+ProblemArea truth without silently changing Repository MVP V1's canonical
+15-signal scoring contract.
 
 ## Critical Boundary
 
-P6 V1 taxonomy, threshold and promotion rules are locked by
-docs/architecture/public-profile-evidence-patterns.md.
+Ownership option B is approved and implemented: dependency evidence is a
+non-scoring repository evidence surface locked by
+docs/architecture/repository-dependency-evidence.md.
 
-ProblemArea stays a canonical family with no V1 promotion rule; an empty
-ProblemArea collection is a contract boundary, not evidence of absence.
+Repository MVP V1 still owns exactly 15 scoring signals.
 
-TechnicalFocus is language-literal evidence only. No grouping, no framework or
-role inference, and no P2 CurrentFocus/lifecycle runtime was introduced.
+ProblemArea taxonomy and promotion remain explicitly deferred under
+docs/architecture/public-profile-evidence-patterns.md. The declared-versus
+produced boundary is still unresolved.
 
-## P5 Carry-Forward
+## Carry-Forward
 
-- RepositoryAnalysis remains atomic truth
-- CrossRepositoryEvidence owns canonical observations
-- fork/template cannot inflate independent repetition
-- Missing is not profile/developer absence
-- technical failure is not insufficient evidence
-- partial analysis contributes only available evidence
+- ecosystem-neutral manifest/config coverage
+- repository-level interpretation ownership
+- unavailable != absent
+- incomplete != negative evidence
+- declared dependency != produced work
+- no profile-layer duplicate parsing
+- preserve full traceability
+- preserve deterministic replay
+- no silent signal 16+
 - no hidden weighting
-- preserve evidence traceability
+- no developer capability/seniority/employability/hire inference
 
 ## Blocker
 
@@ -80,31 +85,34 @@ NONE
 
 ## Validation
 
-Full suite: 831/831 PASS
+Full suite: 870/870 PASS
 Build: 0 warning / 0 error
-Contract decisions 1-4: approved and implemented
-Independent review: PASS WITH FINDINGS, no BLOCKER/HIGH; accepted findings fixed
+Independent review: two rounds, no BLOCKER/HIGH open
+AnalyzerVersion: 0.1.0 -> 0.2.0
+RuleSetVersion and ReportSchemaVersion: UNCHANGED
 
-Existing RepositoryAnalysis behaviour, Web and Infrastructure: UNCHANGED
+15 scoring signals, score normalization, RepositoryAnalysis.Status, report
+schema, presentation and FileTree signal inputs: UNCHANGED, locked by
+regression tests
 
 ## Remaining Risk
 
-ProblemArea is deferred; its four future conditions are in the patterns
-contract §9.4.
+Semantic categorization of dependencies is not implemented; ProblemArea still
+has no evidence-to-area mapping contract.
 
-RepeatedProfilePattern cannot structurally prove that its observations came
-from one evidence surface; the promoting policy guarantees it until P8 assembly
-holds both sides.
+An empty declaration collection reads as complete; consumers must inspect the
+dependency-manifests availability key before treating it as a completed scan.
 
-Presentation must not regroup language literals later; canonical truth forbids
-grouping.
+Manifest parsing is bounded per format. Unsupported ecosystems and unparseable
+content produce no declaration and must never be read as absence.
 
 IProfileRepositorySnapshotSource still has no Infrastructure adapter, so the
-profile pipeline remains library-only.
+profile pipeline remains library-only. This must be resolved before or during
+P7 wiring.
 
 ## Next Action
 
-User manually commits and pushes the Session 065 branch.
+User manually commits and pushes the Session 066 branch.
 
 After remote verification, continue with P7 — Representative Repository
-Selection and Role Evidence Alignment.
+Selection.

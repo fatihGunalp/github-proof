@@ -25,7 +25,8 @@ public sealed record RepositorySnapshot
         IEnumerable<string>? collectionWarnings,
         RepositoryCollection<RepositoryTag>? tags = null,
         RepositoryFile? licenseFile = null,
-        RepositoryCollection<RepositoryFile>? documentationMarkdown = null)
+        RepositoryCollection<RepositoryFile>? documentationMarkdown = null,
+        RepositoryCollection<RepositoryDependencyDeclaration>? dependencyDeclarations = null)
     {
         Repository = repository
             ?? throw new ArgumentNullException(nameof(repository));
@@ -47,6 +48,7 @@ public sealed record RepositorySnapshot
         DocumentationMarkdown = documentationMarkdown
             ?? new RepositoryCollection<RepositoryFile>(isComplete: false);
         Languages = NormalizeLanguages(languages);
+        DependencyDeclarations = NormalizeDependencyDeclarations(dependencyDeclarations);
         Contributors = contributors
             ?? RepositoryCollection<RepositoryContributor>.Empty;
         Availability = NormalizeAvailability(availability);
@@ -89,6 +91,10 @@ public sealed record RepositorySnapshot
 
     public RepositoryCollection<RepositoryContributor> Contributors { get; }
 
+    // Non-scoring dependency declaration evidence. It participates in no
+    // signal, category or score.
+    public RepositoryCollection<RepositoryDependencyDeclaration> DependencyDeclarations { get; }
+
     public IReadOnlyList<DataAvailability> Availability { get; }
 
     public IReadOnlyList<string> CollectionWarnings { get; }
@@ -103,6 +109,31 @@ public sealed record RepositorySnapshot
             item.DataKey,
             normalizedKey,
             StringComparison.Ordinal));
+    }
+
+    // Deterministic ordering by manifest path, package identity and declared
+    // version literal; identical triples collapse to one declaration.
+    private static RepositoryCollection<RepositoryDependencyDeclaration> NormalizeDependencyDeclarations(
+        RepositoryCollection<RepositoryDependencyDeclaration>? declarations)
+    {
+        if (declarations is null)
+        {
+            return RepositoryCollection<RepositoryDependencyDeclaration>.Empty;
+        }
+
+        RepositoryDependencyDeclaration[] normalized = declarations.Items
+            .Distinct()
+            .OrderBy(declaration => declaration.ManifestPath, StringComparer.Ordinal)
+            .ThenBy(declaration => declaration.PackageId, StringComparer.Ordinal)
+            .ThenBy(
+                declaration => declaration.DeclaredVersion ?? string.Empty,
+                StringComparer.Ordinal)
+            .ToArray();
+
+        return new RepositoryCollection<RepositoryDependencyDeclaration>(
+            normalized,
+            declarations.IsComplete ? normalized.Length : declarations.TotalCount,
+            declarations.IsComplete);
     }
 
     private static IReadOnlyList<string> NormalizeTopics(

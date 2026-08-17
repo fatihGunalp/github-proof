@@ -57,6 +57,14 @@ public interface IGitHubRepositoryContributorCollector
         CancellationToken cancellationToken = default);
 }
 
+public interface IGitHubRepositoryDependencyManifestCollector
+{
+    Task<GitHubRepositoryDependencyManifestCollection> CollectAsync(
+        GitHubRepositoryUrl repository,
+        GitHubRepositoryContentsCollection contents,
+        CancellationToken cancellationToken = default);
+}
+
 public interface IGitHubRepositoryContentsCollector
 {
     Task<GitHubRepositoryContentsCollection> CollectAsync(

@@ -124,6 +124,7 @@ RepositorySnapshot
 ├── License
 ├── LicenseFile
 ├── Languages
+├── DependencyDeclarations
 ├── Contributors
 ├── Availability
 └── CollectionWarnings
@@ -201,6 +202,27 @@ File-count, size, total-budget veya tree-truncation sınırına takılmak collec
 Markdown linkleri, image referansları ve fenced code block'lar ayrı snapshot field gerektirmez; README/docs content'i içindeki provider-independent Markdown syntax'inden deterministik olarak ayrıştırılır.
 
 `readme` ile `documentation-markdown` availability/completeness değerleri lower sonuçların güvenilirliğini belirler. `metadata` availability yalnız homepage corroboration'ı exact Usage/Demo sonucunu değiştirebilecekse zorunludur. Remote link health, DNS veya HTTP status sonucu snapshot'a eklenmez ve MVP v1 Usage/Demo sinyali tarafından zorunlu olarak doğrulanmaz.
+
+### Dependency declaration kanıtı
+
+`DependencyDeclarations`, desteklenen manifest yüzeyinde gözlemlenen normalize
+dependency declaration'larını taşır. Non-scoring bir evidence surface'tir:
+hiçbir sinyale, kategori sonucuna veya skora katılmaz.
+
+Exact manifest set, deterministic candidate ordering, collection bound'ları,
+availability/completeness semantiği, ecosystem-neutrality tanımı ve
+declared-only semantic tavanı canonical olarak şurada kilitlenmiştir:
+
+`docs/architecture/repository-dependency-evidence.md`
+
+İki izolasyon kuralı zorunludur:
+
+- toplanan manifest'ler `FileTree` overlay'ine eklenmez, böylece mevcut sinyal
+  girdileri değişmez,
+- bu yüzeyin unavailable/partial durumları `CollectionWarnings` üzerinden
+  `RepositoryAnalysis.Status` değerini `Partial`'a çevirmez.
+
+Dedicated availability key `dependency-manifests` değeridir.
 
 ### Kural
 

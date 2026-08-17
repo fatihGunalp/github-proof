@@ -35,7 +35,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 "pull-requests",
                 "releases",
                 "tags",
-                "contributors"
+                "contributors",
+                "dependency-manifests"
             ],
             collectors.Calls);
 
@@ -82,12 +83,18 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal("v1.0.0", Assert.Single(snapshot.Tags.Items).Name);
         Assert.Equal("octocat", Assert.Single(snapshot.Contributors.Items).Login);
 
-        Assert.Equal(14, snapshot.Availability.Count);
+        Assert.Equal(15, snapshot.Availability.Count);
         Assert.All(snapshot.Availability, availability =>
             Assert.Equal(DataAvailabilityStatus.Available, availability.Status));
         Assert.Equal(
             DataAvailabilityStatus.Available,
             snapshot.FindAvailability("documentation-markdown")!.Status);
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("dependency-manifests")!.Status);
+        Assert.Equal(
+            "Serilog",
+            Assert.Single(snapshot.DependencyDeclarations.Items).PackageId);
         Assert.Single(snapshot.CollectionWarnings);
         Assert.Contains("may not be atomic", snapshot.CollectionWarnings[0]);
         Assert.Null(collectors.ContentsReference);
@@ -123,7 +130,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 "pull-requests",
                 "releases",
                 "tags",
-                "contributors"
+                "contributors",
+                "dependency-manifests"
             ],
             collectors.Calls);
         Assert.Contains(
@@ -354,9 +362,44 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal(["metadata"], collectors.Calls);
     }
 
+    [Fact]
+    public async Task CollectAsync_DependencyEvidence_LeavesFileTreeAndCollectionWarningsUnchanged()
+    {
+        StubCollectors collectors = new()
+        {
+            DependencyManifests = new GitHubRepositoryDependencyManifestCollection(
+                new RepositoryCollection<RepositoryDependencyDeclaration>(isComplete: false),
+                Unavailable(
+                    "dependency-manifests",
+                    DataAvailabilityStatus.Failed,
+                    "GitHub dependency manifest request failed."))
+        };
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAsync("https://github.com/octocat/hello-world");
+        RepositorySnapshot snapshot = result.Snapshot!;
+
+        Assert.Equal(
+            collectors.Contents.FileTree.Items.Select(file => file.Path),
+            snapshot.FileTree.Items.Select(file => file.Path));
+        Assert.Equal(
+            "<Project />",
+            snapshot.FileTree.Items.Single(file => file.Path == "src/App.csproj").Content);
+        Assert.Single(snapshot.CollectionWarnings);
+        Assert.DoesNotContain(
+            snapshot.CollectionWarnings,
+            warning => warning.Contains("dependency", StringComparison.OrdinalIgnoreCase));
+        Assert.Empty(snapshot.DependencyDeclarations.Items);
+        Assert.False(snapshot.DependencyDeclarations.IsComplete);
+        Assert.Equal(
+            DataAvailabilityStatus.Failed,
+            snapshot.FindAvailability("dependency-manifests")!.Status);
+    }
+
     private static GitHubRepositorySnapshotOrchestrator CreateOrchestrator(
         StubCollectors collectors) =>
         new(
+            collectors,
             collectors,
             collectors,
             collectors,
@@ -386,7 +429,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         IGitHubRepositoryPullRequestCollector,
         IGitHubRepositoryReleaseCollector,
         IGitHubRepositoryTagCollector,
-        IGitHubRepositoryContributorCollector
+        IGitHubRepositoryContributorCollector,
+        IGitHubRepositoryDependencyManifestCollector
     {
         public StubCollectors()
         {
@@ -481,6 +525,16 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                     [new RepositoryContributor("octocat", 12)]),
                 Available("contributors"),
                 Array.Empty<string>());
+            DependencyManifests = new GitHubRepositoryDependencyManifestCollection(
+                new RepositoryCollection<RepositoryDependencyDeclaration>(
+                [
+                    new RepositoryDependencyDeclaration(
+                        DependencyEcosystem.DotNet,
+                        "src/App.csproj",
+                        "Serilog",
+                        "3.1.1")
+                ]),
+                Available("dependency-manifests"));
         }
 
         public List<string> Calls { get; } = [];
@@ -508,6 +562,17 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         public GitHubRepositoryTagCollection Tags { get; set; }
 
         public GitHubRepositoryContributorCollection Contributors { get; set; }
+
+        public GitHubRepositoryDependencyManifestCollection DependencyManifests { get; set; }
+
+        Task<GitHubRepositoryDependencyManifestCollection> IGitHubRepositoryDependencyManifestCollector.CollectAsync(
+            GitHubRepositoryUrl repository,
+            GitHubRepositoryContentsCollection contents,
+            CancellationToken cancellationToken)
+        {
+            Record("dependency-manifests", repository);
+            return Task.FromResult(DependencyManifests);
+        }
 
         Task<GitHubRepositoryMetadataCollection> IGitHubRepositoryMetadataCollector.CollectAsync(
             GitHubRepositoryUrl repository,

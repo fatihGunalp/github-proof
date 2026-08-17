@@ -25,6 +25,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             new GitHubRepositoryReleaseCollector(httpClient),
             new GitHubRepositoryTagCollector(httpClient),
             new GitHubRepositoryContributorCollector(httpClient),
+            new GitHubRepositoryDependencyManifestCollector(httpClient, timeProvider),
             timeProvider);
     }
 
@@ -37,6 +38,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     private readonly IGitHubRepositoryReleaseCollector releaseCollector;
     private readonly IGitHubRepositoryTagCollector tagCollector;
     private readonly IGitHubRepositoryContributorCollector contributorCollector;
+    private readonly IGitHubRepositoryDependencyManifestCollector dependencyManifestCollector;
     private readonly TimeProvider timeProvider;
 
     public GitHubRepositorySnapshotOrchestrator(
@@ -49,6 +51,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         IGitHubRepositoryReleaseCollector releaseCollector,
         IGitHubRepositoryTagCollector tagCollector,
         IGitHubRepositoryContributorCollector contributorCollector,
+        IGitHubRepositoryDependencyManifestCollector dependencyManifestCollector,
         TimeProvider? timeProvider = null)
     {
         this.metadataCollector = metadataCollector
@@ -69,6 +72,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             ?? throw new ArgumentNullException(nameof(tagCollector));
         this.contributorCollector = contributorCollector
             ?? throw new ArgumentNullException(nameof(contributorCollector));
+        this.dependencyManifestCollector = dependencyManifestCollector
+            ?? throw new ArgumentNullException(nameof(dependencyManifestCollector));
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
@@ -161,6 +166,11 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 repository,
                 metadata,
                 cancellationToken);
+        GitHubRepositoryDependencyManifestCollection dependencyManifests =
+            await dependencyManifestCollector.CollectAsync(
+                repository,
+                contents,
+                cancellationToken);
 
         RepositorySnapshot snapshot = new(
             metadata.Repository,
@@ -187,7 +197,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 pullRequests,
                 releases,
                 tags,
-                contributors),
+                contributors,
+                dependencyManifests),
             CollectWarnings(
                 contents,
                 commits,
@@ -199,7 +210,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 contentReference),
             MapTags(tags.Tags),
             descriptive.LicenseFile,
-            contents.DocumentationMarkdownFiles);
+            contents.DocumentationMarkdownFiles,
+            dependencyManifests.Declarations);
 
         return new GitHubRepositorySnapshotResult(snapshot, metadata.Availability);
     }
@@ -288,7 +300,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryPullRequestCollection pullRequests,
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
-        GitHubRepositoryContributorCollection contributors) =>
+        GitHubRepositoryContributorCollection contributors,
+        GitHubRepositoryDependencyManifestCollection dependencyManifests) =>
         [
             metadata.Availability,
             contents.FileTreeAvailability,
@@ -301,7 +314,12 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             pullRequests.Availability,
             releases.Availability,
             tags.Availability,
-            contributors.Availability
+            contributors.Availability,
+
+            // The dependency evidence surface contributes availability only.
+            // Its warnings are deliberately not merged into the snapshot
+            // collection warnings, which would change RepositoryAnalysis.Status.
+            dependencyManifests.Availability
         ];
 
     private static IReadOnlyList<string> CollectWarnings(

@@ -327,6 +327,8 @@ MVP çekirdeği aşağıdaki 15 açıklanabilir sinyali içerir:
 
 `Repository sunum bütünlüğü`, kategori içi açıklama ve özet amacı taşır ancak toplam görünür kanıt skoruna katkı yapmaz.
 
+Repository-level dependency declaration evidence bu 15 sinyalin dışındadır ve non-scoring bir evidence surface olarak `docs/architecture/repository-dependency-evidence.md` tarafından sahiplenilir. Skora, kategori sonucuna veya rapora katılmaz.
+
 ## 7. Yasaklı Çıkarımlar
 
 Aşağıdaki sonuçlar hiçbir sinyal veya sinyal birleşiminden otomatik olarak üretilmemelidir:

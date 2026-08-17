@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using GitHubProof.Domain.Analysis.Enums;
 
 namespace GitHubProof.Domain.Analysis.Models;
 
@@ -223,6 +224,40 @@ public sealed record RepositoryLicense
     public string? SpdxIdentifier { get; }
 
     public string? Path { get; }
+}
+
+// One dependency declaration observed in a repository manifest. It records what
+// a manifest declares; it never states that the dependency is used, that work
+// was produced with it, or that any problem area is proven.
+public sealed record RepositoryDependencyDeclaration
+{
+    public RepositoryDependencyDeclaration(
+        DependencyEcosystem ecosystem,
+        string manifestPath,
+        string packageId,
+        string? declaredVersion)
+    {
+        if (!Enum.IsDefined(ecosystem))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(ecosystem),
+                ecosystem,
+                "Dependency ecosystem is not defined.");
+        }
+
+        Ecosystem = ecosystem;
+        ManifestPath = SnapshotValue.RequireValue(manifestPath, nameof(manifestPath));
+        PackageId = SnapshotValue.RequireValue(packageId, nameof(packageId));
+        DeclaredVersion = SnapshotValue.NormalizeOptional(declaredVersion);
+    }
+
+    public DependencyEcosystem Ecosystem { get; }
+
+    public string ManifestPath { get; }
+
+    public string PackageId { get; }
+
+    public string? DeclaredVersion { get; }
 }
 
 public sealed record RepositoryContributor
