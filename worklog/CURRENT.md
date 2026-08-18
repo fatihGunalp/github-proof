@@ -40,8 +40,8 @@ Next Profile Phase:
 P7 — Representative Repository and Role Evidence Alignment — STARTED
 
 Session 074 locked the Representative Repository selection contract
-(documentation only), corrected after a post-push independent review.
-RepresentativeRepositorySelection/RepresentativeRepository/
+(documentation only), corrected across two rounds of post-push independent
+review. RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport production code has NOT started.
 RoleEvidenceAlignment semantics have NOT started and remain a separate later
 P7 decision.
@@ -67,10 +67,12 @@ worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
 DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1), including a post-push independent-review
-correction (two BLOCKER findings on completeness and version/traceability
-semantics, both corrected within Session 074 scope); nothing committed or
-pushed
+locked (Contract Version 1), including two rounds of post-push independent
+review corrections (round 1: completeness and version/traceability semantics;
+round 2: an undefined ProfilePatternSet stable-reference gap and pattern
+identity wording), both rounds corrected within Session 074 scope. Session
+contract work is complete; Git branch/main integration is user-owned and
+tracked from actual Git state, not asserted here.
 
 ## Git
 
@@ -164,22 +166,28 @@ ordering (Owner, then Name). Cross-pattern breadth is explicitly forbidden as
 a selection factor; the same repository may still independently win multiple
 patterns.
 
-Selection consumes exactly one coherent ProfilePatternSet as input, not a
-loose RepeatedProfilePattern collection: ProfilePatternSet owns RuleVersion
-(PatternRuleVersion), ObservationRuleVersion, PolicyVersion
-(EligibilityPolicyVersion) and IsEvidenceSurfaceComplete —
-RepeatedProfilePattern itself owns only PatternRuleVersion and
-ObservationRuleVersion, not EligibilityPolicyVersion and not a completeness
-flag. The new RepresentativeRepositorySelection result boundary carries all
-four version/completeness values directly from the source ProfilePatternSet,
-plus a stable SourcePatternSet reference (never a re-embedded duplicate of
-pattern content) and its own dedicated RepresentativeRepositoryRuleVersion,
-distinct from PatternRuleVersion/ObservationRuleVersion/EligibilityPolicyVersion.
-Family+PatternKey identify a RepeatedProfilePattern only within that one
-identified source ProfilePatternSet, matching ProfilePatternSet's own
-uniqueness invariant. No rank, score, quality, strength, confidence,
-seniority or employability semantics. RoleEvidenceAlignment explicitly out
-of scope.
+Selection consumes exactly one coherent ProfilePatternSet instance as input,
+in one execution, not a loose RepeatedProfilePattern collection:
+ProfilePatternSet owns RuleVersion (PatternRuleVersion),
+ObservationRuleVersion, PolicyVersion (EligibilityPolicyVersion) and
+IsEvidenceSurfaceComplete — RepeatedProfilePattern itself owns only
+PatternRuleVersion and ObservationRuleVersion, not EligibilityPolicyVersion
+and not a completeness flag. The RepresentativeRepositorySelection result
+boundary carries all four version/completeness values directly as plain
+values copied at selection time, plus its own dedicated
+RepresentativeRepositoryRuleVersion. It carries no stable or persisted
+reference back to the source ProfilePatternSet instance: no such
+cross-process identity is canonically defined upstream, and the contract
+explicitly defers rather than invents one — V1 needs only the single
+supplied instance for the duration of one selection execution.
+Family+PatternKey is the pattern's canonical semantic identity within the
+locked pattern taxonomy; it is sufficient to locate the unique
+RepeatedProfilePattern only within the one ProfilePatternSet instance
+actually consumed in that execution (matching ProfilePatternSet's own
+uniqueness invariant), and is never treated as a portable identity across
+different executions or persisted sets. No rank, score, quality, strength,
+confidence, seniority or employability semantics. RoleEvidenceAlignment
+explicitly out of scope.
 
 Contract Version 1 is locked; no runtime RepresentativeRepositoryRuleVersion
 value exists yet and no production code implements this contract.
@@ -220,15 +228,20 @@ because no production code implements the contract yet
 ## Next Action
 
 Session 074 locked the Representative Repository selection contract
-(documentation only, no production code). A post-push independent review found
-two BLOCKER findings — the contract's completeness semantics and its
-version/traceability semantics did not match the actual P5/P6 runtime models —
-and both were corrected within Session 074 scope. See the session file for
+(documentation only, no production code) and went through two rounds of
+post-push independent review correction: round 1 fixed completeness and
+version/traceability semantics that did not match the actual P5/P6 runtime
+models; round 2 removed an undefined ProfilePatternSet stable-reference gap
+and tightened pattern-identity wording so Session 075 does not have to invent
+an identity contract that does not exist upstream. See the session file for
 the full finding-by-finding record.
 
+Session contract work is complete. Git branch state, commit history and any
+main integration are user-owned and must be read from actual Git state
+(`git log`, `git status`), not assumed from this snapshot.
+
 Exact next action:
-decide the Session 074 Git transition (commit/push are user-owned). After
-that, Session 075 may begin production implementation of
+Session 075 may begin production implementation of
 RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport per the locked and corrected contract, or
 continue toward the separate Role Evidence Alignment decision — neither is
@@ -239,5 +252,3 @@ scope: no production RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport code; RoleEvidenceAlignment taxonomy and rules;
 ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence remains
 blocked by the Session 067 contract.
-
-Nothing committed or pushed.

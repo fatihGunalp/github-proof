@@ -1,9 +1,10 @@
 # Representative Repository Decision + Contract
 
 **Date:** 2026-08-18
-**Result:** PASS — corrected after post-push independent review (see
-"Post-Push Independent Review Correction" below); correction is uncommitted
-on top of pushed commit `a034aaa`
+**Result:** PASS — corrected across two rounds of post-push independent review
+(see "Post-Push Independent Review — Round 1" and "— Round 2" below). Session
+contract work is complete; Git branch/main integration is user-owned and must
+be read from actual Git state, not this field.
 **Scope:** docs
 **Model Route:** sonnet / high
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -208,15 +209,16 @@ new invented pattern-level field.
 
 ---
 
-## Post-Push Independent Review Correction
+## Post-Push Independent Review — Round 1
 
 Session 074 was committed and pushed by the user as `a034aaa` ("docs: lock
-representative repository selection contract"). A second, post-push
-independent review of that pushed state found two BLOCKER findings against
+representative repository selection contract"). A first post-push independent
+review of that pushed state found two BLOCKER findings against
 `docs/architecture/public-profile-representative-repositories.md`. Both were
-corrected in this same session, on the same branch, without a new session and
-without committing/pushing the correction (user-owned per Git ownership
-rules).
+corrected in this same session, on the same branch, without a new session.
+The correction was itself subsequently committed and pushed by the user as
+`efed302` ("docs: correct representative repository completeness and version
+semantics") — a verified Git fact, not a prediction.
 
 ~~~text
 BLOCKER 1 — COMPLETENESS
@@ -242,6 +244,10 @@ completeness metric was invented; per-observation
 UndeterminedEvidenceRepositoryCount remains observation-scoped and is not
 collapsed into a new field.
 
+(The "explicit stable reference to the source ProfilePatternSet" option
+introduced here was itself found undefined in Round 2 below and removed;
+§9.2 now requires only the direct-value option.)
+
 BLOCKER 2 — VERSION + TRACEABILITY
 
 Finding:
@@ -266,6 +272,11 @@ SourcePatternSet (a stable reference, not a re-embedded copy),
 PatternRuleVersion, ObservationRuleVersion, EligibilityPolicyVersion,
 IsEvidenceSurfaceComplete and RepresentativeRepositoryRuleVersion in one
 place, so Session 075 does not have to invent where these come from.
+
+(The `SourcePatternSet` "stable reference" field introduced here was itself
+found to be an undefined/fictional identity in Round 2 below and was removed;
+§10.1/§11/§12.1 now use only direct value-carrying plus in-execution pattern
+lookup — see Round 2 for the exact replacement wording.)
 
 Also corrected: worklog/CURRENT.md previously implied a runtime
 RepresentativeRepositoryRuleVersion value ("1 — established by Session 074").
@@ -294,10 +305,90 @@ BLOCKER/HIGH/MEDIUM finding.
 
 ---
 
+## Post-Push Independent Review — Round 2
+
+The Round 1 correction was committed and pushed by the user as `efed302`. A
+second post-push independent review of that pushed state found one remaining
+contract gap in `docs/architecture/public-profile-representative-repositories.md`.
+Corrected in this same session, on the same branch, without a new session and
+without committing/pushing the correction — it currently sits as an
+uncommitted working-tree change on top of `efed302` (user-owned per Git
+ownership rules).
+
+~~~text
+FINDING — UNDEFINED SourcePatternSet STABLE REFERENCE
+
+Finding:
+Round 1 correctly made one coherent ProfilePatternSet the input/version/
+completeness anchor, but §11's RepresentativeRepositorySelection shape
+introduced a `SourcePatternSet` field described as "a stable reference
+identifying the exact ProfilePatternSet." No canonical ProfilePatternSet
+identity (persisted or cross-process) exists anywhere in the repository —
+unlike RepositoryAnalysisReference, which already carries a real stable Guid.
+Leaving that field in the contract would have left Session 075 to invent an
+identity contract that isn't canonically defined upstream.
+
+Correction:
+The `SourcePatternSet` stable-reference field was removed from §11. In its
+place, §9.1 explicitly states that representative-repository selection is one
+deterministic, in-execution composition over exactly one supplied
+ProfilePatternSet instance, and that this contract defines no persisted or
+cross-process identity for that instance — deferring such an identity to a
+separate, later contract if it is ever needed, rather than inventing one now.
+§11 RepresentativeRepositorySelection now records only plain values copied at
+selection time (PatternRuleVersion, ObservationRuleVersion,
+EligibilityPolicyVersion, IsEvidenceSurfaceComplete,
+RepresentativeRepositoryRuleVersion) with no reference type. §12.1 was
+updated to match: version/completeness fields are recorded "directly, as
+plain values," not "through any stable or persisted reference."
+
+PATTERN IDENTITY WORDING
+
+Finding:
+§10.1 previously stated "(Family, PatternKey) has no independent meaning
+outside one ProfilePatternSet," which read as though Family+PatternKey had no
+semantic meaning at all outside a set — understating that it IS the pattern's
+canonical semantic identity within the locked pattern taxonomy, just not an
+execution/persistence identity.
+
+Correction:
+§10.1 was rewritten to state the bounded distinction precisely: (Family,
+PatternKey) is the canonical semantic identity of the pattern within the
+versioned pattern taxonomy (which pattern, under which PatternRuleVersion);
+it is sufficient to locate the unique RepeatedProfilePattern within one
+coherent ProfilePatternSet; it is NOT, by itself, an identity for a specific
+analysis execution or a persisted ProfilePatternSet instance. No new
+execution/persistence identity was introduced.
+
+KEPT LOCKED, UNCHANGED:
+one representative per RepeatedProfilePattern; candidates =
+IndependentSupportingRepositories; PatternSupportObservationCount; Owner→Name
+tie-break; no global K; no set-cover/maximum coverage; no cross-pattern
+breadth advantage; fork/template restrictions; archived not automatically
+excluded; ProfilePatternSet as coherent version/completeness input;
+IsEvidenceSurfaceComplete preservation; dedicated
+RepresentativeRepositoryRuleVersion; RoleEvidenceAlignment out of scope; no
+Rank/Score/Quality/Strength/Confidence/Capability/Seniority/Employability.
+
+Re-review (github-proof-review, forked context, focused specifically on: no
+undefined ProfilePatternSet reference/identity required; ProfilePatternSet
+remains the coherent input anchor; version/completeness semantics preserved;
+exact pattern traceability implementable without duplicating pattern truth;
+semantic pattern identity not confused with analysis-execution identity; no
+regression to ranking/global-coverage semantics; worklog Git-fact accuracy):
+PASS. All six technical points and both worklog-accuracy checks confirmed
+directly against the corrected contract text and the actual Domain runtime
+(ProfilePatternSet.cs, RepeatedProfilePattern.cs, RepositoryAnalysisReference.cs
+as the only existing stable-identity precedent). Diff scope confirmed limited
+to §9-§12; §2-§8 and §14-§16 untouched. No BLOCKER/HIGH/MEDIUM finding.
+~~~
+
+---
+
 ## Problems
 
-None beyond the two BLOCKER findings recorded above, both corrected within
-this session.
+None beyond the findings recorded above across Round 1 (two BLOCKERs) and
+Round 2 (one remaining gap), all corrected within this session.
 
 ---
 
@@ -326,23 +417,26 @@ this session.
 ## Working Set / Final Git State
 
 ~~~text
-Pushed at a034aaa (user-owned commit/push, prior to this correction):
-- docs/architecture/public-profile-representative-repositories.md
-- worklog/CURRENT.md
-- worklog/INDEX.md
-- worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md
-- worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
+Git history so far (verified via `git log`, not asserted from memory):
+a034aaa — docs: lock representative repository selection contract
+efed302 — docs: correct representative repository completeness and version
+          semantics (Round 1 correction; committed and pushed by the user)
 
-Modified since a034aaa (this post-push correction, uncommitted):
-- docs/architecture/public-profile-representative-repositories.md (BLOCKER 1 +
-  BLOCKER 2 corrections)
-- worklog/CURRENT.md (completeness/version wording corrected; Active Session
-  set to NONE; RepresentativeRepositoryRuleVersion runtime-value claim removed)
+Modified since efed302 (this Round 2 correction, currently uncommitted in the
+working tree):
+- docs/architecture/public-profile-representative-repositories.md
+  (SourcePatternSet reference removed; §9.1/§10.1/§11/§12.1 tightened)
+- worklog/CURRENT.md (Locked Foundation entry and Next Action updated to
+  match; durable "nothing committed or pushed" phrasing removed)
 - worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
-  (this correction recorded)
+  (this Round 2 correction recorded)
 
 Pre-existing unrelated:
 - None
+
+Actual current Git state (branch, HEAD, staged/unstaged) should always be
+read live via `git status`/`git log` rather than from this snapshot, since it
+changes the moment the user commits.
 ~~~
 
 ---
@@ -353,19 +447,22 @@ Session 075 may begin production implementation of
 `RepresentativeRepositorySelection`/`RepresentativeRepository`/
 `RepresentativePatternSupport` per the locked and corrected contract, or
 continue toward Role Evidence Alignment decision work — neither is started by
-this session. Before that, the user needs to commit and push this correction
-(it currently sits uncommitted on top of `a034aaa`).
+this session. Session contract work itself is complete; the Round 2
+correction is a working-tree change the user has not yet committed — that
+transition, like all Git transitions in this project, is user-owned.
 
 ---
 
 ## Git
 
 ~~~text
-Prior commit (already pushed by user):
+Commits so far (user-owned, already happened):
 a034aaa — docs: lock representative repository selection contract
+efed302 — docs: correct representative repository completeness and version
+          semantics
 
-Suggested correction commit:
-docs: correct representative repository completeness and version/traceability semantics
+Suggested Round 2 correction commit:
+docs: remove undefined ProfilePatternSet reference, tighten pattern identity wording
 
 Commit:
 PENDING — user-owned

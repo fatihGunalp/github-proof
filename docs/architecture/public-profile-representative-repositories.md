@@ -194,10 +194,11 @@ Undetermined evidence:
 
 ### 9.1 Coherent Source Set
 
-Representative-repository selection must consume exactly one coherent
-`ProfilePatternSet`, not a bare collection of `RepeatedProfilePattern` values
-assembled ad hoc. `ProfilePatternSet` is the existing canonical container that
-already carries, for its entire contained pattern collection:
+Representative-repository selection is one deterministic, in-execution
+composition over exactly one coherent `ProfilePatternSet` instance, not a bare
+collection of `RepeatedProfilePattern` values assembled ad hoc. `ProfilePatternSet`
+is the existing canonical container that already carries, for its entire
+contained pattern collection:
 
 - `RuleVersion` (`PatternRuleVersion`),
 - `ObservationRuleVersion`,
@@ -209,16 +210,24 @@ already carries, for its entire contained pattern collection:
 `ProfilePatternSet` it produces. This contract consumes that existing value —
 it does not compute, re-derive or invent a new completeness signal.
 
+This contract defines no persisted or cross-process identity for a
+`ProfilePatternSet` instance. No such identity is canonically defined upstream
+(unlike, for example, `RepositoryAnalysisReference`, which already carries a
+stable `Guid`). V1 needs only the single supplied instance for the duration of
+one selection execution; it does not introduce a
+`ProfilePatternSetReference`-style identity type to name that instance beyond
+its own lifetime. If exact persisted/cross-process `ProfilePatternSet`
+identity is ever required — for example, to let a later report reference a
+completed profile analysis across a process boundary — that identity belongs
+to a separate, later contract. It is explicitly deferred here, not invented.
+
 ### 9.2 Completeness Preservation
 
 A representative-repository selection result must preserve
-`ProfilePatternSet.IsEvidenceSurfaceComplete`, either:
-
-- directly on the representative-selection result boundary (for example, one
-  `IsEvidenceSurfaceComplete` value carried alongside the full selection
-  output produced from one `ProfilePatternSet`), or
-- through an explicit, stable reference back to the source `ProfilePatternSet`
-  that a consumer can dereference for that value.
+`ProfilePatternSet.IsEvidenceSurfaceComplete` directly on the
+representative-selection result boundary: one `IsEvidenceSurfaceComplete`
+value carried alongside the full selection output produced from that one
+`ProfilePatternSet` instance (§11 `RepresentativeRepositorySelection`).
 
 `ProfilePatternSet.IsEvidenceSurfaceComplete` is not interchangeable with, and
 must not be replaced by,
@@ -262,18 +271,31 @@ Every `RepresentativeRepositorySelection` result must support this traversal:
 
 `RepeatedProfilePattern` truth is not duplicated by this contract.
 
-`Family` + `PatternKey` identify a pattern uniquely only within one explicitly
-identified coherent source `ProfilePatternSet` — the same `(Family,
-PatternKey)` pair has no independent meaning outside that set. This matches
-`ProfilePatternSet`'s own construction invariant, which already rejects a
-duplicate `(Family, PatternKey)` pair within one set and already enforces a
-single consistent `RuleVersion` and `ObservationRuleVersion` across every
-pattern it contains.
+`Family` + `PatternKey` is the canonical semantic identity of a pattern within
+the versioned pattern taxonomy locked by
+`docs/architecture/public-profile-evidence-patterns.md` — it names *which*
+pattern (for example, `EngineeringPractice` / `documentation`) under a given
+`PatternRuleVersion`.
 
-A `RepresentativePatternSupport` therefore resolves to its exact
-`RepeatedProfilePattern` by `(Family, PatternKey)` lookup against the one
-source `ProfilePatternSet` identified by §12, never by family/key alone and
-never by re-deriving or recomputing pattern content.
+Within one coherent `ProfilePatternSet`, `(Family, PatternKey)` is sufficient
+to locate the unique `RepeatedProfilePattern` instance: `ProfilePatternSet`'s
+own construction invariant already rejects a duplicate `(Family, PatternKey)`
+pair within one set and already enforces a single consistent `RuleVersion` and
+`ObservationRuleVersion` across every pattern it contains.
+
+`(Family, PatternKey)` is not, by itself, an identity for a specific analysis
+execution or for a persisted `ProfilePatternSet` instance. Two different
+selection executions — even under identical rule versions — may each hold
+their own `ProfilePatternSet` instance containing a pattern with the same
+`(Family, PatternKey)` but different supporting evidence (for example, a
+later GitHub state). This contract does not introduce an execution or
+persistence identity to disambiguate those instances (§9.1); it only requires
+that a `RepresentativePatternSupport` resolves to its exact
+`RepeatedProfilePattern` by `(Family, PatternKey)` lookup within the single
+`ProfilePatternSet` instance actually consumed during that one selection
+execution (§11), never by re-deriving or recomputing pattern content, and
+never by matching `(Family, PatternKey)` across two different executions or
+sets.
 
 ### 10.2 Evidence Scope
 
@@ -291,21 +313,28 @@ Each `RepresentativePatternSupport` is scoped to exactly one pattern.
 ### RepresentativeRepositorySelection
 
 This is the representative-selection result boundary: the single coherent
-output of running §3–§8 over one `ProfilePatternSet`.
+output of running §3–§8, in one execution, over one `ProfilePatternSet`
+instance (§9.1).
 
-- `SourcePatternSet` — a stable reference identifying the exact
-  `ProfilePatternSet` this selection was computed from (§9.1, §10.1, §12.1).
-  It must not re-embed or duplicate that set's `RepeatedProfilePattern`
-  content; it identifies which set, so a consumer can resolve back to it.
-- `PatternRuleVersion`, `ObservationRuleVersion`, `EligibilityPolicyVersion` —
-  carried directly from the source `ProfilePatternSet` (§12.1).
+It carries no stable or persisted reference back to that `ProfilePatternSet`
+instance — no such identity is canonically defined upstream, and this
+contract does not invent one (§9.1). Instead it records the source set's
+semantic context directly, as plain values copied at selection time:
+
+- `PatternRuleVersion` — carried directly from the source
+  `ProfilePatternSet.RuleVersion` (§12.1).
+- `ObservationRuleVersion` — carried directly from the source
+  `ProfilePatternSet.ObservationRuleVersion` (§12.1).
+- `EligibilityPolicyVersion` — carried directly from the source
+  `ProfilePatternSet.PolicyVersion` (§12.1).
+- `IsEvidenceSurfaceComplete` — carried directly from
+  `ProfilePatternSet.IsEvidenceSurfaceComplete` (§9.2); no new completeness
+  value is computed.
 - `RuleVersion` — the `RepresentativeRepositoryRuleVersion` that produced this
   selection.
-- `IsEvidenceSurfaceComplete` — carried directly from
-  `ProfilePatternSet.IsEvidenceSurfaceComplete` (§9.2). This satisfies the
-  "directly on the representative-selection result boundary" option in §9.2;
-  no new completeness value is computed.
-- `RepresentativeRepositories` — one or more `RepresentativeRepository`.
+- `RepresentativeRepositories` — one or more `RepresentativeRepository`,
+  produced from `RepeatedProfilePattern` instances found by `(Family,
+  PatternKey)` lookup within that one `ProfilePatternSet` instance (§10.1).
 
 ### RepresentativeRepository
 
@@ -370,10 +399,12 @@ Consequently, representative-repository selection must consume one coherent
 - `ProfilePatternSet.PolicyVersion` (`EligibilityPolicyVersion`),
 - `ProfilePatternSet.IsEvidenceSurfaceComplete` (§9.2),
 
-either directly or through the explicit stable source-set reference described
-in §9.2, and must reject a selection run that would otherwise mix patterns
-drawn from two different `ProfilePatternSet` instances or two different
-version combinations.
+directly, as plain values on `RepresentativeRepositorySelection` (§11) — not
+through any stable or persisted reference to the source `ProfilePatternSet`
+instance, since no such identity is canonically defined upstream (§9.1). A
+selection execution must reject an attempt to mix patterns drawn from two
+different `ProfilePatternSet` instances or two different version
+combinations.
 
 A new `RepresentativeRepositoryRuleVersion` is required to change:
 
