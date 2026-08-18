@@ -1,7 +1,7 @@
 # Session 072 — Dependency Source Reference Detection Contract
 
 Date: 2026-08-18
-Result: PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH, NOT INTEGRATED INTO MAIN
+Result: PASS / INTEGRATED INTO MAIN — REMOTE VERIFIED
 Scope: architecture analysis + reference-detection feasibility audit + worklog/canonical state sync
 Model Route: Claude Opus / high
 Model Gate: APPROVED
@@ -1025,13 +1025,19 @@ Session branch commits:
     77d05f8  docs: audit dependency source reference detection feasibility
     942090a  docs: lock dependency source reference detection contract
 
-Session branch head 942090a is committed and pushed. GitHub confirmed the same
-SHA on `origin/session/072-dependency-source-reference-detection-contract`.
+Worklog closure commit:
 
-`origin/main` remains d480a46. **Session 072 is NOT YET integrated into main**,
-the session branch is not deleted, and Last Remote Verified Main is therefore
-unchanged. d480a46 is an ancestor of 942090a, so integration would be a
-fast-forward.
+    beb7f92  docs: close session 072 worklog after remote verification
 
-Merging into main, pushing main and deleting the branch are separate explicit
-user-owned Git side effects and were not performed.
+**Session 072 is integrated into main and remote verified.** The transition was
+a fast-forward from d480a46, so 77d05f8, 942090a and beb7f92 are all reachable
+from `main`, and `main` equals `origin/main` at beb7f92.
+
+Last Remote Verified Main is therefore beb7f92.
+
+The session branch is retained at beb7f92, which is the repository's normal
+practice: every closed session branch from 059 onward still exists on origin.
+Deleting it is a user-owned Git side effect and is not pending work.
+
+Every Git side effect in this session — commit, push and the main
+fast-forward — was performed by the user.
