@@ -14,6 +14,8 @@ Session 067 — Dependency Semantic Category Contract + Registry — COMPLETE /
 REMOTE VERIFIED
 Session 068 — DependencySourceReferenceEvidence Contract — COMPLETE /
 REMOTE VERIFIED
+Session 071 — Bounded Source Evidence Collection — COMPLETE / REMOTE VERIFIED /
+INTEGRATED INTO MAIN
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
@@ -43,43 +45,43 @@ BLOCKED
 ## Active Session
 
 Session:
-071 — Bounded Source Evidence Collection
+072 — Dependency Source Reference Detection Contract
 
 Session File:
-worklog/sessions/2026-08-18-071-bounded-source-evidence-collection.md
+worklog/sessions/2026-08-18-072-dependency-source-reference-detection-contract.md
 
 Status:
-PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH, NOT INTEGRATED INTO MAIN
+DECISION REPORT DELIVERED — verdict NEEDS_MORE_MEASUREMENT, contract NOT locked
 
 ## Git
 
 Active Branch:
-session/071-bounded-source-evidence-collection
+session/072-dependency-source-reference-detection-contract
 
 Session Base:
-2a1809d128de43b7c07709a8d3377afb37168ea9
-
-Session Branch Head:
-ce74d4be07c7f498659b8ec5c2a5e211ed5a9d8c — remote verified
+d480a467ec90114beea58f80e5722aa4db745c5d
 
 Last Remote Verified Main:
-2a1809d128de43b7c07709a8d3377afb37168ea9 — unchanged, session not merged
+d480a467ec90114beea58f80e5722aa4db745c5d — includes Session 071
+
+Note:
+session/071-bounded-source-evidence-collection still exists locally and on
+origin after integration; deleting it is a user-owned Git side effect.
 
 ## Goal
 
-Decide the smallest safe and useful raw source collection contract boundary that
-a future canonical contract should lock, so that
-DependencySourceReferenceEvidence becomes producible.
+Decide whether reference detection can be defined safely and deterministically,
+so that DependencySourceReferenceEvidence becomes producible from
+DependencyDeclaration[] + RepositorySourceFile[].
 
-Steps 1, 2 and 2B produced the decision report and the bounded measurement
-evidence. Step 3 locked the canonical contract, Step 4 reviewed and corrected it,
-and Step 5 implemented the bounded collector, the RepositorySourceFile snapshot
-surface and the source-files availability key. No reference detector exists.
+Feasibility audit and decision report only. No detector, no evidence type, no
+registry artefact, no measurement.
 
 ## Canonical Evidence Ladder
 
 DependencyDeclaration
 != DependencySemanticCategoryEvidence
+!= RepositorySourceFile
 != DependencySourceReferenceEvidence
 != ProducedWorkEvidence
 != RepositoryProblemAreaEvidence
@@ -109,20 +111,28 @@ attempts / 64 KiB per file / 384 KiB corpus, deterministic extension round-robin
 RepositorySourceFile(Path, Content), dedicated source-files availability,
 implemented at AnalyzerVersion 1.1.0.
 
+No reference-detection contract exists. No detector, no
+DependencySourceReferenceEvidence type and no detection version owner exists in
+src/.
+
 ## Blocker
 
 NONE for this stage. ProducedWorkEvidence remains unresolved and
 RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
+
+Reference detection is measurement-blocked, not contract-blocked.
 
 ## Validation Baseline
 
 Session 071:
 967/967 PASS
 Build: 0 warning / 0 error
-Independent review: PASS WITH FINDINGS, no open BLOCKER/HIGH
+
+Session 072:
+no src/ or tests/ mutation, so no build or test run applies
 
 AnalyzerVersion:
-1.1.0 — additive minor bump for the bounded raw source collection surface
+1.1.0
 
 RuleSetVersion:
 UNCHANGED
@@ -135,104 +145,39 @@ DependencyCategoryMappingVersion:
 
 ## Next Action
 
-Sessions 069 and 070 are closed, integrated and remote verified. Their canonical
-owners are docs/product/product-positioning.md and
-docs/product/product-experience-principles.md. P10 is not brought forward, the
-technical roadmap is unchanged, and development has returned to the pre-P7
-evidence pipeline position.
+Session 072 delivered the REFERENCE DETECTION DECISION REPORT with verdict
+NEEDS_MORE_MEASUREMENT. Fourteen decisions are settled and recorded as R1-R14 in
+the session file so the next session does not re-derive them; they are worklog
+state, not a canonical lock, and must be re-approved inside the canonical
+contract when it is written. Five are measurement-blocked and recorded as M1-M5.
 
-Session 068 remains the semantics-only owner of
-docs/architecture/repository-dependency-source-reference-evidence.md. Its
-separate future approvals still pending: bounded source-evidence collection
-contract, evidence payload and replay decision, reference-detection rule
-contract and its version owner, and the ProducedWorkEvidence resolution.
+Resolved, in short: detection consumes DependencyDeclaration[] +
+RepositorySourceFile[] + the pinned commit only; source-file ecosystem is a
+total versioned map over the 24-extension allow-list; package identity is not
+source identity, with Go, JavaScript and Rust total, Python, DotNet and Ruby
+partial, and Java and Php structurally non-derivable; V1 is import-declaration
+detection, not usage detection; require() and import() count only with a literal
+argument; comment and string-literal matches never count; unresolved identity
+yields no observation; a separate versioned identity registry is required and
+must not be folded into dependency-category-mapping; the detector lives in
+Domain with Infrastructure loading the registry artefact only; a separate
+detection version owner is required, with SourceReferenceRuleVersion
+recommended.
 
-Session 071 Steps 1, 2 and 2B delivered the decision report and the bounded
-measurement evidence. Step 2B returned READY_FOR_CONTRACT after a targeted
-supplemental measurement discriminated the open decisions.
+Measurement-blocked: the comment and string-literal exclusion false-positive
+floor; the reference yield of the bounded 32-file / 384 KiB corpus; identity
+registry sizing and viability; whether the Go and JavaScript total derivations
+survive vendoring, replace directives, TypeScript path aliases and monorepo
+workspaces; and, dependent on all of those, the V1 ecosystem surface.
 
-Step 3 created docs/architecture/repository-source-evidence-collection.md,
-CONTRACT LOCKED version 1. It owns bounded raw source collection semantics: the
-supported V1 source surface, normalization, availability and completeness,
-isolation, version ownership and the resource and security boundary. It owns no
-detection rule, no dependency-to-source association, no ProducedWorkEvidence, no
-RepositoryProblemAreaEvidence, no ProblemArea taxonomy, no scoring and no report
-presentation.
-
-Locked V1: regular blobs only; one global 24-extension allow-list; exact
-build.gradle.kts and settings.gradle.kts filename exclusions without excluding
-the .kts extension; 23 structural path exclusions declared as collection budget
-policy; 32 files, 64 KiB per file, 384 KiB corpus; deterministic extension
-round-robin ordering; RepositorySourceFile carrying Path and Content only;
-strict UTF-8 with one leading BOM stripped as a versioned rule; a dedicated
-source-files availability key; full isolation from FileTree, CollectionWarnings,
-Status, the 15 signals and the report; AnalyzerVersion ownership with an
-additive minor bump class.
-
-RepositorySourceFile is a raw collection input and is explicitly not
-DependencySourceReferenceEvidence. The contract completes no downstream ladder
-stage; ProducedWorkEvidence remains unresolved and RepositoryProblemAreaEvidence
-remains blocked by the Session 067 contract.
-
-docs/architecture/repository-dependency-source-reference-evidence.md was aligned
-only where the prerequisite state changed: collection semantics now exist,
-production collection does not. Session 068's epistemic ceiling is unchanged.
-
-Still unresolved: the persisted evidence payload and self-contained replay; the
-qualifying-reference definition and per-ecosystem detection design; the detection
-version owner name; the exact future AnalyzerVersion value; and the
-ProducedWorkEvidence resolution.
-
-Step 3 itself made no src, tests, report, UI or roadmap mutation.
-
-Step 4 independent review returned PASS_WITH_FINDINGS: two HIGH determinism
-gaps (round-robin skip semantics undefined; byte bounds not bound to a byte
-count), three MEDIUM (availability versus provider failure, a wrong
-settings.gradle.kts rationale, stale session worklog) and three LOW findings.
-
-Step 4.1 corrected all eight. The contract now locks a single total candidate
-order materialized before acceptance with consumed skips, canonical per-file and
-corpus accounting on normalized Content UTF-8 bytes after BOM strip, provider
-failure keeping its real availability status while preserving collected
-artefacts, a per-filename rationale for the two excluded Gradle filenames,
-declaration-independent collection, and a dedicated tree-metadata requirement
-that forbids enriching FileTree. No approved decision was reopened.
-
-Step 4.2 and Step 4.3 closed the remaining slot-semantics ambiguity:
-MaximumSourceFiles is the maximum number of source-content retrieval attempts per
-repository, pre-fetch rejection consumes no slot, a begun retrieval consumes its
-slot permanently even when it later fails, the artefact count is 0..32, and the
-stop condition counts consumed slots rather than successful artefacts.
-
-Step 4.4 returned PASS and declared the contract implementation-ready.
-
-Step 5 implemented it. Domain gained RepositorySourceFile(Path, Content), the
-additive RepositorySnapshot.SourceFiles surface and the source-files data key.
-Infrastructure gained GitHubRepositorySourceFileCollector, which obtains its own
-pinned tree metadata because the regular-blob rule needs Git mode that FileTree
-does not carry, applies the eligibility pipeline, builds the round-robin total
-candidate order, and enforces the retrieval-slot and normalized-byte bounds. The
-orchestrator contributes availability only. AnalyzerVersion moved 1.0.0 to 1.1.0.
-
-Validation: build 0 warning / 0 error, 967/967 tests pass, git diff --check
-clean. No scoring signal, category result, report element or UI changed, and no
-source failure reaches CollectionWarnings or FileTree.
-
-The independent implementation review returned PASS WITH FINDINGS with no
-BLOCKER and no HIGH. Both MEDIUM findings were handled: the stale session worklog
-text was corrected, and the contract §17 unbounded-allocation gap was recorded in
-Known Risks and handed to a separate bounded task because it affects every
-existing collector equally and §17 leaves the implementation strategy open.
-
-Session 071 is committed as ce74d4b on the session branch and pushed. GitHub
-confirmed the commit SHA, message, parent 2a1809d and the 16-file /
-+3193 / -115 scope on origin.
-
-origin/main remains 2a1809d. The session is not integrated into main, the branch
-is not deleted, and Last Remote Verified Main is therefore unchanged.
+docs/architecture/repository-dependency-source-reference-evidence.md §5 was
+synchronized: source collection is implemented, and the remaining prerequisite
+is the reference-detection rule contract of §4, not collection.
 
 Exact next action:
-decide the Session 071 main transition. Merging the branch into main, pushing
-main and deleting the branch are separate explicit user-owned Git side effects.
+run the M1-M4 measurement round as a temporary, read-only, pinned-commit
+measurement using the Session 071 Step 2 method, leaving no measurement artefact
+in the repository. Then re-run the decision report and lock the contract only if
+M5 becomes single-valued.
 
 Nothing committed or pushed.

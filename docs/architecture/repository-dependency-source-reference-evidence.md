@@ -107,17 +107,21 @@ supported V1 source surface, the normalized `RepositorySourceFile` artefact
 shape, deterministic bounds and ordering, text normalization, and the dedicated
 `source-files` availability and completeness semantics.
 
-Production source collection is **not yet implemented**, so the required raw
-input does not yet exist at runtime.
+Production source collection **is implemented**. `RepositorySnapshot` carries
+the bounded `SourceFiles` surface and its dedicated `source-files` availability
+state, introduced at `AnalyzerVersion` 1.1.0.
 
-Inputs that already exist elsewhere in the current snapshot surface:
+Inputs that therefore exist in the current snapshot surface:
 
+- bounded normalized source content through `RepositorySnapshot.SourceFiles`,
 - source and file path through `FileTree`,
 - file size when the provider supplies it,
 - the pinned `HeadCommitSha`.
 
-Until that bounded source-evidence collection surface is implemented, no
-`DependencySourceReferenceEvidence` can be produced.
+The remaining prerequisite is no longer collection. No
+`DependencySourceReferenceEvidence` can be produced until the versioned
+reference-detection rule contract of §4 exists, because nothing yet defines what
+a qualifying source-level reference is.
 
 ## 6. Raw versus Derived
 
