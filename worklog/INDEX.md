@@ -103,4 +103,5 @@ Do not use worklog as product or domain source of truth; docs/ prevails.
 | 2026-08-18 | Jobs-Style Product Packaging | PASS | ChatGPT → Claude / Opus high | [070](./sessions/2026-08-18-070-jobs-style-product-packaging.md) | 635e014 |
 | 2026-08-18 | Bounded Source Evidence Collection | PASS | ChatGPT → Claude / Opus high | [071](./sessions/2026-08-18-071-bounded-source-evidence-collection.md) | 2a1809d |
 | 2026-08-18 | Dependency Source Reference Detection — M1-M4 measured, contract locked | PASS | ChatGPT → Claude / Opus high | [072](./sessions/2026-08-18-072-dependency-source-reference-detection-contract.md) | d480a46 |
-| 2026-08-18 | Dependency Source Reference Detector Implementation | IN_PROGRESS | ChatGPT → Claude / Opus high | [073](./sessions/2026-08-18-073-dependency-source-reference-detector.md) | 275b6c5 |
+| 2026-08-18 | Dependency Source Reference Detector Implementation | PASS — integrated into main | ChatGPT → Claude / Opus high | [073](./sessions/2026-08-18-073-dependency-source-reference-detector.md) | 275b6c5 |
+| 2026-08-18 | Representative Repository Decision + Contract | PASS | ChatGPT → Claude / Sonnet high | [074](./sessions/2026-08-18-074-representative-repository-decision-contract.md) | 72932bb |

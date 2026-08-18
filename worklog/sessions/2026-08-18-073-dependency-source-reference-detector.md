@@ -1,7 +1,8 @@
 # Session 073 — Dependency Source Reference Detector Implementation
 
 Date: 2026-08-18
-Result: PASS — READY FOR COMMIT, nothing committed or pushed
+Result: PASS — COMMITTED, PUSHED, INTEGRATED INTO MAIN, REMOTELY VERIFIED at
+72932bb5de4ec37850850ebaea2c2e75f61e406a
 Scope: domain implementation + tests + bounded canonical contract correction
 Model Route: Claude Opus / high
 Model Gate: APPROVED
@@ -300,9 +301,14 @@ corrected, re-review PASS WITH FINDINGS with no BLOCKER or HIGH.
 `ProducedWorkEvidence` is not resolved, `RepositoryProblemAreaEvidence` is not
 unblocked, no ProblemArea exists and P7 is not advanced.
 
-Exact next action: decide the Session 073 Git transition. Committing, pushing and
-any main integration are separate explicit user-owned Git side effects.
+Exact next action at the time this session was implemented was to decide the
+Session 073 Git transition. That transition is now complete: committed, pushed
+and integrated into main, remotely verified at
+72932bb5de4ec37850850ebaea2c2e75f61e406a. This correction, made in Session 074,
+records only that already-verified fact; it does not revisit the
+implementation or review history above.
 
 ## Git
 
-Nothing committed or pushed.
+Committed, pushed and integrated into main. Remotely verified at
+72932bb5de4ec37850850ebaea2c2e75f61e406a.

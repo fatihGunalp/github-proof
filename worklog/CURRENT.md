@@ -18,6 +18,9 @@ Session 071 — Bounded Source Evidence Collection — COMPLETE / REMOTE VERIFIE
 INTEGRATED INTO MAIN
 Session 072 — Dependency Source Reference Detection Contract — COMPLETE /
 REMOTE VERIFIED / INTEGRATED INTO MAIN
+Session 073 — Dependency Source Reference Detector Implementation — COMPLETE /
+REMOTE VERIFIED / INTEGRATED INTO MAIN at
+72932bb5de4ec37850850ebaea2c2e75f61e406a
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
@@ -34,7 +37,12 @@ ProblemArea — taxonomy, promotion and repository evidence all remain
 unimplemented and deferred
 
 Next Profile Phase:
-P7 — Representative Repository Selection — NOT STARTED
+P7 — Representative Repository and Role Evidence Alignment — STARTED
+
+Session 074 locked the Representative Repository selection contract
+(documentation only). RepresentativeRepository/RepresentativePatternSupport
+production code has NOT started. RoleEvidenceAlignment semantics have NOT
+started and remain a separate later P7 decision.
 
 ## Production Delivery
 
@@ -47,35 +55,38 @@ BLOCKED
 ## Active Session
 
 Session:
-073 — Dependency Source Reference Detector Implementation
+074 — Representative Repository Decision + Contract
 
 Session File:
-worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md
+worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
-IMPLEMENTED — detector, models and tests complete; independent review PASS after
-two HIGH corrections; nothing committed or pushed
+DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
+locked (Contract Version 1); independent review complete; nothing committed or
+pushed
 
 ## Git
 
 Active Branch:
-session/073-dependency-source-reference-detector
+session/074-representative-repository-decision-contract
 
 Session Base:
-275b6c5590f4e490dea552173af0f373295d14f2
+72932bb5de4ec37850850ebaea2c2e75f61e406a
 
 Last Remote Verified Main:
-275b6c5590f4e490dea552173af0f373295d14f2 — includes Session 072
+72932bb5de4ec37850850ebaea2c2e75f61e406a — includes Session 073
 
-Session 072 integration:
-77d05f8, 942090a and beb7f92 are all in main. The fast-forward is complete and
-remote verified.
+Session 073 integration:
+Session 073 (Dependency Source Reference Detector Implementation) is
+committed, pushed, integrated into main and remotely verified at
+72932bb5de4ec37850850ebaea2c2e75f61e406a. Detail lives in
+worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md.
 
 Note:
-closed session branches are retained. On origin, every branch from session/059
-through session/072 still exists at its closing commit; locally, session/062
-through session/072 exist and 059-061 are origin-only. Deleting any of them is a
-user-owned Git side effect and is not pending work.
+closed session branches are retained. Deleting any of them is a user-owned Git
+side effect and is not pending work. session/074 must not be recommitted,
+repushed or reintegrated by a later session — it is Session 074's own active
+branch.
 
 ## Canonical Evidence Ladder
 
@@ -87,9 +98,12 @@ DependencyDeclaration
 != RepositoryProblemAreaEvidence
 != RepeatedProfilePattern(ProblemArea)
 != DeveloperExperienceOrCapability
+!= RepresentativeRepository
 
 A declaration is never a source reference. A category observation is never
-produced-work evidence. A source reference is never produced-work evidence.
+produced-work evidence. A source reference is never produced-work evidence. A
+representative-repository selection is never developer capability, quality or
+ranking evidence.
 
 ## Locked Foundation
 
@@ -120,22 +134,31 @@ desynchronization rule; strict single-literal require()/import(); identity
 resolution by rule with the Go longest-module-path and DotNet exact-equality
 tie-breakers; no identity registry in V1; ambiguity yields no observation;
 positive-only evidence; Domain-owned policy; version owner
-SourceReferenceRuleVersion; no AnalyzerVersion change required.
+SourceReferenceRuleVersion; no AnalyzerVersion change required. Implemented in
+Domain as of Session 073: RepositorySourceReferenceEvidencePolicy composes
+RepositorySourceReferenceEvidence from RepositorySnapshot.DependencyDeclarations
++ RepositorySnapshot.SourceFiles. SourceReferenceRuleVersion first runtime
+value 1.0.0. Derived and non-scoring; not written into RepositorySnapshot; no
+orchestrator, report or UI consumes it yet.
 
-Detection is contract-locked and, as of Session 073, implemented in Domain:
-RepositorySourceReferenceEvidencePolicy composes RepositorySourceReferenceEvidence
-from RepositorySnapshot.DependencyDeclarations + RepositorySnapshot.SourceFiles.
-SourceReferenceRuleVersion first runtime value 1.0.0. The result is derived and
-non-scoring; it is not written into RepositorySnapshot and no orchestrator,
-report or UI consumes it yet.
-
-Contract amendment, Session 073: Go `// indirect` was removed from the §10
-classes the detector must identify, because the declaration surface preserves no
-indirect marker. New §10.1 treats such a requirement as an ordinary Go
-declaration. The document stays Contract Version 1.
-
-The Session 072 measurement evidence behind that contract, its READY verdict and
-its R1-R16 re-evaluation live in the session file, not here.
+Representative Repository Selection Contract V1 (Session 074):
+docs/architecture/public-profile-representative-repositories.md, CONTRACT
+LOCKED version 1. Selection unit is exactly one representative repository per
+RepeatedProfilePattern (global bounded set and minimum/maximum-coverage set
+are out of V1 scope). Candidates = pattern.IndependentSupportingRepositories
+as already produced by P5/P6 (fork/template-derived cannot become candidates;
+Undetermined independence cannot be optimistically promoted; archived is not
+automatically excluded). Comparison rule is PatternSupportObservationCount
+(count of the pattern's SupportingObservations with a positive
+ProfileEvidenceReference for that repository), scoped to one pattern only and
+never combined across patterns. Tie-break reuses ProfileRepositoryReference
+ordering (Owner, then Name). Cross-pattern breadth is explicitly forbidden as
+a selection factor; the same repository may still independently win multiple
+patterns. Dedicated RepresentativeRepositoryRuleVersion, distinct from
+PatternRuleVersion/ObservationRuleVersion/EligibilityPolicyVersion. No rank,
+score, quality, strength, confidence, seniority or employability semantics.
+RoleEvidenceAlignment explicitly out of scope. No production code implements
+this contract yet.
 
 ## Blocker
 
@@ -144,10 +167,11 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 073:
+Session 073 (last code change):
 1046/1046 PASS (Domain 622, Infrastructure 255, Application 101, Web 68)
 Build: 0 warning / 0 error
-Baseline before Session 073 was 967; 79 tests are new.
+
+Session 074 is documentation-only; no build/test run required or performed.
 
 AnalyzerVersion:
 1.1.0
@@ -164,33 +188,27 @@ DependencyCategoryMappingVersion:
 SourceReferenceRuleVersion:
 1.0.0 — established by Session 073
 
+RepresentativeRepositoryRuleVersion:
+1 — established by Session 074 (contract only; no runtime value yet, no
+production code)
+
 ## Next Action
 
-Session 073 implemented the locked detection contract as Domain policy, models
-and tests. Verdict after correction: independent review PASS.
-
-Step 0 corrected a real contract defect before any implementation: contract §10
-required the detector to identify Go `// indirect` requirements, but
-RepositoryDependencyDeclaration carries no such marker and the Go manifest parser
-strips the comment before a declaration is built. The class was also not
-structurally unreferenceable. §10 and the new §10.1 record the correction inside
-Contract Version 1.
-
-The first implementation review returned FAILED with two HIGH findings, both
-reproduced and both corrected: a commented-out entry inside a Go `import` block
-produced an observation, and an unterminated single-quoted Python literal
-silently violated §6.1. The lexical scan now distinguishes code, comment and
-string zones, and a Python single-quoted literal ends at the newline exactly as
-in the C-like scanner. Four regression tests were added and the narrow re-review
-returned PASS.
+Session 074 locked the Representative Repository selection contract
+(documentation only, no production code). Independent review is complete; see
+the session file for findings and disposition.
 
 Exact next action:
-decide the Session 073 Git transition. Committing the branch, pushing it and any
-main integration are separate explicit user-owned Git side effects.
+decide the Session 074 Git transition (commit/push are user-owned). After
+that, Session 075 may begin production implementation of
+RepresentativeRepository/RepresentativePatternSupport per the locked contract,
+or continue toward the separate Role Evidence Alignment decision — neither is
+started.
 
-Known remaining work, none of it started and none of it in this session's scope:
-no orchestrator, report or UI consumes RepositorySourceReferenceEvidence;
-ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence remains
-blocked by the Session 067 contract; P7 is NOT STARTED.
+Known remaining work, none of it started and none of it in this session's
+scope: no production RepresentativeRepository/RepresentativePatternSupport
+code; RoleEvidenceAlignment taxonomy and rules; ProducedWorkEvidence remains
+unresolved; RepositoryProblemAreaEvidence remains blocked by the Session 067
+contract.
 
 Nothing committed or pushed.
