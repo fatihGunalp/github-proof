@@ -40,9 +40,11 @@ Next Profile Phase:
 P7 — Representative Repository and Role Evidence Alignment — STARTED
 
 Session 074 locked the Representative Repository selection contract
-(documentation only). RepresentativeRepository/RepresentativePatternSupport
-production code has NOT started. RoleEvidenceAlignment semantics have NOT
-started and remain a separate later P7 decision.
+(documentation only), corrected after a post-push independent review.
+RepresentativeRepositorySelection/RepresentativeRepository/
+RepresentativePatternSupport production code has NOT started.
+RoleEvidenceAlignment semantics have NOT started and remain a separate later
+P7 decision.
 
 ## Production Delivery
 
@@ -55,14 +57,19 @@ BLOCKED
 ## Active Session
 
 Session:
-074 — Representative Repository Decision + Contract
+NONE
+
+Last Completed Session:
+074 — Representative Repository Decision + Contract (P7 contract decision)
 
 Session File:
 worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
 DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1); independent review complete; nothing committed or
+locked (Contract Version 1), including a post-push independent-review
+correction (two BLOCKER findings on completeness and version/traceability
+semantics, both corrected within Session 074 scope); nothing committed or
 pushed
 
 ## Git
@@ -141,7 +148,8 @@ RepositorySourceReferenceEvidence from RepositorySnapshot.DependencyDeclarations
 value 1.0.0. Derived and non-scoring; not written into RepositorySnapshot; no
 orchestrator, report or UI consumes it yet.
 
-Representative Repository Selection Contract V1 (Session 074):
+Representative Repository Selection Contract V1 (Session 074, corrected after
+post-push independent review — see worklog/sessions/2026-08-18-074-...md):
 docs/architecture/public-profile-representative-repositories.md, CONTRACT
 LOCKED version 1. Selection unit is exactly one representative repository per
 RepeatedProfilePattern (global bounded set and minimum/maximum-coverage set
@@ -154,11 +162,27 @@ ProfileEvidenceReference for that repository), scoped to one pattern only and
 never combined across patterns. Tie-break reuses ProfileRepositoryReference
 ordering (Owner, then Name). Cross-pattern breadth is explicitly forbidden as
 a selection factor; the same repository may still independently win multiple
-patterns. Dedicated RepresentativeRepositoryRuleVersion, distinct from
-PatternRuleVersion/ObservationRuleVersion/EligibilityPolicyVersion. No rank,
-score, quality, strength, confidence, seniority or employability semantics.
-RoleEvidenceAlignment explicitly out of scope. No production code implements
-this contract yet.
+patterns.
+
+Selection consumes exactly one coherent ProfilePatternSet as input, not a
+loose RepeatedProfilePattern collection: ProfilePatternSet owns RuleVersion
+(PatternRuleVersion), ObservationRuleVersion, PolicyVersion
+(EligibilityPolicyVersion) and IsEvidenceSurfaceComplete —
+RepeatedProfilePattern itself owns only PatternRuleVersion and
+ObservationRuleVersion, not EligibilityPolicyVersion and not a completeness
+flag. The new RepresentativeRepositorySelection result boundary carries all
+four version/completeness values directly from the source ProfilePatternSet,
+plus a stable SourcePatternSet reference (never a re-embedded duplicate of
+pattern content) and its own dedicated RepresentativeRepositoryRuleVersion,
+distinct from PatternRuleVersion/ObservationRuleVersion/EligibilityPolicyVersion.
+Family+PatternKey identify a RepeatedProfilePattern only within that one
+identified source ProfilePatternSet, matching ProfilePatternSet's own
+uniqueness invariant. No rank, score, quality, strength, confidence,
+seniority or employability semantics. RoleEvidenceAlignment explicitly out
+of scope.
+
+Contract Version 1 is locked; no runtime RepresentativeRepositoryRuleVersion
+value exists yet and no production code implements this contract.
 
 ## Blocker
 
@@ -189,26 +213,31 @@ SourceReferenceRuleVersion:
 1.0.0 — established by Session 073
 
 RepresentativeRepositoryRuleVersion:
-1 — established by Session 074 (contract only; no runtime value yet, no
-production code)
+NOT ESTABLISHED — Contract Version 1 is locked by Session 074 as a document
+version only; no runtime RepresentativeRepositoryRuleVersion value exists
+because no production code implements the contract yet
 
 ## Next Action
 
 Session 074 locked the Representative Repository selection contract
-(documentation only, no production code). Independent review is complete; see
-the session file for findings and disposition.
+(documentation only, no production code). A post-push independent review found
+two BLOCKER findings — the contract's completeness semantics and its
+version/traceability semantics did not match the actual P5/P6 runtime models —
+and both were corrected within Session 074 scope. See the session file for
+the full finding-by-finding record.
 
 Exact next action:
 decide the Session 074 Git transition (commit/push are user-owned). After
 that, Session 075 may begin production implementation of
-RepresentativeRepository/RepresentativePatternSupport per the locked contract,
-or continue toward the separate Role Evidence Alignment decision — neither is
+RepresentativeRepositorySelection/RepresentativeRepository/
+RepresentativePatternSupport per the locked and corrected contract, or
+continue toward the separate Role Evidence Alignment decision — neither is
 started.
 
 Known remaining work, none of it started and none of it in this session's
-scope: no production RepresentativeRepository/RepresentativePatternSupport
-code; RoleEvidenceAlignment taxonomy and rules; ProducedWorkEvidence remains
-unresolved; RepositoryProblemAreaEvidence remains blocked by the Session 067
-contract.
+scope: no production RepresentativeRepositorySelection/RepresentativeRepository/
+RepresentativePatternSupport code; RoleEvidenceAlignment taxonomy and rules;
+ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence remains
+blocked by the Session 067 contract.
 
 Nothing committed or pushed.

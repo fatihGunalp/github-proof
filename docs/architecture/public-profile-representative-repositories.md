@@ -16,7 +16,8 @@ This contract defines deterministically:
 
 It resolves the representative-repository selection rule left open by
 `docs/architecture/public-profile-evidence-domain-model.md` §11 and owned by
-§18 P7, and it composes only over pattern truth already locked by
+§18 P7, and it composes only over one coherent `ProfilePatternSet` already
+produced under the pattern truth locked by
 `docs/architecture/public-profile-evidence-patterns.md`.
 
 It does not alter P1 result ownership, P2 eligibility semantics, P5
@@ -191,42 +192,90 @@ Undetermined evidence:
 - is not negative support,
 - is not a candidate through optimistic fallback.
 
-A `RepresentativeRepository` result must preserve enough completeness
-information that downstream presentation cannot claim more certainty than the
-underlying pattern evidence supports.
+### 9.1 Coherent Source Set
 
-This contract does not compute or materialize a new pattern-level
-completeness number. `RepeatedProfilePattern` itself carries no single
-completeness field; completeness lives on each of its `SupportingObservations`
-(`ObservedProfileEvidence.EligibleRepositoryCount` and
-`.UndeterminedEvidenceRepositoryCount`). `EligibleRepositoryCount` is uniform
-across every observation of one `CrossRepositoryEvidence` by that model's own
-construction invariant, so it may be read directly from any supporting
-observation. `UndeterminedEvidenceRepositoryCount` is observation-scoped and
-may differ between the `SupportingObservations` of one pattern (for example,
-the `documentation` pattern's two mapped signals) — this contract does not
-collapse those per-observation counts into one new pattern-level value. A
-`RepresentativeRepository` result satisfies this section by remaining
-traceable to its pattern's `SupportingObservations` per §10–§11, and reading
-each observation's own counts from there rather than inventing a new field.
+Representative-repository selection must consume exactly one coherent
+`ProfilePatternSet`, not a bare collection of `RepeatedProfilePattern` values
+assembled ad hoc. `ProfilePatternSet` is the existing canonical container that
+already carries, for its entire contained pattern collection:
+
+- `RuleVersion` (`PatternRuleVersion`),
+- `ObservationRuleVersion`,
+- `PolicyVersion` (`EligibilityPolicyVersion`),
+- `IsEvidenceSurfaceComplete`.
+
+`ProfilePatternPromotionPolicy.Promote` already propagates
+`IsEvidenceSurfaceComplete` from `CrossRepositoryEvidence` onto the
+`ProfilePatternSet` it produces. This contract consumes that existing value —
+it does not compute, re-derive or invent a new completeness signal.
+
+### 9.2 Completeness Preservation
+
+A representative-repository selection result must preserve
+`ProfilePatternSet.IsEvidenceSurfaceComplete`, either:
+
+- directly on the representative-selection result boundary (for example, one
+  `IsEvidenceSurfaceComplete` value carried alongside the full selection
+  output produced from one `ProfilePatternSet`), or
+- through an explicit, stable reference back to the source `ProfilePatternSet`
+  that a consumer can dereference for that value.
+
+`ProfilePatternSet.IsEvidenceSurfaceComplete` is not interchangeable with, and
+must not be replaced by,
+`ObservedProfileEvidence.UndeterminedEvidenceRepositoryCount`. The two are
+different semantics at different levels:
+
+- `IsEvidenceSurfaceComplete` states whether the entire evidence surface the
+  `ProfilePatternSet` was built from is complete,
+- `UndeterminedEvidenceRepositoryCount` is observation-scoped and may differ
+  between the `SupportingObservations` of one pattern (for example, the
+  `documentation` pattern's two mapped signals).
+
+Downstream presentation must not claim more certainty than
+`IsEvidenceSurfaceComplete` and the individual observations' own counts
+support. This contract does not collapse per-observation
+`UndeterminedEvidenceRepositoryCount` values into a new pattern-level or
+representative-level number; each remains readable from its own
+`ObservedProfileEvidence` via the traceability in §10–§11.
 
 ## 10. Traceability
 
-Every `RepresentativeRepository` result must support this traversal:
+Every `RepresentativeRepositorySelection` result must support this traversal:
 
+    RepresentativeRepositorySelection
+            ↓
     RepresentativeRepository
             ↓
     RepresentativePatternSupport
             ↓
-    RepeatedProfilePattern
+    exact RepeatedProfilePattern within the source ProfilePatternSet
             ↓
-    ObservedProfileEvidence[]
+    SupportingObservations (ObservedProfileEvidence[])
             ↓
     ProfileEvidenceReference[]
             ↓
     RepositoryAnalysisReference[]
             ↓
     repository-level evidence
+
+### 10.1 Exact Pattern Identity
+
+`RepeatedProfilePattern` truth is not duplicated by this contract.
+
+`Family` + `PatternKey` identify a pattern uniquely only within one explicitly
+identified coherent source `ProfilePatternSet` — the same `(Family,
+PatternKey)` pair has no independent meaning outside that set. This matches
+`ProfilePatternSet`'s own construction invariant, which already rejects a
+duplicate `(Family, PatternKey)` pair within one set and already enforces a
+single consistent `RuleVersion` and `ObservationRuleVersion` across every
+pattern it contains.
+
+A `RepresentativePatternSupport` therefore resolves to its exact
+`RepeatedProfilePattern` by `(Family, PatternKey)` lookup against the one
+source `ProfilePatternSet` identified by §12, never by family/key alone and
+never by re-deriving or recomputing pattern content.
+
+### 10.2 Evidence Scope
 
 A representative result must carry only evidence belonging to:
 
@@ -239,34 +288,52 @@ Each `RepresentativePatternSupport` is scoped to exactly one pattern.
 
 ## 11. Contract Shape
 
+### RepresentativeRepositorySelection
+
+This is the representative-selection result boundary: the single coherent
+output of running §3–§8 over one `ProfilePatternSet`.
+
+- `SourcePatternSet` — a stable reference identifying the exact
+  `ProfilePatternSet` this selection was computed from (§9.1, §10.1, §12.1).
+  It must not re-embed or duplicate that set's `RepeatedProfilePattern`
+  content; it identifies which set, so a consumer can resolve back to it.
+- `PatternRuleVersion`, `ObservationRuleVersion`, `EligibilityPolicyVersion` —
+  carried directly from the source `ProfilePatternSet` (§12.1).
+- `RuleVersion` — the `RepresentativeRepositoryRuleVersion` that produced this
+  selection.
+- `IsEvidenceSurfaceComplete` — carried directly from
+  `ProfilePatternSet.IsEvidenceSurfaceComplete` (§9.2). This satisfies the
+  "directly on the representative-selection result boundary" option in §9.2;
+  no new completeness value is computed.
+- `RepresentativeRepositories` — one or more `RepresentativeRepository`.
+
 ### RepresentativeRepository
 
 - `Repository` — the selected `ProfileRepositoryReference`.
 - `PatternSupports` — one or more `RepresentativePatternSupport`, one per
   pattern this repository was independently selected for.
-- `RuleVersion` — the `RepresentativeRepositoryRuleVersion` that produced the
-  selection.
-- no separate completeness field; completeness is read from each
-  `RepresentativePatternSupport`'s referenced `SupportingObservations` per §9.
 
 A `RepresentativeRepository` groups every pattern for which the same
 repository was independently selected. It does not itself perform selection
 across patterns; each grouped `RepresentativePatternSupport` was produced by
-an independent §5–§7 run for its own pattern.
+an independent §5–§7 run for its own pattern. It carries no version or
+completeness field of its own — those live once, at the
+`RepresentativeRepositorySelection` boundary, per §9.2 and §12.1.
 
 ### RepresentativePatternSupport
 
 - `PatternFamily` — the represented pattern's family.
-- `PatternKey` — the represented pattern's key.
+- `PatternKey` — the represented pattern's key, resolved against the source
+  `ProfilePatternSet` per §10.1 — never a free-standing identity.
 - supporting observation identities — the `ObservationKey` values counted in
   §5 for this repository and this pattern.
 - supporting `ProfileEvidenceReference` values — scoped exactly to this
-  repository and this pattern, per §10.
+  repository and this pattern, per §10.2.
 
 ### 11.1 Prohibited Fields
 
-The following must never appear on `RepresentativeRepository` or
-`RepresentativePatternSupport`:
+The following must never appear on `RepresentativeRepositorySelection`,
+`RepresentativeRepository` or `RepresentativePatternSupport`:
 
 - Rank
 - Score
@@ -285,11 +352,28 @@ here.
 It is a dedicated version identity. It must not reuse `PatternRuleVersion`,
 `ObservationRuleVersion` or `EligibilityPolicyVersion`.
 
-A `RepresentativeRepository` result must record the consumed
-`PatternRuleVersion` (and, transitively through the pattern, its
-`ObservationRuleVersion` and `EligibilityPolicyVersion`) and must reject
-inputs produced under mixed versions, exactly as `RepeatedProfilePattern`
-does for its own inputs.
+### 12.1 ProfilePatternSet as the Coherent Anchor
+
+`RepeatedProfilePattern` itself owns only `RuleVersion` (`PatternRuleVersion`)
+and `ObservationRuleVersion`. It does not own `EligibilityPolicyVersion` and
+it does not own a completeness flag. `EligibilityPolicyVersion` and
+`IsEvidenceSurfaceComplete` exist only on the containing `ProfilePatternSet`
+(§9.1).
+
+Consequently, representative-repository selection must consume one coherent
+`ProfilePatternSet` as its input — never a loose collection of
+`RepeatedProfilePattern` values gathered from possibly different sets. A
+`RepresentativeRepositorySelection` result must record:
+
+- the consumed `ProfilePatternSet.RuleVersion` (`PatternRuleVersion`),
+- `ProfilePatternSet.ObservationRuleVersion`,
+- `ProfilePatternSet.PolicyVersion` (`EligibilityPolicyVersion`),
+- `ProfilePatternSet.IsEvidenceSurfaceComplete` (§9.2),
+
+either directly or through the explicit stable source-set reference described
+in §9.2, and must reject a selection run that would otherwise mix patterns
+drawn from two different `ProfilePatternSet` instances or two different
+version combinations.
 
 A new `RepresentativeRepositoryRuleVersion` is required to change:
 
@@ -304,7 +388,8 @@ A new `RepresentativeRepositoryRuleVersion` is required to change:
 
 For the same:
 
-- `CrossRepositoryEvidence`,
+- source `ProfilePatternSet` (and, transitively, the `CrossRepositoryEvidence`
+  it was promoted from),
 - `ObservationRuleVersion`,
 - `EligibilityPolicyVersion`,
 - `PatternRuleVersion`,
@@ -370,8 +455,10 @@ Representative-repository production must never emit:
 ## 17. P7 Dependency and Scope
 
 This contract requires no additional P2 runtime and no new P5/P6 evidence
-kind. It composes only over `RepeatedProfilePattern` results already locked by
-`docs/architecture/public-profile-evidence-patterns.md`.
+kind. It composes only over one coherent `ProfilePatternSet` — the existing
+canonical container for `RepeatedProfilePattern` results already locked by
+`docs/architecture/public-profile-evidence-patterns.md` — and introduces no
+new upstream evidence production.
 
 `docs/architecture/public-profile-evidence-domain-model.md` §18 assigns
 representative-repository selection rules and Role Evidence Alignment jointly

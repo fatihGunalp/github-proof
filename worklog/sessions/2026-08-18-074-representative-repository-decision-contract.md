@@ -1,7 +1,9 @@
 # Representative Repository Decision + Contract
 
 **Date:** 2026-08-18
-**Result:** PASS
+**Result:** PASS — corrected after post-push independent review (see
+"Post-Push Independent Review Correction" below); correction is uncommitted
+on top of pushed commit `a034aaa`
 **Scope:** docs
 **Model Route:** sonnet / high
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -206,9 +208,96 @@ new invented pattern-level field.
 
 ---
 
+## Post-Push Independent Review Correction
+
+Session 074 was committed and pushed by the user as `a034aaa` ("docs: lock
+representative repository selection contract"). A second, post-push
+independent review of that pushed state found two BLOCKER findings against
+`docs/architecture/public-profile-representative-repositories.md`. Both were
+corrected in this same session, on the same branch, without a new session and
+without committing/pushing the correction (user-owned per Git ownership
+rules).
+
+~~~text
+BLOCKER 1 — COMPLETENESS
+
+Finding:
+§9 relied only on per-observation EligibleRepositoryCount /
+UndeterminedEvidenceRepositoryCount for completeness. The existing canonical
+runtime already carries a coherent evidence-surface completeness flag,
+ProfilePatternSet.IsEvidenceSurfaceComplete (propagated directly from
+CrossRepositoryEvidence.IsEvidenceSurfaceComplete by
+ProfilePatternPromotionPolicy.Promote), which the contract had not accounted
+for. Per-observation UndeterminedEvidenceRepositoryCount is a different,
+narrower semantic and cannot substitute for it.
+
+Correction:
+§9 was restructured into §9.1 (Coherent Source Set) and §9.2 (Completeness
+Preservation). Representative-repository selection now explicitly consumes
+one coherent ProfilePatternSet as input and must preserve
+ProfilePatternSet.IsEvidenceSurfaceComplete, either directly on the new
+RepresentativeRepositorySelection result boundary (§11) or through an
+explicit stable reference to the source ProfilePatternSet. No new
+completeness metric was invented; per-observation
+UndeterminedEvidenceRepositoryCount remains observation-scoped and is not
+collapsed into a new field.
+
+BLOCKER 2 — VERSION + TRACEABILITY
+
+Finding:
+§12 incorrectly claimed EligibilityPolicyVersion was available "transitively
+through the pattern." In the actual runtime, RepeatedProfilePattern owns only
+PatternRuleVersion and ObservationRuleVersion; EligibilityPolicyVersion and
+IsEvidenceSurfaceComplete exist only on the containing ProfilePatternSet.
+Family+PatternKey identity was also not explicitly scoped to one coherent
+source set, leaving room to read a pattern identity as portable across sets.
+
+Correction:
+§12 gained §12.1 (ProfilePatternSet as the Coherent Anchor), stating exactly
+which version fields ProfilePatternSet owns versus RepeatedProfilePattern, and
+requiring selection to consume one coherent ProfilePatternSet and reject a
+run that mixes patterns from different sets or version combinations. §10
+gained §10.1 (Exact Pattern Identity): Family+PatternKey identify a pattern
+only within one explicitly identified source ProfilePatternSet, mirroring
+ProfilePatternSet's own (Family, PatternKey) uniqueness invariant — no
+duplication of pattern truth. A new top-level `RepresentativeRepositorySelection`
+shape was introduced in §11 as the single coherent result boundary carrying
+SourcePatternSet (a stable reference, not a re-embedded copy),
+PatternRuleVersion, ObservationRuleVersion, EligibilityPolicyVersion,
+IsEvidenceSurfaceComplete and RepresentativeRepositoryRuleVersion in one
+place, so Session 075 does not have to invent where these come from.
+
+Also corrected: worklog/CURRENT.md previously implied a runtime
+RepresentativeRepositoryRuleVersion value ("1 — established by Session 074").
+Corrected to state explicitly that Contract Version 1 is a document version
+only and no runtime rule-version value exists until implementation.
+
+KEPT LOCKED, UNCHANGED:
+one representative per RepeatedProfilePattern; candidates =
+IndependentSupportingRepositories; PatternSupportObservationCount; Owner→Name
+tie-break; no global K; no set-cover; no cross-pattern breadth advantage;
+fork/template restrictions; archived not automatically excluded; no
+rank/score/quality/strength/confidence/capability/seniority/employability;
+RoleEvidenceAlignment out of scope.
+
+Re-review (github-proof-review, forked context, focused specifically on the
+five points above plus worklog-fact accuracy):
+PASS. IsEvidenceSurfaceComplete preservation, PolicyVersion ownership, exact
+RepeatedProfilePattern traceability, no duplicate pattern truth and no
+ranking/global-coverage regression all confirmed directly against
+ProfilePatternSet.cs/RepeatedProfilePattern.cs/ProfilePatternPromotionPolicy.cs
+and against the actual `git diff a034aaa` (only §1, §9-§13, §17 changed;
+§2-§8, §14-§16 untouched). worklog/CURRENT.md's runtime-value wording and the
+session file's addition-only correction were both confirmed accurate. No
+BLOCKER/HIGH/MEDIUM finding.
+~~~
+
+---
+
 ## Problems
 
-None.
+None beyond the two BLOCKER findings recorded above, both corrected within
+this session.
 
 ---
 
@@ -237,14 +326,20 @@ None.
 ## Working Set / Final Git State
 
 ~~~text
-Modified:
+Pushed at a034aaa (user-owned commit/push, prior to this correction):
+- docs/architecture/public-profile-representative-repositories.md
 - worklog/CURRENT.md
 - worklog/INDEX.md
 - worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md
-
-Untracked (new):
-- docs/architecture/public-profile-representative-repositories.md
 - worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
+
+Modified since a034aaa (this post-push correction, uncommitted):
+- docs/architecture/public-profile-representative-repositories.md (BLOCKER 1 +
+  BLOCKER 2 corrections)
+- worklog/CURRENT.md (completeness/version wording corrected; Active Session
+  set to NONE; RepresentativeRepositoryRuleVersion runtime-value claim removed)
+- worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
+  (this correction recorded)
 
 Pre-existing unrelated:
 - None
@@ -255,17 +350,22 @@ Pre-existing unrelated:
 ## Next
 
 Session 075 may begin production implementation of
-`RepresentativeRepository`/`RepresentativePatternSupport` per the locked
-contract, or continue toward Role Evidence Alignment decision work — neither
-is started by this session.
+`RepresentativeRepositorySelection`/`RepresentativeRepository`/
+`RepresentativePatternSupport` per the locked and corrected contract, or
+continue toward Role Evidence Alignment decision work — neither is started by
+this session. Before that, the user needs to commit and push this correction
+(it currently sits uncommitted on top of `a034aaa`).
 
 ---
 
 ## Git
 
 ~~~text
-Suggested commit:
-docs: lock representative repository selection contract
+Prior commit (already pushed by user):
+a034aaa — docs: lock representative repository selection contract
+
+Suggested correction commit:
+docs: correct representative repository completeness and version/traceability semantics
 
 Commit:
 PENDING — user-owned
