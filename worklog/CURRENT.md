@@ -22,9 +22,8 @@ Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
 Canonical owner: docs/product/product-positioning.md
 
-Session 070 — Jobs-Style Product Packaging — PASS / READY_FOR_COMMIT
+Session 070 — Jobs-Style Product Packaging — COMPLETE / REMOTE VERIFIED
 Canonical owner: docs/product/product-experience-principles.md
-Not yet committed, not yet integrated into main, not yet remote verified.
 
 Incomplete:
 ProblemArea — taxonomy, promotion and repository evidence all remain
@@ -44,10 +43,10 @@ BLOCKED
 ## Active Session
 
 Session:
-070 — Jobs-Style Product Packaging
+071 — Bounded Source Evidence Collection
 
 Session File:
-worklog/sessions/2026-08-18-070-jobs-style-product-packaging.md
+worklog/sessions/2026-08-18-071-bounded-source-evidence-collection.md
 
 Status:
 PASS / READY_FOR_COMMIT
@@ -55,22 +54,24 @@ PASS / READY_FOR_COMMIT
 ## Git
 
 Active Branch:
-session/070-jobs-style-product-packaging
+session/071-bounded-source-evidence-collection
 
 Session Base:
-635e014c37b7852bd4641413a7216f33523e8fb8
+2a1809d128de43b7c07709a8d3377afb37168ea9
 
 Last Remote Verified Main:
-635e014c37b7852bd4641413a7216f33523e8fb8
+2a1809d128de43b7c07709a8d3377afb37168ea9
 
 ## Goal
 
-Audit the currently delivered GitHub Proof experience against a human-first
-product discipline — HUMAN → PROBLEM → EXPERIENCE → TECHNOLOGY — and determine
-what the product should communicate before any visual redesign.
+Decide the smallest safe and useful raw source collection contract boundary that
+a future canonical contract should lock, so that
+DependencySourceReferenceEvidence becomes producible.
 
-Analysis only. No packaging decision is locked by this session and the
-Session 069 positioning is preserved unchanged.
+Steps 1, 2 and 2B produced the decision report and the bounded measurement
+evidence. Step 3 locked the canonical contract, Step 4 reviewed and corrected it,
+and Step 5 implemented the bounded collector, the RepositorySourceFile snapshot
+surface and the source-files availability key. No reference detector exists.
 
 ## Canonical Evidence Ladder
 
@@ -90,13 +91,20 @@ produced-work evidence. A source reference is never produced-work evidence.
 Repository MVP V1 still owns exactly 15 scoring signals.
 
 Repository Dependency Evidence Contract V1: non-scoring declaration surface,
-AnalyzerVersion 1.0.0.
+introduced at AnalyzerVersion 1.0.0.
 
 Repository Dependency Semantic Category Contract V1: five locked categories
 (database-access, web-application-framework, http-client, authentication,
 machine-learning), http-server deferred,
 DependencyCategoryMappingVersion 1.0.0, immutable 46-entry registry,
 RepositorySemanticEvidence as a non-scoring Domain result.
+
+Repository Source Evidence Collection Contract V1: bounded raw source collection,
+regular blobs only, 24-extension allow-list, 23 structural path exclusions, exact
+build.gradle.kts and settings.gradle.kts filename exclusions, 32 retrieval
+attempts / 64 KiB per file / 384 KiB corpus, deterministic extension round-robin,
+RepositorySourceFile(Path, Content), dedicated source-files availability,
+implemented at AnalyzerVersion 1.1.0.
 
 ## Blocker
 
@@ -105,13 +113,13 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 067:
-911/911 PASS
+Session 071:
+967/967 PASS
 Build: 0 warning / 0 error
-Independent review: no open BLOCKER/HIGH
+Independent review: PASS WITH FINDINGS, no open BLOCKER/HIGH
 
 AnalyzerVersion:
-1.0.0
+1.1.0 — additive minor bump for the bounded raw source collection surface
 
 RuleSetVersion:
 UNCHANGED
@@ -124,76 +132,100 @@ DependencyCategoryMappingVersion:
 
 ## Next Action
 
-Session 068 closed on main at 26d2baf with
-docs/architecture/repository-dependency-source-reference-evidence.md
-CONTRACT LOCKED version 1, semantics only. Separate future approvals still
-pending there: bounded source-evidence collection contract, evidence payload
-and replay decision, reference-detection rule contract and its version owner,
-and the ProducedWorkEvidence resolution.
+Sessions 069 and 070 are closed, integrated and remote verified. Their canonical
+owners are docs/product/product-positioning.md and
+docs/product/product-experience-principles.md. P10 is not brought forward, the
+technical roadmap is unchanged, and development has returned to the pre-P7
+evidence pipeline position.
 
-Session 069 Stage 1 produced the product positioning impact report. Verdict:
-ALIGNED WITH DOCUMENTATION DRIFT. Reviewed PASS WITH FINDINGS.
+Session 068 remains the semantics-only owner of
+docs/architecture/repository-dependency-source-reference-evidence.md. Its
+separate future approvals still pending: bounded source-evidence collection
+contract, evidence payload and replay decision, reference-detection rule
+contract and its version owner, and the ProducedWorkEvidence resolution.
 
-Stage 2 completed as a documentation-only alignment:
-docs/product/product-positioning.md created, PRODUCT POSITIONING LOCKED
-version 1; README.md, mvp-product-contract.md, scoring-and-report-contract.md,
-report-information-architecture.md and mvp-phases.md aligned.
+Session 071 Steps 1, 2 and 2B delivered the decision report and the bounded
+measurement evidence. Step 2B returned READY_FOR_CONTRACT after a targeted
+supplemental measurement discriminated the open decisions.
 
-15 signals, 4 categories, weights, normalization, status semantics,
-RuleSetVersion and report schema calculations are unchanged. No developer or
-candidate score was introduced. Human verification is marked future direction
-only. RequiresHumanReview semantics untouched. ProducedWorkEvidence not
-renamed.
+Step 3 created docs/architecture/repository-source-evidence-collection.md,
+CONTRACT LOCKED version 1. It owns bounded raw source collection semantics: the
+supported V1 source surface, normalization, availability and completeness,
+isolation, version ownership and the resource and security boundary. It owns no
+detection rule, no dependency-to-source association, no ProducedWorkEvidence, no
+RepositoryProblemAreaEvidence, no ProblemArea taxonomy, no scoring and no report
+presentation.
 
-Positioning contract review returned PASS WITH MINOR FIXES; all seven fixes were
-applied. Session 069 closed on main at 635e014, remote verified.
+Locked V1: regular blobs only; one global 24-extension allow-list; exact
+build.gradle.kts and settings.gradle.kts filename exclusions without excluding
+the .kts extension; 23 structural path exclusions declared as collection budget
+policy; 32 files, 64 KiB per file, 384 KiB corpus; deterministic extension
+round-robin ordering; RepositorySourceFile carrying Path and Content only;
+strict UTF-8 with one leading BOM stripped as a versioned rule; a dedicated
+source-files availability key; full isolation from FileTree, CollectionWarnings,
+Status, the 15 signals and the report; AnalyzerVersion ownership with an
+additive minor bump class.
 
-Session 070 Step 1 produced the jobs-style product experience audit. Verdict:
-STRONG PRODUCT / WEAK PACKAGING.
+RepositorySourceFile is a raw collection input and is explicitly not
+DependencySourceReferenceEvidence. The contract completes no downstream ladder
+stage; ProducedWorkEvidence remains unresolved and RepositoryProblemAreaEvidence
+remains blocked by the Session 067 contract.
 
-Step 2 defined the product experience truth that Profile P10 — Web Profile Flow
-must implement later: three core experience questions, the
-UNDERSTAND / TRACE / INSPECT hierarchy, first meaningful result as one
-plain-language sentence plus up to three evidence statements, Visible Evidence
-Score confirmed SECONDARY, one shared canonical truth with contextual emphasis
-only, and a P10 say-no list. Current UI findings were reclassified as future
-P10 constraints, not fixes.
+docs/architecture/repository-dependency-source-reference-evidence.md was aligned
+only where the prerequisite state changed: collection semantics now exist,
+production collection does not. Session 068's epistemic ceiling is unchanged.
 
-Nothing is canonically locked. No canonical documentation, architecture
-contract, production code, UI code or test was modified in either step.
+Still unresolved: the persisted evidence payload and self-contained replay; the
+qualifying-reference definition and per-ecosystem detection design; the detection
+version owner name; the exact future AnalyzerVersion value; and the
+ProducedWorkEvidence resolution.
 
-Step 3 created docs/product/product-experience-principles.md, PRODUCT
-EXPERIENCE LOCKED version 1, owning cross-surface experience principles,
-the UNDERSTAND / TRACE / INSPECT hierarchy, progressive disclosure,
-first-result semantics, score presentation priority, shared truth versus
-contextual emphasis and the say-no rules. It owns no scoring, signal,
-architecture, visual design, copy or implementation semantics, and does not
-duplicate report-information-architecture.md ownership.
+Step 3 itself made no src, tests, report, UI or roadmap mutation.
 
-Exact template rules, exact copy, localization integration, visual hierarchy
-implementation and runtime UI validation remain unresolved and P10-owned.
+Step 4 independent review returned PASS_WITH_FINDINGS: two HIGH determinism
+gaps (round-robin skip semantics undefined; byte bounds not bound to a byte
+count), three MEDIUM (availability versus provider failure, a wrong
+settings.gradle.kts rationale, stale session worklog) and three LOW findings.
 
-Product Experience Contract V1 received FINAL PASS. Approved:
-UNDERSTAND / TRACE / INSPECT; First Meaningful Result = C; Visible Evidence
-Score = SECONDARY; and the universal evidence truth versus contextual action
-boundary, which leaves repository-report prioritized-action presentation with
-its existing report and design contracts until P10 reconciles the concrete
-surface.
+Step 4.1 corrected all eight. The contract now locks a single total candidate
+order materialized before acceptance with consumed skips, canonical per-file and
+corpus accounting on normalized Content UTF-8 bytes after BOM strip, provider
+failure keeping its real availability status while preserving collected
+artefacts, a per-filename rationale for the two excluded Gradle filenames,
+declaration-independent collection, and a dedicated tree-metadata requirement
+that forbids enriching FileTree. No approved decision was reopened.
 
-Session 070 does not implement or advance P10, performed no UI implementation
-and did not reorder the technical roadmap. All other canonical product,
-architecture and roadmap documents remain byte-identical.
+Step 4.2 and Step 4.3 closed the remaining slot-semantics ambiguity:
+MaximumSourceFiles is the maximum number of source-content retrieval attempts per
+repository, pre-fetch rejection consumes no slot, a begun retrieval consumes its
+slot permanently even when it later fails, the artefact count is 0..32, and the
+stop condition counts consumed slots rather than successful artefacts.
 
-Session 070 is PASS / READY_FOR_COMMIT. The mutation set is not committed, not
-integrated into main and not remote verified.
+Step 4.4 returned PASS and declared the contract implementation-ready.
 
-After Session 070 integration, development returns to the recorded pre-P7
-evidence pipeline position: Stage 7 — Public Profile Evidence Foundation, with
-P7 — Representative Repository Selection NOT STARTED, ProblemArea deferred,
-ProducedWorkEvidence unresolved and RepositoryProblemAreaEvidence blocked.
+Step 5 implemented it. Domain gained RepositorySourceFile(Path, Content), the
+additive RepositorySnapshot.SourceFiles surface and the source-files data key.
+Infrastructure gained GitHubRepositorySourceFileCollector, which obtains its own
+pinned tree metadata because the regular-blob rule needs Git mode that FileTree
+does not carry, applies the eligibility pipeline, builds the round-robin total
+candidate order, and enforces the retrieval-slot and normalized-byte bounds. The
+orchestrator contributes availability only. AnalyzerVersion moved 1.0.0 to 1.1.0.
 
-Session 070 does not replace or reorder the technical roadmap. Profile P10 is
-not brought forward; once Session 070 closes, development returns to the
-recorded evidence pipeline position before P7.
+Validation: build 0 warning / 0 error, 967/967 tests pass, git diff --check
+clean. No scoring signal, category result, report element or UI changed, and no
+source failure reaches CollectionWarnings or FileTree.
+
+The independent implementation review returned PASS WITH FINDINGS with no
+BLOCKER and no HIGH. Both MEDIUM findings were handled: the stale session worklog
+text was corrected, and the contract §17 unbounded-allocation gap was recorded in
+Known Risks and handed to a separate bounded task because it affects every
+existing collector equally and §17 leaves the implementation strategy open.
+
+Session 071 is PASS / READY_FOR_COMMIT. The mutation set is staged but not
+committed, not integrated into main and not remote verified.
+
+Exact next action:
+run the user-owned commit and push, then record remote verification and set the
+Active Session accordingly.
 
 Nothing committed or pushed.

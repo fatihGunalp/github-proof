@@ -14,7 +14,7 @@ builder.Services.AddSingleton<TimeProvider>(
 
 builder.Services.AddSingleton<AnalysisVersion>(
     new AnalysisVersion(
-        analyzerVersion: "1.0.0",
+        analyzerVersion: "1.1.0",
         ruleSetVersion: "2026.08.15",
         reportSchemaVersion: 1));
 

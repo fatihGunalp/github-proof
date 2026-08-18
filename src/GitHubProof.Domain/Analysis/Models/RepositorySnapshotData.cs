@@ -260,6 +260,23 @@ public sealed record RepositoryDependencyDeclaration
     public string? DeclaredVersion { get; }
 }
 
+// One bounded raw source artefact collected from a supported regular repository
+// source blob at the pinned commit. It records what the supported V1 source
+// surface contained; it never states that a dependency is referenced, that work
+// was produced, or that any problem area is proven.
+public sealed record RepositorySourceFile
+{
+    public RepositorySourceFile(string path, string content)
+    {
+        Path = SnapshotValue.RequireValue(path, nameof(path));
+        Content = content ?? throw new ArgumentNullException(nameof(content));
+    }
+
+    public string Path { get; }
+
+    public string Content { get; }
+}
+
 public sealed record RepositoryContributor
 {
     public RepositoryContributor(string login, int contributions)

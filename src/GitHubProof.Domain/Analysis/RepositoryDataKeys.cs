@@ -4,4 +4,8 @@ namespace GitHubProof.Domain.Analysis;
 public static class RepositoryDataKeys
 {
     public const string DependencyManifests = "dependency-manifests";
+
+    // Bounded raw source collection surface contracted by
+    // docs/architecture/repository-source-evidence-collection.md §18.
+    public const string SourceFiles = "source-files";
 }

@@ -26,6 +26,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             new GitHubRepositoryTagCollector(httpClient),
             new GitHubRepositoryContributorCollector(httpClient),
             new GitHubRepositoryDependencyManifestCollector(httpClient, timeProvider),
+            new GitHubRepositorySourceFileCollector(httpClient, timeProvider),
             timeProvider);
     }
 
@@ -39,6 +40,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     private readonly IGitHubRepositoryTagCollector tagCollector;
     private readonly IGitHubRepositoryContributorCollector contributorCollector;
     private readonly IGitHubRepositoryDependencyManifestCollector dependencyManifestCollector;
+    private readonly IGitHubRepositorySourceFileCollector sourceFileCollector;
     private readonly TimeProvider timeProvider;
 
     public GitHubRepositorySnapshotOrchestrator(
@@ -52,6 +54,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         IGitHubRepositoryTagCollector tagCollector,
         IGitHubRepositoryContributorCollector contributorCollector,
         IGitHubRepositoryDependencyManifestCollector dependencyManifestCollector,
+        IGitHubRepositorySourceFileCollector sourceFileCollector,
         TimeProvider? timeProvider = null)
     {
         this.metadataCollector = metadataCollector
@@ -74,6 +77,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             ?? throw new ArgumentNullException(nameof(contributorCollector));
         this.dependencyManifestCollector = dependencyManifestCollector
             ?? throw new ArgumentNullException(nameof(dependencyManifestCollector));
+        this.sourceFileCollector = sourceFileCollector
+            ?? throw new ArgumentNullException(nameof(sourceFileCollector));
         this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
@@ -172,6 +177,14 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 contents,
                 cancellationToken);
 
+        // Raw source collection is an independent surface. It is never gated by
+        // dependency declarations or dependency-manifest availability.
+        GitHubRepositorySourceFileCollection sourceFiles =
+            await sourceFileCollector.CollectAsync(
+                repository,
+                contents,
+                cancellationToken);
+
         RepositorySnapshot snapshot = new(
             metadata.Repository,
             capturedAt,
@@ -198,7 +211,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 releases,
                 tags,
                 contributors,
-                dependencyManifests),
+                dependencyManifests,
+                sourceFiles),
             CollectWarnings(
                 contents,
                 commits,
@@ -211,7 +225,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             MapTags(tags.Tags),
             descriptive.LicenseFile,
             contents.DocumentationMarkdownFiles,
-            dependencyManifests.Declarations);
+            dependencyManifests.Declarations,
+            sourceFiles.SourceFiles);
 
         return new GitHubRepositorySnapshotResult(snapshot, metadata.Availability);
     }
@@ -301,7 +316,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
         GitHubRepositoryContributorCollection contributors,
-        GitHubRepositoryDependencyManifestCollection dependencyManifests) =>
+        GitHubRepositoryDependencyManifestCollection dependencyManifests,
+        GitHubRepositorySourceFileCollection sourceFiles) =>
         [
             metadata.Availability,
             contents.FileTreeAvailability,
@@ -319,7 +335,11 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             // The dependency evidence surface contributes availability only.
             // Its warnings are deliberately not merged into the snapshot
             // collection warnings, which would change RepositoryAnalysis.Status.
-            dependencyManifests.Availability
+            dependencyManifests.Availability,
+
+            // The bounded raw source surface contributes availability only, for
+            // the same isolation reason.
+            sourceFiles.Availability
         ];
 
     private static IReadOnlyList<string> CollectWarnings(

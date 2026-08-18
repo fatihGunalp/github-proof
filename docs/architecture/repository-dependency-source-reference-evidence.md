@@ -101,14 +101,14 @@ evidence.
 
 ## 5. Raw Collection Prerequisite
 
-Observed current-state limitation: the current `RepositorySnapshot` and
-collection surface do not provide general application source-file contents.
+Bounded source-evidence collection semantics are now defined by
+`docs/architecture/repository-source-evidence-collection.md`, which owns the
+supported V1 source surface, the normalized `RepositorySourceFile` artefact
+shape, deterministic bounds and ordering, text normalization, and the dedicated
+`source-files` availability and completeness semantics.
 
-Minimum required source-evidence inputs that are still missing:
-
-- bounded source-file content,
-- dedicated availability and completeness semantics for that source evidence
-  surface.
+Production source collection is **not yet implemented**, so the required raw
+input does not yet exist at runtime.
 
 Inputs that already exist elsewhere in the current snapshot surface:
 
@@ -116,12 +116,8 @@ Inputs that already exist elsewhere in the current snapshot surface:
 - file size when the provider supplies it,
 - the pinned `HeadCommitSha`.
 
-This contract does not lock the future normalized source artefact shape, and it
-does not decide whether path or size are carried into a future dedicated source
-artefact model.
-
-Until that bounded source-evidence collection surface exists and is separately
-approved, no `DependencySourceReferenceEvidence` can be produced.
+Until that bounded source-evidence collection surface is implemented, no
+`DependencySourceReferenceEvidence` can be produced.
 
 ## 6. Raw versus Derived
 
@@ -281,7 +277,8 @@ eligibility mechanism is versioned as collection semantics.
 
 This contract does not lock numeric values, extension sets, the binary detection
 mechanism, archive versus per-file retrieval, or the candidate-selection
-algorithm.
+algorithm. Those raw collection decisions are owned by
+`docs/architecture/repository-source-evidence-collection.md`.
 
 `StringComparer.Ordinal` is the existing repository convention for canonical
 normalized output ordering and may be used as such. This document does not lock
@@ -313,9 +310,6 @@ This evidence level must never produce or support:
 
 The following remain undecided and require separate approval:
 
-- the bounded source-evidence collection contract, including eligibility
-  mechanism, candidate selection, numeric limits, retrieval mode and security;
-- the normalized source artefact shape;
 - the minimum persisted evidence payload and whether self-contained replay is
   required;
 - the qualifying-reference definition and per-ecosystem detection design;

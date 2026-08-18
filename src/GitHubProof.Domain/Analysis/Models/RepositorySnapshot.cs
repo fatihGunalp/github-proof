@@ -26,7 +26,8 @@ public sealed record RepositorySnapshot
         RepositoryCollection<RepositoryTag>? tags = null,
         RepositoryFile? licenseFile = null,
         RepositoryCollection<RepositoryFile>? documentationMarkdown = null,
-        RepositoryCollection<RepositoryDependencyDeclaration>? dependencyDeclarations = null)
+        RepositoryCollection<RepositoryDependencyDeclaration>? dependencyDeclarations = null,
+        RepositoryCollection<RepositorySourceFile>? sourceFiles = null)
     {
         Repository = repository
             ?? throw new ArgumentNullException(nameof(repository));
@@ -49,6 +50,7 @@ public sealed record RepositorySnapshot
             ?? new RepositoryCollection<RepositoryFile>(isComplete: false);
         Languages = NormalizeLanguages(languages);
         DependencyDeclarations = NormalizeDependencyDeclarations(dependencyDeclarations);
+        SourceFiles = NormalizeSourceFiles(sourceFiles);
         Contributors = contributors
             ?? RepositoryCollection<RepositoryContributor>.Empty;
         Availability = NormalizeAvailability(availability);
@@ -95,6 +97,10 @@ public sealed record RepositorySnapshot
     // signal, category or score.
     public RepositoryCollection<RepositoryDependencyDeclaration> DependencyDeclarations { get; }
 
+    // Non-scoring bounded raw source evidence. It participates in no signal,
+    // category or score, and it is never a dependency source reference.
+    public RepositoryCollection<RepositorySourceFile> SourceFiles { get; }
+
     public IReadOnlyList<DataAvailability> Availability { get; }
 
     public IReadOnlyList<string> CollectionWarnings { get; }
@@ -134,6 +140,28 @@ public sealed record RepositorySnapshot
             normalized,
             declarations.IsComplete ? normalized.Length : declarations.TotalCount,
             declarations.IsComplete);
+    }
+
+    // Deterministic ordering by path, Ordinal ascending; identical paths
+    // collapse to one artefact.
+    private static RepositoryCollection<RepositorySourceFile> NormalizeSourceFiles(
+        RepositoryCollection<RepositorySourceFile>? sourceFiles)
+    {
+        if (sourceFiles is null)
+        {
+            return RepositoryCollection<RepositorySourceFile>.Empty;
+        }
+
+        RepositorySourceFile[] normalized = sourceFiles.Items
+            .GroupBy(file => file.Path, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderBy(file => file.Path, StringComparer.Ordinal)
+            .ToArray();
+
+        return new RepositoryCollection<RepositorySourceFile>(
+            normalized,
+            sourceFiles.IsComplete ? normalized.Length : sourceFiles.TotalCount,
+            sourceFiles.IsComplete);
     }
 
     private static IReadOnlyList<string> NormalizeTopics(

@@ -36,7 +36,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 "releases",
                 "tags",
                 "contributors",
-                "dependency-manifests"
+                "dependency-manifests",
+                "source-files"
             ],
             collectors.Calls);
 
@@ -83,7 +84,7 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal("v1.0.0", Assert.Single(snapshot.Tags.Items).Name);
         Assert.Equal("octocat", Assert.Single(snapshot.Contributors.Items).Login);
 
-        Assert.Equal(15, snapshot.Availability.Count);
+        Assert.Equal(16, snapshot.Availability.Count);
         Assert.All(snapshot.Availability, availability =>
             Assert.Equal(DataAvailabilityStatus.Available, availability.Status));
         Assert.Equal(
@@ -95,6 +96,12 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         Assert.Equal(
             "Serilog",
             Assert.Single(snapshot.DependencyDeclarations.Items).PackageId);
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            snapshot.FindAvailability("source-files")!.Status);
+        Assert.Equal(
+            "src/Program.cs",
+            Assert.Single(snapshot.SourceFiles.Items).Path);
         Assert.Single(snapshot.CollectionWarnings);
         Assert.Contains("may not be atomic", snapshot.CollectionWarnings[0]);
         Assert.Null(collectors.ContentsReference);
@@ -131,7 +138,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 "releases",
                 "tags",
                 "contributors",
-                "dependency-manifests"
+                "dependency-manifests",
+                "source-files"
             ],
             collectors.Calls);
         Assert.Contains(
@@ -396,9 +404,58 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             snapshot.FindAvailability("dependency-manifests")!.Status);
     }
 
+    [Fact]
+    public async Task CollectAsync_SourceEvidence_ContributesAvailabilityOnly()
+    {
+        StubCollectors collectors = new()
+        {
+            SourceFiles = new GitHubRepositorySourceFileCollection(
+                new RepositoryCollection<RepositorySourceFile>(
+                    [new RepositorySourceFile("src/Program.cs", "SOURCE-CONTENT")],
+                    isComplete: false),
+                Unavailable(
+                    "source-files",
+                    DataAvailabilityStatus.Failed,
+                    "GitHub source content request failed."))
+        };
+
+        GitHubRepositorySnapshotResult result = await CreateOrchestrator(collectors)
+            .CollectAsync("https://github.com/octocat/hello-world");
+        RepositorySnapshot snapshot = result.Snapshot!;
+
+        // The file tree keeps exactly the paths and values the contents
+        // collector produced; source content is never overlaid into it.
+        Assert.Equal(
+            collectors.Contents.FileTree.Items.Select(file => file.Path),
+            snapshot.FileTree.Items.Select(file => file.Path));
+        Assert.Equal(
+            "<Project />",
+            snapshot.FileTree.Items.Single(file => file.Path == "src/App.csproj").Content);
+        Assert.DoesNotContain(
+            snapshot.FileTree.Items,
+            file => file.Content == "SOURCE-CONTENT");
+
+        // Source failures never reach the snapshot collection warnings, which
+        // would turn RepositoryAnalysis.Status into Partial.
+        Assert.Single(snapshot.CollectionWarnings);
+        Assert.DoesNotContain(
+            snapshot.CollectionWarnings,
+            warning => warning.Contains("source", StringComparison.OrdinalIgnoreCase));
+
+        // Partial positive artefacts are preserved beside the real failure.
+        Assert.Equal(
+            "src/Program.cs",
+            Assert.Single(snapshot.SourceFiles.Items).Path);
+        Assert.False(snapshot.SourceFiles.IsComplete);
+        Assert.Equal(
+            DataAvailabilityStatus.Failed,
+            snapshot.FindAvailability("source-files")!.Status);
+    }
+
     private static GitHubRepositorySnapshotOrchestrator CreateOrchestrator(
         StubCollectors collectors) =>
         new(
+            collectors,
             collectors,
             collectors,
             collectors,
@@ -430,7 +487,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         IGitHubRepositoryReleaseCollector,
         IGitHubRepositoryTagCollector,
         IGitHubRepositoryContributorCollector,
-        IGitHubRepositoryDependencyManifestCollector
+        IGitHubRepositoryDependencyManifestCollector,
+        IGitHubRepositorySourceFileCollector
     {
         public StubCollectors()
         {
@@ -535,6 +593,10 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                         "3.1.1")
                 ]),
                 Available("dependency-manifests"));
+            SourceFiles = new GitHubRepositorySourceFileCollection(
+                new RepositoryCollection<RepositorySourceFile>(
+                    [new RepositorySourceFile("src/Program.cs", "class Program { }")]),
+                Available("source-files"));
         }
 
         public List<string> Calls { get; } = [];
@@ -565,6 +627,8 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
 
         public GitHubRepositoryDependencyManifestCollection DependencyManifests { get; set; }
 
+        public GitHubRepositorySourceFileCollection SourceFiles { get; set; }
+
         Task<GitHubRepositoryDependencyManifestCollection> IGitHubRepositoryDependencyManifestCollector.CollectAsync(
             GitHubRepositoryUrl repository,
             GitHubRepositoryContentsCollection contents,
@@ -572,6 +636,15 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
         {
             Record("dependency-manifests", repository);
             return Task.FromResult(DependencyManifests);
+        }
+
+        Task<GitHubRepositorySourceFileCollection> IGitHubRepositorySourceFileCollector.CollectAsync(
+            GitHubRepositoryUrl repository,
+            GitHubRepositoryContentsCollection contents,
+            CancellationToken cancellationToken)
+        {
+            Record("source-files", repository);
+            return Task.FromResult(SourceFiles);
         }
 
         Task<GitHubRepositoryMetadataCollection> IGitHubRepositoryMetadataCollector.CollectAsync(
