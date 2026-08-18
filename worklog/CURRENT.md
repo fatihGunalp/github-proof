@@ -51,7 +51,8 @@ Session File:
 worklog/sessions/2026-08-18-072-dependency-source-reference-detection-contract.md
 
 Status:
-DECISION REPORT DELIVERED — verdict NEEDS_MORE_MEASUREMENT, contract NOT locked
+M1-M4 MEASURED — verdict READY, canonical detection contract LOCKED, detector
+not implemented
 
 ## Git
 
@@ -60,6 +61,9 @@ session/072-dependency-source-reference-detection-contract
 
 Session Base:
 d480a467ec90114beea58f80e5722aa4db745c5d
+
+Session Branch Head:
+77d05f81549f84904048e3a317bb2b5af83a0672 — checkpoint, remote verified
 
 Last Remote Verified Main:
 d480a467ec90114beea58f80e5722aa4db745c5d — includes Session 071
@@ -74,8 +78,9 @@ Decide whether reference detection can be defined safely and deterministically,
 so that DependencySourceReferenceEvidence becomes producible from
 DependencyDeclaration[] + RepositorySourceFile[].
 
-Feasibility audit and decision report only. No detector, no evidence type, no
-registry artefact, no measurement.
+The pre-measurement round returned NEEDS_MORE_MEASUREMENT. The M1-M4 measurement
+round resolved every blocked decision, M5 became single-valued, and the canonical
+contract was locked. No detector was implemented.
 
 ## Canonical Evidence Ladder
 
@@ -111,16 +116,25 @@ attempts / 64 KiB per file / 384 KiB corpus, deterministic extension round-robin
 RepositorySourceFile(Path, Content), dedicated source-files availability,
 implemented at AnalyzerVersion 1.1.0.
 
-No reference-detection contract exists. No detector, no
-DependencySourceReferenceEvidence type and no detection version owner exists in
-src/.
+Repository Dependency Source Reference Detection Contract V1:
+docs/architecture/repository-dependency-source-reference-detection.md,
+CONTRACT LOCKED version 1. Import-declaration detection only; V1 surface is
+Go + JavaScript/TypeScript + Rust + Python + DotNet, with Java, Php and Ruby
+explicitly outside; mandatory syntax-aware comment and string exclusion with a
+desynchronization rule; strict single-literal require()/import(); identity
+resolution by rule with the Go longest-module-path and DotNet exact-equality
+tie-breakers; no identity registry in V1; ambiguity yields no observation;
+positive-only evidence; Domain-owned policy; version owner
+SourceReferenceRuleVersion; no AnalyzerVersion change required.
+
+Detection is contract-locked but NOT implemented: no detector, no
+DependencySourceReferenceEvidence type and no SourceReferenceRuleVersion exists
+in src/.
 
 ## Blocker
 
 NONE for this stage. ProducedWorkEvidence remains unresolved and
 RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
-
-Reference detection is measurement-blocked, not contract-blocked.
 
 ## Validation Baseline
 
@@ -132,7 +146,7 @@ Session 072:
 no src/ or tests/ mutation, so no build or test run applies
 
 AnalyzerVersion:
-1.1.0
+1.1.0 — unchanged by the detection contract
 
 RuleSetVersion:
 UNCHANGED
@@ -143,41 +157,57 @@ UNCHANGED
 DependencyCategoryMappingVersion:
 1.0.0
 
+SourceReferenceRuleVersion:
+contract-defined, first numeric value owned by the implementing session
+
 ## Next Action
 
-Session 072 delivered the REFERENCE DETECTION DECISION REPORT with verdict
-NEEDS_MORE_MEASUREMENT. Fourteen decisions are settled and recorded as R1-R14 in
-the session file so the next session does not re-derive them; they are worklog
-state, not a canonical lock, and must be re-approved inside the canonical
-contract when it is written. Five are measurement-blocked and recorded as M1-M5.
+Session 072 completed its measurement round. Verdict: READY.
 
-Resolved, in short: detection consumes DependencyDeclaration[] +
-RepositorySourceFile[] + the pinned commit only; source-file ecosystem is a
-total versioned map over the 24-extension allow-list; package identity is not
-source identity, with Go, JavaScript and Rust total, Python, DotNet and Ruby
-partial, and Java and Php structurally non-derivable; V1 is import-declaration
-detection, not usage detection; require() and import() count only with a literal
-argument; comment and string-literal matches never count; unresolved identity
-yields no observation; a separate versioned identity registry is required and
-must not be folded into dependency-category-mapping; the detector lives in
-Domain with Infrastructure loading the registry artefact only; a separate
-detection version owner is required, with SourceReferenceRuleVersion
-recommended.
+Measurement, TEMPORARY and read-only, following the Session 071 Step 2 method:
+28 pinned repositories — the 10 canonical validation repositories plus 18
+temporary supplemental ones — 6 643 supported eligible source files, 1 383
+source blobs and 194 manifest blobs, 0 retrieval failures, 0 truncated trees. No
+measurement artefact was left in the repository and
+samples/validation/repositories.json was not modified.
 
-Measurement-blocked: the comment and string-literal exclusion false-positive
-floor; the reference yield of the bounded 32-file / 384 KiB corpus; identity
-registry sizing and viability; whether the Go and JavaScript total derivations
-survive vendoring, replace directives, TypeScript path aliases and monorepo
-workspaces; and, dependent on all of those, the V1 ecosystem surface.
+M1: a naive line-level detector produces a 1.54% false-positive rate over the
+4 358 import-shaped matches of the V1 surface, and 1.30% over 6 974 matches
+across all eight, reaching 28.24% in Ruby. Syntax-aware comment and string
+exclusion is mandatory and sufficient: one desynchronization signature across
+1 370 files, in a .groovy artefact, and zero column-0 imports wrongly masked.
+The single residual false positive came from a permissive require()/import()
+literal rule; the strict single-literal rule removed it and lost nothing.
 
-docs/architecture/repository-dependency-source-reference-evidence.md §5 was
-synchronized: source collection is implemented, and the remaining prerequisite
-is the reference-detection rule contract of §4, not collection.
+M2: 17.5% of the V1 surface's declarations acquire a qualifying reference inside
+the bounded corpus and 26.4% with one extra deterministic window; across all
+eight ecosystems 19.1% and 27.9%. Large repositories
+expose as little as 2% of their eligible source surface, so incompleteness is
+the normal state, not a defect.
+
+M3: over the canonical 46-entry population a registry would need 8 entries, but
+over the observed population Java is 84.2% ambiguous and Php 46.2%, which no
+rule and no auditable registry repairs. V1 therefore needs no registry at all,
+provided those ecosystems stay out.
+
+M4: Go's plain prefix rule was wrong — nested modules collide — and is repaired
+deterministically by longest-module-path-wins. Vendoring is already excluded by
+S071 §8. JavaScript and Rust derivations survive under stated normalization.
+Cargo rename was observed 13 times and npm alias zero times; both remain
+guaranteed false negatives from the S066 §10 surface. TypeScript paths aliases
+were not observed and are recorded as an unmeasured residual risk.
+
+M5 derived: Go + JavaScript/TypeScript + Rust + Python + DotNet.
+
+R1-R14 re-evaluated: R3 and R9 revised, R6 and R7 strengthened, the rest valid.
+R15 (positive-only evidence) and R16 (desynchronization) added.
 
 Exact next action:
-run the M1-M4 measurement round as a temporary, read-only, pinned-commit
-measurement using the Session 071 Step 2 method, leaving no measurement artefact
-in the repository. Then re-run the decision report and lock the contract only if
-M5 becomes single-valued.
+implement the locked detection contract as a Domain policy plus tests, in a
+separate session. That session owns the first numeric SourceReferenceRuleVersion
+value, the per-language lexical scanner including raw strings, template
+literals, regex literals and triple-quoted forms, and the §6.1
+desynchronization rule.
 
-Nothing committed or pushed.
+Session 072 checkpoint commit 77d05f8 is pushed and remote verified. The
+measurement round's changes are uncommitted.

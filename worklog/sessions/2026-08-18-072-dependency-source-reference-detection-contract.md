@@ -1,7 +1,7 @@
 # Session 072 — Dependency Source Reference Detection Contract
 
 Date: 2026-08-18
-Result: IN_PROGRESS — decision report delivered, contract NOT locked
+Result: IN_PROGRESS — M1-M4 measured, verdict READY, canonical contract locked
 Scope: architecture analysis + reference-detection feasibility audit + worklog/canonical state sync
 Model Route: Claude Opus / high
 Model Gate: APPROVED
@@ -88,7 +88,12 @@ implemented it. This session corrects that prerequisite statement only.
 
 ## 0. Executive verdict
 
-    NEEDS_MORE_MEASUREMENT
+    NEEDS_MORE_MEASUREMENT      (pre-measurement round; superseded)
+
+SUPERSEDED by the measurement round below. The final verdict of Session 072 is
+`READY`; see "MEASUREMENT ROUND M1-M4" and "REVISED DECISION REPORT". This
+section is retained as the pre-measurement record and must not be read as the
+session's conclusion.
 
 Fourteen decisions are resolvable now from locked contracts and documented
 ecosystem semantics, and are recorded below as R1–R14 so they are not
@@ -176,6 +181,12 @@ documented package semantics, not measured.
 This probe is deliberately biased: the registry contains 46 curated, popular
 packages. It establishes that the gap is real and ecosystem-structured. It does
 **not** estimate the gap over a real declaration population, which is M3.
+
+SUPERSEDED by the M3 registry-sizing measurement below, which returns 38
+derivable, 6 needing an entry and 2 needing multiple identities. The two blocks
+disagree on Php — 1/4 assessed here against 3 derivable measured in M3 — and on
+Python, where `pymongo` moved to the multi-identity column. M3 is MEASURED and
+this block is ASSESSED, so M3 prevails wherever they differ.
 
 ### 2.2 Named identity hazards
 
@@ -494,33 +505,517 @@ Unchanged and untouched by this session:
 
 ---
 
+# MEASUREMENT ROUND M1-M4
+
+## Method
+
+TEMPORARY MEASUREMENT ONLY, following the Session 071 Step 2 precedent.
+
+Read-only, pinned-commit, GitHub REST only. No clone, no build, no execution, no
+archive extraction, no GitHub code search, no LLM interpretation of source. No
+measurement script, dataset, log or raw source was written into the repository;
+`samples/validation/repositories.json` was not modified. No raw source appears in
+this record.
+
+    canonical set A   samples/validation/repositories.json, 10 repositories,
+                      recorded commit SHAs, unchanged
+    supplemental B    18 repositories, TEMPORARY, pinned at measurement time,
+                      chosen for eight-ecosystem coverage and the named hazards
+    hazard probes     4 manifest-only probes, no tree and no corpus
+
+Pinned supplemental set:
+
+    b01 gin-gonic/gin                    master   dcaa4296
+    b02 prometheus/prometheus            main     3d36e183
+    b03 psf/requests                     main     8f8b212d
+    b04 pallets/flask                    main     d318b683
+    b05 scikit-learn/scikit-learn        main     3b82db64
+    b06 spring-projects/spring-petclinic main     88e37c15
+    b07 square/okhttp                    main     a0ede49c
+    b08 seanmonstar/reqwest              master   9f06fd28
+    b09 launchbadge/sqlx                 main     6e57d054
+    b10 slimphp/Slim                     4.x      80900fb3
+    b11 guzzle/guzzle                    8.0      d1cbca76
+    b12 sinatra/sinatra                  main     cb22afd7
+    b13 jbogard/MediatR                  main     916ef1b3
+    b14 axios/axios                      v1.x     e6824eec
+    b15 vuejs/core                       main     a2b40db9
+    b16 vitejs/vite                      main     c0f2fc60
+    b17 expressjs/express                master   a3714473
+    b18 encode/httpx                     master   b5addb64
+
+    external probes: kubernetes/kubernetes go.mod, rails/rails Gemfile,
+                     laravel/framework composer.json
+
+Volume: 28 pinned trees, 0 truncated, 6 643 supported eligible source files,
+1 383 source blobs and 194 manifest blobs retrieved, 0 retrieval failures.
+
+The S071 collection contract was replicated exactly: regular blobs only, the
+24-extension allow-list, the two excluded Gradle filenames, the 23 structural
+path exclusions, 32 retrieval attempts, 64 KiB per file, 384 KiB corpus,
+deterministic extension round-robin over a total candidate order, strict UTF-8
+with one leading BOM stripped.
+
+For repositories with at most 140 eligible files the whole eligible surface was
+retrieved. For larger repositories a second deterministic window of 32
+candidates was retrieved beyond the bounded corpus, so that inside-budget and
+just-outside-budget yield could be compared without unbounded cost.
+
+## M1 — comment and string exclusion false-positive floor
+
+### MEASURED — naive line-level detector, no lexical exclusion
+
+6 974 import-shaped matches across 1 370 normalized source files:
+
+    ecosystem      files    hits    code  comment  string     FP%
+    DotNet           109     333     333        0       0    0.00%
+    Go               114     728     727        1       0    0.14%
+    Java             132    1123    1123        0       0    0.00%
+    JavaScript       317     819     804        8       7    1.83%
+    Php              249    1408    1408        0       0    0.00%
+    Python           246    1482    1443        0      39    2.63%
+    Ruby              64      85      61       24       0   28.24%
+    Rust             139     996     984       12       0    1.20%
+    TOTAL           1370    6974    6883       45      46    1.30%
+
+The dominant cause is documentation comments and docstrings carrying example
+import lines. Ruby is an order of magnitude worse than every other ecosystem.
+
+### MEASURED — lexical constructs a bounded hand-written scanner does not model
+
+Share of that ecosystem's measured files containing the construct:
+
+    JavaScript   regular-expression literals        7.9%
+    Rust         r#"..."# raw strings              13.7%
+    Python       nested-quote f-strings             6.9%
+    Ruby         percent literals                  10.9%
+    Ruby         heredocs                           4.7%
+    Java         triple-quoted strings              0.8%
+    DotNet, Go, Php                                 0.0%
+
+### MEASURED — desynchronization, the only way a masked detector still misfires
+
+    ecosystem     files  ends-in-open-string  col0-import-masked
+    DotNet          109                    0                   0
+    Go              114                    0                   0
+    Java            132                    1                   0
+    JavaScript      317                    0                   0
+    Php             249                    0                   0
+    Python          246                    0                   0
+    Ruby             64                    0                   0
+    Rust            139                    0                   0
+
+One desynchronization signature across 1 370 files, in a `.groovy` artefact.
+Zero column-0 import statements were ever wrongly masked, so the scanner never
+lost a real import to a mis-classification.
+
+Three files were additionally flagged by a weaker high-string-share heuristic
+and were inspected individually: a `.vue` icon file that is genuinely
+markup-dominated, a 26-byte `.rb` file whose single `require` argument is most
+of the file, and the same `.groovy` artefact. Only the `.groovy` case was a real
+desynchronization.
+
+### MEASURED — residual false positives surviving the exclusion
+
+One, in JavaScript: a dynamic `import('file://' + path.join(...))` whose
+concatenated argument was captured by a permissive literal rule that only
+required the argument to *begin* with a quote. The keyword itself was correctly
+classified as code; the defect was in the call grammar, not the exclusion.
+
+Under a strict rule requiring the parenthesised argument to be exactly one
+string literal and nothing else:
+
+    permissive require()/import() literal matches  311
+    strict     require()/import() literal matches  310
+    difference: the single false positive, and nothing legitimate
+
+### M1 outcome
+
+RESOLVED. Comment and string exclusion is deterministically achievable, it is
+mandatory rather than optional, and it must be syntax-aware rather than
+line-level.
+
+Restricted to the ecosystems that became the V1 surface, the same naive floor is
+1.54% over 4 358 matches — Python 2.63%, JavaScript 1.83%, Rust 1.20%, Go 0.14%,
+DotNet 0.00%. The 1.30% figure above is the eight-ecosystem total and is not the
+V1 figure. The exact per-language lexical obligations are now measured and are
+locked by the contract. Ruby carries both the worst naive floor and the largest
+unmodelled surface.
+
+## M2 — bounded corpus reference yield
+
+### MEASURED — declaration coverage inside the S071 bounds
+
+    ecosystem      decls  hit in bounded   hit in bounded+window2  ambiguous
+    DotNet            41      12   29.3%        13   31.7%              2
+    Go               349      16    4.6%        29    8.3%              1
+    Java              47      25   53.2%        25   53.2%             32
+    JavaScript       438      76   17.4%       130   29.7%              0
+    Php               44      14   31.8%        25   56.8%              6
+    Python            64      23   35.9%        31   48.4%              0
+    Ruby              44       4    9.1%         4    9.1%              0
+    Rust             185      61   33.0%        81   43.8%              0
+    TOTAL           1212     231   19.1%       338   27.9%             41
+
+Go's low figure is explained by its declaration population: 283 of 349 Go
+declarations are `// indirect`, which are structurally unreferenceable.
+
+### MEASURED — what the collection budget hides
+
+    repository            eligible  bounded  share of eligible surface collected
+    vitejs/vite               1572       32    2.0%
+    scikit-learn                1023       32    3.1%
+    prometheus/prometheus       977       32    3.3%
+    square/okhttp               654       32    4.9%
+    vuejs/core                  536       32    6.0%
+    gin-gonic/gin                99       32   32.3%
+    khellang/Scrutor             45       32   71.1%
+
+Three of the ten canonical validation repositories carry no eligible source at
+all, reproducing the Session 071 figure.
+
+13 supported eligible files were rejected by the 64 KiB per-file bound after
+normalization, concentrated in PHP test files and large Go, Python and Rust
+sources.
+
+### M2 outcome
+
+RESOLVED. The bounded corpus does produce useful positive evidence — 17.5% of
+the V1 surface's 1 077 declarations acquire a qualifying reference inside the
+bounded corpus and 26.4% with one extra window, against 19.1% and 27.9% across
+all eight ecosystems — while covering as little
+as 2% of a large repository's source surface. Detection is a deterministic
+sample, never a census, and incompleteness is the normal state rather than a
+defect. Extension round-robin did not starve any ecosystem: every supported
+ecosystem produced qualifying references in the bounded window.
+
+## M3 — identity registry size and viability
+
+### MEASURED — attribution outcome over observed source identities
+
+Ambiguous means one observed identity accepted by more than one declaration of
+the same ecosystem:
+
+    ecosystem     unique  ambiguous  unmatched   ambiguous share of matched
+    DotNet            12          2         43         14.3%
+    Go                57          1         81          1.7%
+    Java               6         32        489         84.2%
+    JavaScript       145          0         44          0.0%
+    Php                7          6        118         46.2%
+    Python            78          0        307          0.0%
+    Ruby              16          0         13          0.0%
+    Rust              81          0         37          0.0%
+
+Representative ambiguity, recorded because it decides the V1 surface:
+
+- Java: `org.springframework.boot.SpringApplication` was accepted by three
+  different declared starter artifacts at once. All three attributions are
+  wrong, because a starter POM ships no class and the true owner is an
+  undeclared transitive artifact. No coordinate-only rule can repair this.
+- Php: the root namespace `Psr` was accepted by four different `psr/*`
+  declarations; `GuzzleHttp` by three different `guzzlehttp/*` declarations.
+- Go: one nested-module collision, `github.com/prometheus/client_golang/exp/...`
+  accepted by both the parent and the nested module.
+- DotNet: `Autofac.Extensions.DependencyInjection` accepted by both `Autofac`
+  and `Autofac.Extensions.DependencyInjection` under two-way prefix matching.
+
+### MEASURED — rule repairs for the two repairable cases
+
+    DotNet, exact equality plus own-subnamespace instead of two-way prefix:
+        unique 12, ambiguous 0        (no unique match lost)
+    Go, longest matching module path wins:
+        unique 58, ambiguous 0        (one collision resolved, none lost)
+
+### MEASURED — registry sizing over the canonical 46-entry population
+
+    ecosystem     derivable  needs entry  multi-identity
+    DotNet                6            0               0
+    Go                    3            0               0
+    Java                  1            2               1
+    JavaScript           10            0               0
+    Php                   3            1               0
+    Python                8            2               1
+    Ruby                  4            1               0
+    Rust                  3            0               0
+    TOTAL                38            6               2
+
+Needing an explicit entry, 6: `com.squareup.okhttp3:okhttp`,
+`org.hibernate.orm:hibernate-core`, `laravel/framework`, `psycopg2-binary`,
+`scikit-learn`, `activerecord`.
+Needing more than one accepted identity, 2: `org.springframework:spring-webmvc`,
+`pymongo`. `pymongo` is counted only in this second column.
+
+### M3 outcome
+
+RESOLVED, and it resolves in an unexpected direction. Over a curated population
+a registry looks small — 8 of 46. Over the observed declaration population it
+does not, because the ecosystems that need it are exactly the ecosystems whose
+ambiguity is structural: Java at 84.2% and Php at 46.2% would require
+per-package namespace knowledge at population scale, which is neither small nor
+auditable nor stable.
+
+Therefore V1 needs **no registry at all**, provided the surface is restricted to
+the ecosystems that resolve by rule with zero measured ambiguity. A registry
+becomes necessary only if a later version admits Java or Php, and it must then be
+a separate versioned artefact.
+
+## M4 — stress test of the "total derivation" claims
+
+### Go — the claim was WRONG as stated
+
+    prometheus/prometheus   5 go.mod files, 2 replace statements, a vendor tree
+    gin-gonic/gin           1 go.mod, 0 replace
+    kubernetes/kubernetes   34 replace arrows (external manifest-only probe)
+
+Nested modules break the plain prefix rule, and the collision was observed. The
+repair is deterministic: longest matching module path wins, which follows Go
+module semantics. Measured ambiguity then falls to zero.
+
+Vendoring is already neutralized upstream: `vendor` is one of the 23 structural
+path exclusions of S071 §8, so vendored source is never collected.
+
+`replace` directives do not rewrite import paths, so identity matching still
+holds. What they change is which code sits behind the path. That is an
+epistemic caveat, not a matching failure, and it is recorded as a residual
+false-positive path rather than repaired.
+
+### JavaScript / TypeScript — the claim SURVIVES, with two named gaps
+
+    npm alias declarations observed                        0
+    repos with workspace:/file:/link: deps or workspaces    3  (b02, b15, b16)
+    repos with tsconfig "paths" aliases observed            0
+    subpath specifiers                                     28
+    scoped specifiers                                      88
+    require()/import() with a non-literal argument           5
+
+Bare, scoped and subpath specifiers all resolve deterministically by stripping
+the subpath from the head. Workspace and monorepo packages appear as ordinary
+declarations and match normally, so they are not a false-positive path.
+
+The npm alias hazard was not observed even once in this corpus, but the upstream
+information loss is structural under S066 §10 and remains a guaranteed false
+negative.
+
+TypeScript `paths` aliases were not observed at all. That is an **unmeasured**
+residual risk, not a cleared one, and it is recorded as such in the contract.
+
+### Rust — the claim SURVIVES, with a confirmed evidence-surface loss
+
+    Cargo `package =` rename declarations observed         13
+    hyphenated crate names needing `-` -> `_`             120  (65 distinct)
+
+The `-` to `_` normalization is required and is a total function. The rename
+case is a confirmed, empirically observed loss: S066 §10 keeps the referenced
+crate and discards the manifest-local name, while the source uses the local
+name. That is a guaranteed false negative and V1 does not guess it.
+
+### M4 outcome
+
+RESOLVED. The word "total" does not survive for Go without an explicit
+tie-breaker; it does survive for JavaScript and Rust under stated normalization.
+All three repairs are deterministic and none of them is a heuristic.
+
+---
+
+# REVISED DECISION REPORT
+
+## Verdict
+
+    READY
+
+M1 through M4 are resolved and M5 is single-valued.
+
+## M5 — the derived V1 ecosystem surface
+
+### MEASURED — per-ecosystem safety profile
+
+    ecosystem     naiveFP%  unmodelled%  identities  unique  ambiguous  ambig%
+    DotNet           0.00%         0.0%          57      12          0    0.0%   (exact rule)
+    Go               0.14%         0.0%         139      58          0    0.0%   (longest prefix)
+    JavaScript       1.83%         7.9%         189     145          0    0.0%
+    Python           2.63%         6.9%         385      78          0    0.0%
+    Rust             1.20%        13.7%         118      81          0    0.0%
+    Ruby            28.24%        15.6%          29      16          0    0.0%
+    Php              0.00%         0.0%         131       7          6   46.2%
+    Java             0.00%         0.8%         527       6         32   84.2%
+
+### Candidate comparison, in the mandated priority order
+
+    surface                                worst ambiguity   worst naive FP   declaration coverage
+    S1  Go + JavaScript                              0.0%            1.83%              92 / 787
+    S2  S1 + Rust                                    0.0%            1.83%             153 / 972
+    S3  S2 + Python                                  0.0%            2.63%             176 / 1036
+    S4  S3 + DotNet                                  0.0%            2.63%             188 / 1077
+    S5  all eight                                   84.2%           28.24%             231 / 1212
+
+Criterion 1, false-positive safety, eliminates S5 outright: Java and Php carry
+structural ambiguity that no rule repairs, and Ruby carries a naive floor an
+order of magnitude above every other ecosystem together with the largest
+unmodelled lexical surface and the thinnest measurement base of the eight.
+
+Criteria 2 to 5 do not separate S1 through S4: all four are deterministic under
+the same rules, share one traceability chain, need no registry and use identical
+bounds.
+
+Criterion 6, coverage, is the only criterion that separates them, and it selects
+S4.
+
+### DECISION
+
+    V1 surface = Go + JavaScript/TypeScript + Rust + Python + DotNet
+    outside V1 = Java, Php, Ruby
+
+Ruby is excluded on measurement grounds rather than on structural grounds, and
+is the most plausible candidate for a future additive version once its lexical
+surface has its own measurement. Java and Php are excluded on structural
+grounds.
+
+## R1-R14 re-evaluation
+
+    R1  VALID       inputs unchanged; no new collection surface needed
+    R2  VALID       extension-to-ecosystem map used and confirmed total
+    R3  REVISED     "TOTAL" is wrong for Go without the longest-prefix
+                    tie-breaker; DotNet moves from PARTIAL to safe under exact
+                    equality; Python's measured ambiguity was 0.0%, better than
+                    the audit predicted
+    R4  VALID       import-declaration detection, not usage detection
+    R5  VALID       loose textual occurrence is never evidence
+    R6  STRENGTHENED  "literal argument" is insufficient. The argument must be
+                    exactly one string literal and nothing else; the permissive
+                    reading produced the only measured residual false positive
+    R7  VALID and STRENGTHENED  exclusion is mandatory, must be syntax-aware
+                    rather than line-level, and needs an explicit
+                    desynchronization rule
+    R8  VALID       unresolved or ambiguous identity yields no observation
+    R9  REVISED     no registry is required in V1. A registry is required only
+                    if a later version admits Java or Php, and must then stay
+                    separate from dependency-category-mapping
+    R10 VALID       structurally unreferenceable classes confirmed; Go
+                    `// indirect` measured at 283 of 349 Go declarations
+    R11 VALID and CONFIRMED  Cargo rename observed 13 times; npm alias observed
+                    zero times but structurally unchanged
+    R12 VALID and EXTENDED  incomplete is not merely normal, it is the dominant
+                    state; measured at 2% surface coverage for large repositories
+    R13 VALID       `SourceReferenceRuleVersion` adopted
+    R14 VALID       Domain owns the policy; Infrastructure loads artefacts only
+
+Two additions that the pre-measurement report did not contain:
+
+    R15 NEW   the evidence surface is positive-only: no unreferenced list, no
+              count, no ratio and no coverage percentage may be produced or
+              derived
+    R16 NEW   an artefact whose lexical scan desynchronizes is unreliably
+              classified, produces no observation, and marks detection
+              incomplete
+
+## Canonical contract
+
+Created: `docs/architecture/repository-dependency-source-reference-detection.md`
+CONTRACT LOCKED, version 1.
+
+It locks the semantic ceiling; the import-declaration-only boundary; the
+five-ecosystem V1 surface with Java, Php and Ruby explicitly outside; the
+extension-to-ecosystem map; the qualifying syntactic forms per ecosystem; the
+comment and string exclusion obligations per language with the
+desynchronization rule; the strict single-literal `require()`/`import()` rule;
+the identity resolution rules including the Go longest-prefix and DotNet
+exact-equality tie-breakers; the no-registry-in-V1 decision and the separation
+requirement for any future registry; ambiguity behavior; the structurally
+unreferenceable declaration classes; positive-only evidence; availability,
+completeness and absence semantics; deterministic ordering; the minimum
+observation payload with snippets and hashes explicitly excluded; the
+traceability chain; Domain and Infrastructure ownership;
+`SourceReferenceRuleVersion` as the dedicated version owner with its bump rules;
+isolation; the security boundary; and the known limitations including the
+enumerated residual false-positive paths.
+
+The contract claims **no measured false positive within the supported surface**.
+It deliberately does not claim zero false positives by construction, because
+module-resolution aliases configured outside the manifest were not observed and
+therefore not cleared.
+
+Introducing it requires no `AnalyzerVersion` change: it changes no collected or
+normalized snapshot value.
+
+## Independent review corrections
+
+The contract review returned PASS WITH FINDINGS, no BLOCKER and no HIGH. All
+five findings were corrected inside the locked contract without reopening any
+approved decision:
+
+- §6 and §20 now state the V1-surface measurement figures — 1.54% naive
+  false-positive floor and 17.5% / 26.4% declaration coverage — and label the
+  eight-ecosystem totals as such. The earlier text quoted the totals, which
+  understated the V1 false-positive floor's peak and overstated its coverage.
+- §10 now records that a DotNet analyzer-only or build-only package is **not
+  identifiable** from the S066 declaration surface, because `PrivateAssets` and
+  `IncludeAssets` are not parsed, so that one class imposes no detector
+  obligation and must not be recovered by heuristic. Every other listed class —
+  `@types/*` by name, Go `// indirect` by its marker, MSBuild placeholders by
+  their form — stays identifiable and stays a real obligation.
+- §20 now records the measured cost of the no-registry decision: `scikit-learn`,
+  `psycopg2-binary` and `pymongo`'s secondary modules are permanently unmatched
+  in V1. The decision is cheap, not free.
+- §20 now records that the S071 §12 round-robin spends retrieval slots and
+  corpus bytes on `.java`, `.php`, `.kt`, `.scala`, `.groovy` and `.rb`
+  artefacts that V1 cannot use, lowering yield in polyglot repositories, and
+  that narrowing collection is deliberately not done, because S071 §6, §9, §9.1
+  and §12 together make collection ecosystem-blind by design.
+- `worklog/INDEX.md`'s session row title was stale and now matches the outcome.
+
+## Still unresolved after this session
+
+- `ProducedWorkEvidence`: no contract yet establishes what observable evidence
+  could satisfy it. Import-declaration evidence does not.
+- `RepositoryProblemAreaEvidence`: still blocked by the Session 067 contract.
+- Long-term persisted evidence payload and self-contained replay.
+- The first numeric `SourceReferenceRuleVersion` value, which belongs to the
+  implementing session.
+- Whether Go `// indirect` and Maven `dependencyManagement` require upstream
+  correction, exactly as S068 §15 left it. V1 neutralizes them for this level by
+  §10 rather than correcting them upstream.
+- Ruby's admission to a future version.
+
 ## Changes
 
-Docs and worklog only. No `src/`, no `tests/`, no registry artefact, no report,
-no UI.
+Docs and worklog only.
+
+- created `docs/architecture/repository-dependency-source-reference-detection.md`
+- `docs/architecture/repository-dependency-source-reference-evidence.md` §5
+  prerequisite sync, plus §4 and §15 pointer sync to the new contract
+- `worklog/CURRENT.md` compaction and stale-state synchronization
+- `worklog/INDEX.md` session row
+- this session file
+
+No `src/`, no `tests/`, no registry artefact, no report, no UI. No detector was
+implemented.
 
 ## Validation
 
-No build or test run is required: no production or test code was touched.
+No build or test run applies: no production or test code was touched.
+
+Measurement hygiene verified: `git status --short` shows no measurement
+artefact, no dataset, no script and no raw source inside the repository;
+`samples/validation/repositories.json` is unmodified; no secret, token or
+credential was recorded.
 
 ## Not Done
 
-- No canonical reference-detection contract was created. The verdict is
-  `NEEDS_MORE_MEASUREMENT`.
-- No detector, no `DependencySourceReferenceEvidence` type, no identity registry
-  artefact.
-- No measurement was performed; measurement was outside this session's allowed
-  scope.
+- No detector implementation, no `DependencySourceReferenceEvidence` type, no
+  Domain policy, no tests.
+- No identity registry artefact — V1 requires none.
+- Java, Php and Ruby detection.
+- `ProducedWorkEvidence`, `RepositoryProblemAreaEvidence`, ProblemArea, P7.
 
 ## Next
 
-Exact next action: run the M1 to M4 measurement round as a temporary, read-only,
-pinned-commit measurement, following the Session 071 Step 2 method — GitHub REST
-at pinned commits only, no clone, no build, no execution, no code search, no
-LLM, no raw source printed or written into the repository, and no measurement
-artefact left behind. Then re-run this decision report and lock the contract
-only if M5 becomes single-valued.
+Exact next action: implement the locked contract as a Domain policy plus its
+tests, in a separate session. That session owns the first numeric
+`SourceReferenceRuleVersion` value, the concrete per-language lexical scanner
+including the raw-string, template-literal, regex-literal and triple-quoted
+forms that §6 makes mandatory, and the desynchronization rule of §6.1.
 
 ## Git
 
-Nothing committed or pushed.
+Session base d480a46; checkpoint commit 77d05f8 pushed and remote verified.
+The measurement round's changes are uncommitted.

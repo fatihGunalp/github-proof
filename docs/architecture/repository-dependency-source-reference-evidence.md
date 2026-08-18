@@ -78,23 +78,19 @@ Epistemic strength may never exceed the observation that supports it.
 
 This contract does not define the detector.
 
-The exact definition of a qualifying source-level reference is owned by a
-future versioned reference-detection rule contract.
+The exact definition of a qualifying source-level reference is owned by
+`docs/architecture/repository-dependency-source-reference-detection.md`,
+CONTRACT LOCKED version 1, and by its dedicated `SourceReferenceRuleVersion`.
 
-Unresolved detection concerns include, without being limited to:
+That contract decides the detection concerns this one deliberately left open —
+imports, type references, API references, symbol references, comments, string
+literals, generated code, test and example code, build-excluded code, and
+dynamic or reflection-based usage — and it resolves them by admitting only
+import-declaration forms outside comments and string literals.
 
-- imports,
-- type references,
-- API references,
-- symbol references,
-- comments,
-- string literals,
-- generated code,
-- test and example code,
-- build-excluded code,
-- dynamic or reflection-based usage.
-
-None of them is decided here.
+Nothing in this section is decided here. This contract remains the owner of the
+epistemic ceiling; the detection contract may narrow that ceiling and may never
+widen it.
 
 A loose textual occurrence must never silently become canonical source-reference
 evidence.
@@ -118,10 +114,10 @@ Inputs that therefore exist in the current snapshot surface:
 - file size when the provider supplies it,
 - the pinned `HeadCommitSha`.
 
-The remaining prerequisite is no longer collection. No
-`DependencySourceReferenceEvidence` can be produced until the versioned
-reference-detection rule contract of §4 exists, because nothing yet defines what
-a qualifying source-level reference is.
+The remaining prerequisite is no longer collection. The versioned
+reference-detection rule contract of §4 now exists, so both prerequisites of
+this level are satisfied and `DependencySourceReferenceEvidence` is producible
+once that contract is implemented.
 
 ## 6. Raw versus Derived
 
@@ -250,9 +246,9 @@ never appear in this chain as supporting evidence.
   merely because source contents would be collected by the analyzer. Collection
   can change without detection changing, and detection can change without
   collection changing.
-- A separate semantic version owner will be required for the future detection
-  rule once detection semantics become executable and versioned. Its permanent
-  name is deliberately not chosen here.
+- The separate semantic version owner for detection is
+  `SourceReferenceRuleVersion`, defined and owned by
+  `docs/architecture/repository-dependency-source-reference-detection.md` §17.
 - `DependencyCategoryMappingVersion` remains unrelated to reference detection.
 - `RuleSetVersion` remains scoring-only.
 - `PatternRuleVersion` remains downstream profile-pattern ownership.
@@ -314,11 +310,18 @@ This evidence level must never produce or support:
 
 The following remain undecided and require separate approval:
 
-- the minimum persisted evidence payload and whether self-contained replay is
+- the long-term persisted evidence payload and whether self-contained replay is
   required;
-- the qualifying-reference definition and per-ecosystem detection design;
-- the permanent name of the detection version owner;
-- the future `AnalyzerVersion` bump value;
 - whether Go `// indirect` and Maven `dependencyManagement` must be corrected
   before `RepositoryProblemAreaEvidence`;
 - the resolution of `ProducedWorkEvidence` itself.
+
+Resolved since this contract was written, and no longer open here:
+
+- the qualifying-reference definition and per-ecosystem detection design, and
+  the runtime observation payload, are owned by
+  `docs/architecture/repository-dependency-source-reference-detection.md`;
+- the detection version owner is `SourceReferenceRuleVersion`;
+- the `AnalyzerVersion` question is closed for detection, which requires no
+  `AnalyzerVersion` change because it alters no collected or normalized snapshot
+  value.
