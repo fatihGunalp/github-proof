@@ -51,8 +51,7 @@ Session File:
 worklog/sessions/2026-08-18-072-dependency-source-reference-detection-contract.md
 
 Status:
-M1-M4 MEASURED — verdict READY, canonical detection contract LOCKED, detector
-not implemented
+PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH, NOT INTEGRATED INTO MAIN
 
 ## Git
 
@@ -63,10 +62,14 @@ Session Base:
 d480a467ec90114beea58f80e5722aa4db745c5d
 
 Session Branch Head:
-77d05f81549f84904048e3a317bb2b5af83a0672 — checkpoint, remote verified
+942090a0142820557f93a1808ec2694747d6eb80 — remote verified
+
+Session Branch Commits:
+77d05f8 feasibility audit, 942090a detection contract lock
 
 Last Remote Verified Main:
-d480a467ec90114beea58f80e5722aa4db745c5d — includes Session 071
+d480a467ec90114beea58f80e5722aa4db745c5d — includes Session 071, unchanged;
+Session 072 is not merged
 
 Note:
 session/071-bounded-source-evidence-collection still exists locally and on
@@ -202,12 +205,23 @@ M5 derived: Go + JavaScript/TypeScript + Rust + Python + DotNet.
 R1-R14 re-evaluated: R3 and R9 revised, R6 and R7 strengthened, the rest valid.
 R15 (positive-only evidence) and R16 (desynchronization) added.
 
-Exact next action:
+Next development step, after the main transition is decided:
 implement the locked detection contract as a Domain policy plus tests, in a
 separate session. That session owns the first numeric SourceReferenceRuleVersion
 value, the per-language lexical scanner including raw strings, template
 literals, regex literals and triple-quoted forms, and the §6.1
 desynchronization rule.
 
-Session 072 checkpoint commit 77d05f8 is pushed and remote verified. The
-measurement round's changes are uncommitted.
+Session 072 is complete: verdict READY, canonical contract locked, no detector
+implemented. The independent contract review returned PASS WITH FINDINGS with no
+BLOCKER; every finding was corrected inside the contract and the final narrow
+re-review returned PASS. Both commits are pushed and GitHub
+confirmed 942090a on the session branch.
+
+origin/main remains d480a46, so Session 072 is not integrated. d480a46 is an
+ancestor of 942090a, so the integration is a fast-forward.
+
+Exact next action:
+decide the Session 072 main transition. Fast-forwarding main to 942090a, pushing
+main and deleting the session branch are separate explicit user-owned Git side
+effects.

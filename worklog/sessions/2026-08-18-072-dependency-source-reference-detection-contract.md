@@ -1,7 +1,7 @@
 # Session 072 — Dependency Source Reference Detection Contract
 
 Date: 2026-08-18
-Result: IN_PROGRESS — M1-M4 measured, verdict READY, canonical contract locked
+Result: PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH, NOT INTEGRATED INTO MAIN
 Scope: architecture analysis + reference-detection feasibility audit + worklog/canonical state sync
 Model Route: Claude Opus / high
 Model Gate: APPROVED
@@ -1017,5 +1017,21 @@ forms that §6 makes mandatory, and the desynchronization rule of §6.1.
 
 ## Git
 
-Session base d480a46; checkpoint commit 77d05f8 pushed and remote verified.
-The measurement round's changes are uncommitted.
+Session base:
+d480a467ec90114beea58f80e5722aa4db745c5d
+
+Session branch commits:
+
+    77d05f8  docs: audit dependency source reference detection feasibility
+    942090a  docs: lock dependency source reference detection contract
+
+Session branch head 942090a is committed and pushed. GitHub confirmed the same
+SHA on `origin/session/072-dependency-source-reference-detection-contract`.
+
+`origin/main` remains d480a46. **Session 072 is NOT YET integrated into main**,
+the session branch is not deleted, and Last Remote Verified Main is therefore
+unchanged. d480a46 is an ancestor of 942090a, so integration would be a
+fast-forward.
+
+Merging into main, pushing main and deleting the branch are separate explicit
+user-owned Git side effects and were not performed.
