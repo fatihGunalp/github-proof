@@ -49,7 +49,7 @@ Session File:
 worklog/sessions/2026-08-18-071-bounded-source-evidence-collection.md
 
 Status:
-PASS / READY_FOR_COMMIT
+PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH, NOT INTEGRATED INTO MAIN
 
 ## Git
 
@@ -59,8 +59,11 @@ session/071-bounded-source-evidence-collection
 Session Base:
 2a1809d128de43b7c07709a8d3377afb37168ea9
 
+Session Branch Head:
+ce74d4be07c7f498659b8ec5c2a5e211ed5a9d8c — remote verified
+
 Last Remote Verified Main:
-2a1809d128de43b7c07709a8d3377afb37168ea9
+2a1809d128de43b7c07709a8d3377afb37168ea9 — unchanged, session not merged
 
 ## Goal
 
@@ -221,11 +224,15 @@ text was corrected, and the contract §17 unbounded-allocation gap was recorded 
 Known Risks and handed to a separate bounded task because it affects every
 existing collector equally and §17 leaves the implementation strategy open.
 
-Session 071 is PASS / READY_FOR_COMMIT. The mutation set is staged but not
-committed, not integrated into main and not remote verified.
+Session 071 is committed as ce74d4b on the session branch and pushed. GitHub
+confirmed the commit SHA, message, parent 2a1809d and the 16-file /
++3193 / -115 scope on origin.
+
+origin/main remains 2a1809d. The session is not integrated into main, the branch
+is not deleted, and Last Remote Verified Main is therefore unchanged.
 
 Exact next action:
-run the user-owned commit and push, then record remote verification and set the
-Active Session accordingly.
+decide the Session 071 main transition. Merging the branch into main, pushing
+main and deleting the branch are separate explicit user-owned Git side effects.
 
 Nothing committed or pushed.

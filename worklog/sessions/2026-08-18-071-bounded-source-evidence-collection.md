@@ -1,7 +1,7 @@
 # Session 071 — Bounded Source Evidence Collection
 
 Date: 2026-08-18
-Result: PASS / READY_FOR_COMMIT
+Result: PASS / PUSHED — REMOTE VERIFIED ON SESSION BRANCH
 Scope: architecture analysis + bounded collection measurement + canonical contract + implementation
 Model Route: Claude Opus / high
 Model Gate: APPROVED
@@ -736,13 +736,23 @@ UI changes, source persistence, commit and push.
 
 ## Next
 
-Run the user-owned commit and push for Session 071, then record remote
-verification.
+Decide the main transition for Session 071. Merging the session branch into main,
+pushing main and deleting the branch are separate explicit user-owned Git side
+effects and none of them has been performed.
 
 ## Git
 
-    Suggested commit:
-    feat: collect bounded raw repository source evidence
+    Commit:  ce74d4be07c7f498659b8ec5c2a5e211ed5a9d8c
+             feat: collect bounded raw repository source evidence
+             parent 2a1809d128de43b7c07709a8d3377afb37168ea9
+             16 files, +3193 / -115
 
-    Commit: PENDING — user-owned
-    Push:   PENDING — user-owned
+    Push:    origin/session/071-bounded-source-evidence-collection
+             = ce74d4be07c7f498659b8ec5c2a5e211ed5a9d8c
+
+    Remote verification:
+             GitHub API confirmed the commit SHA, message, parent and
+             16-file / +3193 / -115 scope on origin.
+
+    Main:    origin/main remains 2a1809d128de43b7c07709a8d3377afb37168ea9.
+             Not merged, branch not deleted.
