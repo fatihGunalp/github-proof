@@ -46,15 +46,26 @@ BLOCKED
 
 ## Active Session
 
-NONE
+Session:
+073 — Dependency Source Reference Detector Implementation
+
+Session File:
+worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md
+
+Status:
+IMPLEMENTED — detector, models and tests complete; independent review PASS after
+two HIGH corrections; nothing committed or pushed
 
 ## Git
 
 Active Branch:
-main
+session/073-dependency-source-reference-detector
+
+Session Base:
+275b6c5590f4e490dea552173af0f373295d14f2
 
 Last Remote Verified Main:
-beb7f927505baeee925dbbca5137e236eaa7ba39 — includes Session 072
+275b6c5590f4e490dea552173af0f373295d14f2 — includes Session 072
 
 Session 072 integration:
 77d05f8, 942090a and beb7f92 are all in main. The fast-forward is complete and
@@ -111,9 +122,17 @@ tie-breakers; no identity registry in V1; ambiguity yields no observation;
 positive-only evidence; Domain-owned policy; version owner
 SourceReferenceRuleVersion; no AnalyzerVersion change required.
 
-Detection is contract-locked but NOT implemented: no detector, no
-DependencySourceReferenceEvidence type and no SourceReferenceRuleVersion exists
-in src/.
+Detection is contract-locked and, as of Session 073, implemented in Domain:
+RepositorySourceReferenceEvidencePolicy composes RepositorySourceReferenceEvidence
+from RepositorySnapshot.DependencyDeclarations + RepositorySnapshot.SourceFiles.
+SourceReferenceRuleVersion first runtime value 1.0.0. The result is derived and
+non-scoring; it is not written into RepositorySnapshot and no orchestrator,
+report or UI consumes it yet.
+
+Contract amendment, Session 073: Go `// indirect` was removed from the §10
+classes the detector must identify, because the declaration surface preserves no
+indirect marker. New §10.1 treats such a requirement as an ordinary Go
+declaration. The document stays Contract Version 1.
 
 The Session 072 measurement evidence behind that contract, its READY verdict and
 its R1-R16 re-evaluation live in the session file, not here.
@@ -125,11 +144,10 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Last code-touching session — 071:
-967/967 PASS
+Session 073:
+1046/1046 PASS (Domain 622, Infrastructure 255, Application 101, Web 68)
 Build: 0 warning / 0 error
-
-Session 072 touched no src/ or tests/, so no build or test run applied.
+Baseline before Session 073 was 967; 79 tests are new.
 
 AnalyzerVersion:
 1.1.0
@@ -144,23 +162,35 @@ DependencyCategoryMappingVersion:
 1.0.0
 
 SourceReferenceRuleVersion:
-contract-defined, first numeric value owned by the implementing session
+1.0.0 — established by Session 073
 
 ## Next Action
 
-Session 072 is closed, integrated and remote verified. Its canonical owner is
-docs/architecture/repository-dependency-source-reference-detection.md.
+Session 073 implemented the locked detection contract as Domain policy, models
+and tests. Verdict after correction: independent review PASS.
+
+Step 0 corrected a real contract defect before any implementation: contract §10
+required the detector to identify Go `// indirect` requirements, but
+RepositoryDependencyDeclaration carries no such marker and the Go manifest parser
+strips the comment before a declaration is built. The class was also not
+structurally unreferenceable. §10 and the new §10.1 record the correction inside
+Contract Version 1.
+
+The first implementation review returned FAILED with two HIGH findings, both
+reproduced and both corrected: a commented-out entry inside a Go `import` block
+produced an observation, and an unterminated single-quoted Python literal
+silently violated §6.1. The lexical scan now distinguishes code, comment and
+string zones, and a Python single-quoted literal ends at the newline exactly as
+in the C-like scanner. Four regression tests were added and the narrow re-review
+returned PASS.
 
 Exact next action:
-start a separate session to implement the locked Dependency Source Reference
-Detection Contract as a Domain policy plus tests.
+decide the Session 073 Git transition. Committing the branch, pushing it and any
+main integration are separate explicit user-owned Git side effects.
 
-That session owns the first numeric SourceReferenceRuleVersion value, the
-per-language lexical scanner that §6 makes mandatory — including raw strings,
-template literals, regular-expression literals and triple-quoted forms — and the
-§6.1 desynchronization rule. It must not change AnalyzerVersion, RuleSetVersion,
-ReportSchemaVersion, DependencyCategoryMappingVersion or PatternRuleVersion, must
-not touch the 15 scoring signals or the report, and must not widen the contract's
-epistemic ceiling.
+Known remaining work, none of it started and none of it in this session's scope:
+no orchestrator, report or UI consumes RepositorySourceReferenceEvidence;
+ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence remains
+blocked by the Session 067 contract; P7 is NOT STARTED.
 
-Nothing committed or pushed for this post-integration worklog sync.
+Nothing committed or pushed.

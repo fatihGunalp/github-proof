@@ -6,6 +6,15 @@
 **Session:** 072
 **Date:** 2026-08-18
 
+**Amendments**
+
+- Session 073, 2026-08-18 — §10 corrected: Go `// indirect` removed from the
+  classes the detector must identify, with the reason recorded in §10.1. The
+  amendment stays inside Contract Version 1 because no detector and no numeric
+  `SourceReferenceRuleVersion` had ever existed, so no observation was ever
+  produced under the removed sentence and none can be altered or re-attributed
+  by removing it. No other clause was reopened.
+
 ## 1. Purpose
 
 This contract defines the qualifying source-level reference: what may be
@@ -297,7 +306,6 @@ These declaration classes can never carry a source reference. They produce no
 observation and no absence claim, and they must never be counted, compared or
 reported as unreferenced:
 
-    Go `// indirect` requirements                     (S066 §11.1)
     Maven aggregator, starter and BOM artifacts
     Maven dependencyManagement entries                (S066 §11.1)
     Composer `php` and `ext-*` platform requirements  (S066 §11.1)
@@ -315,14 +323,47 @@ package is distinguished by `PrivateAssets` and `IncludeAssets` metadata, which
 carries nothing that separates it from an ordinary package.
 
 Every other listed class is identifiable from the declaration itself — an npm
-`@types/*` package by name, a Go `// indirect` requirement by its recorded
-indirect marker, an MSBuild placeholder by its `$(...)` form — and each remains
-a real detector obligation.
+`@types/*` package by name, an MSBuild placeholder by its `$(...)` form — and
+each remains a real detector obligation.
 
 The detector must not attempt to recover an unidentifiable class by heuristic.
 An unidentifiable member of these classes simply acquires no observation,
 because it supplies no namespace or module that source can import, and §11
 guarantees that its absence is never recorded, counted or compared.
+
+### 10.1 Go `// indirect` Is Not a Detector Concern
+
+Version 1 of this contract listed Go `// indirect` requirements as a
+structurally unreferenceable class that the detector must identify. That was
+wrong on two counts and is corrected here.
+
+**The marker does not exist in the evidence surface.**
+`RepositoryDependencyDeclaration` carries exactly ecosystem, manifest path,
+package identity and declared version literal.
+`repository-dependency-evidence.md` §11.1 records that dependency scope is not
+recorded, and the Go manifest parser strips line comments before building a
+declaration, so `// indirect` never reaches the declaration. No detector can
+identify the class, and no implementation may invent a marker, a heuristic or a
+declaration field in order to satisfy the removed sentence.
+
+**The class was not structurally unreferenceable anyway.** An indirect Go
+requirement is an ordinary module path. Source can legitimately import it.
+
+Therefore, in V1:
+
+- an indirect Go requirement is indistinguishable from an ordinary Go
+  declaration and is treated as one;
+- if a qualifying Go import deterministically matches it under §8, the detector
+  produces the ordinary §3 syntactic observation, and nothing more;
+- if no qualifying import matches it, that is a non-observation under §11 and
+  §12 and carries no meaning whatsoever;
+- the detector never infers, records or reports whether a module was intended
+  to be direct or indirect.
+
+Whether the upstream declaration surface should preserve the marker at all
+remains open, exactly as
+`repository-dependency-source-reference-evidence.md` §15 left it. It is not
+resolved here and is not a prerequisite for V1.
 
 ## 11. Positive-Only Evidence
 
