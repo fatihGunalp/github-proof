@@ -1,10 +1,11 @@
 # Representative Repository Decision + Contract
 
 **Date:** 2026-08-18
-**Result:** PASS — corrected across two rounds of post-push independent review
-(see "Post-Push Independent Review — Round 1" and "— Round 2" below). Session
-contract work is complete; Git branch/main integration is user-owned and must
-be read from actual Git state, not this field.
+**Result:** PASS — corrected across three rounds of post-push independent
+review (see "Post-Push Independent Review — Round 1", "— Round 2" and
+"— Round 3" below). Session contract work is complete; Git branch/main
+integration is user-owned and must be read from actual Git state, not this
+field.
 **Scope:** docs
 **Model Route:** sonnet / high
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -310,10 +311,10 @@ BLOCKER/HIGH/MEDIUM finding.
 The Round 1 correction was committed and pushed by the user as `efed302`. A
 second post-push independent review of that pushed state found one remaining
 contract gap in `docs/architecture/public-profile-representative-repositories.md`.
-Corrected in this same session, on the same branch, without a new session and
-without committing/pushing the correction — it currently sits as an
-uncommitted working-tree change on top of `efed302` (user-owned per Git
-ownership rules).
+Corrected in this same session, on the same branch, without a new session.
+The correction was itself subsequently committed and pushed by the user as
+`3896c99` ("docs: remove undefined pattern-set reference and tighten identity
+semantics") — a verified Git fact, not a prediction.
 
 ~~~text
 FINDING — UNDEFINED SourcePatternSet STABLE REFERENCE
@@ -385,10 +386,114 @@ to §9-§12; §2-§8 and §14-§16 untouched. No BLOCKER/HIGH/MEDIUM finding.
 
 ---
 
+## Post-Push Independent Review — Round 3
+
+The Round 2 correction was committed and pushed by the user as `3896c99`. A
+third post-push independent review of that pushed state found two remaining
+contract gaps in `docs/architecture/public-profile-representative-repositories.md`.
+Corrected in this same session, on the same branch, without a new session and
+without committing/pushing the correction — it currently sits as an
+uncommitted working-tree change on top of `3896c99` (user-owned per Git
+ownership rules).
+
+~~~text
+FINDING 1 — EMPTY ProfilePatternSet MUST BE VALID
+
+Finding:
+`docs/architecture/public-profile-evidence-patterns.md` §6 locks that an
+empty pattern collection is not a claim and not negative developer evidence;
+`ProfilePatternSet.Patterns` may legitimately be `Count == 0`. §11 of this
+contract nonetheless defined `RepresentativeRepositorySelection.
+RepresentativeRepositories` as "one or more" — a cardinality that made a
+zero-pattern `ProfilePatternSet` structurally impossible to represent
+correctly, contradicting a locked P6 invariant.
+
+Correction:
+New §3.3 (Empty ProfilePatternSet) states the required mapping explicitly:
+zero RepeatedProfilePattern values → zero RepresentativeRepository values,
+not a failure, not negative evidence, never a reason to fabricate a
+repository. §7 gained a clarifying sentence: the one-selection-per-pattern
+rule applies to every pattern in the source set, and produces nothing when
+that set is empty. §11's `RepresentativeRepositorySelection.
+RepresentativeRepositories` cardinality was corrected from "one or more" to
+"zero or more," while the other five recorded fields (PatternRuleVersion,
+ObservationRuleVersion, EligibilityPolicyVersion, IsEvidenceSurfaceComplete,
+RuleVersion) are still always recorded, even when the repository list is
+empty. `RepresentativeRepository.PatternSupports` itself remains "one or
+more" unchanged — a `RepresentativeRepository` object still must not exist
+without at least one represented pattern; only the outer collection may be
+empty.
+
+FINDING 2 — EXACT RepeatedProfilePattern TRACEABILITY
+
+Finding:
+§10.1 correctly established that `(Family, PatternKey)` is semantic pattern
+identity, not analysis-execution identity — but `RepresentativePatternSupport`
+then carried only `PatternFamily`/`PatternKey`/observation identities/evidence
+references, with no structural way to resolve back to the exact
+`RepeatedProfilePattern` instance actually consumed. The contract claimed
+exact-pattern traceability (§10, matching domain-model.md §11's required
+direction) without a structurally implementable mechanism to deliver it,
+short of a `(Family, PatternKey)` lookup after the fact — exactly what §10.1
+had just ruled out as insufficient for execution-level exactness.
+
+Correction:
+`RepresentativePatternSupport` gained a `Pattern` field: an in-memory
+canonical reference to the exact `RepeatedProfilePattern` instance it was
+produced from — the same instance already present in the one
+`ProfilePatternSet` supplied to that selection execution. This is
+composition over existing canonical pattern truth (a reference established
+once, directly, when the support is constructed), not a copy, not a
+re-derivation and not a new persistence identity — it does not reopen the
+`ProfilePatternSetReference` question closed in Round 2. §10.1 was extended
+to describe this as the actual traceability mechanism; `PatternFamily` and
+`PatternKey` remain convenience projections of `Pattern.Family`/
+`Pattern.PatternKey`, explicitly not themselves the traceability mechanism
+and never to be used for cross-execution matching.
+
+KEPT LOCKED, UNCHANGED:
+ProfilePatternSet as the coherent input; one representative selection per
+existing RepeatedProfilePattern; candidates = IndependentSupportingRepositories;
+PatternSupportObservationCount; Owner→Name tie-break; no global K; no
+set-cover; no cross-pattern breadth advantage; fork/template restrictions;
+archived not automatically excluded; completeness preservation; version
+ownership; no persisted ProfilePatternSet identity in V1; no
+rank/score/quality/strength/confidence/capability/seniority/employability;
+RoleEvidenceAlignment out of scope.
+
+Re-review (github-proof-review, forked context, focused on the eight
+falsification cases from the correction instructions plus worklog-fact
+accuracy):
+PASS WITH FINDINGS. Falsification cases 1-4 and 6-8 confirmed directly
+against the corrected contract text, `ProfilePatternSet.cs`,
+`RepeatedProfilePattern.cs` and `patterns.md` §6. Case 5 (structural
+traceability without weakening §10.2 Evidence Scope) surfaced one MEDIUM
+finding: the new `Pattern` field necessarily points at the full
+`RepeatedProfilePattern` instance — including `SupportingObservations` for
+every supporting repository, not only the selected one, per
+`RepeatedProfilePattern.cs`'s own `NormalizeSupportingRepositories` — and the
+contract did not say `Pattern` may only be used for identity/traceability
+verification rather than as a second, wider evidence-enumeration path around
+§10.2's scoping. Not a BLOCKER/HIGH — no production code exists yet, and the
+already-scoped `ObservationKey`/`ProfileEvidenceReference` fields remained the
+primary evidence path — but a real contract-consistency gap that could
+mislead a Session 075 implementation. Corrected in this session: §10.2 gained
+a paragraph distinguishing evidence enumeration (must stay scoped to the
+selected repository) from the traceability reference itself (necessarily
+points at the full pattern instance), and the `Pattern` field's own
+definition in §11 now states explicitly that it is for
+identity/traceability verification only, never an evidence-enumeration path.
+Worklog Round 1/Round 2 history was not rewritten; no Round 3 commit SHA was
+fabricated.
+~~~
+
+---
+
 ## Problems
 
-None beyond the findings recorded above across Round 1 (two BLOCKERs) and
-Round 2 (one remaining gap), all corrected within this session.
+None beyond the findings recorded above across Round 1 (two BLOCKERs), Round 2
+(one remaining gap) and Round 3 (two remaining gaps), all corrected within
+this session.
 
 ---
 
@@ -420,16 +525,21 @@ Round 2 (one remaining gap), all corrected within this session.
 Git history so far (verified via `git log`, not asserted from memory):
 a034aaa — docs: lock representative repository selection contract
 efed302 — docs: correct representative repository completeness and version
-          semantics (Round 1 correction; committed and pushed by the user)
+          semantics (Round 1 correction)
+3896c99 — docs: remove undefined pattern-set reference and tighten identity
+          semantics (Round 2 correction)
+All three committed and pushed by the user.
 
-Modified since efed302 (this Round 2 correction, currently uncommitted in the
+Modified since 3896c99 (this Round 3 correction, currently uncommitted in the
 working tree):
 - docs/architecture/public-profile-representative-repositories.md
-  (SourcePatternSet reference removed; §9.1/§10.1/§11/§12.1 tightened)
+  (new §3.3 empty-set boundary; §7 clarified; §11 RepresentativeRepositories
+  cardinality corrected to zero-or-more; RepresentativePatternSupport gained
+  a Pattern reference field; §10.1 traceability wording updated to match)
 - worklog/CURRENT.md (Locked Foundation entry and Next Action updated to
-  match; durable "nothing committed or pushed" phrasing removed)
+  match)
 - worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
-  (this Round 2 correction recorded)
+  (this Round 3 correction recorded)
 
 Pre-existing unrelated:
 - None
@@ -447,7 +557,7 @@ Session 075 may begin production implementation of
 `RepresentativeRepositorySelection`/`RepresentativeRepository`/
 `RepresentativePatternSupport` per the locked and corrected contract, or
 continue toward Role Evidence Alignment decision work — neither is started by
-this session. Session contract work itself is complete; the Round 2
+this session. Session contract work itself is complete; the Round 3
 correction is a working-tree change the user has not yet committed — that
 transition, like all Git transitions in this project, is user-owned.
 
@@ -460,9 +570,11 @@ Commits so far (user-owned, already happened):
 a034aaa — docs: lock representative repository selection contract
 efed302 — docs: correct representative repository completeness and version
           semantics
+3896c99 — docs: remove undefined pattern-set reference and tighten identity
+          semantics
 
-Suggested Round 2 correction commit:
-docs: remove undefined ProfilePatternSet reference, tighten pattern identity wording
+Suggested Round 3 correction commit:
+docs: fix empty-set cardinality and add exact pattern traceability reference
 
 Commit:
 PENDING — user-owned

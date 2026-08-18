@@ -40,7 +40,7 @@ Next Profile Phase:
 P7 — Representative Repository and Role Evidence Alignment — STARTED
 
 Session 074 locked the Representative Repository selection contract
-(documentation only), corrected across two rounds of post-push independent
+(documentation only), corrected across three rounds of post-push independent
 review. RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport production code has NOT started.
 RoleEvidenceAlignment semantics have NOT started and remain a separate later
@@ -67,12 +67,14 @@ worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
 DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1), including two rounds of post-push independent
+locked (Contract Version 1), including three rounds of post-push independent
 review corrections (round 1: completeness and version/traceability semantics;
 round 2: an undefined ProfilePatternSet stable-reference gap and pattern
-identity wording), both rounds corrected within Session 074 scope. Session
-contract work is complete; Git branch/main integration is user-owned and
-tracked from actual Git state, not asserted here.
+identity wording; round 3: empty-ProfilePatternSet cardinality and exact
+RepeatedProfilePattern traceability), all three rounds corrected within
+Session 074 scope. Session contract work is complete; Git branch/main
+integration is user-owned and tracked from actual Git state, not asserted
+here.
 
 ## Git
 
@@ -189,6 +191,18 @@ different executions or persisted sets. No rank, score, quality, strength,
 confidence, seniority or employability semantics. RoleEvidenceAlignment
 explicitly out of scope.
 
+RepresentativeRepositorySelection.RepresentativeRepositories is zero or more,
+not one or more: an empty source ProfilePatternSet (already valid per the
+locked patterns.md §6 absence boundary) produces a valid selection with an
+empty repository list — not failure, not negative evidence, never a reason to
+fabricate a repository. The other version/completeness fields on the result
+are still recorded even when the list is empty. RepresentativePatternSupport
+now holds an in-memory canonical reference to the exact RepeatedProfilePattern
+instance it was produced from (the same instance already present in the
+consumed ProfilePatternSet) — composition over existing pattern truth, not a
+copy and not a new persistence identity — so PatternFamily/PatternKey remain
+convenience projections rather than the traceability mechanism itself.
+
 Contract Version 1 is locked; no runtime RepresentativeRepositoryRuleVersion
 value exists yet and no production code implements this contract.
 
@@ -228,13 +242,16 @@ because no production code implements the contract yet
 ## Next Action
 
 Session 074 locked the Representative Repository selection contract
-(documentation only, no production code) and went through two rounds of
+(documentation only, no production code) and went through three rounds of
 post-push independent review correction: round 1 fixed completeness and
 version/traceability semantics that did not match the actual P5/P6 runtime
 models; round 2 removed an undefined ProfilePatternSet stable-reference gap
-and tightened pattern-identity wording so Session 075 does not have to invent
-an identity contract that does not exist upstream. See the session file for
-the full finding-by-finding record.
+and tightened pattern-identity wording; round 3 fixed the
+RepresentativeRepositories cardinality (must allow zero, not require one or
+more, to match the locked empty-pattern-collection boundary) and gave
+RepresentativePatternSupport a structural in-memory reference to its exact
+RepeatedProfilePattern instead of relying on a later lookup. See the session
+file for the full finding-by-finding record.
 
 Session contract work is complete. Git branch state, commit history and any
 main integration are user-owned and must be read from actual Git state

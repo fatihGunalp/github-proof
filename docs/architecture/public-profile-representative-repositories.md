@@ -74,6 +74,33 @@ This contract never introduces a global top-N, top-3 or top-K representative
 list. Each pattern's selection is independent of how many patterns exist or
 how many repositories participate across the profile.
 
+### 3.3 Empty ProfilePatternSet
+
+`docs/architecture/public-profile-evidence-patterns.md` §6 already locks that
+an empty pattern collection is not a claim: it means only that the contracted
+repetition condition was not met on the observed evidence surface, and it is
+not negative developer evidence. `ProfilePatternSet.Patterns` may legitimately
+be empty (`Count == 0`).
+
+This contract inherits that boundary without weakening it:
+
+    zero RepeatedProfilePattern values
+    →
+    zero RepresentativeRepository values
+
+A `ProfilePatternSet` with no patterns produces a valid
+`RepresentativeRepositorySelection` whose `RepresentativeRepositories`
+collection is empty. This is not a failure, not negative evidence, not
+insufficient capability, and never a reason to fabricate a representative
+repository. `PatternRuleVersion`, `ObservationRuleVersion`,
+`EligibilityPolicyVersion`, `IsEvidenceSurfaceComplete` and
+`RepresentativeRepositoryRuleVersion` are still recorded on the result exactly
+as for a non-empty selection (§11) — only the repository list is empty.
+
+When the set is non-empty, §3's one-selection-per-pattern rule applies to
+every pattern the set contains: no pattern may be silently skipped, and no
+pattern may receive more than one selection.
+
 ## 4. Candidate Repositories
 
 For one `RepeatedProfilePattern`:
@@ -152,7 +179,9 @@ introduced without a new `RepresentativeRepositoryRuleVersion`.
 
 Selection produces exactly one primary `RepresentativeRepository` candidate
 per pattern: the candidate with the highest `PatternSupportObservationCount`,
-tie-broken per §6.
+tie-broken per §6. This applies to every pattern in the source
+`ProfilePatternSet`; when that set is empty, there is nothing to apply it to
+and no selection is produced (§3.3).
 
 ## 8. Cross-Pattern Independence
 
@@ -289,13 +318,22 @@ selection executions — even under identical rule versions — may each hold
 their own `ProfilePatternSet` instance containing a pattern with the same
 `(Family, PatternKey)` but different supporting evidence (for example, a
 later GitHub state). This contract does not introduce an execution or
-persistence identity to disambiguate those instances (§9.1); it only requires
-that a `RepresentativePatternSupport` resolves to its exact
-`RepeatedProfilePattern` by `(Family, PatternKey)` lookup within the single
-`ProfilePatternSet` instance actually consumed during that one selection
-execution (§11), never by re-deriving or recomputing pattern content, and
-never by matching `(Family, PatternKey)` across two different executions or
-sets.
+persistence identity to disambiguate those instances (§9.1).
+
+Instead, exact traceability is structural, not a later lookup: a
+`RepresentativePatternSupport` holds an in-memory canonical reference to the
+exact `RepeatedProfilePattern` instance it was produced from — the same
+instance already present in the one `ProfilePatternSet` supplied to that
+selection execution (§11). This is composition over existing canonical
+pattern truth, not a new identity: it is not a
+`ProfilePatternSetReference`-style persistence identity (§9.1), not a
+duplicate or recomputed copy of the pattern, and not resolved by matching
+`(Family, PatternKey)` after the fact — the reference is established once,
+directly, when the support is constructed. `PatternFamily` and `PatternKey`
+remain useful convenience projections of that referenced pattern's own
+`Family`/`PatternKey`, but they are not themselves the traceability
+mechanism, and must never be used to match a pattern across two different
+executions or sets.
 
 ### 10.2 Evidence Scope
 
@@ -307,6 +345,19 @@ A representative result must carry only evidence belonging to:
 It must not attach unrelated evidence from the same repository, including
 evidence supporting a different pattern the same repository also represents.
 Each `RepresentativePatternSupport` is scoped to exactly one pattern.
+
+This scoping constrains *evidence enumeration*, not the traceability
+reference itself. `RepresentativePatternSupport.Pattern` (§11) necessarily
+points at the full `RepeatedProfilePattern` instance — including its
+`SupportingObservations` for every supporting repository, not only the
+selected one — because that is the only structural way to guarantee exact
+traceability (§10.1). A consumer must use `Pattern` only to verify or
+navigate pattern identity, never to enumerate or present evidence for a
+repository other than the one this `RepresentativePatternSupport` was
+produced for. The scoped `ObservationKey`/`ProfileEvidenceReference` fields on
+`RepresentativePatternSupport` remain the sole source for evidence belonging
+to the selected repository; `Pattern` is not a second, wider evidence path
+around that scoping.
 
 ## 11. Contract Shape
 
@@ -332,9 +383,12 @@ semantic context directly, as plain values copied at selection time:
   value is computed.
 - `RuleVersion` — the `RepresentativeRepositoryRuleVersion` that produced this
   selection.
-- `RepresentativeRepositories` — one or more `RepresentativeRepository`,
-  produced from `RepeatedProfilePattern` instances found by `(Family,
-  PatternKey)` lookup within that one `ProfilePatternSet` instance (§10.1).
+- `RepresentativeRepositories` — **zero or more** `RepresentativeRepository`,
+  one produced per `RepeatedProfilePattern` instance actually present in that
+  one `ProfilePatternSet` instance (§10.1, §3.3). Zero when the source
+  `ProfilePatternSet` contains zero patterns; this is a valid result, not a
+  failure (§3.3). The other five fields above are always recorded, even when
+  this collection is empty.
 
 ### RepresentativeRepository
 
@@ -351,9 +405,19 @@ completeness field of its own — those live once, at the
 
 ### RepresentativePatternSupport
 
-- `PatternFamily` — the represented pattern's family.
-- `PatternKey` — the represented pattern's key, resolved against the source
-  `ProfilePatternSet` per §10.1 — never a free-standing identity.
+- `Pattern` — an in-memory canonical reference to the exact
+  `RepeatedProfilePattern` instance this support was produced from: the same
+  instance already present in the one `ProfilePatternSet` supplied to this
+  selection execution (§10.1). This is composition over existing pattern
+  truth, not a copy, not a re-derivation and not a new persistence identity
+  (§9.1). It exists for identity/traceability verification only — it is not
+  an evidence-enumeration path and must not be used to read or present
+  evidence for any repository other than the one this
+  `RepresentativePatternSupport` was produced for (§10.2).
+- `PatternFamily`, `PatternKey` — convenience projections of `Pattern.Family`
+  and `Pattern.PatternKey` (§10.1). They are not themselves the traceability
+  mechanism and must never be used to match a pattern across two different
+  executions or sets.
 - supporting observation identities — the `ObservationKey` values counted in
   §5 for this repository and this pattern.
 - supporting `ProfileEvidenceReference` values — scoped exactly to this
