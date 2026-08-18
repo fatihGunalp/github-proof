@@ -40,7 +40,7 @@ Next Profile Phase:
 P7 — Representative Repository and Role Evidence Alignment — STARTED
 
 Session 074 locked the Representative Repository selection contract
-(documentation only), corrected across three rounds of post-push independent
+(documentation only), corrected across four rounds of post-push independent
 review. RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport production code has NOT started.
 RoleEvidenceAlignment semantics have NOT started and remain a separate later
@@ -67,14 +67,15 @@ worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
 DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1), including three rounds of post-push independent
+locked (Contract Version 1), including four rounds of post-push independent
 review corrections (round 1: completeness and version/traceability semantics;
 round 2: an undefined ProfilePatternSet stable-reference gap and pattern
 identity wording; round 3: empty-ProfilePatternSet cardinality and exact
-RepeatedProfilePattern traceability), all three rounds corrected within
-Session 074 scope. Session contract work is complete; Git branch/main
-integration is user-owned and tracked from actual Git state, not asserted
-here.
+RepeatedProfilePattern traceability; round 4: a stale worklog Git fact and
+explicit separation of the canonical pattern trace from the
+representative-evidence trace), all four rounds corrected within Session 074
+scope. Session contract work is complete; Git branch/main integration is
+user-owned and tracked from actual Git state, not asserted here.
 
 ## Git
 
@@ -242,7 +243,7 @@ because no production code implements the contract yet
 ## Next Action
 
 Session 074 locked the Representative Repository selection contract
-(documentation only, no production code) and went through three rounds of
+(documentation only, no production code) and went through four rounds of
 post-push independent review correction: round 1 fixed completeness and
 version/traceability semantics that did not match the actual P5/P6 runtime
 models; round 2 removed an undefined ProfilePatternSet stable-reference gap
@@ -250,8 +251,11 @@ and tightened pattern-identity wording; round 3 fixed the
 RepresentativeRepositories cardinality (must allow zero, not require one or
 more, to match the locked empty-pattern-collection boundary) and gave
 RepresentativePatternSupport a structural in-memory reference to its exact
-RepeatedProfilePattern instead of relying on a later lookup. See the session
-file for the full finding-by-finding record.
+RepeatedProfilePattern instead of relying on a later lookup; round 4 named
+and separated two distinct traces — a Canonical Pattern Trace (identity only)
+and a Representative Support Evidence Trace (why the repository was
+selected) — so Session 075 cannot confuse the two. See the session file for
+the full finding-by-finding record.
 
 Session contract work is complete. Git branch state, commit history and any
 main integration are user-owned and must be read from actual Git state

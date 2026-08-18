@@ -1,11 +1,10 @@
 # Representative Repository Decision + Contract
 
 **Date:** 2026-08-18
-**Result:** PASS — corrected across three rounds of post-push independent
-review (see "Post-Push Independent Review — Round 1", "— Round 2" and
-"— Round 3" below). Session contract work is complete; Git branch/main
-integration is user-owned and must be read from actual Git state, not this
-field.
+**Result:** PASS — corrected across four rounds of post-push independent
+review (see "Post-Push Independent Review — Round 1" through "— Round 4"
+below). Session contract work is complete; Git branch/main integration is
+user-owned and must be read from actual Git state, not this field.
 **Scope:** docs
 **Model Route:** sonnet / high
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -391,10 +390,10 @@ to §9-§12; §2-§8 and §14-§16 untouched. No BLOCKER/HIGH/MEDIUM finding.
 The Round 2 correction was committed and pushed by the user as `3896c99`. A
 third post-push independent review of that pushed state found two remaining
 contract gaps in `docs/architecture/public-profile-representative-repositories.md`.
-Corrected in this same session, on the same branch, without a new session and
-without committing/pushing the correction — it currently sits as an
-uncommitted working-tree change on top of `3896c99` (user-owned per Git
-ownership rules).
+Corrected in this same session, on the same branch, without a new session.
+The correction was itself subsequently committed and pushed by the user as
+`615b41a` ("docs: fix representative empty-set and pattern traceability
+semantics") — a verified Git fact, not a prediction.
 
 ~~~text
 FINDING 1 — EMPTY ProfilePatternSet MUST BE VALID
@@ -489,10 +488,98 @@ fabricated.
 
 ---
 
+## Post-Push Independent Review — Round 4
+
+The Round 3 correction was committed and pushed by the user as `615b41a`
+("docs: fix representative empty-set and pattern traceability semantics") —
+a verified Git fact, not a prediction. A fourth post-push review of that
+pushed state found one stale worklog fact and one remaining contract
+ambiguity. Corrected in this same session, on the same branch, without a new
+session and without committing/pushing the correction — it currently sits as
+an uncommitted working-tree change on top of `615b41a` (user-owned per Git
+ownership rules).
+
+~~~text
+FINDING 1 — ROUND 3 WORKLOG GIT FACT WAS STALE
+
+Finding:
+This session file's own Round 3 section still read "without committing/
+pushing the correction" and "currently sits as an uncommitted working-tree
+change on top of `3896c99`" — both false the moment the user committed and
+pushed Round 3 as `615b41a`.
+
+Correction:
+The Round 3 intro paragraph now records the verified fact: committed and
+pushed by the user as `615b41a`. No predictive Git state ("current branch is
+clean/pushed") was added — only the already-verified historical commit.
+
+FINDING 2 — CANONICAL PATTERN TRACE VS REPRESENTATIVE SUPPORT EVIDENCE TRACE
+NOT EXPLICITLY SEPARATED
+
+Finding:
+§10's single traversal diagram (RepresentativePatternSupport → exact
+RepeatedProfilePattern → SupportingObservations → ProfileEvidenceReference →
+RepositoryAnalysisReference → repository-level evidence) read as one
+undifferentiated path, even though §10.2 already carved out a narrower
+evidence-scoping rule for the `ObservationKey`/`ProfileEvidenceReference`
+fields specifically. Two different questions — "which exact pattern is this"
+and "why was this repository selected" — shared one diagram, leaving Session
+075 to infer rather than be told which fields answer which question.
+
+Correction:
+§10 now names and diagrams two distinct traces explicitly:
+- **Canonical Pattern Trace** (`RepresentativePatternSupport` → `Pattern` →
+  exact canonical `RepeatedProfilePattern`) — identity/canonical pattern
+  context only, never a source of representative-specific evidence.
+- **Representative Support Evidence Trace**
+  (`RepresentativePatternSupport` → scoped `ObservationKey` values → scoped
+  `ProfileEvidenceReference` values → `RepositoryAnalysisReference[]` →
+  selected-repository evidence) — the only trace that may be used to explain
+  or present why the selected repository was chosen.
+
+§10.1's header now reads "(Canonical Pattern Trace)" and §10.2's reads
+"(Representative Support Evidence Trace)" so the mapping is unambiguous. §11's
+`RepresentativePatternSupport` field list is now split under two labelled
+groups — "Canonical Pattern Trace field" (`Pattern`, `PatternFamily`,
+`PatternKey`) and "Representative Support Evidence Trace fields"
+(`ObservationKey` values, `ProfileEvidenceReference` values) — with an
+explicit sentence that the evidence-trace pair is the sole source for
+selection-explaining evidence and `Pattern` must never substitute for it.
+
+No new persistence identity was introduced (`Pattern` remains the same
+in-memory reference from Round 3), no pattern truth was duplicated (the
+Canonical Pattern Trace still points at the one real `RepeatedProfilePattern`
+instance, not a copy), and no candidate/selection/ranking rule changed.
+
+KEPT LOCKED, UNCHANGED:
+zero patterns → zero representatives; non-empty set → every pattern exactly
+one representative selection; RepresentativeRepository.PatternSupports
+remains one-or-more; ProfilePatternSet as coherent input;
+IndependentSupportingRepositories candidates; PatternSupportObservationCount;
+Owner→Name tie-break; no global K/set-cover/cross-pattern breadth;
+completeness/version semantics; no persisted ProfilePatternSet identity;
+RoleEvidenceAlignment out of scope.
+
+Re-review (github-proof-review, forked context, focused on the six
+falsification cases from the correction instructions):
+PASS. Diff scope confirmed limited to §10/§10.1/§10.2/§11 (6 hunks, all
+within lines 278-460); §1-§9 and §12-§17 untouched. Canonical Pattern Trace
+and Representative Support Evidence Trace both confirmed unambiguous and
+correctly labelled at diagram, subsection-header and field-list level; the
+prohibition on reading `Pattern.SupportingObservations` for a non-selected
+repository as representative-specific evidence is stated in both §10 and
+§11. No new persistence identity, no selection/ranking semantic change.
+Round 1/2/3 Git facts (`efed302`, `3896c99`, `615b41a`) all confirmed against
+actual `git log`; no Round 4 SHA fabricated. No BLOCKER/HIGH/MEDIUM finding.
+~~~
+
+---
+
 ## Problems
 
 None beyond the findings recorded above across Round 1 (two BLOCKERs), Round 2
-(one remaining gap) and Round 3 (two remaining gaps), all corrected within
+(one remaining gap), Round 3 (two remaining gaps) and Round 4 (one stale fact,
+one contract ambiguity), all corrected within
 this session.
 
 ---
@@ -528,18 +615,19 @@ efed302 — docs: correct representative repository completeness and version
           semantics (Round 1 correction)
 3896c99 — docs: remove undefined pattern-set reference and tighten identity
           semantics (Round 2 correction)
-All three committed and pushed by the user.
+615b41a — docs: fix representative empty-set and pattern traceability
+          semantics (Round 3 correction)
+All four committed and pushed by the user.
 
-Modified since 3896c99 (this Round 3 correction, currently uncommitted in the
+Modified since 615b41a (this Round 4 correction, currently uncommitted in the
 working tree):
-- docs/architecture/public-profile-representative-repositories.md
-  (new §3.3 empty-set boundary; §7 clarified; §11 RepresentativeRepositories
-  cardinality corrected to zero-or-more; RepresentativePatternSupport gained
-  a Pattern reference field; §10.1 traceability wording updated to match)
-- worklog/CURRENT.md (Locked Foundation entry and Next Action updated to
-  match)
+- docs/architecture/public-profile-representative-repositories.md (§10
+  restructured into two explicitly named traces — Canonical Pattern Trace and
+  Representative Support Evidence Trace; §10.1/§10.2 headers and §11 field
+  list updated to match)
 - worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
-  (this Round 3 correction recorded)
+  (Round 3's stale "uncommitted" wording corrected to the verified `615b41a`
+  fact; this Round 4 correction recorded)
 
 Pre-existing unrelated:
 - None
@@ -557,7 +645,7 @@ Session 075 may begin production implementation of
 `RepresentativeRepositorySelection`/`RepresentativeRepository`/
 `RepresentativePatternSupport` per the locked and corrected contract, or
 continue toward Role Evidence Alignment decision work — neither is started by
-this session. Session contract work itself is complete; the Round 3
+this session. Session contract work itself is complete; the Round 4
 correction is a working-tree change the user has not yet committed — that
 transition, like all Git transitions in this project, is user-owned.
 
@@ -572,9 +660,11 @@ efed302 — docs: correct representative repository completeness and version
           semantics
 3896c99 — docs: remove undefined pattern-set reference and tighten identity
           semantics
+615b41a — docs: fix representative empty-set and pattern traceability
+          semantics
 
-Suggested Round 3 correction commit:
-docs: fix empty-set cardinality and add exact pattern traceability reference
+Suggested Round 4 correction commit:
+docs: separate canonical pattern trace from representative evidence trace, fix stale worklog fact
 
 Commit:
 PENDING — user-owned

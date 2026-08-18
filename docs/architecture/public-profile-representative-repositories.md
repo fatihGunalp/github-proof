@@ -278,7 +278,12 @@ representative-level number; each remains readable from its own
 
 ## 10. Traceability
 
-Every `RepresentativeRepositorySelection` result must support this traversal:
+`RepresentativePatternSupport` supports two distinct traces. They answer
+different questions, serve different purposes, and must never be conflated or
+substituted for one another.
+
+**Canonical Pattern Trace** — identity / canonical pattern context only,
+never a source of representative-specific evidence (§10.1):
 
     RepresentativeRepositorySelection
             ↓
@@ -286,17 +291,44 @@ Every `RepresentativeRepositorySelection` result must support this traversal:
             ↓
     RepresentativePatternSupport
             ↓
-    exact RepeatedProfilePattern within the source ProfilePatternSet
+    Pattern
             ↓
-    SupportingObservations (ObservedProfileEvidence[])
+    exact canonical RepeatedProfilePattern (within the source ProfilePatternSet)
+
+**Representative Support Evidence Trace** — answers exactly *"why was this
+repository selected for this pattern?"*, and is the only trace that may be
+used to explain or present that selection (§10.2):
+
+    RepresentativeRepositorySelection
             ↓
-    ProfileEvidenceReference[]
+    RepresentativeRepository
+            ↓
+    RepresentativePatternSupport
+            ↓
+    scoped supporting ObservationKey values
+            ↓
+    scoped ProfileEvidenceReference values
             ↓
     RepositoryAnalysisReference[]
             ↓
-    repository-level evidence
+    selected-repository evidence
 
-### 10.1 Exact Pattern Identity
+The Canonical Pattern Trace exists so a result can prove exactly which
+`RepeatedProfilePattern` instance backs a support. `Pattern` may legitimately
+expose the complete canonical pattern object — including evidence for
+repositories other than the selected one — because it is a reference to the
+one real existing instance (§9.1), not a filtered copy; that completeness is
+inherent to holding a genuine reference and is not itself a violation.
+
+The Representative Support Evidence Trace is deliberately narrower: only the
+repository- and pattern-scoped subset already computed for §5's comparison.
+Evidence reachable solely through the Canonical Pattern Trace — for example,
+`Pattern.SupportingObservations` entries for a repository other than the
+selected one — is canonical pattern context, not representative-specific
+support evidence, and must never be read, enumerated or presented as if it
+were Representative Support Evidence Trace output.
+
+### 10.1 Exact Pattern Identity (Canonical Pattern Trace)
 
 `RepeatedProfilePattern` truth is not duplicated by this contract.
 
@@ -335,9 +367,10 @@ remain useful convenience projections of that referenced pattern's own
 mechanism, and must never be used to match a pattern across two different
 executions or sets.
 
-### 10.2 Evidence Scope
+### 10.2 Evidence Scope (Representative Support Evidence Trace)
 
-A representative result must carry only evidence belonging to:
+The Representative Support Evidence Trace (§10) must carry only evidence
+belonging to:
 
 - the selected repository,
 - the exact pattern it represents.
@@ -346,18 +379,13 @@ It must not attach unrelated evidence from the same repository, including
 evidence supporting a different pattern the same repository also represents.
 Each `RepresentativePatternSupport` is scoped to exactly one pattern.
 
-This scoping constrains *evidence enumeration*, not the traceability
-reference itself. `RepresentativePatternSupport.Pattern` (§11) necessarily
-points at the full `RepeatedProfilePattern` instance — including its
-`SupportingObservations` for every supporting repository, not only the
-selected one — because that is the only structural way to guarantee exact
-traceability (§10.1). A consumer must use `Pattern` only to verify or
-navigate pattern identity, never to enumerate or present evidence for a
-repository other than the one this `RepresentativePatternSupport` was
-produced for. The scoped `ObservationKey`/`ProfileEvidenceReference` fields on
-`RepresentativePatternSupport` remain the sole source for evidence belonging
-to the selected repository; `Pattern` is not a second, wider evidence path
-around that scoping.
+This scoping constrains *evidence enumeration* — the scoped
+`ObservationKey`/`ProfileEvidenceReference` fields on
+`RepresentativePatternSupport` — not the separate Canonical Pattern Trace
+(§10, §10.1). `Pattern` is not a second, wider evidence path around this
+scoping: it exists for identity/traceability verification only, and a
+consumer must never use it to read or present evidence for any repository
+other than the one this `RepresentativePatternSupport` was produced for.
 
 ## 11. Contract Shape
 
@@ -405,10 +433,12 @@ completeness field of its own — those live once, at the
 
 ### RepresentativePatternSupport
 
+Canonical Pattern Trace field:
+
 - `Pattern` — an in-memory canonical reference to the exact
   `RepeatedProfilePattern` instance this support was produced from: the same
   instance already present in the one `ProfilePatternSet` supplied to this
-  selection execution (§10.1). This is composition over existing pattern
+  selection execution (§10, §10.1). This is composition over existing pattern
   truth, not a copy, not a re-derivation and not a new persistence identity
   (§9.1). It exists for identity/traceability verification only — it is not
   an evidence-enumeration path and must not be used to read or present
@@ -418,10 +448,15 @@ completeness field of its own — those live once, at the
   and `Pattern.PatternKey` (§10.1). They are not themselves the traceability
   mechanism and must never be used to match a pattern across two different
   executions or sets.
+
+Representative Support Evidence Trace fields:
+
 - supporting observation identities — the `ObservationKey` values counted in
-  §5 for this repository and this pattern.
+  §5 for this repository and this pattern (§10, §10.2).
 - supporting `ProfileEvidenceReference` values — scoped exactly to this
-  repository and this pattern, per §10.2.
+  repository and this pattern, per §10.2. This pair is the sole source for
+  evidence explaining why this repository was selected; `Pattern` above must
+  never substitute for it.
 
 ### 11.1 Prohibited Fields
 
