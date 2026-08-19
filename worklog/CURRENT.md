@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-19 (Session 086)
+**Last Updated:** 2026-08-20 (Session 087)
 **Source of Truth:** docs/
 
 ## Development
@@ -201,6 +201,64 @@ Session:
 NONE
 
 Last Completed Session:
+087 — P8-I4 Typed Profile Report and Projector (Application implementation,
+self-review, post-review bounded correction)
+
+Session File:
+worklog/sessions/2026-08-20-087-p8-i4-typed-profile-report-projector.md
+
+Status:
+P8-I4 COMPLETE. Implemented in Application, additively, under
+`src/GitHubProof.Application/Profile/Report/`: `ProfileReportSectionKey` (the
+nine canonical section identities, in canonical order),
+`ProfileReportSectionAvailability` (Supported | Unsupported | Deferred),
+`ProfileReportSection<TItem>` (SectionKey + Availability + Items),
+`ProfileReport` (the nine-section aggregate, each section's expected V1
+key/availability hard-locked in the constructor, plus `Warnings` carried
+separately — never a tenth section — and a type-erased `Sections` descriptor
+list for order/availability verification), and `ProfileReportProjector.Project(
+DeveloperPublicEvidenceProfile)` — a pure, deterministic, one-way mapping
+that reruns nothing (no eligibility/observation/pattern-promotion/
+representative-selection/composition) and introduces no sort of its own,
+preserving every collection's already-canonical upstream order.
+`RepresentativeRepositories`/`Limitations`/`RoleEvidenceAlignment` sections
+reuse the exact Domain objects by reference (no reselection, no re-derivation,
+and `RoleEvidenceAlignment`'s empty guarantee is compile-enforced via its
+private constructor); `TechnicalFocusAreas`/`EngineeringPracticePatterns`
+filter `profile.RepeatedProfilePatterns` by family and attach a representative
+reference via the same reference-equality "Canonical Pattern Trace" technique
+`ProfileComposer` uses; `ProblemAreaPatterns` never reads the `ProblemArea`
+family at all (proven by a test that plants one upstream and confirms it still
+projects `Unsupported + []`); `WhyThisConclusion` flattens each pattern's own
+already-owned supporting-evidence references; `RepositoryDrillDown` carries
+only `RepositoryAnalysisReference`, never embedded `RepositoryAnalysis`;
+`PublicProfileSummary` is structured facts (section + availability + item
+count) only, no prose, cross-checked by test against the sections they
+reference. No localization resources added — locale independence is
+structural (no presentation-text field exists yet in this slice), verified by
+projecting under two different cultures. Per the user's explicit instruction,
+no broad `/github-proof-review` was launched for the initial implementation —
+self-review only against the handoff's locked contract; no semantic gap
+encountered there.
+
+A subsequent bounded review raised 1 MEDIUM finding — `WhyThisConclusion`
+projected `profile.RepeatedProfilePatterns` unfiltered, so an upstream
+`ProblemArea`-family pattern could leak into it even though `ProblemAreaPatterns`
+itself correctly stayed `Unsupported + []` — plus one test-adequacy gap (the
+locale test proved only section order, not full semantic invariance).
+Corrected in the same slice: `WhyThisConclusion` now filters to
+`ProfilePatternFamily.TechnicalFocus`/`EngineeringPractice` only (regression
+test `WhyThisConclusion_ExcludesUnsupportedProblemAreaPatterns`, empirically
+confirmed to fail pre-fix and pass post-fix); a new
+`Project_UnderDifferentCultures_ProducesSemanticallyIdenticalReport` test now
+proves culture cannot alter section identity/availability, pattern items,
+representative repositories, limitations, warnings, drill-down references or
+conclusion evidence. No Domain change, no new semantic decision, no
+production behavior beyond the one filter added. Full solution build 0
+warning / 0 error; 1272/1272 tests (Application 151 = 123 baseline + 28 new;
+Domain 798, Infrastructure 255, Web 68 unchanged). No canonical docs changed.
+
+Previous completed session:
 086 — P8-I3 Deterministic Profile Composer (Application implementation,
 independent review + finalization)
 
@@ -447,10 +505,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/086-p8-i3-deterministic-profile-composer
+session/087-p8-i4-typed-profile-report-projector
 
 Session Base:
-db84146 (feat(profile): establish profile root foundation)
+09037be (feat(profile): compose deterministic public evidence profile)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -574,8 +632,8 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 086 (last code change):
-1244/1244 PASS across the full solution (Application 123 [101 baseline + 22
+Session 087 (last code change, including its post-review bounded correction):
+1272/1272 PASS across the full solution (Application 151 [123 baseline + 28
 new], Domain 798, Infrastructure 255, Web 68 — the latter three unchanged
 from baseline)
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
@@ -616,41 +674,51 @@ READY
 
 Session 083 recorded the five-slice implementation plan; Session 084
 completed the first slice; Session 085 completed the second; Session 086
-completed the third.
+completed the third; Session 087 completed the fourth.
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
 P8-I3 Deterministic Profile Composer:        COMPLETE
-P8-I4 Typed Profile Report and Projector:    NOT STARTED
+P8-I4 Typed Profile Report and Projector:    COMPLETE
+P8-I5 Integration and P8 Closure:            NOT STARTED
 ~~~
 
 Exact next action:
 
 ~~~text
-P8-I4 — Typed Profile Report and Projector
+P8-I5 — Integration and P8 Closure
 ~~~
 
-`ProfileComposer`/`ProfileCompositionInput` (Application) now assemble the
-canonical `DeveloperPublicEvidenceProfile` from the P3–P8-I2 results (Session
-086; see that session file for the full independent-review record, three
-rounds: 1 HIGH then 1 MEDIUM, both corrected and empirically re-verified,
-final PASS). P8-I4 projects that root into the typed `ProfileReport` per the
-locked report contract
-(docs/architecture/public-profile-evidence-report-contract.md): nine
-semantic sections in canonical order, `Supported`/`Unsupported`/`Deferred`
-availability independent of emptiness, deterministic item ordering
-preserving upstream canonical orders, and the summary compress-don't-inflate
-rule. Depends on P8-I3. P8-I4 is a separate meaningful session and must be
-routed through its own model/effort gate. Full slice plan:
-worklog/sessions/2026-08-19-083-p8-implementation-planning.md
+`ProfileReport`/`ProfileReportProjector` (Application,
+`src/GitHubProof.Application/Profile/Report/`) now project the canonical
+`DeveloperPublicEvidenceProfile` into the typed report contract (Session 087;
+see that session file for the exact shape). Per the report contract §5/§18
+and the Session 083 plan, P8-I5 wires the existing pieces —
+`ProfileRepositoryAnalysisOrchestrator` (P3) → `CrossRepositoryEvidenceComposer`
+(P5) → `ProfilePatternPromotionPolicy` (P6) →
+`RepresentativeRepositorySelectionPolicy` (P7) → `RepositoryEligibilityPolicy`
+(P8-I1) → `ProfileComposer` (P8-I3) → `ProfileReportProjector` (P8-I4) — into
+one running Application composition path, chooses and records the production
+runtime version values (`AnalyzerVersion`, `EligibilityPolicyVersion`,
+`ObservationRuleVersion`, `PatternRuleVersion`,
+`RepresentativeRepositoryRuleVersion` — all already have first canonical `V1`
+values from prior sessions), and validates end-to-end determinism over the
+whole profile flow. It also resolves the two independently-computed
+`RepositoryContributionAssessment` question `ProfileComposer`'s value-based
+(not reference-based) coherence checking currently works around (Session
+086) — P8-I5 may choose to share one computed instance between
+`CrossRepositoryEvidenceComposer` and `RepositoryEligibilityPolicy`, which
+would not require revisiting `ProfileComposer`. P8-I5 is a separate
+meaningful session and must be routed through its own model/effort gate.
+Full slice plan: worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-Sessions 078–085 are already committed as of `db84146`
-(`feat(profile): establish profile root foundation`), the base of
-`session/086-p8-i3-deterministic-profile-composer`. Session 086's own P8-I3
-implementation (`src/GitHubProof.Application/Profile/ProfileComposer.cs`,
-`ProfileCompositionInput.cs`, and the two new test files) remains
-uncommitted, alongside this session's worklog updates (`CURRENT.md`,
+Sessions 078–086 are already committed as of `09037be`
+(`feat(profile): compose deterministic public evidence profile`), the base of
+`session/087-p8-i4-typed-profile-report-projector`. Session 087's own P8-I4
+implementation (`src/GitHubProof.Application/Profile/Report/**` and the two
+new test files under `tests/GitHubProof.Application.Tests/Profile/Report/`)
+remains uncommitted, alongside this session's worklog updates (`CURRENT.md`,
 `INDEX.md`, this session file). Commit/push remains user-owned.
 
 Session 077 is finalized. P7 closure state is now reflected in the canonical
