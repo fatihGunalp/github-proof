@@ -1030,10 +1030,33 @@ Aynı structured evidence ve aynı rule versions aynı pattern sonuçlarını
 
 ## Profile P7 — Representative Repositories ve Role Evidence Alignment
 
+**P7 V1 Durumu (Session 076/077):**
+
+~~~text
+Representative Repository:
+COMPLETE
+
+RoleEvidenceAlignment:
+DEFERRED — NOT_READY_WITH_CURRENT_EVIDENCE
+
+P7 V1:
+COMPLETE WITH EXPLICIT DEFERRAL
+~~~
+
+Erteleme gerekçesi tam olarak şudur: mevcut canonical public evidence yüzeyi,
+semantic inflation üretmeden useful, safe ve deterministic bir generic
+technical-role alignment için yetersizdir
+(`worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`).
+Bu, RoleEvidenceAlignment'ın kalıcı olarak reddedildiği, gelecekte bir rol
+taksonomisinin yasaklandığı veya mevcut kanıtın herhangi bir rolü kanıtladığı
+anlamına gelmez. Kanonik evidence yüzeyi yeterince güçlenirse feasibility
+yeniden açılabilir. DEFERRED, Profile V1 / Milestone B veya P8 composition
+için RoleEvidenceAlignment'ı zorunlu kılmaz.
+
 ### Amaç
 
-Profile-level örüntüleri incelemek için en açıklayıcı repository'leri ve bounded
-technical-role overlap'ı üretmek.
+Profile-level örüntüleri incelemek için en açıklayıcı repository'leri
+üretmek, ve — üretildiğinde — bounded technical-role overlap'ı üretmek.
 
 ### Representative Repository
 
@@ -1074,8 +1097,10 @@ Employability
 
 ### Çıkış Kriteri
 
-Her representative selection ve role alignment açık supporting evidence
-taşımalıdır.
+Her representative selection açık supporting evidence taşımalıdır. Role
+alignment üretildiğinde o da açık supporting evidence taşımalıdır; V1'de
+RoleEvidenceAlignment üretilmediği için bu kriter representative selection
+üzerinden karşılanmıştır.
 
 ---
 
@@ -1101,10 +1126,16 @@ ProblemAreaPattern[]
 ↓
 RepresentativeRepository[]
 ↓
-RoleEvidenceAlignment[]
+RoleEvidenceAlignment[] (optional — Session 076 deferral, V1'de boş)
 ↓
 DeveloperPublicEvidenceProfile
 ~~~
+
+RoleEvidenceAlignment[] composition zincirinde bir zorunlu gate değildir.
+Composer, RoleEvidenceAlignment üretmeden de geçerli bir
+`DeveloperPublicEvidenceProfile` oluşturabilir; V1'de bu koleksiyon
+Session 076 deferral kararı nedeniyle boştur ve bu, composition'ın eksik
+veya başarısız olduğu anlamına gelmez.
 
 ### Report Contract
 
@@ -1115,10 +1146,15 @@ DeveloperPublicEvidenceProfile
 - Engineering Practice Patterns,
 - Problem Area Patterns,
 - Representative Repositories,
-- Role Evidence Alignment,
 - Why This Conclusion?,
 - Limitations,
 - Repository Drill-Down.
+
+Role Evidence Alignment yalnız üretildiğinde gösterilecek conditional bir
+bölümdür; Session 076 deferral kararı nedeniyle V1'de üretilmez ve rapor bu
+bölüm olmadan da eksiksiz/geçerlidir. Üretildiğinde bir üst P7 sözleşmesine
+uymalıdır (bkz.
+`docs/product/public-profile-evidence-product-contract.md` §24).
 
 ### Presentation Boundary
 
@@ -1167,7 +1203,6 @@ sparse public profile
 ### Özellikle Test Edilecek Riskler
 
 - false technical focus,
-- false role alignment,
 - fork inflation,
 - template inflation,
 - README keyword inflation,
@@ -1176,6 +1211,13 @@ sparse public profile
 - sparse-profile negative judgment,
 - missing/unavailable data confusion,
 - broken evidence traceability.
+
+`false role alignment` riski, RoleEvidenceAlignment V1'de Session 076
+kararıyla üretilmediği için bu validation turunda zorunlu bir test değildir.
+RoleEvidenceAlignment ileride yeniden açılırsa, üretilmeye başladığı anda
+kendi dedicated false-positive validation turunu yeniden almalıdır. Bu, daha
+geniş prohibited-inference validation sınırını (yukarıdaki diğer riskler ve
+Çıkış Kriteri) daraltmaz.
 
 ### Çıkış Kriteri
 
@@ -1217,8 +1259,12 @@ Profile raporunun ilk katmanı kısa sürede şunları göstermelidir:
 1. ana görünür technical focus,
 2. tekrar eden engineering practices,
 3. representative repositories,
-4. bounded role evidence alignment,
-5. neden bu sonuca ulaşıldığı.
+4. neden bu sonuca ulaşıldığı.
+
+Bounded role evidence alignment, üretildiğinde bu ilk okuma katmanına
+eklenebilecek conditional bir öğedir; RoleEvidenceAlignment Session 076
+kararıyla V1'de üretilmediği için zorunlu ilk-okuma yüzeyinin bir parçası
+değildir. Bu madde başka bir icat edilmiş etiketle değiştirilmez.
 
 ### Drill-Down
 
@@ -1333,7 +1379,8 @@ P5  Cross-Repository Evidence Engine
  ↓
 P6  Technical / Practice / Problem Patterns
  ↓
-P7  Representative Repositories + Role Alignment
+P7  Representative Repositories               COMPLETE
+    + RoleEvidenceAlignment                    DEFERRED (explicit)
  ↓
 P8  Profile Composer + Report Contract
  ↓
@@ -1372,7 +1419,9 @@ Public Profile Evidence V1 core capability tamamlanmış sayılmak için en az:
 - cross-repository evidence deterministic olmalı,
 - technical/practice/problem patterns evidence-backed olmalı,
 - representative repositories açıklanabilir seçilmeli,
-- role alignment bounded ve traceable olmalı,
+- role alignment üretildiğinde bounded ve traceable olmalı — Session 076
+  kararıyla V1'de RoleEvidenceAlignment ertelendiği için bu madde V1
+  tamamlanma şartı değildir,
 - developer-level toplam skor üretilmemeli,
 - seniority/employability/hire-no-hire üretilmemeli,
 - sparse public GitHub negatif developer judgment üretmemeli,

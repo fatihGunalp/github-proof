@@ -5,8 +5,13 @@
 **Contract Version:** 2
 **Repository Dependency:** Repository MVP V1 preserved
 **Locked:** 2026-08-16
-**Amended:** 2026-08-16
-**Amendment Scope:** positioning / cross-reference only
+**Amendment History:**
+- 2026-08-16 — positioning / cross-reference only
+- 2026-08-19 / Session 077 — RoleEvidenceAlignment requirement/deferral
+  alignment only (§14, §24): clarifies that RoleEvidenceAlignment is
+  DEFERRED for current Profile V1 / Milestone B under the Session 076
+  decision and that the report is complete/valid without it; no product
+  semantics, evidence rules or contract version changed
 
 
 ## 1. Ürün Tanımı
@@ -482,6 +487,17 @@ kanıtı değildir.
 Profile-level ürün bounded role definitions ile public evidence arasında
 `RoleEvidenceAlignment` üretebilir.
 
+**Session 076/077 durumu:** Profile V1 / Milestone B için `RoleEvidenceAlignment`
+DEFERRED — NOT_READY_WITH_CURRENT_EVIDENCE
+(`worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`).
+Gerekçe: mevcut canonical public evidence yüzeyi, semantic inflation
+üretmeden useful, safe ve deterministic bir generic technical-role alignment
+için yetersizdir. Bu erteleme kalıcı bir ret değildir; kanonik kanıt yüzeyi
+yeterince güçlenirse feasibility yeniden açılabilir. Aşağıdaki örnek —
+`.NET Developer` dahil — bu kavramın gelecekte hangi biçimde
+sunulabileceğini gösterir; Profile V1'in şu anki, yetkilendirilmiş bir
+çıktısı değildir.
+
 Örnek presentation:
 
 ~~~text
@@ -809,7 +825,11 @@ Yalnız bounded evidence ile desteklenen alanlar.
 
 ### Role Evidence Alignment
 
-Yalnız public evidence overlap.
+Yalnız public evidence overlap. Bu bölüm conditional'dır: yalnız
+`RoleEvidenceAlignment` fiilen üretildiğinde gösterilir. Profile V1 /
+Milestone B kapsamında Session 076/077 kararıyla ertelendiği için bu bölüm
+şu an boştur veya gösterilmez; raporun geri kalanı bu bölüm olmadan da
+eksiksiz ve geçerli kabul edilir (bkz. §14).
 
 ### Why This Conclusion?
 

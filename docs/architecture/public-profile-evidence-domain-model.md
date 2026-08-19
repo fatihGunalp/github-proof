@@ -7,6 +7,12 @@
 **Downstream Consumer:** Job Evidence Alignment V1
 **Session:** 056
 **Date:** 2026-08-16
+**Amended:** 2026-08-19 / Session 077 — RoleEvidenceAlignment
+requirement/deferral alignment only (§12 optional/conditional production,
+§14 Analyzer Version Ownership, §16 determinism wording, §18 P7 ownership);
+no result-shape, invariant, ownership boundary or evidence semantics changed
+beyond clarifying that RoleEvidenceAlignment is optional and currently
+DEFERRED under the Session 076 decision
 
 ## 1. Purpose
 
@@ -498,6 +504,36 @@ profile evidence.
 Role taxonomy and role-alignment production rules belong to a later profile
 phase.
 
+### Optional / Conditional Production
+
+RoleEvidenceAlignment production is optional and conditional, not a
+mandatory stage of profile composition.
+
+A completed DeveloperPublicEvidenceProfile for V1 may validly contain zero
+RoleEvidenceAlignment results. As of Session 076/077, RoleEvidenceAlignment
+is explicitly DEFERRED — NOT_READY_WITH_CURRENT_EVIDENCE for Profile V1 /
+Milestone B: the current canonical public evidence surface is insufficient
+for a useful, safe and deterministic generic technical-role alignment
+without semantic inflation
+(`worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`).
+This deferral is not a permanent prohibition and may be reopened if the
+canonical evidence surface later becomes sufficient.
+
+Therefore:
+
+    zero RoleEvidenceAlignment results
+    !=
+    negative developer evidence
+
+    zero RoleEvidenceAlignment results
+    !=
+    incomplete or invalid DeveloperPublicEvidenceProfile
+
+A composer (P8) may produce a valid DeveloperPublicEvidenceProfile without
+producing any RoleEvidenceAlignment. Role definition and role-alignment rule
+version identities are required only when this optional capability is
+actually produced; their absence does not block composition.
+
 ## 13. Limitations and Warnings
 
 ### ProfileLimitation
@@ -654,7 +690,8 @@ owned by:
 - observation rules,
 - pattern promotion rules,
 - representative repository rules,
-- generic role evidence definitions or alignment rules.
+- generic role evidence definitions or alignment rules, when
+  RoleEvidenceAlignment is actually produced (§12, §18 P7).
 
 The profile result must make it possible to verify that it was produced from
 one coherent and compatible set of rule versions.
@@ -750,9 +787,16 @@ For the same:
 - observation rule versions,
 - pattern rule versions,
 - representative-repository rule versions,
-- role evidence definition/rule versions,
+- role evidence definition/rule versions, when RoleEvidenceAlignment is
+  actually produced/applicable,
 
-the canonical semantic result must be reproducible.
+the canonical semantic result must be reproducible. When
+RoleEvidenceAlignment is not produced (as in Profile V1 / Milestone B under
+the Session 076/077 deferral), reproducibility of the profile result does not
+depend on a role evidence definition/rule version, since none was applied.
+This does not weaken determinism for any result that is produced: every
+result that is produced, including RoleEvidenceAlignment if and when
+produced, remains fully reproducible under its own rule versions.
 
 ### Deterministic Ordering
 
@@ -856,13 +900,35 @@ docs/architecture/public-profile-evidence-patterns.md
 
 P7 owns:
 
-- representative repository selection rules,
+- representative repository selection rules — COMPLETE for P7 V1
+  (`docs/architecture/public-profile-representative-repositories.md`),
 - generic role taxonomy,
 - generic role evidence definitions,
 - role evidence alignment rules,
 - related rule/version identities.
 
-P7 must remain job-agnostic.
+The last four items — generic role taxonomy, generic role evidence
+definitions, role evidence alignment rules and their related rule/version
+identities — are not required for P7 V1 completion. As of Session 076/077,
+RoleEvidenceAlignment is explicitly DEFERRED — NOT_READY_WITH_CURRENT_EVIDENCE
+for current Profile V1 / Milestone B: the current canonical public evidence
+surface is insufficient for a useful, safe and deterministic generic
+technical-role alignment without semantic inflation
+(`worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`).
+This deferral is not a permanent prohibition; P7 V1 is
+COMPLETE WITH EXPLICIT DEFERRAL on this basis.
+
+If RoleEvidenceAlignment feasibility is reopened later, a separate
+deterministic and versioned contract must define generic role taxonomy,
+generic role evidence definitions and role evidence alignment rules before
+any production implementation — exactly as P7 already required for the
+representative-repository half. That future ownership remains P7's; it must
+not be silently absorbed into Job Evidence Alignment, whose
+`JobEvidenceAlignment` concept is job-specific by definition and remains
+distinct from the generic, job-agnostic `RoleEvidenceAlignment` (§5, §12).
+
+P7 must remain job-agnostic. This applies to RoleEvidenceAlignment if and
+whenever it is reintroduced, exactly as it applies today.
 
 Job-specific repository selection belongs to Job Evidence Alignment.
 
@@ -953,11 +1019,16 @@ The V1 semantic dependency direction is:
             ↓
     RepresentativeRepository[]
             ↓
-    RoleEvidenceAlignment[]
+    RoleEvidenceAlignment[] (optional — may be empty)
             ↓
     DeveloperPublicEvidenceProfile
 
-The arrows express semantic dependency.
+The arrows express semantic dependency, not a mandatory gate: when
+RoleEvidenceAlignment is produced, it depends on RepresentativeRepository
+and upstream pattern truth exactly in this order; when it is not produced
+(as in Profile V1 / Milestone B under the Session 076/077 deferral), the
+flow proceeds directly from RepresentativeRepository[] to
+DeveloperPublicEvidenceProfile without it.
 
 They do not require deep object embedding.
 

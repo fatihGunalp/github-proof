@@ -6,6 +6,10 @@
 (Representative Repository sub-decision only)
 **Roadmap Stage:** Stage 7 — Public Profile Evidence Foundation
 **Locked:** 2026-08-18 / Session 074
+**Amended:** 2026-08-19 / Session 077 — §14 cross-reference update only,
+recording that Session 076 was the later P7 decision session and closed with
+RoleEvidenceAlignment DEFERRED; no selection rule, candidate rule,
+comparison rule, tie-break, grouping rule or evidence-trace change
 
 ## 1. Purpose
 
@@ -695,6 +699,15 @@ not limited to:
 Evidence Alignment belongs to a later P7 decision session and may reference
 `RepresentativeRepository` results, but this contract carries no dependency in
 the other direction.
+
+That later P7 decision session was Session 076, which closed with
+RoleEvidenceAlignment DEFERRED — NOT_READY_WITH_CURRENT_EVIDENCE (P7 V1
+COMPLETE WITH EXPLICIT DEFERRAL; see
+`worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`).
+This status update does not change any selection rule, candidate rule,
+comparison rule, tie-break, grouping rule or evidence trace defined in this
+contract: `RepresentativeRepository` remains role-agnostic and independent of
+`RoleEvidenceAlignment` exactly as locked above.
 
 ## 15. LLM Boundary
 

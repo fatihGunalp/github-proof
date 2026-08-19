@@ -8,7 +8,8 @@
 Completed:
 P6 — Technical, Practice and Problem Patterns — COMPLETE / REMOTE VERIFIED
 P7 — Representative Repository and Role Evidence Alignment — COMPLETE WITH
-EXPLICIT DEFERRAL (Session 076; user decision Option A — see below)
+EXPLICIT DEFERRAL (Session 076 decision; Session 077 canonical docs
+amendment — see below)
 
 Completed Foundation:
 Session 066 — Repository Evidence Surface Expansion — COMPLETE / REMOTE VERIFIED
@@ -97,12 +98,25 @@ then made the P7 closure decision (Option A) recorded above. See
 worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md for
 the full feasibility report and the finalization record.
 
+Session 077 (docs/worklog-only, no code) amended the minimum canonical
+surface so RoleEvidenceAlignment is explicitly non-blocking for Profile V1 /
+Milestone B / P8 composition / P9 validation / P10 first-read surface, while
+preserving the concept, its safety semantics and its non-permanent status.
+Amended: docs/roadmap/mvp-phases.md (P7/P8/P9/P10 + DoD),
+docs/product/public-profile-evidence-product-contract.md (§14, §24),
+docs/architecture/public-profile-evidence-domain-model.md (§12, §21),
+docs/architecture/public-profile-representative-repositories.md (§14
+cross-reference only — no selection semantics changed). Reviewed and
+intentionally unchanged: docs/roadmap/deployment-milestones.md,
+docs/architecture/public-profile-evidence-patterns.md,
+docs/product/job-evidence-alignment-product-contract.md. See
+worklog/sessions/2026-08-19-077-p7-closure-role-evidence-alignment-deferral.md
+for the full record.
+
 Next Profile Phase:
-Session 077 — P7 Closure + RoleEvidenceAlignment Deferral Alignment (NOT
-STARTED). Purpose: make the minimum canonical docs/roadmap amendments
-required so that the existing contracts no longer require
-RoleEvidenceAlignment for Profile V1 / Milestone B or P8 composition. Only
-after Session 077 does P8 (Deterministic Profile Composer) planning proceed.
+P8 — Deterministic Profile Composer and Report Contract planning is now the
+next authorized development stage; it may proceed without treating
+RoleEvidenceAlignment as a dependency.
 
 ## Production Delivery
 
@@ -118,20 +132,36 @@ Session:
 NONE
 
 Last Completed Session:
-076 — Role Evidence Alignment Feasibility / Decision (no code)
+077 — P7 Closure + RoleEvidenceAlignment Deferral Alignment (docs/worklog
+only, no code)
 
 Session File:
-worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md
+worklog/sessions/2026-08-19-077-p7-closure-role-evidence-alignment-deferral.md
 
 Status:
-FEASIBILITY DECISION, FINALIZED. Verdict: NOT_READY_WITH_CURRENT_EVIDENCE.
-P7 closure decision made by the user: Option A — RoleEvidenceAlignment
-DEFERRED, P7 V1 recorded as COMPLETE WITH EXPLICIT DEFERRAL. No src/, tests/
-or canonical docs/ changed at any point in this session. See the session
-file for the full Turkish feasibility report and the finalization record.
-No independent Claude review loop was run in this session (per instruction).
+CANONICAL AMENDMENT COMPLETE. RoleEvidenceAlignment is now explicitly
+optional/conditional and non-blocking across
+docs/roadmap/mvp-phases.md (P7/P8/P9/P10 + DoD),
+docs/product/public-profile-evidence-product-contract.md (§14, §24) and
+docs/architecture/public-profile-evidence-domain-model.md (§12, §21);
+docs/architecture/public-profile-representative-repositories.md (§14) had
+only its stale cross-reference updated, no selection semantics changed.
+docs/roadmap/deployment-milestones.md,
+docs/architecture/public-profile-evidence-patterns.md and
+docs/product/job-evidence-alignment-product-contract.md were reviewed and
+required no change. No src/, tests/ changed. `git diff --check` clean;
+changed-file scope confirmed exactly 4 canonical docs files.
 
 Previous completed session:
+076 — Role Evidence Alignment Feasibility / Decision (no code). FEASIBILITY
+DECISION, FINALIZED. Verdict: NOT_READY_WITH_CURRENT_EVIDENCE. P7 closure
+decision made by the user: Option A — RoleEvidenceAlignment DEFERRED, P7 V1
+recorded as COMPLETE WITH EXPLICIT DEFERRAL. No src/, tests/ or canonical
+docs/ changed at any point in that session. See
+worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md for
+the full Turkish feasibility report and the finalization record.
+
+Earlier completed session:
 075 — Representative Repository Implementation (P7 Domain implementation).
 IMPLEMENTATION PASS. Final closure review of the complete working set
 returned PASS WITH FINDINGS (1 MEDIUM — the worklog session file itself had
@@ -146,17 +176,26 @@ and must be read from actual Git state.
 ## Git
 
 Active Branch:
-session/075-representative-repository-implementation
+session/077-p7-closure-role-evidence-alignment-deferral (user-created and
+checked out; points at the same commit as `main` — no new commits on it yet.
+Session 075's and Session 076's branches
+`session/075-representative-repository-implementation` and
+`session/076-role-evidence-alignment-feasibility` are retained but no longer
+checked out — their work is already integrated into `main`)
 
 Session Base:
-f32c5de7a6e21e7eedc786deb973b6aec159dcec (main; Session 074 already
-integrated)
+4e8ef7574ad136670f9758d4210451f48dc5d582 (main; Session 076 already
+integrated — verified HEAD at the start of Session 077, unchanged as of the
+final review)
 
 Note:
 closed session branches are retained; deleting any of them is a user-owned
-Git side effect and is not pending work. Git transition (commit/push) for
-Session 075 is user-owned and must be read from actual Git state
-(`git status`, `git log`), not assumed from this snapshot.
+Git side effect and is not pending work. Session 077's docs/worklog changes
+are uncommitted working-tree changes on
+`session/077-p7-closure-role-evidence-alignment-deferral` as of this
+snapshot. Git transition (commit/push) is user-owned and must be read from
+actual Git state (`git status`, `git log`, `git branch --show-current`), not
+assumed from this snapshot.
 
 ## Canonical Evidence Ladder
 
@@ -300,7 +339,8 @@ composition.
 
 ## Next Action
 
-Session 076 is finalized. The user made the P7 closure decision: **Option A**.
+Session 077 is finalized. P7 closure state is now reflected in the canonical
+docs:
 
 ~~~text
 Representative Repository:
@@ -320,17 +360,15 @@ strong enough. No upstream evidence expansion (ProducedWorkEvidence,
 ProblemArea, semantic-category/source-reference wiring, or any other
 Session 076 §6 candidate gap) is required now, and none was started.
 
-Exact next session:
+Exact next stage:
 
 ~~~text
-077 — P7 Closure + RoleEvidenceAlignment Deferral Alignment
-
-Purpose: make the minimum canonical docs/roadmap amendments required so
-that the existing contracts no longer require RoleEvidenceAlignment for
-Profile V1 / Milestone B or P8 composition.
+Profile P8 — Deterministic Profile Composer and Report Contract
 ~~~
 
-Session 077 is NOT started by this turn.
+P8 planning may now proceed without treating RoleEvidenceAlignment as a
+dependency; the canonical docs no longer require it for Profile V1 /
+Milestone B / P8 composition / P9 validation / P10 first-read surface.
 
 Separately, and independent of the RoleEvidenceAlignment question: Session
 075 implemented the locked Representative Repository contract in Domain with
@@ -342,9 +380,12 @@ Application orchestration once that layer is ready to consume a
 production rule version. Not started.
 
 Known remaining work, none of it started and none of it in this session's
-scope: Session 077's docs/roadmap amendment; Application orchestration
-integration for RepresentativeRepositorySelectionPolicy; report/UI
-consumption; P8 deterministic profile composer (after Session 077);
-RoleEvidenceAlignment taxonomy and rules (deferred, not blocking);
-ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence
-remains blocked by the Session 067 contract.
+scope: Application orchestration integration for
+RepresentativeRepositorySelectionPolicy; report/UI consumption; P8
+deterministic profile composer; RoleEvidenceAlignment taxonomy and rules
+(deferred, not blocking); ProducedWorkEvidence remains unresolved;
+RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
+
+Session 077's docs/worklog changes are currently uncommitted working-tree
+changes on `session/077-p7-closure-role-evidence-alignment-deferral`;
+commit/push is user-owned per CLAUDE.md.
