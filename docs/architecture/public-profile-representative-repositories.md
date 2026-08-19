@@ -50,7 +50,10 @@ The canonical V1 selection unit is:
 > one representative repository per `RepeatedProfilePattern`.
 
 Every canonical `RepeatedProfilePattern` that exists receives exactly one
-`RepresentativeRepository` selection.
+representative-repository selection. That selection materializes as exactly
+one `RepresentativePatternSupport`; how those supports are grouped into
+`RepresentativeRepository` objects is a separate result-shape concern
+governed by §3.4.
 
 ### 3.1 Excluded From V1
 
@@ -100,6 +103,44 @@ as for a non-empty selection (§11) — only the repository list is empty.
 When the set is non-empty, §3's one-selection-per-pattern rule applies to
 every pattern the set contains: no pattern may be silently skipped, and no
 pattern may receive more than one selection.
+
+### 3.4 Grouped Result Cardinality
+
+§3's canonical rule — *one representative repository selection per
+`RepeatedProfilePattern`* — is a rule about **selection**, not about how many
+`RepresentativeRepository` objects the result contains. The two are different
+counts because §8 permits the same repository to independently win several
+patterns, and §11 groups those wins under a single `RepresentativeRepository`.
+
+The exact object model, for a source `ProfilePatternSet` containing `N`
+patterns:
+
+- `N == 0` → zero `RepresentativeRepository` objects (§3.3),
+- every existing `RepeatedProfilePattern` → exactly one
+  `RepresentativePatternSupport`,
+- each `RepresentativePatternSupport` belongs to the repository that
+  independently won that pattern under §4–§7,
+- when the same `ProfileRepositoryReference` wins several patterns, those
+  supports are grouped under one `RepresentativeRepository`.
+
+Therefore, for `N > 0`:
+
+    1 <= RepresentativeRepositories.Count <= N
+
+    sum(RepresentativeRepository.PatternSupports.Count) == N
+
+The lower bound is reached when one repository wins every pattern; the upper
+bound when every pattern is won by a different repository.
+
+`RepresentativeRepositories` must contain each selected
+`ProfileRepositoryReference` exactly once after grouping: two entries may
+never carry the same repository reference. `RepresentativeRepository.PatternSupports`
+is always one or more — a `RepresentativeRepository` never exists without at
+least one represented pattern.
+
+Grouping is a result-shape concern only. It is performed after every
+pattern's independent selection has completed, and it must never influence
+which repository wins a pattern (§8).
 
 ## 4. Candidate Repositories
 
@@ -175,11 +216,55 @@ No other heuristic — stars, recency, size, activity, popularity or any hidden
 weighting — may participate in the tie-break. No new heuristic may be
 introduced without a new `RepresentativeRepositoryRuleVersion`.
 
+### 6.1 Canonical Repository Identity Precondition
+
+`ProfileRepositoryReference.CompareTo` compares `Owner` then `Name` only,
+while the record's own equality also distinguishes references whose `Url`
+differs. Two candidate references could therefore, in principle, be unequal
+as values yet compare equal under §6 — leaving the winner undetermined.
+
+Representative selection requires this precondition on the union of every
+pattern's candidate set within one selection execution — not merely per
+pattern, since winners from different patterns are compared to each other
+during grouping (§3.4) and result ordering (§13):
+
+> Within one selection execution, for any two candidate
+> `ProfileRepositoryReference` values, `CompareTo` returns `0` **if and only
+> if** the two values are equal.
+
+Canonical P3→P6 input already satisfies this. The canonical GitHub profile
+collector deduplicates repositories by `FullName` and constructs each
+repository `Url` canonically from that same owner and name, so two candidates
+sharing `Owner` and `Name` are necessarily the same value. Under canonical
+input the precondition therefore holds trivially and §6 resolves every tie by
+`Owner` then `Name`, exactly as locked — this contract does not change normal
+winner semantics in any way.
+
+If a non-canonical input ever violates the precondition — two unequal
+candidate references for the same `Owner`/`Name` — the selection execution
+must **reject that input deterministically**. It must not:
+
+- depend on candidate enumeration order,
+- silently pick one of the colliding references,
+- fall back to `Url` or any other field as an additional winner heuristic,
+- invent a new ranking or evidence heuristic of any kind.
+
+Rejection is a structural input-validity failure, not a developer-evidence
+statement: it says the supplied candidate set was not canonical, and it
+carries no meaning about any repository or developer. This is deliberately
+distinct from `ProfileRepositoryReferenceOrder`, whose `Url` fallback exists
+to keep profile-surface *presentation ordering* independent of execution
+order; that fallback is a display-ordering concern and must never be
+borrowed as a representative-selection tie-break.
+
 ## 7. Exactly One Selection
 
-Selection produces exactly one primary `RepresentativeRepository` candidate
-per pattern: the candidate with the highest `PatternSupportObservationCount`,
-tie-broken per §6. This applies to every pattern in the source
+Selection produces exactly one winning candidate repository per pattern: the
+candidate with the highest `PatternSupportObservationCount`, tie-broken per
+§6. That win materializes as exactly one `RepresentativePatternSupport`; it
+does not by itself imply one `RepresentativeRepository` object, because a
+repository winning several patterns is grouped into a single
+`RepresentativeRepository` (§3.4). This applies to every pattern in the source
 `ProfilePatternSet`; when that set is empty, there is nothing to apply it to
 and no selection is produced (§3.3).
 
@@ -315,18 +400,28 @@ used to explain or present that selection (§10.2):
 
 The Canonical Pattern Trace exists so a result can prove exactly which
 `RepeatedProfilePattern` instance backs a support. `Pattern` may legitimately
-expose the complete canonical pattern object — including evidence for
-repositories other than the selected one — because it is a reference to the
-one real existing instance (§9.1), not a filtered copy; that completeness is
-inherent to holding a genuine reference and is not itself a violation.
+expose the complete canonical pattern object — `SupportingObservations`,
+`SupportingRepositories`, `IndependentSupportingRepositories` and all of
+their evidence, for every supporting repository — because it is a reference
+to the one real existing instance (§9.1), not a filtered copy. That
+completeness is inherent to holding a genuine reference and is not itself a
+violation.
 
-The Representative Support Evidence Trace is deliberately narrower: only the
-repository- and pattern-scoped subset already computed for §5's comparison.
-Evidence reachable solely through the Canonical Pattern Trace — for example,
-`Pattern.SupportingObservations` entries for a repository other than the
-selected one — is canonical pattern context, not representative-specific
-support evidence, and must never be read, enumerated or presented as if it
-were Representative Support Evidence Trace output.
+But the Canonical Pattern Trace is **never** the representative-specific
+evidence path. Evidence reached through `Pattern` is canonical pattern
+context. It must never be interpreted, enumerated or presented as
+representative-specific support evidence for **any** repository — including
+the selected repository itself. Reading
+`Pattern.SupportingObservations` and filtering it down to the selected
+repository is equally prohibited: the result may coincide, but it is the
+wrong trace, and it silently bypasses the scoping §10.2 guarantees.
+
+The Representative Support Evidence Trace is the sole source of
+representative-specific evidence: the repository- and pattern-scoped subset
+already computed for §5's comparison and carried on
+`RepresentativePatternSupport` itself (§11). For the question *"why was this
+repository selected for this pattern?"*, that trace is the only admissible
+answer.
 
 ### 10.1 Exact Pattern Identity (Canonical Pattern Trace)
 
@@ -379,13 +474,14 @@ It must not attach unrelated evidence from the same repository, including
 evidence supporting a different pattern the same repository also represents.
 Each `RepresentativePatternSupport` is scoped to exactly one pattern.
 
-This scoping constrains *evidence enumeration* — the scoped
+This scoping is delivered by the scoped
 `ObservationKey`/`ProfileEvidenceReference` fields on
-`RepresentativePatternSupport` — not the separate Canonical Pattern Trace
-(§10, §10.1). `Pattern` is not a second, wider evidence path around this
-scoping: it exists for identity/traceability verification only, and a
-consumer must never use it to read or present evidence for any repository
-other than the one this `RepresentativePatternSupport` was produced for.
+`RepresentativePatternSupport`, which are the sole representative-specific
+evidence source. The separate Canonical Pattern Trace (§10, §10.1) is not a
+second path to the same answer: `Pattern` exists for identity and canonical
+pattern context only, and a consumer must never use it to read, enumerate or
+present representative-specific evidence for any repository — the selected
+repository included (§10).
 
 ## 11. Contract Shape
 
@@ -412,11 +508,10 @@ semantic context directly, as plain values copied at selection time:
 - `RuleVersion` — the `RepresentativeRepositoryRuleVersion` that produced this
   selection.
 - `RepresentativeRepositories` — **zero or more** `RepresentativeRepository`,
-  one produced per `RepeatedProfilePattern` instance actually present in that
-  one `ProfilePatternSet` instance (§10.1, §3.3). Zero when the source
-  `ProfilePatternSet` contains zero patterns; this is a valid result, not a
-  failure (§3.3). The other five fields above are always recorded, even when
-  this collection is empty.
+  after grouping per §3.4. Zero when the source `ProfilePatternSet` contains
+  zero patterns; this is a valid result, not a failure (§3.3). Every entry
+  holds a distinct `ProfileRepositoryReference` (§3.4). The other five fields
+  above are always recorded, even when this collection is empty.
 
 ### RepresentativeRepository
 
@@ -440,10 +535,9 @@ Canonical Pattern Trace field:
   instance already present in the one `ProfilePatternSet` supplied to this
   selection execution (§10, §10.1). This is composition over existing pattern
   truth, not a copy, not a re-derivation and not a new persistence identity
-  (§9.1). It exists for identity/traceability verification only — it is not
-  an evidence-enumeration path and must not be used to read or present
-  evidence for any repository other than the one this
-  `RepresentativePatternSupport` was produced for (§10.2).
+  (§9.1). It exists for identity and canonical pattern context only — it is
+  never a representative-specific evidence path, for any repository,
+  including the selected one (§10, §10.2).
 - `PatternFamily`, `PatternKey` — convenience projections of `Pattern.Family`
   and `Pattern.PatternKey` (§10.1). They are not themselves the traceability
   mechanism and must never be used to match a pattern across two different
@@ -451,12 +545,17 @@ Canonical Pattern Trace field:
 
 Representative Support Evidence Trace fields:
 
-- supporting observation identities — the `ObservationKey` values counted in
-  §5 for this repository and this pattern (§10, §10.2).
 - supporting `ProfileEvidenceReference` values — scoped exactly to this
-  repository and this pattern, per §10.2. This pair is the sole source for
-  evidence explaining why this repository was selected; `Pattern` above must
-  never substitute for it.
+  repository and this pattern (§10.2), ordered by `EvidenceKey`, ordinal
+  (§13.1).
+- supporting observation identities — the `ObservationKey` values counted in
+  §5 for this repository and this pattern (§10, §10.2), in the same canonical
+  order. This is a projection of the scoped evidence references above, never
+  an independently mutable second truth (§13.1).
+
+This pair is the sole source for evidence explaining why this repository was
+selected; `Pattern` above must never substitute for it, not even for the
+selected repository (§10).
 
 ### 11.1 Prohibited Fields
 
@@ -508,11 +607,15 @@ combinations.
 A new `RepresentativeRepositoryRuleVersion` is required to change:
 
 - candidate rules (§4),
-- representative count per pattern (§3, §7),
+- representative count per pattern, or the grouped result cardinality it
+  produces (§3, §3.4, §7),
 - the pattern-support comparison rule (§5),
-- the tie-break rule (§6),
-- any grouping or deduplication semantics (§11),
-- the evidence carried by the representative result (§10).
+- the tie-break rule (§6) or its canonical identity precondition and
+  rejection behavior (§6.1),
+- any grouping or deduplication semantics (§3.4, §11),
+- the evidence carried by the representative result (§10),
+- the canonical result ordering (§13),
+- the scoped support evidence ordering or projection rule (§13.1).
 
 ## 13. Determinism, Ordering and Locale
 
@@ -536,11 +639,46 @@ Canonical ordering:
 4. `RepresentativeRepository` results by `ProfileRepositoryReference`
    ordering,
 5. `PatternSupports` within one `RepresentativeRepository` by pattern family,
-   then pattern key, ordinal.
+   then pattern key, ordinal,
+6. within one `RepresentativePatternSupport`, the scoped supporting evidence
+   by `ObservationKey`, ordinal (§13.1).
 
 Input enumeration order and execution order must not change the result. No
 system clock participates. Locale may change presentation only; it must not
 change a selected repository, a pattern key, a count or a rule version.
+
+### 13.1 Scoped Support Evidence Ordering and Projection
+
+The Representative Support Evidence Trace fields on
+`RepresentativePatternSupport` (§10.2, §11) are also ordered, so input
+enumeration order cannot change them either.
+
+Two upstream invariants already make this exact:
+`ObservedProfileEvidence` requires every `ProfileEvidenceReference` it holds
+to satisfy `EvidenceKey == ObservationKey`, and permits at most one evidence
+reference per repository per observation. Consequently, for one selected
+repository and one pattern, each counted observation contributes exactly one
+scoped `ProfileEvidenceReference`, and that reference's `EvidenceKey` is the
+observation's `ObservationKey`.
+
+Therefore:
+
+- the scoped `ProfileEvidenceReference` values are ordered by their
+  `EvidenceKey`, ordinal;
+- the supporting `ObservationKey` identities follow that same canonical
+  order — they are the same key sequence, not an independently sorted list.
+
+`SupportingObservationKeys` is a **projection**, never a second mutable
+truth. Implementations must take one of these two shapes:
+
+- **A (preferred)** — derive the `ObservationKey` sequence from the scoped
+  `ProfileEvidenceReference` values, so the two cannot diverge by
+  construction; or
+- **B** — store both, and validate at construction that they are exactly
+  one-to-one and identically ordered, rejecting any input where they are not.
+
+Neither shape introduces a score, weight or count beyond
+`PatternSupportObservationCount` as already defined in §5.
 
 ## 14. Role Evidence Alignment Boundary
 

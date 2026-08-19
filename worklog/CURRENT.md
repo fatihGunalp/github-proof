@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-18
+**Last Updated:** 2026-08-19
 **Source of Truth:** docs/
 
 ## Development
@@ -40,8 +40,9 @@ Next Profile Phase:
 P7 — Representative Repository and Role Evidence Alignment — STARTED
 
 Session 074 locked the Representative Repository selection contract
-(documentation only), corrected across four rounds of post-push independent
-review. RepresentativeRepositorySelection/RepresentativeRepository/
+(documentation only), corrected across five rounds of post-push independent
+review, the last of which was a final exhaustive contract closure.
+RepresentativeRepositorySelection/RepresentativeRepository/
 RepresentativePatternSupport production code has NOT started.
 RoleEvidenceAlignment semantics have NOT started and remain a separate later
 P7 decision.
@@ -67,14 +68,17 @@ worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
 
 Status:
 DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1), including four rounds of post-push independent
+locked (Contract Version 1), including five rounds of post-push independent
 review corrections (round 1: completeness and version/traceability semantics;
 round 2: an undefined ProfilePatternSet stable-reference gap and pattern
 identity wording; round 3: empty-ProfilePatternSet cardinality and exact
 RepeatedProfilePattern traceability; round 4: a stale worklog Git fact and
 explicit separation of the canonical pattern trace from the
-representative-evidence trace), all four rounds corrected within Session 074
-scope. Session contract work is complete; Git branch/main integration is
+representative-evidence trace; round 5, final exhaustive closure: grouped
+result cardinality, the last Pattern-as-evidence loophole, a deterministic
+repository-identity collision boundary, scoped support-evidence ordering and
+durable worklog Git-state hygiene), all five rounds corrected within Session
+074 scope. Session contract work is complete; Git branch/main integration is
 user-owned and tracked from actual Git state, not asserted here.
 
 ## Git
@@ -192,17 +196,40 @@ different executions or persisted sets. No rank, score, quality, strength,
 confidence, seniority or employability semantics. RoleEvidenceAlignment
 explicitly out of scope.
 
-RepresentativeRepositorySelection.RepresentativeRepositories is zero or more,
-not one or more: an empty source ProfilePatternSet (already valid per the
-locked patterns.md §6 absence boundary) produces a valid selection with an
-empty repository list — not failure, not negative evidence, never a reason to
-fabricate a repository. The other version/completeness fields on the result
-are still recorded even when the list is empty. RepresentativePatternSupport
-now holds an in-memory canonical reference to the exact RepeatedProfilePattern
-instance it was produced from (the same instance already present in the
-consumed ProfilePatternSet) — composition over existing pattern truth, not a
-copy and not a new persistence identity — so PatternFamily/PatternKey remain
-convenience projections rather than the traceability mechanism itself.
+Grouped result cardinality is locked separately from the selection rule (§3.4):
+an empty source ProfilePatternSet (already valid per the locked patterns.md §6
+absence boundary) produces a valid selection with an empty repository list —
+not failure, not negative evidence, never a reason to fabricate a repository —
+while for N > 0 patterns, 1 <= RepresentativeRepositories.Count <= N and
+sum(PatternSupports.Count) == N, because a repository winning several patterns
+is grouped into one RepresentativeRepository holding several
+RepresentativePatternSupports. Each ProfileRepositoryReference appears exactly
+once after grouping; PatternSupports is always one-or-more; grouping happens
+after selection and never influences a winner. The version/completeness fields
+are recorded even when the repository list is empty.
+
+Two distinct traces are locked (§10). The Canonical Pattern Trace
+(RepresentativePatternSupport → Pattern → exact canonical
+RepeatedProfilePattern) is an in-memory reference to the very instance in the
+consumed ProfilePatternSet — composition over existing pattern truth, not a
+copy and not a persistence identity — and serves identity/canonical context
+only; evidence reached through it is never representative-specific support
+evidence for any repository, the selected one included. The Representative
+Support Evidence Trace (scoped ObservationKey values → scoped
+ProfileEvidenceReference values → RepositoryAnalysisReference →
+selected-repository evidence) is the sole answer to "why was this repository
+selected for this pattern?". Scoped evidence is ordered by EvidenceKey ordinal
+and the ObservationKey identities are a projection of it, never a second
+mutable truth (§13.1).
+
+Tie-break stays Owner→Name ordinal, with an explicit canonical identity
+precondition (§6.1): within one execution, CompareTo returns 0 iff the two
+candidate references are equal. Canonical P3→P6 input satisfies this because
+the GitHub profile collector deduplicates by FullName and builds each Url
+canonically from that owner/name. A non-canonical violation must be rejected
+deterministically rather than resolved by enumeration order, a silent pick, a
+Url fallback or any new heuristic; rejection is an input-validity failure with
+no developer-evidence meaning.
 
 Contract Version 1 is locked; no runtime RepresentativeRepositoryRuleVersion
 value exists yet and no production code implements this contract.
@@ -243,19 +270,24 @@ because no production code implements the contract yet
 ## Next Action
 
 Session 074 locked the Representative Repository selection contract
-(documentation only, no production code) and went through four rounds of
+(documentation only, no production code) and went through five rounds of
 post-push independent review correction: round 1 fixed completeness and
 version/traceability semantics that did not match the actual P5/P6 runtime
 models; round 2 removed an undefined ProfilePatternSet stable-reference gap
-and tightened pattern-identity wording; round 3 fixed the
-RepresentativeRepositories cardinality (must allow zero, not require one or
-more, to match the locked empty-pattern-collection boundary) and gave
-RepresentativePatternSupport a structural in-memory reference to its exact
-RepeatedProfilePattern instead of relying on a later lookup; round 4 named
-and separated two distinct traces — a Canonical Pattern Trace (identity only)
-and a Representative Support Evidence Trace (why the repository was
-selected) — so Session 075 cannot confuse the two. See the session file for
-the full finding-by-finding record.
+and tightened pattern-identity wording; round 3 allowed a zero-length
+representative collection (to match the locked empty-pattern-collection
+boundary) and gave RepresentativePatternSupport a structural in-memory
+reference to its exact RepeatedProfilePattern instead of relying on a later
+lookup; round 4 named and separated two distinct traces — a Canonical Pattern
+Trace (identity only) and a Representative Support Evidence Trace (why the
+repository was selected); round 5, the final exhaustive closure over the whole
+contract and the P1/P2/P5/P6 runtime, fixed the grouped result cardinality
+that had contradicted the grouping rule, closed the last reading in which
+Pattern could serve as selected-repository evidence, added a deterministic
+canonical-identity precondition and rejection boundary for Owner/Name
+collisions, locked scoped support-evidence ordering and its projection rule,
+and removed self-invalidating Git-state claims from the worklog. See the
+session file for the full finding-by-finding record.
 
 Session contract work is complete. Git branch state, commit history and any
 main integration are user-owned and must be read from actual Git state

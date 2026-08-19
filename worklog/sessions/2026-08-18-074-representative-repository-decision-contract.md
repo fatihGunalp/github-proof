@@ -1,10 +1,11 @@
 # Representative Repository Decision + Contract
 
 **Date:** 2026-08-18
-**Result:** PASS — corrected across four rounds of post-push independent
-review (see "Post-Push Independent Review — Round 1" through "— Round 4"
-below). Session contract work is complete; Git branch/main integration is
-user-owned and must be read from actual Git state, not this field.
+**Result:** PASS — corrected across five rounds of post-push independent
+review (see "Post-Push Independent Review — Round 1" through "Round 5" below);
+Round 5 is the final exhaustive contract closure. Session contract work is
+complete. Git branch/main integration is user-owned and must be read from
+actual Git state, not this field.
 **Scope:** docs
 **Model Route:** sonnet / high
 **Model Gate:** APPROVED — user wrote `devam et`
@@ -495,9 +496,9 @@ The Round 3 correction was committed and pushed by the user as `615b41a`
 a verified Git fact, not a prediction. A fourth post-push review of that
 pushed state found one stale worklog fact and one remaining contract
 ambiguity. Corrected in this same session, on the same branch, without a new
-session and without committing/pushing the correction — it currently sits as
-an uncommitted working-tree change on top of `615b41a` (user-owned per Git
-ownership rules).
+session. The correction was itself subsequently committed and pushed by the
+user as `3a64f42` ("docs: separate pattern and representative evidence
+traces") — a verified Git fact, not a prediction.
 
 ~~~text
 FINDING 1 — ROUND 3 WORKLOG GIT FACT WAS STALE
@@ -575,12 +576,213 @@ actual `git log`; no Round 4 SHA fabricated. No BLOCKER/HIGH/MEDIUM finding.
 
 ---
 
+## Post-Push Review — Round 5 (Final Exhaustive Contract Closure)
+
+The Round 4 correction was committed and pushed by the user as `3a64f42`
+("docs: separate pattern and representative evidence traces"). A final
+exhaustive review then read the complete Session 074 branch against the whole
+representative-repository contract plus the P1 domain model, the P2
+eligibility contract, the P5 `CrossRepositoryEvidence` runtime, the P6
+`ProfilePatternSet`/`RepeatedProfilePattern` runtime,
+`ProfileEvidenceReference`, `ProfileRepositoryReference`,
+`ProfileRepositoryReferenceOrder`, the canonical GitHub profile collector and
+the CURRENT/INDEX/session worklog. It returned five findings, corrected
+together in this round.
+
+~~~text
+FINDING 1 — GROUPED RESULT CARDINALITY CONTRADICTED THE GROUPING RULE
+
+Finding:
+§11 described RepresentativeRepositories as "zero or more ... one produced
+per RepeatedProfilePattern instance", which contradicted the grouping rule
+stated immediately below it: §8 lets one repository win several patterns and
+§11 groups those wins into ONE RepresentativeRepository. Under the old
+wording a 3-pattern set won entirely by one repository would have implied
+three RepresentativeRepository objects for one repository.
+
+Correction:
+New §3.4 (Grouped Result Cardinality) separates the selection rule from the
+result shape and locks the object model: N == 0 → zero objects; every
+existing pattern → exactly one RepresentativePatternSupport; each support
+belongs to the repository that won that pattern; same repository winning
+several patterns → supports grouped under one RepresentativeRepository.
+Therefore for N > 0: 1 <= RepresentativeRepositories.Count <= N and
+sum(PatternSupports.Count) == N, with each ProfileRepositoryReference
+appearing exactly once after grouping. §3's opening paragraph now says the
+selection materializes as exactly one RepresentativePatternSupport, deferring
+grouping to §3.4. §11's bullet was rewritten accordingly. The canonical
+semantic rule ("one representative repository selection per
+RepeatedProfilePattern") is unchanged, and PatternSupports remains
+one-or-more. Grouping is explicitly a post-selection result-shape concern
+that must never influence which repository wins.
+
+FINDING 2 — Pattern COULD STILL BE READ AS SELECTED-REPOSITORY EVIDENCE
+
+Finding:
+Round 4's wording forbade using Pattern to read evidence for a repository
+"other than the selected repository", which left open the reading that
+Pattern MAY be used to enumerate representative-specific evidence for the
+selected repository itself — bypassing the scoped trace.
+
+Correction:
+§10, §10.2 and §11 now close that loophole in the same terms: evidence
+reached through Pattern is canonical pattern context and must never be
+interpreted, enumerated or presented as representative-specific support
+evidence for ANY repository, the selected repository included. §10 adds the
+explicit case that reading Pattern.SupportingObservations and filtering it
+down to the selected repository is equally prohibited — the result may
+coincide, but it is the wrong trace and silently bypasses §10.2's scoping.
+The scoped ObservationKey/ProfileEvidenceReference pair is restated as the
+sole admissible answer to "why was this repository selected for this
+pattern?".
+
+FINDING 3 — Owner/Name TIE-BREAK LACKED A DETERMINISTIC COLLISION BOUNDARY
+
+Finding:
+ProfileRepositoryReference.CompareTo compares Owner then Name only, while the
+record's equality also distinguishes differing Url values. Two candidates
+could therefore in principle be unequal as values yet compare equal under §6,
+leaving the winner undetermined and potentially enumeration-order dependent.
+
+Correction:
+New §6.1 states the canonical identity precondition — within one selection
+execution, CompareTo returns 0 if and only if the two candidate references
+are equal — and records why canonical input already satisfies it: the
+canonical GitHub profile collector deduplicates by FullName and builds each
+repository Url canonically from that same owner and name
+(GitHubProfileRepositoryCollector), so candidates sharing Owner/Name are
+necessarily the same value. Normal winner semantics are therefore unchanged.
+If a non-canonical input ever violates the precondition, the selection
+execution must reject that input deterministically rather than depending on
+enumeration order, silently choosing one, falling back to Url, or inventing
+any new heuristic. Rejection is explicitly an input-validity failure carrying
+no developer-evidence meaning, and §6.1 explicitly distinguishes this from
+ProfileRepositoryReferenceOrder's Url fallback, which is a
+presentation-ordering concern and must not be borrowed as a selection
+tie-break.
+
+FINDING 4 — INNER SUPPORT EVIDENCE ORDERING AND PROJECTION WERE UNLOCKED
+
+Finding:
+§13 locked ordering for patterns, candidates, RepresentativeRepository
+results and PatternSupports, but not for the ObservationKey identities and
+scoped ProfileEvidenceReference values inside one RepresentativePatternSupport
+— even though the same section forbids input enumeration order from changing
+the result.
+
+Correction:
+New §13.1 uses the existing upstream invariants — ObservedProfileEvidence
+requires ProfileEvidenceReference.EvidenceKey == ObservationKey and permits at
+most one evidence reference per repository per observation — to lock the
+ordering exactly: scoped ProfileEvidenceReference values are ordered by
+EvidenceKey ordinal, and the supporting ObservationKey identities follow the
+same key sequence rather than being independently sorted. SupportingObservationKeys
+is defined as a projection, never a second mutable truth: implementations
+must either (A, preferred) derive the key sequence from the scoped evidence
+references so they cannot diverge by construction, or (B) store both and
+validate exact one-to-one equivalence and ordering at construction. §13's
+ordering list gained item 6 pointing at §13.1, and §11's field list now states
+the ordering and projection relationship. No score or weight was introduced.
+
+FINDING 5 — DURABLE WORKLOG GIT-STATE CLEANUP
+
+Finding:
+The Round 4 section still carried mutable Git-state claims ("currently
+uncommitted", "working-tree change on top of 615b41a", Commit/Push PENDING,
+and a Next paragraph asserting Round 4 was not committed) that became false
+the moment the user committed and pushed Round 4 as 3a64f42.
+
+Correction:
+Those statements were replaced with the verified historical fact. This round
+additionally removes the recurring failure mode: the session file no longer
+asserts any current or predicted Git state anywhere. Working Set, Next and
+Git sections now record only already-verified historical commits and state
+that the Git transition is user-owned and must be read from actual Git state.
+The file is intended to remain true both before and after the user's next Git
+transition.
+
+KEPT LOCKED, UNCHANGED:
+ProfilePatternSet as coherent input; zero patterns → zero representative
+repositories; every existing pattern receives exactly one pattern-specific
+winner; candidates = IndependentSupportingRepositories; fork/template-derived
+cannot inflate candidates; Undetermined independence not optimistically
+promoted; archived not automatically excluded; PatternSupportObservationCount
+semantics and higher-count-first; Owner→Name ordinal normal tie-break; no
+global K/top-N; no set-cover/greedy coverage; no cross-pattern breadth
+advantage; same repository may win multiple patterns; Pattern is the exact
+in-memory canonical RepeatedProfilePattern reference; no persisted
+ProfilePatternSet identity; PatternRuleVersion/ObservationRuleVersion/
+EligibilityPolicyVersion/IsEvidenceSurfaceComplete preservation; dedicated
+RepresentativeRepositoryRuleVersion; no rank/score/quality/strength/
+confidence/capability/seniority/employability/hire-no-hire;
+RoleEvidenceAlignment out of Session 074; no LLM in selection.
+
+Exhaustive re-review (github-proof-review, forked context, whole contract
+rather than a narrow diff — all 17 sections, every internal § cross-reference,
+the five Round 5 corrections and all twenty falsification cases, validated
+against ProfilePatternSet.cs, RepeatedProfilePattern.cs,
+ObservedProfileEvidence.cs, CrossRepositoryEvidence.cs,
+ProfileEvidenceReference.cs, ProfileRepositoryReference.cs,
+ProfileRepositoryReferenceOrder.cs, GitHubProfileRepositoryCollector.cs and
+the P1/P2/P6 contracts):
+
+PASS WITH FINDINGS — no BLOCKER, HIGH or MEDIUM finding. All five Round 5
+corrections confirmed genuinely closed, all twenty falsification cases
+confirmed closed, every internal and external § cross-reference confirmed to
+resolve correctly, and branch scope re-verified as docs/worklog-only (five
+files, no src/ or tests/ path) rather than assumed.
+
+Notable runtime confirmations from that review:
+- §3.4's lower bound of 1 is sound: RepeatedProfilePattern requires at least
+  two independent supporting repositories and §4 forbids independence
+  re-evaluation, so no pattern can reach selection with an empty candidate
+  set and no "pattern without a winner" case exists.
+- §6.1's premise is real and its justification holds: ProfileRepositoryReference
+  compares Owner→Name only while record equality also weighs Url, and
+  GitHubProfileRepositoryCollector genuinely deduplicates on FullName and
+  builds each Url canonically from that same owner/name.
+- §13.1's ordering is a total order: ObservedProfileEvidence enforces
+  EvidenceKey == ObservationKey and at most one evidence reference per
+  repository per observation, and RepeatedProfilePattern rejects a repeated
+  ObservationKey.
+- §6.1's rejection rule does not conflict with §9's "incomplete evidence must
+  not block a selection": a colliding candidate set already fails §4-§7, and
+  §6.1 states explicitly that rejection carries no developer-evidence meaning.
+- §13 ordering item 4 does not conflict with §6.1 — it depends on it, since
+  without the precondition two grouped entries could compare equal and leave
+  result order undetermined.
+
+Three LOW findings were raised and all three were fixed in this same round
+rather than deferred:
+- LOW-1: §7 still said "exactly one primary RepresentativeRepository candidate
+  per pattern", the one place Round 5 had not reconciled with §3.4; read alone
+  it could have produced one RepresentativeRepository object per pattern win,
+  violating §3.4's post-grouping uniqueness. §7 now says "exactly one winning
+  candidate repository per pattern", states that the win materializes as
+  exactly one RepresentativePatternSupport, and points at §3.4 for grouping.
+- LOW-2: §6.1's lead-in said the precondition applies to "its candidate set",
+  which could be read per-pattern even though the normative block says "within
+  one selection execution". The lead-in now says the union of every pattern's
+  candidate set within one execution, and names why (grouping and result
+  ordering compare winners across patterns).
+- LOW-3 (pre-existing, not a Round 5 regression): §12's version-change trigger
+  list covered §13.1 but not §13's own canonical result ordering. Added "the
+  canonical result ordering (§13)", and widened the representative-count
+  trigger to "(§3, §3.4, §7)" so grouped cardinality is explicitly covered.
+
+One review note, not a finding: §13 item 6 names the sort key ObservationKey
+while §11/§13.1 name it EvidenceKey. §13.1 proves the two are identical by the
+upstream invariant, so no ambiguity exists and no change was made.
+~~~
+
+---
+
 ## Problems
 
 None beyond the findings recorded above across Round 1 (two BLOCKERs), Round 2
-(one remaining gap), Round 3 (two remaining gaps) and Round 4 (one stale fact,
-one contract ambiguity), all corrected within
-this session.
+(one remaining gap), Round 3 (two remaining gaps), Round 4 (one stale fact,
+one contract ambiguity) and Round 5 (five findings in the final exhaustive
+closure), all corrected within this session.
 
 ---
 
@@ -608,34 +810,28 @@ this session.
 
 ## Working Set / Final Git State
 
+Session 074 touched only documentation and worklog. No production code, test
+or project file was added or modified at any point, across all five rounds.
+
 ~~~text
-Git history so far (verified via `git log`, not asserted from memory):
-a034aaa — docs: lock representative repository selection contract
-efed302 — docs: correct representative repository completeness and version
-          semantics (Round 1 correction)
-3896c99 — docs: remove undefined pattern-set reference and tighten identity
-          semantics (Round 2 correction)
-615b41a — docs: fix representative empty-set and pattern traceability
-          semantics (Round 3 correction)
-All four committed and pushed by the user.
-
-Modified since 615b41a (this Round 4 correction, currently uncommitted in the
-working tree):
-- docs/architecture/public-profile-representative-repositories.md (§10
-  restructured into two explicitly named traces — Canonical Pattern Trace and
-  Representative Support Evidence Trace; §10.1/§10.2 headers and §11 field
-  list updated to match)
+Files owned by this session:
+- docs/architecture/public-profile-representative-repositories.md (created,
+  then corrected across Rounds 1-5)
 - worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
-  (Round 3's stale "uncommitted" wording corrected to the verified `615b41a`
-  fact; this Round 4 correction recorded)
+  (this file)
+- worklog/CURRENT.md (snapshot updated)
+- worklog/INDEX.md (one catalog row)
+- worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md
+  (minimal Git-transition fact correction only; implementation/review history
+  untouched)
 
-Pre-existing unrelated:
-- None
-
-Actual current Git state (branch, HEAD, staged/unstaged) should always be
-read live via `git status`/`git log` rather than from this snapshot, since it
-changes the moment the user commits.
+Pre-existing unrelated changes owned by the user: none observed at any point.
 ~~~
+
+Git transition remains user-owned and must be read from actual Git state
+(`git status`, `git log`). This file deliberately records no current or
+predicted working-tree state, so it stays true across the user's next Git
+transition.
 
 ---
 
@@ -645,33 +841,35 @@ Session 075 may begin production implementation of
 `RepresentativeRepositorySelection`/`RepresentativeRepository`/
 `RepresentativePatternSupport` per the locked and corrected contract, or
 continue toward Role Evidence Alignment decision work — neither is started by
-this session. Session contract work itself is complete; the Round 4
-correction is a working-tree change the user has not yet committed — that
-transition, like all Git transitions in this project, is user-owned.
+this session. Session contract work itself is complete.
 
 ---
 
 ## Git
 
+Verified historical commits on this session branch, in order (read from
+`git log`, not predicted):
+
 ~~~text
-Commits so far (user-owned, already happened):
 a034aaa — docs: lock representative repository selection contract
 efed302 — docs: correct representative repository completeness and version
-          semantics
+          semantics                                    (Round 1 correction)
 3896c99 — docs: remove undefined pattern-set reference and tighten identity
-          semantics
+          semantics                                    (Round 2 correction)
 615b41a — docs: fix representative empty-set and pattern traceability
-          semantics
-
-Suggested Round 4 correction commit:
-docs: separate canonical pattern trace from representative evidence trace, fix stale worklog fact
-
-Commit:
-PENDING — user-owned
-
-Push:
-PENDING — user-owned
+          semantics                                    (Round 3 correction)
+3a64f42 — docs: separate pattern and representative evidence traces
+                                                       (Round 4 correction)
 ~~~
+
+Suggested commit message for the Round 5 final exhaustive closure:
+
+~~~text
+docs: close representative repository contract invariants
+~~~
+
+Commit, push, branch deletion and any main integration are user-owned Git
+side effects. Claude performed none of them in this session.
 
 ---
 
