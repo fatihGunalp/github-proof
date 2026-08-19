@@ -1111,6 +1111,91 @@ RoleEvidenceAlignment üretilmediği için bu kriter representative selection
 Tüm profile evidence sonuçlarını tek deterministic structured truth altında
 birleştirmek.
 
+### P8-1 Contract Closure Durumu (Session 078–082)
+
+~~~text
+P8-1 — Exact Contract Closure:
+COMPLETE
+
+P8 implementation:
+READY
+~~~
+
+Session 078 kilitli 10 P8-1 ilkesini kaydetti; Session 079 exact contract
+kararlarının çoğunu canonical owner'lara işledi; Session 080 kalan dört
+semantic kararı ve devralınan `CurrentActivityWindow` önkoşulunu kilitledi.
+Bağımsız P8-1 contract review'ı ardından PASS WITH FINDINGS (1 HIGH, 2 MEDIUM,
+3 LOW) döndürdü; Session 081 HIGH bulgunun gerektirdiği yeni semantic kararı
+(profile-level evidence-surface accounting) kaydetti ve altı bulgunun
+tamamını düzeltti. Session 082 final exit gate'i çalıştırdı: PASS WITH
+FINDINGS (4 LOW, hiçbiri yeni semantic karar gerektirmiyor), dört LOW
+editoryal düzeltme uygulandı ve doğrulama yinelendi. BLOCKER/HIGH/MEDIUM
+bulgu kalmadı ve P8 implementation'ın tahmin etmesi gereken hiçbir
+product/domain semantiği kalmadı.
+
+Kapatılan canonical kararlar:
+
+- final `RepositoryEligibilityResult` tüketim sözleşmesi —
+  `docs/architecture/public-profile-evidence-repository-eligibility.md` §31,
+- `CurrentActivityWindow` = 365 gün — aynı dosya §19.3.1,
+- `SnapshotReference` ve `SnapshotIdentity` —
+  `docs/architecture/public-profile-evidence-domain-model.md` §6,
+- `AnalysisStatus` / `Failed` sahiplik sınırı, expected evidence surface
+  tanımı ve Complete/Partial/Failed accounting kuralı
+  (`IsEvidenceSurfaceComplete` tüketilen upstream girdi olarak) — aynı dosya
+  §13,
+- `ProfileLimitation` / `ProfileWarning` structured contract, V1 taksonomileri,
+  emission koşulu, deterministic warning identity mapping ve canonical
+  ordering key'leri — aynı dosya §13,
+- `DeveloperPublicEvidenceProfile` canonical root ve version-lineage
+  compatibility — aynı dosya §14,
+- typed `ProfileReport`, section availability ve canonical ordering —
+  `docs/architecture/public-profile-evidence-report-contract.md`,
+- `Unsupported` ProblemArea sunumu —
+  `docs/product/public-profile-evidence-product-contract.md` §24.
+
+Runtime notu (doğrulanmış, hâlâ geçerli): mevcut
+`src/GitHubProof.Domain/Profile/Models/RepositoryContributionAssessment.cs`
+`CurrentFocus` ve `HistoricalEvidence`'ı değerlendirmediğini ve genel bir
+`RepositoryEligibilityStatus` türetmediğini kod içi yorumla belirtir. Bu tür,
+canonical P2 sözleşmesinin dar bir alt kümesidir ve final
+`RepositoryEligibilityResult` değildir. P8 implementation'ı bu farkı sessizce
+bypass etmemelidir; §31 bu boşluğun nasıl kapatılacağını yönetir.
+
+### P8-1 Kalan Semantic Kararlar — Durum
+
+Session 079 sonrası bağımsız review dört açık semantic karar ve bir devralınan
+önkoşul tespit etmişti. **Session 080 bunların tamamını kilitledi:**
+
+1. `LimitedIndependentEvidenceSurface` emission koşulu ve canonical
+   `ProfileWarning` identity kümesi — KİLİTLİ,
+   `docs/architecture/public-profile-evidence-domain-model.md` §13.
+2. Version/provenance "compatible" tanımı — KİLİTLİ, aynı dosya §14
+   ("What 'Compatible' Means": lineage coherence, version string eşitliği
+   değil).
+3. `SnapshotIdentity` türetim sınırı — KİLİTLİ, aynı dosya §6: identity
+   canonical normalized `GitHubProfileSnapshot` semantic representation'dan
+   türetilir, `CapturedAt` (ve hangi ad altında olursa olsun gözlem zamanı)
+   identity'ye katılmaz, yasaklı türetme girdileri sabittir ve composer'a ait
+   ikinci bir alan envanteri yasaktır. Enumerated bir alan listesi bilinçli
+   olarak kilitlenmemiştir; semantic alan sahipliği canonical snapshot
+   representation'a aittir.
+4. V1'de `Unsupported` `Problem Area Patterns` bölümünün sunumu — KİLİTLİ,
+   `docs/product/public-profile-evidence-product-contract.md` §24 (varsayılan
+   raporda render edilmez; structured truth `Unsupported` taşımaya devam
+   eder).
+5. Devralınan önkoşul: `CurrentActivityWindow` — KİLİTLİ,
+   `docs/architecture/public-profile-evidence-repository-eligibility.md`
+   §19.3.1 (Profile V1 için tam 365 gün, recency boundary).
+
+Bağımsız P8-1 contract review'ı bu yüzeyi doğruladı ve altı bulgu üretti;
+Session 081 hepsini düzeltti (F1 evidence-surface accounting kuralı, F2
+deterministic warning identity mapping, F3 snapshot capture time'ın audit-only
+olmadığı, F4–F6 bounded tutarlılık).
+
+Session 082'de final exit gate çalıştırıldı ve geçti. Açık semantic karar
+kalmadı; P8-1 `COMPLETE`, P8 implementation `READY`.
+
 Temel yapı:
 
 ~~~text
@@ -1155,6 +1240,13 @@ bölümdür; Session 076 deferral kararı nedeniyle V1'de üretilmez ve rapor bu
 bölüm olmadan da eksiksiz/geçerlidir. Üretildiğinde bir üst P7 sözleşmesine
 uymalıdır (bkz.
 `docs/product/public-profile-evidence-product-contract.md` §24).
+
+Typed report DTO sözleşmesi, bölüm availability semantiği
+(`Supported` / `Unsupported` / `Deferred`) ve locale-independent canonical
+bölüm sıralaması Session 079'da kilitlenmiştir:
+`docs/architecture/public-profile-evidence-report-contract.md`. Yukarıdaki
+liste değişmemiştir; o contract bunu typed projection seviyesinde
+kesinleştirir ve `Warnings[]` için zorunlu ana narrative bölüm gerektirmez.
 
 ### Presentation Boundary
 
@@ -1383,6 +1475,8 @@ P7  Representative Repositories               COMPLETE
     + RoleEvidenceAlignment                    DEFERRED (explicit)
  ↓
 P8  Profile Composer + Report Contract
+    P8-1 contract closure                      COMPLETE
+    P8 implementation                          READY (not started)
  ↓
 P9  Validation Profile Set
  ↓

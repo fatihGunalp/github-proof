@@ -12,6 +12,21 @@
   DEFERRED for current Profile V1 / Milestone B under the Session 076
   decision and that the report is complete/valid without it; no product
   semantics, evidence rules or contract version changed
+- 2026-08-19 / Session 079 — P8-1 contract-ownership cross-reference only
+  (§24, §27): records that the typed profile report DTO shape, report
+  section availability semantics and canonical report ordering are now
+  locked by
+  `docs/architecture/public-profile-evidence-report-contract.md`. No product
+  requirement was added, removed, weakened or reinterpreted; no evidence
+  rule and no contract version changed
+- 2026-08-19 / Session 080 — §24: locks the previously open product decision
+  that the default Milestone B user-facing report does not render the
+  `Problem Area Patterns` section while its availability is `Unsupported`,
+  while the structured/typed report truth still carries
+  `Availability = Unsupported`. `RoleEvidenceAlignment` remains separately
+  `Deferred`; the two states may not be collapsed. Empty results may still
+  never be presented as "problem area bulunamadı" or any negative developer
+  conclusion. No evidence rule and no contract version changed
 
 
 ## 1. Ürün Tanımı
@@ -801,6 +816,37 @@ işlemlerini yeniden çalıştırmamalıdır.
 
 ## 24. İlk Profile-Level Raporun Zorunlu Bölümleri
 
+Bu bölüm ürün seviyesinde zorunlu rapor yüzeyini tanımlar. Typed report DTO
+sözleşmesi, bölüm availability semantiği (`Supported` / `Unsupported` /
+`Deferred`) ve canonical bölüm sıralaması Session 079'da ayrı bir canonical
+architecture contract'ında kilitlenmiştir:
+`docs/architecture/public-profile-evidence-report-contract.md`. Aşağıdaki
+ürün gereksinimleri değişmemiştir; o contract bunları typed projection
+seviyesinde kesinleştirir.
+
+İki not:
+
+1. Aşağıdaki başlık listesi ürün yüzeyini sayar, canonical sıralamayı
+   belirlemez. Locale-independent canonical bölüm sıralaması report contract
+   §7'de kilitlidir ve `Role Evidence Alignment`'ı conditional extension
+   olarak en sona koyar.
+2. `Problem Area Patterns` V1'de `Unsupported`'tır
+   (`docs/architecture/public-profile-evidence-patterns.md` §9). **Ürün
+   kararı (Session 080):** varsayılan Milestone B kullanıcıya dönük raporda
+   bu bölüm, availability `Unsupported` olduğu sürece **render edilmez.**
+
+   Bu yalnız bir rendering kararıdır. Structured/typed report truth
+   `Availability = Unsupported`, `Items = []` değerini taşımaya devam eder ve
+   bir consumer bunu görebilir; ürün sürümünün bu yeteneği üretmediği bilgisi
+   kaybolmaz (bkz. report contract §6.5).
+
+   Bölüm render edilse de edilmese de boş sonuç `problem area bulunamadı`,
+   yanıltıcı boş kart veya herhangi bir negatif developer sonucu olarak
+   sunulamaz.
+
+   `RoleEvidenceAlignment` ayrı biçimde `Deferred` kalır; `Unsupported` ve
+   `Deferred` tek bir duruma indirgenemez.
+
 İlk profile-level report contract en az şu alanları desteklemelidir:
 
 ### Public Profile Summary
@@ -910,12 +956,18 @@ Aşağıdaki konular product contract seviyesinde kesinleştirilmez:
 - role-alignment thresholds,
 - GitHub profile collection API shape,
 - pagination bounds,
-- profile report DTO shape,
 - persistence,
 - authentication,
 - billing.
 
 Bunlar sonraki domain/architecture contracts tarafından belirlenmelidir.
+
+`profile report DTO shape` bu listede yer alıyordu ve Session 079'da
+beklendiği gibi ayrı bir canonical architecture contract'ı tarafından
+belirlenmiştir:
+`docs/architecture/public-profile-evidence-report-contract.md`. Bu, product
+contract seviyesinde yeni bir ürün kararı kilitlemez; yalnız o kararın artık
+hangi canonical owner'a ait olduğunu kaydeder.
 
 Bu contract gelecekteki implementasyonu yönlendirir ancak henüz seçilmemiş
 algoritmaları uydurmaz.

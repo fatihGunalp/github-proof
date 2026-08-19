@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-19
+**Last Updated:** 2026-08-19 (Session 082)
 **Source of Truth:** docs/
 
 ## Development
@@ -118,6 +118,59 @@ P8 — Deterministic Profile Composer and Report Contract planning is now the
 next authorized development stage; it may proceed without treating
 RoleEvidenceAlignment as a dependency.
 
+P8 Phase State (Sessions 078–082):
+
+~~~text
+P8-1 — Exact Contract Closure:
+COMPLETE
+
+P8 implementation:
+READY
+~~~
+
+Session 078 recorded the 10 locked P8-1 principles. Session 079 recorded the
+8 locked exact contract decisions; its review found four semantic decisions
+open plus one inherited prerequisite, which Session 080 locked. The P8-1
+independent contract review then returned PASS WITH FINDINGS (1 HIGH, 2
+MEDIUM, 3 LOW); the HIGH required a new semantic decision. Session 081
+recorded that decision — the profile-level evidence-surface accounting rule —
+and corrected all six findings. Session 082 ran the final exit gate: PASS WITH
+FINDINGS (4 LOW, all type (A), all corrected), then a confirmation re-run that
+found no new decision, capability, identity or contradiction.
+
+Gate outcome: 0 BLOCKER, 0 HIGH, 0 MEDIUM, and no remaining semantic
+implementation-choice gap. P8 implementation does not have to guess any
+product or domain semantics.
+
+Canonical owners defining P8 implementation semantics:
+
+- final `RepositoryEligibilityResult` consumption contract —
+  docs/architecture/public-profile-evidence-repository-eligibility.md §31,
+- `CurrentActivityWindow` = 365 days — same file §19.3.1,
+- `SnapshotReference` / `SnapshotIdentity` (`CapturedAt` excluded from
+  identity) — docs/architecture/public-profile-evidence-domain-model.md §6,
+- `AnalysisStatus` / `Failed` ownership boundary, the expected-evidence-surface
+  definition and the Complete/Partial/Failed accounting rule (incl.
+  `IsEvidenceSurfaceComplete` as consumed upstream input) — same file §13,
+- `ProfileLimitation` / `ProfileWarning` structured contract, V1 taxonomies,
+  the `LimitedIndependentEvidenceSurface` emission condition, the
+  deterministic warning identity mapping and canonical ordering keys — same
+  file §13,
+- `DeveloperPublicEvidenceProfile` canonical root and version-lineage
+  compatibility — same file §14,
+- typed `ProfileReport`, section availability, canonical ordering —
+  docs/architecture/public-profile-evidence-report-contract.md
+  (CONTRACT LOCKED V1),
+- `Unsupported` ProblemArea presentation —
+  docs/product/public-profile-evidence-product-contract.md §24.
+
+Deliberately left to implementation (naming/typing/versioning only, never
+semantics): the concrete type and name of the composition-result wrapper,
+report DTO code naming, the mechanism deriving `SnapshotIdentity` from the
+canonical normalized snapshot representation, and the first runtime value of
+the profile-level `AnalyzerVersion`. Precedent for that class of choice:
+`RepresentativeRepositoryRuleVersion.V1 = "1.0.0"` (Session 075).
+
 ## Production Delivery
 
 Milestone A:
@@ -132,54 +185,136 @@ Session:
 NONE
 
 Last Completed Session:
-077 — P7 Closure + RoleEvidenceAlignment Deferral Alignment (docs/worklog
-only, no code)
+082 — P8-1 Exit Gate and Finalization (docs/worklog only, no code)
 
 Session File:
-worklog/sessions/2026-08-19-077-p7-closure-role-evidence-alignment-deferral.md
+worklog/sessions/2026-08-19-082-p8-1-exit-gate-finalization.md
 
 Status:
-CANONICAL AMENDMENT COMPLETE. RoleEvidenceAlignment is now explicitly
-optional/conditional and non-blocking across
-docs/roadmap/mvp-phases.md (P7/P8/P9/P10 + DoD),
-docs/product/public-profile-evidence-product-contract.md (§14, §24) and
-docs/architecture/public-profile-evidence-domain-model.md (§12, §21);
-docs/architecture/public-profile-representative-repositories.md (§14) had
-only its stale cross-reference updated, no selection semantics changed.
-docs/roadmap/deployment-milestones.md,
-docs/architecture/public-profile-evidence-patterns.md and
-docs/product/job-evidence-alignment-product-contract.md were reviewed and
-required no change. No src/, tests/ changed. `git diff --check` clean;
-changed-file scope confirmed exactly 4 canonical docs files.
+P8-1 EXIT GATE PASSED. Round 1: PASS WITH FINDINGS (4 LOW, no BLOCKER/HIGH/
+MEDIUM, none requiring a new semantic decision); all four corrected as
+editorial precision in domain model §6/§13 — total resolved/unresolved
+partition, named canonical repository comparer for limitation/warning
+ordering, enumerated V1 scope values (`Profile`, `Repository`, derived from
+the already-locked identities), and the "materially affect" floor
+clarification. Confirmation re-run verified the corrections introduced no new
+decision, capability, identity or contradiction, and specifically that the
+total partition matches the eligibility enums exactly (union minus
+`Undetermined`) and that the scope enumeration is derivable rather than
+invented. P8-1 finalized COMPLETE; P8 implementation READY, not started. No
+src/, tests/ changed.
 
 Previous completed session:
-076 — Role Evidence Alignment Feasibility / Decision (no code). FEASIBILITY
-DECISION, FINALIZED. Verdict: NOT_READY_WITH_CURRENT_EVIDENCE. P7 closure
-decision made by the user: Option A — RoleEvidenceAlignment DEFERRED, P7 V1
-recorded as COMPLETE WITH EXPLICIT DEFERRAL. No src/, tests/ or canonical
-docs/ changed at any point in that session. See
-worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md for
-the full Turkish feasibility report and the finalization record.
+081 — P8-1 Review Corrections (docs/worklog only, no code)
 
-Earlier completed session:
-075 — Representative Repository Implementation (P7 Domain implementation).
-IMPLEMENTATION PASS. Final closure review of the complete working set
-returned PASS WITH FINDINGS (1 MEDIUM — the worklog session file itself had
-gone stale after three correction/hardening turns; no production defect;
-resolved by finalizing that file). 676/676 Domain tests pass (622 baseline +
-54 new); full solution build (Domain, Infrastructure, Application, Web) 0
-warning / 0 error; Infrastructure 255/255, Application 101/101, Web 68/68
-unchanged from baseline (this session touched no code outside
-GitHubProof.Domain/GitHubProof.Domain.Tests). Git transition is user-owned
-and must be read from actual Git state.
+Session File:
+worklog/sessions/2026-08-19-081-p8-1-review-corrections.md
+
+Status:
+All six P8-1 independent-review findings corrected. The HIGH finding (F1)
+required a new user+ChatGPT semantic decision, now locked and recorded in
+domain model §13: the "expected evidence surface" definition (supported and
+applicable obligations already imposed by the existing canonical owners;
+Unsupported/Deferred are not obligations), the resolved-vs-unresolved
+distinction (`Analyze`/`Skip`/`Allowed`/`NotAllowed`/`NotApplicable` resolved;
+`Undetermined` unresolved), Complete/Partial/Failed rewritten on that
+accounting, and `ProfilePatternSet.IsEvidenceSurfaceComplete` locked as a
+consumed upstream input (false → Partial; true alone insufficient for
+Complete). F2 closed by the deterministic `ProfileWarning` identity mapping
+(same four identities, none added). F3 corrected the claim that snapshot
+capture time is audit-only — it is a semantic input to temporal eligibility,
+so `SnapshotIdentity` alone is not a safe cache key (domain model §14, §16).
+F4, F5, F6 applied as bounded consistency corrections. No new capability,
+warning identity or limitation identity created; no locked decision reopened;
+no new semantic gap discovered. No src/, tests/ changed. **Exit gate not run;
+P8-1 not closed.**
+
+Previous completed session:
+080 — P8-1 Remaining Semantic Decisions (docs/worklog only, no code)
+
+Session File:
+worklog/sessions/2026-08-19-080-p8-1-remaining-semantic-decisions.md
+
+Status:
+Six locked semantic decisions recorded in their canonical owners:
+`SnapshotIdentity` excluding `CapturedAt` and derived from the canonical
+normalized snapshot representation (domain model §6);
+`CurrentActivityWindow` = 365 days as a recency boundary (eligibility
+§19.3.1); the `LimitedIndependentEvidenceSurface` emission condition, bound
+to the already-locked P6 repetition minimum, with empty patterns explicitly
+excluded (domain model §13); the four V1 `ProfileWarning` identities (same
+§13); version-lineage compatibility as lineage coherence rather than equal
+version strings, incoherence → Failed (domain model §14); and the default
+Milestone B report not rendering an `Unsupported` ProblemArea section while
+structured truth retains the state (product contract §24, report contract
+§6.5). No conflict found. No new semantics invented. No src/, tests/
+changed. **P8-1 not closed by this session and no completion review was
+run** — that review is the next action.
+
+Previous completed session:
+079 — P8-1 Exact Contract Closure (docs/worklog only, no code)
+
+Session File:
+worklog/sessions/2026-08-19-079-p8-1-exact-contract-closure.md
+
+Status:
+Recorded the 8 locked exact contract decisions in their canonical owners
+(eligibility §31; domain model §6, §13, §14; NEW
+docs/architecture/public-profile-evidence-report-contract.md; bounded
+cross-references in product contract §24/§27 and mvp-phases P8). Three
+independent review rounds (BLOCKED, BLOCKED, then PASS WITH FINDINGS)
+established that this did not close the phase; the four semantic decisions
+plus one inherited prerequisite it left open were then closed by Session 080.
+No src/, tests/ changed.
+
+Previous completed session:
+078 — P8-1 Profile Composition and Report Decision Lock (docs/worklog only,
+no code)
+
+Session File:
+worklog/sessions/2026-08-19-078-p8-1-profile-composition-decision-lock.md
+
+Status:
+10 P8-1 decisions from the user-supplied ChatGPT handoff
+(`p8-1-profile-composition-report-decisions.md`) recorded in the session
+file. No conflict found against canonical docs. Bounded amendment applied to
+docs/architecture/public-profile-evidence-domain-model.md (§13:
+profile-level AnalysisStatus Complete/Partial/Failed; Limitation/Warning
+count-independence rule; §14 Result Completion Boundary: incoherence ->
+Failed not Partial) and docs/roadmap/mvp-phases.md (P8 section: P2
+eligibility runtime-prerequisite cross-reference). No src/, tests/ changed.
+This session recorded the 10 locked decisions and the bounded alignment they
+directly supported; it does NOT authorize P8 implementation and does NOT
+close P8-1. Independent review: PASS WITH FINDINGS (1 MEDIUM, worklog
+finalize-sequencing inconsistency, non-blocking, resolved in the same
+turn). P8-1 remains in contract-closure work; several exact contract
+decisions are still unresolved (see "P8 Phase State (Session 078 / 079)"
+above) and P8 implementation is NOT_READY.
+
+Earlier completed sessions (closed and integrated into `main`; detail lives
+in the session files, not here):
+
+- 077 — P7 Closure + RoleEvidenceAlignment Deferral Alignment. DOCS, no code.
+  Canonical amendment complete; RoleEvidenceAlignment made explicitly
+  optional/non-blocking across 4 canonical docs files.
+  `worklog/sessions/2026-08-19-077-p7-closure-role-evidence-alignment-deferral.md`
+- 076 — Role Evidence Alignment Feasibility / Decision. No code, no docs
+  changed. Verdict NOT_READY_WITH_CURRENT_EVIDENCE; user chose Option A
+  (DEFERRED), making P7 V1 COMPLETE WITH EXPLICIT DEFERRAL.
+  `worklog/sessions/2026-08-19-076-role-evidence-alignment-feasibility.md`
+- 075 — Representative Repository Implementation (P7 Domain). PASS. 676/676
+  Domain tests, full solution build 0 warning / 0 error; closure review PASS
+  WITH FINDINGS (1 MEDIUM, worklog-only, resolved).
+  `worklog/sessions/2026-08-19-075-representative-repository-implementation.md`
 
 ## Git
 
 Session Branch:
-session/077-p7-closure-role-evidence-alignment-deferral
+session/078-p8-1-profile-composition-decision-lock
 
 Session Base:
-4e8ef7574ad136670f9758d4210451f48dc5d582
+16c0447 (main @ session start; docs(worklog): stop tracking transient git
+state)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -331,6 +466,34 @@ composition.
 
 ## Next Action
 
+Session 082 ran the P8-1 exit gate against the corrected contract surface and
+it passed: 0 BLOCKER, 0 HIGH, 0 MEDIUM, and no remaining semantic
+implementation-choice gap. P8-1 is closed.
+
+~~~text
+P8-1 — Exact Contract Closure:
+COMPLETE
+
+P8 implementation:
+READY
+~~~
+
+Exact next action:
+
+~~~text
+P8 Implementation Planning
+~~~
+
+Implementation is authorized but not started. The P8 implementation session
+is a separate meaningful session and must be routed through its own
+model/effort gate. It builds against the canonical owners listed under
+"P8 Phase State (Sessions 078–082)" above.
+
+Sessions 078–082 share one uncommitted working tree on branch
+`session/078-p8-1-profile-composition-decision-lock` from base `16c0447`,
+because Session 078 was never committed and commit is user-owned. How that
+is committed (one commit or several) is the user's decision.
+
 Session 077 is finalized. P7 closure state is now reflected in the canonical
 docs:
 
@@ -352,15 +515,10 @@ strong enough. No upstream evidence expansion (ProducedWorkEvidence,
 ProblemArea, semantic-category/source-reference wiring, or any other
 Session 076 §6 candidate gap) is required now, and none was started.
 
-Exact next stage:
-
-~~~text
-Profile P8 — Deterministic Profile Composer and Report Contract
-~~~
-
-P8 planning may now proceed without treating RoleEvidenceAlignment as a
-dependency; the canonical docs no longer require it for Profile V1 /
-Milestone B / P8 composition / P9 validation / P10 first-read surface.
+Session 077's own next-action (start P8) is superseded by the current Next
+Action section above. Its lasting effect is only that RoleEvidenceAlignment
+is not a dependency for Profile V1 / Milestone B / P8 composition / P9
+validation / P10 first-read surface.
 
 Separately, and independent of the RoleEvidenceAlignment question: Session
 075 implemented the locked Representative Repository contract in Domain with
@@ -378,6 +536,6 @@ deterministic profile composer; RoleEvidenceAlignment taxonomy and rules
 (deferred, not blocking); ProducedWorkEvidence remains unresolved;
 RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
-Session 077's docs/worklog changes are currently uncommitted working-tree
-changes on `session/077-p7-closure-role-evidence-alignment-deferral`;
-commit/push is user-owned per CLAUDE.md.
+Session 077's changes were committed and integrated into `main` before
+Session 078 began (`f68d258`, `16c0447`). Current uncommitted working-tree
+state belongs to Sessions 078/079; see the Next Action section above.

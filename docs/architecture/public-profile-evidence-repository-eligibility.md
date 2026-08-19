@@ -5,6 +5,20 @@
 **Profile Phase:** P2 — Repository Eligibility Contract
 **Roadmap Stage:** Stage 6 — Profile P2
 **Locked:** 2026-08-16 / Session 057
+**Amended:** 2026-08-19 / Session 079 — added §31 locking which eligibility
+result profile composition (P8) consumes, that Undetermined must survive to
+composition, that the derived overall status is not a second truth, the
+required provenance, and that the narrower runtime
+`RepositoryContributionAssessment` is not the final result. No eligibility
+rule, status value, contribution purpose, reason identity, policy semantic or
+derivation rule was added, removed or changed
+**Amended:** 2026-08-19 / Session 080 — added §19.3.1 locking the Profile V1
+`CurrentActivityWindow` at exactly 365 days as a recency boundary (repository
+age irrelevant), applied through the unchanged §19.2 activity reference, and
+updated the §31.5 prerequisite note accordingly. No other lifecycle,
+independence, provenance, contribution or derivation rule changed; §19.3
+policy-version ownership is unchanged and still requires a new
+`EligibilityPolicyVersion` to alter the value
 **Production Code:** NOT IN SCOPE
 
 ## 1. Purpose
@@ -750,6 +764,79 @@ An implementation must not:
 
 Therefore identical normalized inputs plus the same complete policy version
 produce the same activity classification.
+
+### 19.3.1 Profile V1 CurrentActivityWindow Value
+
+For Profile V1:
+
+CurrentActivityWindow
+=
+exactly 365 days
+
+This value belongs immutably to the `EligibilityPolicyVersion` that carries
+it. Changing it requires a new `EligibilityPolicyVersion`, exactly as §19.3
+already requires.
+
+#### It Is a Recency Boundary
+
+The window is a recency boundary on observed source-control activity.
+
+It is not a requirement that a repository have 365 days of history, and it is
+not a minimum age, maturity or duration expectation of any kind.
+
+Therefore:
+
+repository age
+=
+irrelevant to ActivityClassification
+
+A repository created two weeks before the snapshot, with source-control
+activity inside the window, is `Active`. A repository with ten years of
+history whose last source-control activity precedes the cutoff is
+`Historical`.
+
+#### Application
+
+Using the §19.2 activity reference unchanged:
+
+ActivityCutoff
+=
+SnapshotCapturedAt
+-
+365 days
+
+RepositoryActivityTimestamp >= ActivityCutoff
+→
+ActivityClassification
+=
+Active
+
+RepositoryActivityTimestamp < ActivityCutoff
+→
+ActivityClassification
+=
+Historical
+
+Required source-control activity timestamp unavailable
+→
+ActivityClassification
+=
+Undetermined
+
+#### Preserved Boundaries
+
+Locking the value changes nothing else in §19.2:
+
+- general metadata update timestamps must not substitute for source-control
+  activity,
+- no system clock participates; the cutoff is anchored to
+  `SnapshotCapturedAt`,
+- an unavailable activity timestamp yields `Undetermined`, never an
+  optimistic `Active`.
+
+Archived remains an independent repository condition (§19.1). A repository
+may be `Active + Archived`, and §19.4 may still make `CurrentFocus =
+NotAllowed` on archive grounds regardless of activity classification.
 
 ### 19.4 Archive Override
 
@@ -1500,3 +1587,113 @@ evidence for one job.
 
 It must not retroactively change repository eligibility or increase the
 underlying profile evidence strength.
+
+## 31. Final Eligibility Result Consumed by Profile Composition
+
+This section locks which result profile composition (P8) consumes. It
+introduces no new eligibility rule, status, purpose, reason identity or
+policy semantics; every rule it refers to is already defined above.
+
+### 31.1 The Final Result
+
+The result profile composition consumes is the RepositoryEligibilityResult
+defined by this contract, carrying all of:
+
+- the purpose-specific ContributionDecision values (§10) for every canonical
+  contribution purpose (§11): ProfileContext, ProfileObservation,
+  IndependentRepetition, CurrentFocus, HistoricalEvidence,
+- the overall RepositoryEligibilityStatus (§13) deterministically derived
+  from those decisions by §14,
+- the traceability required by §17.
+
+Its canonical semantic question is unchanged:
+
+> What may this repository safely contribute evidence toward?
+
+It is not:
+
+> Is this a good repository?
+
+### 31.2 Undetermined Must Survive
+
+The Undetermined ContributionDecision (§10) and the Undetermined
+RepositoryEligibilityStatus (§13, §14.1) must reach profile composition
+intact.
+
+An implementation must not collapse Undetermined into NotAllowed, into
+false, or into any absent/default value on the way to composition.
+
+Therefore:
+
+insufficient evidence to decide safely
+!=
+decided as not allowed
+
+Erasing that distinction would convert a known gap in observability into an
+apparent deterministic exclusion, which §14.1 already prohibits at the
+derivation level and which is equally prohibited at the consumption level.
+
+### 31.3 Derived Status Is Not a Second Truth
+
+The overall RepositoryEligibilityStatus remains derived output, exactly as
+§13 states.
+
+It must not be stored, transported or recomputed in a way that lets it
+contradict the purpose-specific decisions it was derived from. For one fixed
+set of purpose-specific decisions, §14.5 already requires exactly one
+derivable status; no consumer may present or persist a status that §14 would
+not produce from those same decisions.
+
+Therefore:
+
+overall status
+!=
+independent eligibility truth
+
+### 31.4 Required Provenance
+
+The final result must preserve:
+
+- canonical repository identity, via ProfileRepositoryReference (§17),
+- eligibility policy/version provenance, via EligibilityPolicyVersion (§17,
+  §19.3),
+- deterministic structured reason/trace information sufficient to explain why
+  each purpose-specific decision was made, via the EligibilityReason
+  identities locked in §15.
+
+Reason and trace information is explanatory only. It must not introduce
+repository quality, developer capability, seniority, employability or ranking
+semantics — §2 and §29 already prohibit these, and no reason, trace or
+presentation of a reason may reintroduce them.
+
+### 31.5 RepositoryContributionAssessment Is Not the Final Result
+
+The narrower runtime type currently present in the codebase as
+`RepositoryContributionAssessment` is not the final RepositoryEligibilityResult
+defined here. By its own definition it does not fully represent CurrentFocus
+and HistoricalEvidence and derives no overall RepositoryEligibilityStatus.
+
+Profile composition must consume the final result defined by this contract.
+
+An implementation must not substitute the narrower assessment, and must not
+silently treat an unevaluated CurrentFocus or HistoricalEvidence purpose as
+though it had been decided.
+
+Closing that gap is implementation work governed by this contract. It is not
+a further semantic decision, because every rule required to produce the final
+result — the purposes (§11), the decision values (§10), the baselines
+(§22), the independence rules (§23), the lifecycle/CurrentFocus rules (§24),
+the provenance rules (§25), the HistoricalEvidence rule (§26), the
+resolution precedence (§27) and the deterministic overall derivation (§14) —
+is already locked above.
+
+The `CurrentActivityWindow` prerequisite required by §19.3 is now satisfied:
+§19.3.1 locks the Profile V1 value at exactly 365 days, so
+`ActivityClassification` and therefore `CurrentFocus` are computable without
+an implementation selecting a window value.
+
+### 31.6 Human-Language Invariant
+
+A repository does not have one universal include/exclude answer.
+
+GitHub Proof records what the repository may safely be used to support.
