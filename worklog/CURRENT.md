@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-19 (Session 085)
+**Last Updated:** 2026-08-19 (Session 086)
 **Source of Truth:** docs/
 
 ## Development
@@ -201,6 +201,47 @@ Session:
 NONE
 
 Last Completed Session:
+086 — P8-I3 Deterministic Profile Composer (Application implementation,
+independent review + finalization)
+
+Session File:
+worklog/sessions/2026-08-19-086-p8-i3-deterministic-profile-composer.md
+
+Status:
+P8-I3 COMPLETE. Implemented in Application, additively:
+`ProfileCompositionInput` (bundles `ProfileAnalysisOrchestrationResult`,
+`RepositoryEligibilityResult[]`, `CrossRepositoryEvidence`, `ProfilePatternSet`,
+`RepresentativeRepositorySelection`, `AnalyzerVersion`, `StartedAt`/
+`CompletedAt`) and `ProfileComposer.Compose(...)`, which: verifies repository-
+universe coherence across orchestration/eligibility/evidence (value-based, not
+reference-based — `RepositoryContributionAssessment` is independently computed
+today by both `CrossRepositoryEvidenceComposer` and `RepositoryEligibilityPolicy`,
+so coherent runs are value-equal but reference-distinct); verifies, by
+reference (`ReferenceEqualityComparer`), that every promoted pattern's
+supporting observations actually belong to the given `CrossRepositoryEvidence`
+and every representative selection's referenced pattern actually belongs to
+the given `ProfilePatternSet` (the "Canonical Observation/Pattern Trace");
+derives `AnalysisStatus` (Complete/Partial) from `IsEvidenceSurfaceComplete`
+plus per-repository `RepositoryEligibilityStatus.Undetermined`; emits
+`LimitedIndependentEvidenceSurface`/`PartialEvidenceSurface` limitations and
+all four `ProfileWarning` identities (the latter from
+`ProfileRepositoryAnalysisResult.Outcome`/`CollectionAvailability`/
+`Analysis.Status`, since `RepositoryEligibilityResult` alone cannot
+distinguish rate-limited from other-unavailable from failed); and returns
+`Failed()` with no root — via catching any `ArgumentException`, including the
+one `DeveloperPublicEvidenceProfile`'s own constructor already throws for
+version incoherence — when coherence cannot be proven. Full solution build 0
+warning / 0 error; 1244/1244 tests (Application 123 = 101 baseline + 22 new;
+Domain 798, Infrastructure 255, Web 68 unchanged). Independent review via the
+repository's `github-proof-review` workflow, three rounds: round 1 PASS WITH
+FINDINGS (1 HIGH — a missing pattern↔evidence coherence check, fixed);
+round 2 PASS WITH FINDINGS (1 MEDIUM — the round-1 fix's test accidentally
+masked pre-existing coverage of the pattern↔selection check, fixed and
+empirically re-isolated in both directions); round 3 PASS, 0 BLOCKER/HIGH/
+MEDIUM/LOW. No canonical docs changed. `ProfileComposer` is not yet wired into
+any running Application composition path (P8-I5's responsibility).
+
+Previous completed session:
 085 — P8-I2 Profile Root Foundation (Domain implementation, independent
 review + finalization)
 
@@ -406,10 +447,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/085-p8-i2-profile-root-foundation
+session/086-p8-i3-deterministic-profile-composer
 
 Session Base:
-c31d680 (feat(profile): implement final repository eligibility)
+db84146 (feat(profile): establish profile root foundation)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -533,9 +574,9 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 085 (last code change):
-1222/1222 PASS across the full solution (Domain 798 [726 baseline + 72 new],
-Infrastructure 255, Application 101, Web 68 — the latter three unchanged
+Session 086 (last code change):
+1244/1244 PASS across the full solution (Application 123 [101 baseline + 22
+new], Domain 798, Infrastructure 255, Web 68 — the latter three unchanged
 from baseline)
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
 
@@ -574,39 +615,43 @@ READY
 ~~~
 
 Session 083 recorded the five-slice implementation plan; Session 084
-completed the first slice; Session 085 completed the second.
+completed the first slice; Session 085 completed the second; Session 086
+completed the third.
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
-P8-I3 Deterministic Profile Composer:        NOT STARTED
+P8-I3 Deterministic Profile Composer:        COMPLETE
+P8-I4 Typed Profile Report and Projector:    NOT STARTED
 ~~~
 
 Exact next action:
 
 ~~~text
-P8-I3 — Deterministic Profile Composer
+P8-I4 — Typed Profile Report and Projector
 ~~~
 
-`SnapshotIdentity`/`SnapshotReference`, the profile-level `AnalysisStatus`,
-structured `ProfileLimitation`/`ProfileWarning`, the
-`DeveloperPublicEvidenceProfile` root and the `ProfileCompositionResult`
-wrapper that owns `Failed` are now implemented in Domain (Session 085; see
-that session file for the full independent-review record). P8-I3 assembles
-the canonical root from P3–P7 results: version-lineage compatibility
-verification (§14), the evidence-surface accounting that decides
-`Complete` vs `Partial`, emitting limitations/warnings per their locked
-identity mapping, and returning `Failed` with no root when coherence cannot
-be proven. Depends on both P8-I1 and P8-I2. P8-I3 is a separate meaningful
-session and must be routed through its own model/effort gate. Full slice
-plan: worklog/sessions/2026-08-19-083-p8-implementation-planning.md
+`ProfileComposer`/`ProfileCompositionInput` (Application) now assemble the
+canonical `DeveloperPublicEvidenceProfile` from the P3–P8-I2 results (Session
+086; see that session file for the full independent-review record, three
+rounds: 1 HIGH then 1 MEDIUM, both corrected and empirically re-verified,
+final PASS). P8-I4 projects that root into the typed `ProfileReport` per the
+locked report contract
+(docs/architecture/public-profile-evidence-report-contract.md): nine
+semantic sections in canonical order, `Supported`/`Unsupported`/`Deferred`
+availability independent of emptiness, deterministic item ordering
+preserving upstream canonical orders, and the summary compress-don't-inflate
+rule. Depends on P8-I3. P8-I4 is a separate meaningful session and must be
+routed through its own model/effort gate. Full slice plan:
+worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-Sessions 078–084 are already committed as of `c31d680`
-(`feat(profile): implement final repository eligibility`), the base of
-`session/085-p8-i2-profile-root-foundation`. Session 085's own P8-I2
-implementation is committed as `ee2e204` (checkpoint); this session's
-worklog updates (`CURRENT.md`, `INDEX.md`, this session file) remain
-uncommitted. Commit/push remains user-owned.
+Sessions 078–085 are already committed as of `db84146`
+(`feat(profile): establish profile root foundation`), the base of
+`session/086-p8-i3-deterministic-profile-composer`. Session 086's own P8-I3
+implementation (`src/GitHubProof.Application/Profile/ProfileComposer.cs`,
+`ProfileCompositionInput.cs`, and the two new test files) remains
+uncommitted, alongside this session's worklog updates (`CURRENT.md`,
+`INDEX.md`, this session file). Commit/push remains user-owned.
 
 Session 077 is finalized. P7 closure state is now reflected in the canonical
 docs:
