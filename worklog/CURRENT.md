@@ -19,8 +19,11 @@ INTEGRATED INTO MAIN
 Session 072 — Dependency Source Reference Detection Contract — COMPLETE /
 REMOTE VERIFIED / INTEGRATED INTO MAIN
 Session 073 — Dependency Source Reference Detector Implementation — COMPLETE /
+REMOTE VERIFIED / INTEGRATED INTO MAIN
+Session 074 — Representative Repository Decision + Contract — COMPLETE /
 REMOTE VERIFIED / INTEGRATED INTO MAIN at
-72932bb5de4ec37850850ebaea2c2e75f61e406a
+f32c5de7a6e21e7eedc786deb973b6aec159dcec (contract-only; five post-push
+independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
 Stage 7 — Public Profile Evidence Foundation
@@ -37,15 +40,18 @@ ProblemArea — taxonomy, promotion and repository evidence all remain
 unimplemented and deferred
 
 Next Profile Phase:
-P7 — Representative Repository and Role Evidence Alignment — STARTED
+P7 — Representative Repository and Role Evidence Alignment — IN PROGRESS
 
-Session 074 locked the Representative Repository selection contract
-(documentation only), corrected across five rounds of post-push independent
-review, the last of which was a final exhaustive contract closure.
-RepresentativeRepositorySelection/RepresentativeRepository/
-RepresentativePatternSupport production code has NOT started.
-RoleEvidenceAlignment semantics have NOT started and remain a separate later
-P7 decision.
+Session 075 implemented the locked Representative Repository contract in
+Domain (RepresentativeRepositorySelection, RepresentativeRepository,
+RepresentativePatternSupport, RepresentativeRepositorySelectionPolicy,
+RepresentativeRepositoryRuleVersion, with RepresentativeRepositoryRuleVersion.V1
+= "1.0.0" as the first canonical runtime rule version) with 54 new Domain
+tests, closed across four correction/hardening turns and a final closure
+review. No Application orchestration, report/UI or P8 composer consumes it
+yet. RoleEvidenceAlignment semantics have NOT started and remain a separate
+later P7 decision. Git transition for Session 075 is user-owned and must be
+read from actual Git state.
 
 ## Production Delivery
 
@@ -61,48 +67,36 @@ Session:
 NONE
 
 Last Completed Session:
-074 — Representative Repository Decision + Contract (P7 contract decision)
+075 — Representative Repository Implementation (P7 Domain implementation)
 
 Session File:
-worklog/sessions/2026-08-18-074-representative-repository-decision-contract.md
+worklog/sessions/2026-08-19-075-representative-repository-implementation.md
 
 Status:
-DOCS_CONTRACT PASS — docs/architecture/public-profile-representative-repositories.md
-locked (Contract Version 1), including five rounds of post-push independent
-review corrections (round 1: completeness and version/traceability semantics;
-round 2: an undefined ProfilePatternSet stable-reference gap and pattern
-identity wording; round 3: empty-ProfilePatternSet cardinality and exact
-RepeatedProfilePattern traceability; round 4: a stale worklog Git fact and
-explicit separation of the canonical pattern trace from the
-representative-evidence trace; round 5, final exhaustive closure: grouped
-result cardinality, the last Pattern-as-evidence loophole, a deterministic
-repository-identity collision boundary, scoped support-evidence ordering and
-durable worklog Git-state hygiene), all five rounds corrected within Session
-074 scope. Session contract work is complete; Git branch/main integration is
-user-owned and tracked from actual Git state, not asserted here.
+IMPLEMENTATION PASS. Final closure review of the complete working set
+returned PASS WITH FINDINGS (1 MEDIUM — the worklog session file itself had
+gone stale after three correction/hardening turns; no production defect;
+resolved by finalizing that file). 676/676 Domain tests pass (622 baseline +
+54 new); full solution build (Domain, Infrastructure, Application, Web) 0
+warning / 0 error; Infrastructure 255/255, Application 101/101, Web 68/68
+unchanged from baseline (this session touched no code outside
+GitHubProof.Domain/GitHubProof.Domain.Tests). Git transition is user-owned
+and must be read from actual Git state.
 
 ## Git
 
 Active Branch:
-session/074-representative-repository-decision-contract
+session/075-representative-repository-implementation
 
 Session Base:
-72932bb5de4ec37850850ebaea2c2e75f61e406a
-
-Last Remote Verified Main:
-72932bb5de4ec37850850ebaea2c2e75f61e406a — includes Session 073
-
-Session 073 integration:
-Session 073 (Dependency Source Reference Detector Implementation) is
-committed, pushed, integrated into main and remotely verified at
-72932bb5de4ec37850850ebaea2c2e75f61e406a. Detail lives in
-worklog/sessions/2026-08-18-073-dependency-source-reference-detector.md.
+f32c5de7a6e21e7eedc786deb973b6aec159dcec (main; Session 074 already
+integrated)
 
 Note:
-closed session branches are retained. Deleting any of them is a user-owned Git
-side effect and is not pending work. session/074 must not be recommitted,
-repushed or reintegrated by a later session — it is Session 074's own active
-branch.
+closed session branches are retained; deleting any of them is a user-owned
+Git side effect and is not pending work. Git transition (commit/push) for
+Session 075 is user-owned and must be read from actual Git state
+(`git status`, `git log`), not assumed from this snapshot.
 
 ## Canonical Evidence Ladder
 
@@ -157,82 +151,59 @@ RepositorySourceReferenceEvidence from RepositorySnapshot.DependencyDeclarations
 value 1.0.0. Derived and non-scoring; not written into RepositorySnapshot; no
 orchestrator, report or UI consumes it yet.
 
-Representative Repository Selection Contract V1 (Session 074, corrected after
-post-push independent review — see worklog/sessions/2026-08-18-074-...md):
-docs/architecture/public-profile-representative-repositories.md, CONTRACT
-LOCKED version 1. Selection unit is exactly one representative repository per
-RepeatedProfilePattern (global bounded set and minimum/maximum-coverage set
-are out of V1 scope). Candidates = pattern.IndependentSupportingRepositories
-as already produced by P5/P6 (fork/template-derived cannot become candidates;
-Undetermined independence cannot be optimistically promoted; archived is not
-automatically excluded). Comparison rule is PatternSupportObservationCount
-(count of the pattern's SupportingObservations with a positive
-ProfileEvidenceReference for that repository), scoped to one pattern only and
-never combined across patterns. Tie-break reuses ProfileRepositoryReference
-ordering (Owner, then Name). Cross-pattern breadth is explicitly forbidden as
-a selection factor; the same repository may still independently win multiple
-patterns.
+Representative Repository Selection Contract V1 (Session 074, contract
+locked and closed across five independent-review rounds — see
+docs/architecture/public-profile-representative-repositories.md and
+worklog/sessions/2026-08-18-074-...md for the full record): one
+representative-repository selection per RepeatedProfilePattern, materializing
+as exactly one RepresentativePatternSupport; grouped, after selection, into
+zero-or-more RepresentativeRepository objects when the same repository wins
+several patterns (§3.4) — grouping never influences a winner. Candidates =
+IndependentSupportingRepositories only; comparison by
+PatternSupportObservationCount (higher wins, scoped to one pattern, never
+combined across patterns — no cross-pattern breadth advantage); tie-break
+Owner→Name ordinal with a canonical-identity precondition that rejects a
+non-canonical Url collision deterministically (§6.1). Two distinct traces:
+the Canonical Pattern Trace (`Pattern`, an in-memory reference to the exact
+`RepeatedProfilePattern` instance — identity/context only, never
+representative-specific evidence, not even for the selected repository) and
+the Representative Support Evidence Trace (scoped `ObservationKey`/
+`ProfileEvidenceReference` values, ordered by `EvidenceKey` ordinal — the
+sole source explaining a selection). `PatternRuleVersion`/
+`ObservationRuleVersion`/`EligibilityPolicyVersion`/`IsEvidenceSurfaceComplete`
+are copied from the source `ProfilePatternSet`; `RepresentativeRepositoryRuleVersion`
+is dedicated. No persisted `ProfilePatternSet` identity; no
+rank/score/quality/strength/confidence/capability/seniority/employability;
+`RoleEvidenceAlignment` out of scope.
 
-Selection consumes exactly one coherent ProfilePatternSet instance as input,
-in one execution, not a loose RepeatedProfilePattern collection:
-ProfilePatternSet owns RuleVersion (PatternRuleVersion),
-ObservationRuleVersion, PolicyVersion (EligibilityPolicyVersion) and
-IsEvidenceSurfaceComplete — RepeatedProfilePattern itself owns only
-PatternRuleVersion and ObservationRuleVersion, not EligibilityPolicyVersion
-and not a completeness flag. The RepresentativeRepositorySelection result
-boundary carries all four version/completeness values directly as plain
-values copied at selection time, plus its own dedicated
-RepresentativeRepositoryRuleVersion. It carries no stable or persisted
-reference back to the source ProfilePatternSet instance: no such
-cross-process identity is canonically defined upstream, and the contract
-explicitly defers rather than invents one — V1 needs only the single
-supplied instance for the duration of one selection execution.
-Family+PatternKey is the pattern's canonical semantic identity within the
-locked pattern taxonomy; it is sufficient to locate the unique
-RepeatedProfilePattern only within the one ProfilePatternSet instance
-actually consumed in that execution (matching ProfilePatternSet's own
-uniqueness invariant), and is never treated as a portable identity across
-different executions or persisted sets. No rank, score, quality, strength,
-confidence, seniority or employability semantics. RoleEvidenceAlignment
-explicitly out of scope.
-
-Grouped result cardinality is locked separately from the selection rule (§3.4):
-an empty source ProfilePatternSet (already valid per the locked patterns.md §6
-absence boundary) produces a valid selection with an empty repository list —
-not failure, not negative evidence, never a reason to fabricate a repository —
-while for N > 0 patterns, 1 <= RepresentativeRepositories.Count <= N and
-sum(PatternSupports.Count) == N, because a repository winning several patterns
-is grouped into one RepresentativeRepository holding several
-RepresentativePatternSupports. Each ProfileRepositoryReference appears exactly
-once after grouping; PatternSupports is always one-or-more; grouping happens
-after selection and never influences a winner. The version/completeness fields
-are recorded even when the repository list is empty.
-
-Two distinct traces are locked (§10). The Canonical Pattern Trace
-(RepresentativePatternSupport → Pattern → exact canonical
-RepeatedProfilePattern) is an in-memory reference to the very instance in the
-consumed ProfilePatternSet — composition over existing pattern truth, not a
-copy and not a persistence identity — and serves identity/canonical context
-only; evidence reached through it is never representative-specific support
-evidence for any repository, the selected one included. The Representative
-Support Evidence Trace (scoped ObservationKey values → scoped
-ProfileEvidenceReference values → RepositoryAnalysisReference →
-selected-repository evidence) is the sole answer to "why was this repository
-selected for this pattern?". Scoped evidence is ordered by EvidenceKey ordinal
-and the ObservationKey identities are a projection of it, never a second
-mutable truth (§13.1).
-
-Tie-break stays Owner→Name ordinal, with an explicit canonical identity
-precondition (§6.1): within one execution, CompareTo returns 0 iff the two
-candidate references are equal. Canonical P3→P6 input satisfies this because
-the GitHub profile collector deduplicates by FullName and builds each Url
-canonically from that owner/name. A non-canonical violation must be rejected
-deterministically rather than resolved by enumeration order, a silent pick, a
-Url fallback or any new heuristic; rejection is an input-validity failure with
-no developer-evidence meaning.
-
-Contract Version 1 is locked; no runtime RepresentativeRepositoryRuleVersion
-value exists yet and no production code implements this contract.
+Implemented in Domain as of Session 075 (worklog/sessions/2026-08-19-075-...md):
+`RepresentativeRepositorySelectionPolicy.Select(ProfilePatternSet)` returns a
+`RepresentativeRepositorySelection`. Candidate evidence (repository, scoped
+`ProfileEvidenceReference` list, `PatternSupportObservationCount`) is computed
+once per candidate during selection; the winner's already-computed evidence
+is carried directly into `RepresentativePatternSupport`, which never reads
+`Pattern.SupportingObservations` to derive or re-derive evidence.
+`RepresentativePatternSupport` also rejects at construction any repository
+outside `IndependentSupportingRepositories`, and
+`RepresentativeRepositorySelection` rejects at construction: a pattern
+represented under two different repositories, a referenced pattern whose
+`PatternRuleVersion`/`ObservationRuleVersion` does not match the selection's
+own, and a post-grouping Owner+Name/Url canonical-identity collision.
+`SupportingObservationKeys` is a get-only computed property re-derived from
+`SupportingEvidenceReferences` on every access — never a stored field, so it
+cannot be mutated into divergence. `RepresentativeRepositoryRuleVersion.V1 =
+"1.0.0"` is the first canonical Domain runtime rule version. 54 new Domain
+tests cover the full locked invariant set (empty-set validity, grouping
+cardinality, candidate restriction, comparison/tie-break, the
+canonical-identity rejection boundary at both the pre-selection and
+post-grouping level, the two-trace separation, all six §13 ordering rules,
+version/completeness preservation, cross-pattern independence, the
+SupportingObservationKeys projection, V1, a reflection guard against
+prohibited fields). Final closure review: PASS WITH FINDINGS (1 MEDIUM,
+worklog-only, resolved). No `RepresentativeRepositoryRuleVersion` runtime
+value has been wired into any running composition yet — using `V1` in an
+actual Application flow is a later Application/composition-root decision,
+not made by this Domain-only session.
 
 ## Blocker
 
@@ -241,11 +212,11 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 073 (last code change):
-1046/1046 PASS (Domain 622, Infrastructure 255, Application 101, Web 68)
-Build: 0 warning / 0 error
-
-Session 074 is documentation-only; no build/test run required or performed.
+Session 075 (last code change):
+1100/1100 PASS across the full solution (Domain 676 [622 baseline + 54 new],
+Infrastructure 255, Application 101, Web 68 — the latter three unchanged
+from baseline)
+Full solution build (GitHubProof.slnx): 0 warning / 0 error
 
 AnalyzerVersion:
 1.1.0
@@ -263,45 +234,30 @@ SourceReferenceRuleVersion:
 1.0.0 — established by Session 073
 
 RepresentativeRepositoryRuleVersion:
-NOT ESTABLISHED — Contract Version 1 is locked by Session 074 as a document
-version only; no runtime RepresentativeRepositoryRuleVersion value exists
-because no production code implements the contract yet
+1.0.0 (V1) — established by Session 075 as the first canonical Domain
+runtime rule version. Not yet wired into any running Application
+composition.
 
 ## Next Action
 
-Session 074 locked the Representative Repository selection contract
-(documentation only, no production code) and went through five rounds of
-post-push independent review correction: round 1 fixed completeness and
-version/traceability semantics that did not match the actual P5/P6 runtime
-models; round 2 removed an undefined ProfilePatternSet stable-reference gap
-and tightened pattern-identity wording; round 3 allowed a zero-length
-representative collection (to match the locked empty-pattern-collection
-boundary) and gave RepresentativePatternSupport a structural in-memory
-reference to its exact RepeatedProfilePattern instead of relying on a later
-lookup; round 4 named and separated two distinct traces — a Canonical Pattern
-Trace (identity only) and a Representative Support Evidence Trace (why the
-repository was selected); round 5, the final exhaustive closure over the whole
-contract and the P1/P2/P5/P6 runtime, fixed the grouped result cardinality
-that had contradicted the grouping rule, closed the last reading in which
-Pattern could serve as selected-repository evidence, added a deterministic
-canonical-identity precondition and rejection boundary for Owner/Name
-collisions, locked scoped support-evidence ordering and its projection rule,
-and removed self-invalidating Git-state claims from the worklog. See the
-session file for the full finding-by-finding record.
+Session 075 implemented the locked Representative Repository contract in
+Domain with a full test suite, closed across four correction/hardening turns
+and a final closure review (PASS WITH FINDINGS, 1 MEDIUM worklog-only
+finding, resolved). See the session file for the complete record.
 
-Session contract work is complete. Git branch state, commit history and any
-main integration are user-owned and must be read from actual Git state
-(`git log`, `git status`), not assumed from this snapshot.
+Session implementation work is complete. Git branch state, commit history
+and any main integration are user-owned and must be read from actual Git
+state (`git log`, `git status`).
 
 Exact next action:
-Session 075 may begin production implementation of
-RepresentativeRepositorySelection/RepresentativeRepository/
-RepresentativePatternSupport per the locked and corrected contract, or
-continue toward the separate Role Evidence Alignment decision — neither is
-started.
+a later session may wire `RepresentativeRepositorySelectionPolicy` into
+Application orchestration once that layer is ready to consume a
+`ProfilePatternSet`, using `RepresentativeRepositoryRuleVersion.V1` as the
+production rule version, or continue toward the separate Role Evidence
+Alignment decision — neither is started.
 
 Known remaining work, none of it started and none of it in this session's
-scope: no production RepresentativeRepositorySelection/RepresentativeRepository/
-RepresentativePatternSupport code; RoleEvidenceAlignment taxonomy and rules;
-ProducedWorkEvidence remains unresolved; RepositoryProblemAreaEvidence remains
-blocked by the Session 067 contract.
+scope: Application orchestration integration for the new policy; report/UI
+consumption; P8 deterministic profile composer; RoleEvidenceAlignment
+taxonomy and rules; ProducedWorkEvidence remains unresolved;
+RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.

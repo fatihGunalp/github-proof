@@ -70,6 +70,10 @@ internal static class ProfileContributionTestSupport
     public static readonly PatternRuleVersion TestPatternRuleVersion =
         new("test-pattern-rules");
 
+    public static readonly RepresentativeRepositoryRuleVersion
+        TestRepresentativeRepositoryRuleVersion =
+        new("test-representative-repository-rules");
+
     // Analyzed, evidence-bearing contribution. Lineage decides whether it can
     // also count as independent repetition.
     public static RepositoryContributionAssessment CreateContribution(
@@ -114,6 +118,17 @@ internal static class ProfileContributionTestSupport
             AnalysisStatus.Failed,
             analysisReference: null);
     }
+
+    // Mirrors RepresentativeRepositorySelectionPolicy's own candidate
+    // evaluation, so tests can supply RepresentativePatternSupport's scoped
+    // evidence explicitly instead of relying on the constructor to derive it.
+    public static IReadOnlyList<ProfileEvidenceReference> ScopedEvidenceFor(
+        RepeatedProfilePattern pattern,
+        ProfileRepositoryReference repository) =>
+        pattern.SupportingObservations
+            .SelectMany(observation => observation.EvidenceReferences)
+            .Where(reference => reference.Repository == repository)
+            .ToArray();
 
     public static ProfileEvidenceReference CreateEvidenceReference(
         RepositoryContributionAssessment contribution,
