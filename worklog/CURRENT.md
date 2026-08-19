@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-19 (Session 082)
+**Last Updated:** 2026-08-19 (Session 084)
 **Source of Truth:** docs/
 
 ## Development
@@ -164,12 +164,28 @@ Canonical owners defining P8 implementation semantics:
 - `Unsupported` ProblemArea presentation —
   docs/product/public-profile-evidence-product-contract.md §24.
 
-Deliberately left to implementation (naming/typing/versioning only, never
-semantics): the concrete type and name of the composition-result wrapper,
-report DTO code naming, the mechanism deriving `SnapshotIdentity` from the
-canonical normalized snapshot representation, and the first runtime value of
-the profile-level `AnalyzerVersion`. Precedent for that class of choice:
+Deliberately left to implementation (naming/typing/versioning/mechanism only,
+never semantics): the concrete type and name of the composition-result
+wrapper, report DTO code naming, the mechanism deriving `SnapshotIdentity`
+from the canonical normalized snapshot representation, the first runtime value
+of the profile-level `AnalyzerVersion`, the binding shape tying an
+`EligibilityPolicyVersion` to its immutable `CurrentActivityWindow`, and how
+the final `RepositoryEligibilityResult` relates to the existing narrower
+`RepositoryContributionAssessment`. The last two were surfaced by Session
+083's code inspection and are engineering trade-offs, not semantic decisions.
+Precedent for this class of choice:
 `RepresentativeRepositoryRuleVersion.V1 = "1.0.0"` (Session 075).
+
+P8 Implementation Plan (Session 083):
+Five bounded slices, in order —
+P8-I1 Final Repository Eligibility Runtime,
+P8-I2 Profile Root Foundation,
+P8-I3 Deterministic Profile Composer,
+P8-I4 Typed Profile Report + Projector,
+P8-I5 Integration / P8 Closure.
+Full plan with per-slice responsibility, files, tests, invariants,
+out-of-scope and exit criteria:
+worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
 ## Production Delivery
 
@@ -185,6 +201,50 @@ Session:
 NONE
 
 Last Completed Session:
+084 — P8-I1 Final Repository Eligibility Runtime (Domain implementation)
+
+Session File:
+worklog/sessions/2026-08-19-084-p8-i1-final-repository-eligibility-runtime.md
+
+Status:
+P8-I1 COMPLETE. The final repository eligibility runtime is implemented in
+Domain, additively: `EligibilityPolicy` binds `EligibilityPolicyVersion` to an
+immutable `CurrentActivityWindow` (V1 = "1.0.0" + exactly 365 days, private
+ctor + canonical registry), `RepositoryEligibilityPolicy` completes Stage B
+with `CurrentFocus`/`HistoricalEvidence` and deterministic
+`ActivityClassification`, and `RepositoryEligibilityResult` composes the
+existing `RepositoryContributionAssessment` while deriving
+`RepositoryEligibilityStatus` in its constructor. The Session 083 open choice
+was resolved as composition, so `RepositoryContributionAssessment`,
+`RepositoryContributionPolicy`, `CrossRepositoryEvidence` and
+`CrossRepositoryEvidenceComposer` were NOT modified — P5 is provably
+unchanged. Full solution build 0 warning / 0 error; 1150/1150 tests (Domain
+726 = 676 baseline + 50 new; Infrastructure 255, Application 101, Web 68
+unchanged). Two independent review rounds: PASS WITH FINDINGS then PASS WITH
+FINDINGS (0 BLOCKER/HIGH/MEDIUM, no finding requiring a new semantic
+decision); all findings corrected in-session. No canonical docs changed.
+
+Previous completed session:
+083 — P8 Implementation Planning (planning only, no code)
+
+Session File:
+worklog/sessions/2026-08-19-083-p8-implementation-planning.md
+
+Status:
+Executable five-slice P8 implementation plan recorded. Code inspection
+confirmed `ProfileRepository` already carries `Archived` and `LastPushedAt`,
+so `CurrentFocus` needs no collection-layer change; and surfaced two new
+technical (not semantic) choices — the `EligibilityPolicyVersion` →
+`CurrentActivityWindow` binding shape, and how the final
+`RepositoryEligibilityResult` relates to the existing narrower
+`RepositoryContributionAssessment`, which is load-bearing inside P5's
+`CrossRepositoryEvidenceComposer`. The five-slice grouping holds; P8-I1
+carries a P5 regression surface that is an explicit exit criterion, and
+P8-I2's identity/limitation/warning work has no hard dependency on P8-I1. No
+blockers. No src/, tests/ or docs/ changed. P8 implementation remains
+READY / NOT STARTED.
+
+Previous completed session:
 082 — P8-1 Exit Gate and Finalization (docs/worklog only, no code)
 
 Session File:
@@ -310,11 +370,11 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/078-p8-1-profile-composition-decision-lock
+session/084-p8-i1-final-repository-eligibility-runtime
 
 Session Base:
-16c0447 (main @ session start; docs(worklog): stop tracking transient git
-state)
+89361e6 (main @ session start; docs(profile): close P8-1 composition and
+report contracts)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -478,21 +538,35 @@ P8 implementation:
 READY
 ~~~
 
+Session 083 recorded the five-slice implementation plan; Session 084
+completed the first slice.
+
+~~~text
+P8-I1 Final Repository Eligibility Runtime:  COMPLETE
+P8-I2 Profile Root Foundation:               NOT STARTED
+~~~
+
 Exact next action:
 
 ~~~text
-P8 Implementation Planning
+P8-I2 — Profile Root Foundation
 ~~~
 
-Implementation is authorized but not started. The P8 implementation session
-is a separate meaningful session and must be routed through its own
-model/effort gate. It builds against the canonical owners listed under
-"P8 Phase State (Sessions 078–082)" above.
+`RepositoryEligibilityResult` is now available as the profile root's
+`RepositoryEligibilityResults[]` member. P8-I2 adds `SnapshotReference` /
+`SnapshotIdentity`, the profile-level `AnalysisStatus`, structured
+`ProfileLimitation` / `ProfileWarning`, the `DeveloperPublicEvidenceProfile`
+root and the composition-result wrapper that owns `Failed`. Per the Session
+083 plan its identity/limitation/warning work has no hard dependency on
+P8-I1. P8-I2 is a separate meaningful session and must be routed through its
+own model/effort gate. Full slice plan:
+worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-Sessions 078–082 share one uncommitted working tree on branch
-`session/078-p8-1-profile-composition-decision-lock` from base `16c0447`,
-because Session 078 was never committed and commit is user-owned. How that
-is committed (one commit or several) is the user's decision.
+Sessions 078–082 were committed and merged into `main` as `89361e6`. The
+current uncommitted working tree carries Sessions 083 (planning) and 084
+(P8-I1) together on `session/084-p8-i1-final-repository-eligibility-runtime`
+from that base, because Session 083 was never committed and commit is
+user-owned. How that is committed (one commit or two) is the user's decision.
 
 Session 077 is finalized. P7 closure state is now reflected in the canonical
 docs:
