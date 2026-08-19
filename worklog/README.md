@@ -462,6 +462,48 @@ Açık kullanıcı talimatı olmadan Codex commit/push yapmaz.
 
 ---
 
+## Transient Git State Rule
+
+`CURRENT.md` Git'in ikinci bir kopyası değildir.
+
+`CURRENT.md` içine aşağıdaki geçici Git durumları live state olarak yazılmaz:
+
+~~~text
+working tree clean / dirty
+uncommitted / committed
+pushed / not pushed
+merged / not merged
+current HEAD
+branch main ile aynı commit'te
+branch remote'a gönderildi / gönderilmedi
+~~~
+
+Bunlar birkaç Git operasyonu sonra stale hale gelir.
+
+Gerçek operational Git state her zaman doğrudan Git'ten okunur:
+
+~~~text
+git status
+git branch --show-current
+git log
+git rev-parse HEAD
+git merge-base
+git fetch
+~~~
+
+`CURRENT.md` yalnız gerektiğinde zamana dayanıklı Git bağlamı tutabilir:
+
+~~~text
+Session Branch
+Session Base
+~~~
+
+Session completion, commit, push veya merge sonrasında yalnız transient Git
+state değişti diye `CURRENT.md` yeniden düzenlenmez.
+
+Bu kuralın amacı worklog-only follow-up commit döngülerini engellemektir.
+
+---
 # Token Disiplini
 
 Normal execution başlangıcı:

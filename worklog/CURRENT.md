@@ -175,27 +175,19 @@ and must be read from actual Git state.
 
 ## Git
 
-Active Branch:
-session/077-p7-closure-role-evidence-alignment-deferral (user-created and
-checked out; points at the same commit as `main` — no new commits on it yet.
-Session 075's and Session 076's branches
-`session/075-representative-repository-implementation` and
-`session/076-role-evidence-alignment-feasibility` are retained but no longer
-checked out — their work is already integrated into `main`)
+Session Branch:
+session/077-p7-closure-role-evidence-alignment-deferral
 
 Session Base:
-4e8ef7574ad136670f9758d4210451f48dc5d582 (main; Session 076 already
-integrated — verified HEAD at the start of Session 077, unchanged as of the
-final review)
+4e8ef7574ad136670f9758d4210451f48dc5d582
 
-Note:
-closed session branches are retained; deleting any of them is a user-owned
-Git side effect and is not pending work. Session 077's docs/worklog changes
-are uncommitted working-tree changes on
-`session/077-p7-closure-role-evidence-alignment-deferral` as of this
-snapshot. Git transition (commit/push) is user-owned and must be read from
-actual Git state (`git status`, `git log`, `git branch --show-current`), not
-assumed from this snapshot.
+Operational Git State:
+Not tracked in CURRENT.md.
+
+Commit, push, merge, current checkout, working-tree cleanliness and current
+HEAD are transient Git state and must always be read directly from Git.
+
+CURRENT.md records development state, not a second copy of Git state.
 
 ## Canonical Evidence Ladder
 
