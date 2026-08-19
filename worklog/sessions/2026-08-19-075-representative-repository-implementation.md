@@ -238,8 +238,10 @@ git diff --check
 PASS — no whitespace errors
 
 git status --short
-Reviewed — exactly the 12 files listed under Changes (11 created, 1
-modified); no unrelated file touched.
+Reviewed — exactly 15 files across the session's full scope: 12
+source/test files under Changes above (11 created, 1 modified) plus 3
+worklog files (worklog/CURRENT.md, worklog/INDEX.md, this session file); no
+unrelated file touched.
 ~~~
 
 ---
@@ -354,11 +356,18 @@ turns — resolved by this finalization pass.
 ## Working Set / Final Git State
 
 ~~~text
-Files touched by this session (11 created, 1 modified — see Changes above):
+Files touched by this session: 15 total.
+
+12 source/test files (11 created, 1 modified — see Changes above):
 - 5 production files under src/GitHubProof.Domain/Profile/
 - 6 test files under tests/GitHubProof.Domain.Tests/Profile/ (5 new test
   classes + 1 shared support file with 2 added helpers)
-- worklog/CURRENT.md, worklog/INDEX.md and this session file
+
+Plus 3 worklog files:
+- worklog/CURRENT.md
+- worklog/INDEX.md
+- this session file
+  (worklog/sessions/2026-08-19-075-representative-repository-implementation.md)
 
 RepresentativeRepositoryRuleVersion.V1 = "1.0.0" is the first canonical
 Domain runtime rule version, defined in this session.
