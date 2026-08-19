@@ -1,6 +1,8 @@
+using GitHubProof.Domain.Profile.ValueObjects;
+
 namespace GitHubProof.Domain.Profile.Models;
 
-public sealed record GitHubProfileMetadata
+public sealed record GitHubProfileMetadata : ISnapshotSemanticComponent
 {
     public GitHubProfileMetadata(
         string? displayName,
@@ -26,4 +28,14 @@ public sealed record GitHubProfileMetadata
     public DateTimeOffset CreatedAt { get; }
 
     public int PublicRepositoryCount { get; }
+
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .Write(nameof(DisplayName), DisplayName)
+            .Write(nameof(CreatedAt), CreatedAt)
+            .Write(nameof(PublicRepositoryCount), PublicRepositoryCount);
+    }
 }

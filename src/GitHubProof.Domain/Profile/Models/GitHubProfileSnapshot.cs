@@ -3,7 +3,7 @@ using GitHubProof.Domain.Profile.ValueObjects;
 
 namespace GitHubProof.Domain.Profile.Models;
 
-public sealed record GitHubProfileSnapshot
+public sealed record GitHubProfileSnapshot : ISnapshotSemanticComponent
 {
     public GitHubProfileSnapshot(
         GitHubProfileIdentity identity,
@@ -45,6 +45,48 @@ public sealed record GitHubProfileSnapshot
             normalizedKey,
             StringComparison.Ordinal));
     }
+
+    // The canonical normalized semantic representation of this snapshot.
+    //
+    // CapturedAt is deliberately absent: it answers when this snapshot was
+    // observed, not what was observed. The same exclusion applies to
+    // DataAvailability.RetrievedAt below, which is observation time under a
+    // different field name.
+    //
+    // Collections whose enumeration order carries no meaning are written in a
+    // canonical order here, so insertion or API order never participates.
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .WriteComponent(nameof(Identity), Identity)
+            .WriteComponent(nameof(Metadata), Metadata)
+            .WriteComponent(nameof(Repositories), Repositories);
+
+        int index = 0;
+
+        foreach (DataAvailability availability in Availability
+                     .OrderBy(item => item.DataKey, StringComparer.Ordinal))
+        {
+            writer
+                .Write($"{nameof(Availability)}[{index}].{nameof(DataAvailability.DataKey)}", availability.DataKey)
+                .Write($"{nameof(Availability)}[{index}].{nameof(DataAvailability.Status)}", availability.Status)
+                .Write($"{nameof(Availability)}[{index}].{nameof(DataAvailability.Reason)}", availability.Reason);
+            index++;
+        }
+
+        writer
+            .Write($"{nameof(Availability)}.count", index)
+            .WriteValues(
+                nameof(CollectionWarnings),
+                CollectionWarnings.Order(StringComparer.Ordinal));
+    }
+
+    // Provenance projection of this snapshot. The snapshot owns it, so no
+    // consumer has to assemble provenance from a field list of its own.
+    public SnapshotReference CreateReference() =>
+        new(Identity, CapturedAt, SnapshotIdentity.FromSemanticContent(this));
 
     private static IReadOnlyList<DataAvailability> NormalizeAvailability(
         IEnumerable<DataAvailability>? availability)

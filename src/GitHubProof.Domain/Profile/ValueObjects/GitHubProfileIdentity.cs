@@ -1,6 +1,6 @@
 namespace GitHubProof.Domain.Profile.ValueObjects;
 
-public sealed record GitHubProfileIdentity
+public sealed record GitHubProfileIdentity : ISnapshotSemanticComponent
 {
     public GitHubProfileIdentity(string login, Uri url)
     {
@@ -32,4 +32,13 @@ public sealed record GitHubProfileIdentity
     public string Login { get; }
 
     public Uri Url { get; }
+
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .Write(nameof(Login), Login)
+            .Write(nameof(Url), Url);
+    }
 }

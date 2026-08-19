@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-19 (Session 084)
+**Last Updated:** 2026-08-19 (Session 085)
 **Source of Truth:** docs/
 
 ## Development
@@ -201,6 +201,42 @@ Session:
 NONE
 
 Last Completed Session:
+085 — P8-I2 Profile Root Foundation (Domain implementation, independent
+review + finalization)
+
+Session File:
+worklog/sessions/2026-08-19-085-p8-i2-profile-root-foundation.md
+
+Status:
+P8-I2 COMPLETE. Implemented in Domain, additively: `SnapshotIdentity`
+(SHA-256 over a deterministic, length-prefixed, culture-invariant token
+stream written by `SnapshotSemanticWriter` walking the
+`ISnapshotSemanticComponent` tree — `CapturedAt`/`RetrievedAt` excluded at
+the point each component writes itself, every other canonical field
+included, order-irrelevant collections sorted before writing) and
+`SnapshotReference`; `ProfileAnalysisStatus` (`Complete`/`Partial` only, no
+`Failed` member — makes a `Failed` valid root a compile-time
+impossibility); structured `ProfileLimitation`/`ProfileWarning` via a shared
+`ProfileCondition<TCode>` base implementing the §13 identity/scope/
+deduplication/canonical-ordering rules, with exactly the two locked
+limitation identities and four locked warning identities;
+`DeveloperPublicEvidenceProfile` matching the §14 canonical root shape
+(`RoleEvidenceAlignments` always empty via a private-constructor
+placeholder type); `ProfileCompositionResult` owning `Failed` per the §13
+composition-result wrapper boundary (`Failed()` carries no profile,
+`Composed()` requires one). Six existing files
+(`GitHubProfileMetadata`, `GitHubProfileSnapshot`, `ProfileRepository`,
+`ProfileRepositoryManifest`, `GitHubProfileIdentity`,
+`ProfileRepositoryReference`) each received exactly one additive
+`ISnapshotSemanticComponent` implementation — no existing field,
+constructor or behavior changed. Full solution build 0 warning / 0 error;
+1222/1222 tests (Domain 798 = 726 baseline + 72 new; Infrastructure 255,
+Application 101, Web 68 unchanged). Independent review via the repository's
+`github-proof-review` workflow: PASS, 0 BLOCKER/HIGH/MEDIUM/LOW — no
+correction needed, no new semantic decision required. No canonical docs
+changed.
+
+Previous completed session:
 084 — P8-I1 Final Repository Eligibility Runtime (Domain implementation)
 
 Session File:
@@ -370,11 +406,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/084-p8-i1-final-repository-eligibility-runtime
+session/085-p8-i2-profile-root-foundation
 
 Session Base:
-89361e6 (main @ session start; docs(profile): close P8-1 composition and
-report contracts)
+c31d680 (feat(profile): implement final repository eligibility)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -498,8 +533,8 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 075 (last code change):
-1100/1100 PASS across the full solution (Domain 676 [622 baseline + 54 new],
+Session 085 (last code change):
+1222/1222 PASS across the full solution (Domain 798 [726 baseline + 72 new],
 Infrastructure 255, Application 101, Web 68 — the latter three unchanged
 from baseline)
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
@@ -539,34 +574,39 @@ READY
 ~~~
 
 Session 083 recorded the five-slice implementation plan; Session 084
-completed the first slice.
+completed the first slice; Session 085 completed the second.
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
-P8-I2 Profile Root Foundation:               NOT STARTED
+P8-I2 Profile Root Foundation:               COMPLETE
+P8-I3 Deterministic Profile Composer:        NOT STARTED
 ~~~
 
 Exact next action:
 
 ~~~text
-P8-I2 — Profile Root Foundation
+P8-I3 — Deterministic Profile Composer
 ~~~
 
-`RepositoryEligibilityResult` is now available as the profile root's
-`RepositoryEligibilityResults[]` member. P8-I2 adds `SnapshotReference` /
-`SnapshotIdentity`, the profile-level `AnalysisStatus`, structured
-`ProfileLimitation` / `ProfileWarning`, the `DeveloperPublicEvidenceProfile`
-root and the composition-result wrapper that owns `Failed`. Per the Session
-083 plan its identity/limitation/warning work has no hard dependency on
-P8-I1. P8-I2 is a separate meaningful session and must be routed through its
-own model/effort gate. Full slice plan:
-worklog/sessions/2026-08-19-083-p8-implementation-planning.md
+`SnapshotIdentity`/`SnapshotReference`, the profile-level `AnalysisStatus`,
+structured `ProfileLimitation`/`ProfileWarning`, the
+`DeveloperPublicEvidenceProfile` root and the `ProfileCompositionResult`
+wrapper that owns `Failed` are now implemented in Domain (Session 085; see
+that session file for the full independent-review record). P8-I3 assembles
+the canonical root from P3–P7 results: version-lineage compatibility
+verification (§14), the evidence-surface accounting that decides
+`Complete` vs `Partial`, emitting limitations/warnings per their locked
+identity mapping, and returning `Failed` with no root when coherence cannot
+be proven. Depends on both P8-I1 and P8-I2. P8-I3 is a separate meaningful
+session and must be routed through its own model/effort gate. Full slice
+plan: worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-Sessions 078–082 were committed and merged into `main` as `89361e6`. The
-current uncommitted working tree carries Sessions 083 (planning) and 084
-(P8-I1) together on `session/084-p8-i1-final-repository-eligibility-runtime`
-from that base, because Session 083 was never committed and commit is
-user-owned. How that is committed (one commit or two) is the user's decision.
+Sessions 078–084 are already committed as of `c31d680`
+(`feat(profile): implement final repository eligibility`), the base of
+`session/085-p8-i2-profile-root-foundation`. Session 085's own P8-I2
+implementation is committed as `ee2e204` (checkpoint); this session's
+worklog updates (`CURRENT.md`, `INDEX.md`, this session file) remain
+uncommitted. Commit/push remains user-owned.
 
 Session 077 is finalized. P7 closure state is now reflected in the canonical
 docs:

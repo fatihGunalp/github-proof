@@ -3,7 +3,7 @@ using GitHubProof.Domain.Profile.ValueObjects;
 
 namespace GitHubProof.Domain.Profile.Models;
 
-public sealed class ProfileRepositoryManifest
+public sealed class ProfileRepositoryManifest : ISnapshotSemanticComponent
 {
     public ProfileRepositoryManifest(
         IEnumerable<ProfileRepository>? repositories = null,
@@ -54,4 +54,16 @@ public sealed class ProfileRepositoryManifest
     public bool IsComplete { get; }
 
     public static ProfileRepositoryManifest Empty { get; } = new();
+
+    // Repositories are already normalized into canonical Owner then Name order
+    // by construction, so collection insertion order never participates.
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .WriteComponents(nameof(Repositories), Repositories)
+            .Write(nameof(TotalCount), TotalCount)
+            .Write(nameof(IsComplete), IsComplete);
+    }
 }

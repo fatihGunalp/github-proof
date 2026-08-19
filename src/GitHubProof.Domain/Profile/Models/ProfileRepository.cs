@@ -3,7 +3,7 @@ using GitHubProof.Domain.Profile.ValueObjects;
 
 namespace GitHubProof.Domain.Profile.Models;
 
-public sealed record ProfileRepository
+public sealed record ProfileRepository : ISnapshotSemanticComponent
 {
     public ProfileRepository(
         ProfileRepositoryReference reference,
@@ -45,6 +45,24 @@ public sealed record ProfileRepository
     public DateTimeOffset? LastPushedAt { get; }
 
     public DateTimeOffset? CreatedAt { get; }
+
+    // LastPushedAt and CreatedAt are repository facts, not observation time,
+    // so they are semantic content.
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .WriteComponent(nameof(Reference), Reference)
+            .Write(nameof(DefaultBranch), DefaultBranch)
+            .Write(nameof(PrimaryLanguage), PrimaryLanguage)
+            .Write(nameof(Fork), Fork)
+            .Write(nameof(TemplateDerived), TemplateDerived)
+            .Write(nameof(Archived), Archived)
+            .Write(nameof(Empty), Empty)
+            .Write(nameof(LastPushedAt), LastPushedAt)
+            .Write(nameof(CreatedAt), CreatedAt);
+    }
 
     private static RepositoryConditionState RequireDefined(
         RepositoryConditionState state,

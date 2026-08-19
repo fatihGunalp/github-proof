@@ -1,7 +1,7 @@
 namespace GitHubProof.Domain.Profile.ValueObjects;
 
 public sealed record ProfileRepositoryReference
-    : IComparable<ProfileRepositoryReference>
+    : IComparable<ProfileRepositoryReference>, ISnapshotSemanticComponent
 {
     public ProfileRepositoryReference(string owner, string name, Uri url)
     {
@@ -38,6 +38,16 @@ public sealed record ProfileRepositoryReference
     public Uri Url { get; }
 
     public string FullName => $"{Owner}/{Name}";
+
+    public void WriteSemanticContent(SnapshotSemanticWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        writer
+            .Write(nameof(Owner), Owner)
+            .Write(nameof(Name), Name)
+            .Write(nameof(Url), Url);
+    }
 
     public int CompareTo(ProfileRepositoryReference? other)
     {
