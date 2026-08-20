@@ -1318,6 +1318,46 @@ geniş prohibited-inference validation sınırını (yukarıdaki diğer riskler 
 - evidence traceability: required for every meaningful claim,
 - determinism: PASS.
 
+### P9 Validation Durumu (Session 089–092)
+
+~~~text
+P9-I1 — Validation Contract + Scenario Matrix:      COMPLETE
+P9-I2 — Profile Validation Fixtures / Harness:      COMPLETE
+P9-I3 — Profile Risk and Traceability Validation:   COMPLETE
+P9-I4 — Determinism + Exit Validation:              COMPLETE
+
+Profile P9 — Validation Profile Set:  COMPLETE
+~~~
+
+Session 089
+(`docs/product/p9-profile-validation-contract.md`, CONTRACT LOCKED) yukarıdaki
+11 scenario'yu ve 9 riski kilitledi. Session 090
+(`tests/GitHubProof.Application.Tests/Profile/Validation/`) her scenario için
+gerçek `ProfilePipeline` üzerinden çalışan deterministic, network-free
+fixture/harness inşa etti. Session 091, 11 scenario'nun tamamını gerçek
+pipeline çıktısına karşı çalıştırdı ve 9 riskin tamamını falsify etti;
+hiçbir canonical production contract ihlali bulunmadı. Session 092
+determinism'i (aynı fixed input + fixed analysis-ID factory altında 11
+scenario'nun tamamında replay-deterministic sonuç) ve repository-input-order
+invariance'ı (11 scenario'nun tamamında) kanıtladı, mevcut
+`AssertSemanticallyEquivalent` dokuz-alanlı karşılaştırma yüzeyini reuse
+ederek — yeni bir determinism algoritması icat edilmedi.
+
+Final çıkış doğrulaması:
+
+~~~text
+prohibited inference: 0
+unsupported profile claim: 0
+evidence traceability: her meaningful claim için sağlandı (11/11 scenario)
+determinism: PASS (11/11 scenario, replay + repository-order invariance)
+~~~
+
+Bu doğrulama tamamen `tests/` seviyesindedir; hiçbir `src/` production kodu
+P9 boyunca değiştirilmedi. P9, Stage 7'nin son geliştirme fazıdır; Milestone
+B'nin production gate'i ayrıca `docs/roadmap/deployment-milestones.md`'de
+tanımlanan `P10 — Profile Web Flow COMPLETE` koşulunu gerektirir ve P10 bu
+oturumla başlatılmamıştır.
+
 ---
 
 ## Profile P10 — Web Profile Flow

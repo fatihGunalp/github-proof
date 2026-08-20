@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 090)
+**Last Updated:** 2026-08-20 (Session 092)
 **Source of Truth:** docs/
 
 ## Development
@@ -13,6 +13,9 @@ amendment — see below)
 P8 — Deterministic Profile Composer and Report Contract — COMPLETE, bounded
 post-review correction applied and validated, external closure audit PASSED
 (Sessions 083–088; see "P8 Phase State" and "Next Action" below)
+P9 — Public Profile Evidence Validation (Validation Profile Set) — COMPLETE
+(Sessions 089–092; validation-only, no `src/` changed across all of P9; see
+`docs/roadmap/mvp-phases.md` "P9 Validation Durumu" and "Next Action" below)
 
 Completed Foundation:
 Session 066 — Repository Evidence Surface Expansion — COMPLETE / REMOTE VERIFIED
@@ -32,10 +35,9 @@ f32c5de7a6e21e7eedc786deb973b6aec159dcec (contract-only; five post-push
 independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
-P9 — Public Profile Evidence Validation — P9-I1 COMPLETE (Session 089,
-merged to main at 4a1bc5a); P9-I2 COMPLETE (Session 090, merged to main at
-c195dc9); P9-I3 (Profile Risk and Traceability Validation) IN PROGRESS
-(Session 091)
+P9 COMPLETE (Session 092; P9-I1 Session 089 at 4a1bc5a, P9-I2 Session 090 at
+c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). Next: P10 —
+Profile Web Flow (not started, not authorized to start by Session 092).
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -218,47 +220,44 @@ BLOCKED
 ## Active Session
 
 Session:
-091 — P9-I3 Profile Risk and Traceability Validation
+092 — P9-I4 Determinism + Exit Validation
 
 Active Branch:
-session/091-p9-i3-risk-traceability-validation
+session/092-p9-i4-determinism-exit-validation
 
 Session Base:
-c195dc9
+8d07321
 
 Goal:
-P9-I3 — Profile Risk and Traceability Validation (run the P9-I2 harness'
-11 concrete fixtures through the real `ProfilePipeline`, falsify the 9
-required risks, verify traceability/capability-boundary/prohibited-
-inference across all 11 scenarios)
+P9-I4 — Determinism + Exit Validation (prove replay-determinism and
+repository-order invariance for all 11 canonical scenarios; establish the
+final P9 exit verdict reusing P9-I3's already-proven traceability/
+prohibited-inference/unsupported-claim record)
 
 Session File:
-worklog/sessions/2026-08-20-091-p9-i3-risk-traceability-validation.md
+worklog/sessions/2026-08-20-092-p9-i4-determinism-exit-validation.md
 
 Status:
-P9-I3 COMPLETE. New
-`tests/.../Profile/Validation/ProfileValidationRiskTests.cs` (11
-per-scenario risk facts + 2 cross-scenario theories over all 11 fixtures +
-1 reflection-based prohibited-inference check). 11/11 scenarios executed,
-9/9 required risks falsified, 0 traceability/prohibited-inference/
-unsupported-claim failures, **no production contract violation found** —
-production code untouched. 224/224 Application, 1353/1353 full solution,
-0 warning. No src/, no canonical docs changed. Independent review verdict
-in session file. Commit/push NOT performed (user-owned).
+P9-I4 COMPLETE. **P9 COMPLETE.** New
+`tests/.../Profile/Validation/ProfileValidationDeterminismTests.cs` (22
+tests: replay-determinism + repository-order invariance, each `[Theory]`
+over all 11 scenarios). All four P9 exit criteria hold: prohibited
+inference = 0, unsupported profile claim = 0, evidence traceability = 11/11
+scenarios, determinism = PASS (11/11 scenarios). No production contract
+violation found anywhere across P9-I1..I4 — `src/` was never touched
+across all of P9. `docs/roadmap/mvp-phases.md` Profile P9 section updated
+with a "P9 Validation Durumu" status subsection (mirrors the Profile P8
+precedent). 246/246 Application, 1375/1375 full solution, 0 warning.
+Independent review verdict in session file. Commit/push NOT performed
+(user-owned).
 
 Last Completed Session:
-090 — P9-I2 Profile Validation Fixtures / Harness — COMPLETE / merged to
-main at c195dc9. New `tests/.../Profile/Validation/` harness (scenario
-enum/catalog, ProfileValidationHarness.RunAsync onto the real
-ProfilePipeline, traceability/capability-boundary helpers, 11 concrete
-deterministic scenario fixtures) + shared CreatePipeline/
-AssertSemanticallyEquivalent extraction. Round 1 review PASS WITH FINDINGS
-(2 MEDIUM: F1 §10 literal-fixture gap, resolved same session with 11
-concrete fixtures; F2 AI/ML-heavy vs generic Python production-wiring
-limitation, left as documented P9-I3 input). Round 2 review PASS WITH
-FINDINGS (1 LOW, non-blocking, a §10-vs-implementation-plan wording
-tension, carried forward as a P9-I3 note). Session file:
-worklog/sessions/2026-08-20-090-p9-i2-profile-validation-harness.md
+091 — P9-I3 Profile Risk and Traceability Validation — COMPLETE / merged to
+main at 8d07321. 11/11 scenarios executed, 9/9 required risks falsified
+against real `ProfilePipeline` output, 0 traceability/prohibited-inference/
+unsupported-claim failures, no production contract violation found.
+Independent review PASS (0 BLOCKER/HIGH/MEDIUM/LOW). Session file:
+worklog/sessions/2026-08-20-091-p9-i3-risk-traceability-validation.md
 
 Previously Completed Session:
 088 — P8-I5 Integration and P8 Closure (Application/Infrastructure/Web
@@ -641,10 +640,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/091-p9-i3-risk-traceability-validation
+session/092-p9-i4-determinism-exit-validation
 
 Session Base:
-c195dc9 (test(validation): add p9 profile validation harness)
+8d07321 (test(validation): validate p9 profile risks)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -837,20 +836,39 @@ now the one running composition path from `GitHubProfileSnapshot` to
 Exact next action:
 
 ~~~text
-P9-I3 — Profile Risk and Traceability Validation
+P10 — Profile Web Flow
 ~~~
 
-P9-I1 (Validation Contract + Scenario Matrix) is COMPLETE (Session 089,
-merged to main at 4a1bc5a). P9-I2 (Profile Validation Fixtures / Harness) is
-COMPLETE (Session 090, merged to main at c195dc9). P9-I3 is IN PROGRESS
-(Session 091) — 11/11 scenarios executed, 9/9 required risks falsified, no
-production contract violation found (see session file). P9/Milestone B
-remain explicitly not marked complete.
+P9 — Public Profile Evidence Validation (Validation Profile Set) is
+**COMPLETE**:
+
+~~~text
+P9-I1 — Validation Contract + Scenario Matrix:      COMPLETE (Session 089, 4a1bc5a)
+P9-I2 — Profile Validation Fixtures / Harness:      COMPLETE (Session 090, c195dc9)
+P9-I3 — Profile Risk and Traceability Validation:   COMPLETE (Session 091, 8d07321)
+P9-I4 — Determinism + Exit Validation:              COMPLETE (Session 092)
+
+Profile P9 — Validation Profile Set:  COMPLETE
+~~~
+
+Final verified exit criteria (Session 092; see
+`docs/roadmap/mvp-phases.md` "P9 Validation Durumu" and
+`worklog/sessions/2026-08-20-092-p9-i4-determinism-exit-validation.md`):
+`prohibited inference = 0`, `unsupported profile claim = 0`, evidence
+traceability satisfied for every meaningful claim across all 11 scenarios,
+`determinism = PASS` across all 11 scenarios (replay + repository-order
+invariance). No production contract violation was found at any point across
+P9; `src/` was never changed across P9-I1 through P9-I4.
+
+P10 implementation is **not started** and not authorized by Session 092.
+Milestone B's production gate additionally requires `P10 — Profile Web Flow
+COMPLETE` (`docs/roadmap/deployment-milestones.md`) — Milestone B therefore
+remains BLOCKED pending P10, unaffected by P9's closure.
 
 Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy
 and rules (DEFERRED, not blocking — see P7 closure below); `ProducedWorkEvidence`
 remains unresolved; `RepositoryProblemAreaEvidence` remains blocked by the
-Session 067 contract. Neither is required for P9.
+Session 067 contract. Neither is required for P9 or P10.
 
 P7 closure state (Session 076/077, unaffected by P8):
 
