@@ -2,14 +2,15 @@
 
 **Date:** 2026-08-20
 **Result:** PASS, then PASS WITH FINDINGS (1 MEDIUM, corrected in-slice — see
-"Post-Review Bounded Correction" below). P8-I5 slice complete. P8 closure is
-recorded pending external reviewer confirmation of that correction — see
-that section before treating P8 as unconditionally closed. Additive
-Application/Infrastructure/Web implementation; no canonical docs changed; no
-existing Domain/Application file's behavior changed beyond the finding's own
-correction (two `ValueObjects` files gained an additive `V1` static member
-each; one `Infrastructure` `.csproj` gained a `ProjectReference` to
-`Application`).
+"Post-Review Bounded Correction" below), then external closure audit PASS
+(see "External Closure Audit" below). P8-I5 slice complete. **P8 COMPLETE.**
+Additive Application/Infrastructure/Web implementation; no canonical docs
+changed by the implementation slice itself (the closure audit's one
+required correction — a docs-only roadmap status sync — is recorded
+separately below); no existing Domain/Application file's behavior changed
+beyond the finding's own correction (two `ValueObjects` files gained an
+additive `V1` static member each; one `Infrastructure` `.csproj` gained a
+`ProjectReference` to `Application`).
 **Scope:** Single Application-level pipeline wiring P3 → P8-I1 → P5 → P6 →
 P7 → P8-I3 → P8-I4 into one running composition path; production `V1`
 runtime version values; the smallest production `IProfileRepositorySnapshotSource`
@@ -322,6 +323,27 @@ Net Application test count: 160 (158 prior + 3 new − 1 removed).
 
 ---
 
+## External Closure Audit
+
+A separate, independent closure audit reviewed the corrected implementation
+against seven criteria: scope completeness, evidence integrity, determinism,
+boundary review (no score/seniority/hiring/capability/AI-judgment claims),
+API integrity, test coverage adequacy, and documentation consistency.
+
+**Verdict: PASS**, with exactly one required, non-blocking correction:
+`docs/roadmap/mvp-phases.md` still carried stale `P8 implementation: READY` /
+`READY (not started)` status lines (three locations) that contradicted the
+worklog's `COMPLETE` claim. No engineering gap was found; no architectural
+decision was reopened.
+
+That correction has been applied in this same docs-only pass: the three
+stale `READY`/`READY (not started)` P8 status references in
+`docs/roadmap/mvp-phases.md` now read `COMPLETE`, matching the implementation
+state, with no surrounding prose rewritten. No source, test, or Domain/
+Application/Infrastructure/Web file was touched by this pass.
+
+---
+
 ## Remaining Gap
 
 None found. No canonical docs contradiction was encountered; none was
@@ -340,18 +362,14 @@ P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
 P8-I3 Deterministic Profile Composer:        COMPLETE
 P8-I4 Typed Profile Report and Projector:    COMPLETE
-P8-I5 Integration and P8 Closure:            COMPLETE — bounded correction
-                                              applied and validated; pending
-                                              external reviewer confirmation
+P8-I5 Integration and P8 Closure:            COMPLETE
 
-P8 — Deterministic Profile Composer and Report Contract:  COMPLETE pending
-that confirmation
+P8 — Deterministic Profile Composer and Report Contract:  COMPLETE
 ```
 
-The 1 MEDIUM finding against the initial slice is corrected and validated
-(build 0/0, full suite 1289/1289, targeted guard test empirically verified).
-This worklog does not treat P8 as unconditionally closed until the external
-reviewer confirms the correction itself.
+The 1 MEDIUM finding against the initial slice was corrected and validated
+(build 0/0, full suite 1289/1289, targeted guard test empirically verified),
+and the external closure audit passed. P8 is unconditionally closed.
 
 Not marked complete by this session (explicitly out of scope): P9 — Public
 Profile Evidence Validation, and Milestone B.

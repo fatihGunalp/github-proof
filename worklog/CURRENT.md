@@ -11,9 +11,8 @@ P7 — Representative Repository and Role Evidence Alignment — COMPLETE WITH
 EXPLICIT DEFERRAL (Session 076 decision; Session 077 canonical docs
 amendment — see below)
 P8 — Deterministic Profile Composer and Report Contract — COMPLETE, bounded
-post-review correction applied and validated, pending external reviewer
-confirmation of that correction (Sessions 083–088; see "P8 Phase State" and
-"Next Action" below)
+post-review correction applied and validated, external closure audit PASSED
+(Sessions 083–088; see "P8 Phase State" and "Next Action" below)
 
 Completed Foundation:
 Session 066 — Repository Evidence Surface Expansion — COMPLETE / REMOTE VERIFIED
@@ -146,20 +145,18 @@ Gate outcome: 0 BLOCKER, 0 HIGH, 0 MEDIUM, and no remaining semantic
 implementation-choice gap. P8 implementation does not have to guess any
 product or domain semantics.
 
-P8 CLOSED (Session 088), pending external reviewer confirmation of a bounded
-post-review correction (see the Session 088 status entry and session file):
+P8 CLOSED (Session 088). A bounded post-review correction was applied and
+validated, and the external closure audit passed (see the Session 088 status
+entry and session file):
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
 P8-I3 Deterministic Profile Composer:        COMPLETE
 P8-I4 Typed Profile Report and Projector:    COMPLETE
-P8-I5 Integration and P8 Closure:            COMPLETE — bounded correction
-                                              applied and validated; pending
-                                              external reviewer confirmation
+P8-I5 Integration and P8 Closure:            COMPLETE
 
-P8 — Deterministic Profile Composer and Report Contract:  COMPLETE pending
-that confirmation
+P8 — Deterministic Profile Composer and Report Contract:  COMPLETE
 ~~~
 
 Canonical owners defining P8 implementation semantics:
@@ -228,8 +225,8 @@ Session File:
 worklog/sessions/2026-08-20-088-p8-i5-integration-and-p8-closure.md
 
 Status:
-P8-I5 COMPLETE. P8 COMPLETE pending external reviewer confirmation of a
-bounded post-review correction (see below). Added `ProfilePipeline`/`ProfilePipelineResult`
+P8-I5 COMPLETE. P8 COMPLETE — external closure audit passed (see below).
+Added `ProfilePipeline`/`ProfilePipelineResult`
 (`src/GitHubProof.Application/Profile/`), the single running composition path
 `ProfileRepositoryAnalysisOrchestrator` (P3) -> `RepositoryEligibilityPolicy`
 (P8-I1, evaluated per repository against `snapshot.CapturedAt`, never a
@@ -288,6 +285,13 @@ New reflection-based test proves no public constructor/factory on
 `Create` method. Full solution build 0 warning / 0 error; 1289/1289 tests
 (Application 160 = 158 prior + 3 new − 1 removed; Infrastructure 259, Web 72,
 Domain 798 unchanged from the initial slice).
+
+A subsequent independent closure audit (scope completeness, evidence
+integrity, determinism, boundary review, API integrity, test coverage
+adequacy, documentation consistency) returned PASS, with one non-blocking
+required correction: `docs/roadmap/mvp-phases.md`'s P8 status lines still
+read `READY`/`READY (not started)`; corrected in this same docs-only pass
+(see worklog/sessions/2026-08-20-088-p8-i5-integration-and-p8-closure.md).
 
 Previous completed session:
 087 — P8-I4 Typed Profile Report and Projector (Application implementation,
@@ -767,21 +771,18 @@ the running Application composition path as of Session 088.
 
 ## Next Action
 
-P8 is CLOSED (Session 088), pending external reviewer confirmation of a
-bounded post-review correction (1 MEDIUM finding, corrected and validated
-in-session — see the Session 088 status entry above and session file):
+P8 is CLOSED (Session 088). A bounded post-review correction (1 MEDIUM
+finding) was corrected and validated in-session, and the external closure
+audit passed (see the Session 088 status entry above and session file):
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
 P8-I3 Deterministic Profile Composer:        COMPLETE
 P8-I4 Typed Profile Report and Projector:    COMPLETE
-P8-I5 Integration and P8 Closure:            COMPLETE — bounded correction
-                                              applied and validated; pending
-                                              external reviewer confirmation
+P8-I5 Integration and P8 Closure:            COMPLETE
 
-P8 — Deterministic Profile Composer and Report Contract:  COMPLETE pending
-that confirmation
+P8 — Deterministic Profile Composer and Report Contract:  COMPLETE
 ~~~
 
 `ProfilePipeline` (Application, `src/GitHubProof.Application/Profile/`) is

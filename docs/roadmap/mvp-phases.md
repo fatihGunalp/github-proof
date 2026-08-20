@@ -1118,7 +1118,7 @@ P8-1 — Exact Contract Closure:
 COMPLETE
 
 P8 implementation:
-READY
+COMPLETE
 ~~~
 
 Session 078 kilitli 10 P8-1 ilkesini kaydetti; Session 079 exact contract
@@ -1194,7 +1194,7 @@ deterministic warning identity mapping, F3 snapshot capture time'ın audit-only
 olmadığı, F4–F6 bounded tutarlılık).
 
 Session 082'de final exit gate çalıştırıldı ve geçti. Açık semantic karar
-kalmadı; P8-1 `COMPLETE`, P8 implementation `READY`.
+kalmadı; P8-1 `COMPLETE`, P8 implementation `COMPLETE`.
 
 Temel yapı:
 
@@ -1476,7 +1476,7 @@ P7  Representative Repositories               COMPLETE
  ↓
 P8  Profile Composer + Report Contract
     P8-1 contract closure                      COMPLETE
-    P8 implementation                          READY (not started)
+    P8 implementation                          COMPLETE
  ↓
 P9  Validation Profile Set
  ↓
