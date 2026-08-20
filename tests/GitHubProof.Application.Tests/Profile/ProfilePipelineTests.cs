@@ -296,31 +296,12 @@ public sealed class ProfilePipelineTests
     }
 
     // -------------------------------------------------------------- fixtures
-
-    private static ProfilePipeline CreatePipeline(
-        FakeSnapshotSource source,
-        Func<Guid>? analysisIdFactory = null,
-        TimeProvider? timeProvider = null)
-    {
-        ProfileRepositoryAnalysisOrchestrator analysisOrchestrator = new(
-            source,
-            CreateAnalysisRunner(),
-            new AnalysisAdmissionPolicy(EligibilityPolicy.V1.Version),
-            analysisIdFactory);
-
-        return new ProfilePipeline(
-            analysisOrchestrator,
-            new RepositoryEligibilityPolicy(EligibilityPolicy.V1),
-            new CrossRepositoryEvidenceComposer(
-                new RepositoryContributionPolicy(EligibilityPolicy.V1.Version)),
-            new ProfilePatternPromotionPolicy(PatternRuleVersion.V1),
-            new RepresentativeRepositorySelectionPolicy(RepresentativeRepositoryRuleVersion.V1),
-            new ProfileComposer(),
-            new ProfileReportProjector(),
-            ObservationRuleVersion.V1,
-            ProfileAnalyzerVersion.V1,
-            timeProvider);
-    }
+    //
+    // CreatePipeline and AssertSemanticallyEquivalent live in
+    // ProfileCompositionTestSupport (shared with the P9-I2 profile validation
+    // harness under Profile/Validation/), so this file and the harness never
+    // define two independent copies of the same real-pipeline construction or
+    // the same determinism comparison.
 
     private static FakeSnapshotSource TwoLanguageSource() => CreateSource(
         ("octocat/alpha", () => CreateCollected(
@@ -329,41 +310,4 @@ public sealed class ProfilePipelineTests
             CreateLanguageEvidenceSnapshot("beta", Language("C#")))));
 
     private static Dictionary<string, long> Language(string name) => new() { [name] = 100 };
-
-    private static void AssertSemanticallyEquivalent(
-        ProfilePipelineResult first,
-        ProfilePipelineResult second)
-    {
-        Assert.Equal(first.Status, second.Status);
-        Assert.NotNull(first.Profile);
-        Assert.NotNull(second.Profile);
-        Assert.NotNull(first.Report);
-        Assert.NotNull(second.Report);
-
-        Assert.Equal(
-            first.Profile!.RepositoryEligibilityResults.Select(r => (r.Reference, r.Status)),
-            second.Profile!.RepositoryEligibilityResults.Select(r => (r.Reference, r.Status)));
-        Assert.Equal(
-            first.Profile.Limitations.Select(l => l.Code),
-            second.Profile.Limitations.Select(l => l.Code));
-        Assert.Equal(
-            first.Profile.Warnings.Select(w => (w.Code, w.AffectedRepositories.Order())),
-            second.Profile.Warnings.Select(w => (w.Code, w.AffectedRepositories.Order())));
-        Assert.Equal(
-            first.Profile.RepeatedProfilePatterns.Select(p => (p.Family, p.PatternKey)),
-            second.Profile.RepeatedProfilePatterns.Select(p => (p.Family, p.PatternKey)));
-        Assert.Equal(
-            first.Profile.RepresentativeRepositories.Select(r => r.Repository),
-            second.Profile.RepresentativeRepositories.Select(r => r.Repository));
-
-        Assert.Equal(
-            first.Report!.Sections.Select(s => (s.SectionKey, s.Availability)),
-            second.Report!.Sections.Select(s => (s.SectionKey, s.Availability)));
-        Assert.Equal(
-            first.Report.WhyThisConclusion.Items.Select(item => item.Pattern.PatternKey),
-            second.Report.WhyThisConclusion.Items.Select(item => item.Pattern.PatternKey));
-        Assert.Equal(
-            first.Report.RepositoryDrillDown.Items.Select(item => (item.Repository, item.EligibilityStatus)),
-            second.Report.RepositoryDrillDown.Items.Select(item => (item.Repository, item.EligibilityStatus)));
-    }
 }

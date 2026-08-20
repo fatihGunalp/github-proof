@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 088)
+**Last Updated:** 2026-08-20 (Session 090)
 **Source of Truth:** docs/
 
 ## Development
@@ -32,8 +32,9 @@ f32c5de7a6e21e7eedc786deb973b6aec159dcec (contract-only; five post-push
 independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
-P9 — Public Profile Evidence Validation — P9-I1 (Validation Contract +
-Scenario Matrix) IN PROGRESS (Session 089)
+P9 — Public Profile Evidence Validation — P9-I1 COMPLETE (Session 089,
+merged to main at 4a1bc5a); P9-I2 (Profile Validation Fixtures / Harness)
+IN PROGRESS (Session 090)
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -216,29 +217,47 @@ BLOCKED
 ## Active Session
 
 Session:
-089 — P9-I1 Validation Contract + Scenario Matrix
+090 — P9-I2 Profile Validation Fixtures / Harness
 
 Active Branch:
-session/089-p9-i1-validation-contract-scenario-matrix
+session/090-p9-i2-profile-validation-harness
 
 Session Base:
-8bfdba5
+4a1bc5a
 
 Goal:
-P9-I1 — Validation Contract + Scenario Matrix (lock the exact bounded P9
-profile-validation scenario set, risk mapping, expected behavior, prohibited
-claims, traceability rules and deterministic comparison surface, docs-only)
+P9-I2 — Profile Validation Fixtures / Harness (bounded, deterministic,
+network-free harness capable of running the canonical P9 profile scenarios
+through the real production `ProfilePipeline`)
 
 Session File:
-worklog/sessions/2026-08-20-089-p9-i1-validation-contract-scenario-matrix.md
+worklog/sessions/2026-08-20-090-p9-i2-profile-validation-harness.md
 
 Status:
-P9-I1 COMPLETE. Created `docs/product/p9-profile-validation-contract.md`
-(CONTRACT LOCKED). 11/11 scenarios, 9/9 required risks, all mapped. No
-src/, no tests/ changed. Independent review PASS (0 BLOCKER/HIGH/MEDIUM/
-LOW). Commit/push NOT performed (user-owned).
+P9-I2 COMPLETE. New `tests/GitHubProof.Application.Tests/Profile/Validation/`
+harness (scenario enum/catalog, ProfileValidationHarness.RunAsync onto the
+real ProfilePipeline, traceability/capability-boundary helpers, 11 concrete
+deterministic scenario fixtures via ProfileValidationScenarioFixtures) +
+shared CreatePipeline/AssertSemanticallyEquivalent extraction. 30 new
+self-proof tests; 190/190 Application, 1319/1319 full solution, 0 warning.
+No src/, no canonical docs changed. Round 1 independent review PASS WITH
+FINDINGS (2 MEDIUM); F1 (§10 literal-fixture gap) resolved this
+continuation with 11 concrete fixtures — see session file; F2 (AI/ML-heavy
+vs generic Python production-wiring limitation) left unchanged as a
+documented P9-I3 input. Round 2 (F1-correction) review: PASS WITH FINDINGS
+(1 LOW, non-blocking, no correction needed — a pre-existing §10 vs.
+implementation-plan §8 wording tension over which slice owns risk-check
+hooks, carried forward as a P9-I3 handoff note). Commit/push NOT performed
+(user-owned).
 
 Last Completed Session:
+089 — P9-I1 Validation Contract + Scenario Matrix — COMPLETE / merged to
+main at 4a1bc5a. Created `docs/product/p9-profile-validation-contract.md`
+(CONTRACT LOCKED): 11/11 scenarios, 9/9 required risks mapped. Docs-only,
+independent review PASS (0 BLOCKER/HIGH/MEDIUM/LOW). Session file:
+worklog/sessions/2026-08-20-089-p9-i1-validation-contract-scenario-matrix.md
+
+Previously Completed Session:
 088 — P8-I5 Integration and P8 Closure (Application/Infrastructure/Web
 integration wiring)
 
@@ -619,10 +638,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/088-p8-i5-integration-and-p8-closure
+session/090-p9-i2-profile-validation-harness
 
 Session Base:
-b2b8624 (feat(profile): project typed public evidence report)
+4a1bc5a (docs(validation): lock p9 profile validation contract)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -815,11 +834,13 @@ now the one running composition path from `GitHubProfileSnapshot` to
 Exact next action:
 
 ~~~text
-P9 — Public Profile Evidence Validation
+P9-I2 — Profile Validation Fixtures / Harness
 ~~~
 
-Not started. P9/Milestone B are explicitly not marked complete by Session
-088.
+P9-I1 (Validation Contract + Scenario Matrix) is COMPLETE (Session 089,
+merged to main at 4a1bc5a): `docs/product/p9-profile-validation-contract.md`
+(CONTRACT LOCKED). P9-I2 is IN PROGRESS (Session 090). P9/Milestone B remain
+explicitly not marked complete.
 
 Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy
 and rules (DEFERRED, not blocking — see P7 closure below); `ProducedWorkEvidence`
