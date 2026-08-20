@@ -3,6 +3,7 @@ using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Web.Analysis;
+using GitHubProof.Web.Entry;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -24,7 +25,7 @@ public sealed class IndexModel : PageModel
     }
 
     [BindProperty]
-    public string RepositoryUrl { get; set; } = string.Empty;
+    public string GitHubTarget { get; set; } = string.Empty;
 
     public RepositoryReport? Report { get; private set; }
 
@@ -36,12 +37,41 @@ public sealed class IndexModel : PageModel
         Report = null;
         ErrorMessage = null;
 
+        // Deterministic shape-based routing between the two separate
+        // analysis semantics. Nothing is inferred and no GitHub call is made
+        // to discover what the user meant.
+        if (!GitHubEntryClassifier.TryClassify(GitHubTarget, out GitHubEntryRoute? route))
+        {
+            ErrorMessage = CreateUnclassifiedInputMessage();
+
+            return Page();
+        }
+
+        if (route!.Kind == GitHubEntryKind.Profile)
+        {
+            // Profile Proof (macro) owns its own route and result flow.
+            // Preserve-method (307) so the identity travels in the re-posted
+            // form body and profile analysis stays a POST: a GET of /profile
+            // — refresh, back, prefetch, crawler, link preview — must never
+            // start a live collection.
+            return RedirectToPagePreserveMethod("/Profile");
+        }
+
+        return await AnalyzeRepositoryAsync(
+            route.Value,
+            cancellationToken);
+    }
+
+    private async Task<IActionResult> AnalyzeRepositoryAsync(
+        string repositoryUrl,
+        CancellationToken cancellationToken)
+    {
         LiveRepositoryAnalysisResult result;
 
         try
         {
             result = await reportService.AnalyzeAsync(
-                RepositoryUrl,
+                repositoryUrl,
                 analysisVersion,
                 Guid.NewGuid(),
                 cancellationToken);
@@ -49,8 +79,7 @@ public sealed class IndexModel : PageModel
         catch (ArgumentException exception)
             when (exception.ParamName is "repositoryUrl" or "value")
         {
-            ErrorMessage =
-                "Enter a canonical public GitHub repository URL, for example https://github.com/owner/repository.";
+            ErrorMessage = CreateUnclassifiedInputMessage();
 
             return Page();
         }
@@ -74,6 +103,14 @@ public sealed class IndexModel : PageModel
 
         return Page();
     }
+
+    // One message for every shape the unified entry cannot resolve to exactly
+    // one analysis flow. It restates the three accepted shapes instead of
+    // reinterpreting the submitted value.
+    private static string CreateUnclassifiedInputMessage() =>
+        "Enter a GitHub username (octocat), a profile URL "
+        + "(https://github.com/octocat), or a repository URL "
+        + "(https://github.com/owner/repository).";
 
     private static string CreateRepositoryFailureMessage(
         DataAvailability availability) =>

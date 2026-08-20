@@ -1,0 +1,47 @@
+@page
+@model ProfileModel
+
+@{
+    ViewData["Title"] = "Profile Proof";
+}
+
+@*
+    P10-I2 result boundary only, rendered from the POST handler. Report
+    sections (Meaning / Direction / Starting Point, Why, drill-down,
+    limitations) arrive in P10-I3..I5.
+*@
+<section
+    class="profile-result"
+    aria-labelledby="profile-result-title">
+
+    <h1
+        class="profile-result__title"
+        id="profile-result-title">
+        Profile Proof
+    </h1>
+
+    <p class="profile-result__identity">
+        @Model.Identity
+    </p>
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <p
+            class="field__message field__message--error"
+            role="alert">
+            @Model.ErrorMessage
+        </p>
+    }
+    else if (Model.HasComposedProfile)
+    {
+        <p class="profile-result__status">
+            Public evidence was collected and composed for this profile.
+        </p>
+    }
+
+    <a
+        class="profile-result__back"
+        href="/">
+        <span aria-hidden="true">←</span> Analyze something else
+    </a>
+</section>

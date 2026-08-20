@@ -12,6 +12,12 @@ and the actual `GitHubProof.Web` composition/routing code. §7 replaces the
 prior 4-slice draft with the 6 locked implementation slices (P10-I1..I6).
 See `worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md`
 for the full decision evidence record.
+**Amended:** 2026-08-20 / Session 095 — explicit user decision after visual
+review of the running application. The landing entry surface is now ONE
+unified GitHub input; the separate Profile Proof / Repository Proof entry
+surfaces are superseded. See §13.0. Affected clauses: §7/P10-I2, §13.1,
+§13.2, §13.5. Underlying analysis semantics, evidence rules and all
+inference prohibitions are unchanged.
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -310,28 +316,43 @@ resolve edilebilir durumdadır; hiçbir Web sayfası bu slice'a bağlı değildi
 
 Amaç:
 
-Mevcut Repository Proof davranışını ve semantic boundary'sini koruyarak
-Profile Proof giriş yüzeyini eklemek.
+Repository Proof analiz semantics'ini koruyarak birleşik giriş yüzeyini
+(§13.0) ve Profile Proof route/result sınırını eklemek.
 
-Kapsam: `Pages/Profile.cshtml` + `Profile.cshtml.cs` (mevcut
-`Index.cshtml`/`IndexModel` şeklini izler — bound identity input,
-`OnPostAsync`, P10-I1'in servisini kullanan error branch), yeni
-`Pages/Shared/_ProfileInput.cshtml` partial (mevcut `_RepositoryInput.cshtml`
-örüntüsünü izler). Route: `/Profile` (`/profile`).
+**Session 095 amendment.** Bu slice'ın önceki kapsamı ayrı bir
+`_ProfileInput.cshtml` giriş partial'ı ve `/profile` üzerinde ayrı bir
+bound identity input öngörüyordu. §13.0'daki açık kullanıcı kararı bunu
+geçersiz kılar: giriş tek ve birleşiktir, landing'de yaşar; `/profile`
+yalnız sonuç route'udur.
+
+Kapsam:
+
+- `src/GitHubProof.Web/Entry/` — `GitHubEntryClassifier`,
+  `GitHubEntryRoute`, `GitHubEntryKind`: §13.0/3'teki deterministik
+  shape-based routing sınırı.
+- `Pages/Shared/_GitHubInput.cshtml` + `GitHubInputModel` — tek birleşik
+  giriş (`_RepositoryInput.cshtml` / `RepositoryInputModel` yerine).
+- `Pages/Index.cshtml(.cs)` — `GitHubTarget` bound property; `OnPostAsync`
+  sınıflandırır, profile-shaped değeri `/Profile`'a yönlendirir,
+  repository-shaped değeri mevcut analiz akışında çalıştırır,
+  sınıflandırılamayan değeri validation error olarak gösterir.
+- `Pages/Profile.cshtml` + `Profile.cshtml.cs` — `/Profile` (`/profile`)
+  route'u. `OnGet()` analiz çalıştırmaz, `/`'a yönlendirir.
+  `OnPostAsync(ct)` biçimi yeniden sınıflandırır ve P10-I1'in
+  `LiveProfileReportService`'ini çağırarak tipli failure/composed sonucunu
+  korur (§13.0/6).
 
 `LiveRepositoryReportService`, `RepositoryReportProjector` ve tüm
-`_Repository*.cshtml` partial'ları değişmeden kalır; `/` routing ve
-`IndexModel`'in mevcut `OnPostAsync`/`RepositoryUrl`/analiz semantics'i
-değişmez (§13.5). `Pages/Index.cshtml` (landing markup) ise Profile Proof'a
-giden additive bir giriş noktası (link/kart) alabilir, böylece kullanıcı
-her iki girişi de (Profile Proof, Repository Proof) keşfedebilir; bu,
-repository formunu bir profile formuna dönüştürmez ve iki semantic
-boundary'yi birleştirmez. `_Layout.cshtml`'e de yalnız additive bir
-navigasyon linki eklenebilir; mevcut site-brand/tema davranışı korunur.
+`_Repository*.cshtml` rapor partial'ları değişmeden kalır; repository analiz
+semantics'i değişmez (§13.5).
 
-Çıkış: kullanıcı `/profile`'a ulaşabilir, bir kimlik gönderebilir ve
-Repository Proof route'una dokunmadan (başarılı, partial veya failed) bir
-sonuç sayfasına ulaşabilir.
+Kapsam dışı: report-section sunumu (P10-I3), drill-down (P10-I4), final
+failure/partial UX (P10-I5). `/profile` bu slice'ta yalnız minimal result
+boundary render eder.
+
+Çıkış: kullanıcı tek bir alandan username, profile URL veya repository URL
+gönderebilir; gönderim deterministik olarak doğru analiz akışına gider ve
+profile akışı `/profile` üzerinde bir sonuç sınırına ulaşır.
 
 ---
 
@@ -589,29 +610,121 @@ gerçek repository kanıtına dayanır (kod, canonical docs); tahmini veya
 icat edilmiş değildir. Tam kanıt kaydı:
 `worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md`.
 
+## 13.0 Unified Entry Input (Session 095 — Supersedes Separate Entry Surfaces)
+
+Açık kullanıcı kararı (çalışan uygulamanın görsel incelemesinden sonra):
+landing sayfası **tek bir birleşik GitHub girişi** taşır. Ayrı bir "Analyze
+a profile instead" keşif linki ve ayrı Profile Proof / Repository Proof
+giriş yüzeyleri kaldırılmıştır. Bu karar yalnız **giriş deneyimini**
+birleştirir; analiz semantics'ini birleştirmez.
+
+Kilitli gerçekler:
+
+1. **Tek birleşik giriş.** Landing'de tam olarak bir input alanı vardır;
+   etiketi `GitHub username, profile URL, or repository URL`. Alan üç
+   biçimi de kabul eder.
+2. **Alttaki analiz semantics'i ayrı kalır.** Profile Proof (macro,
+   `LiveProfileReportService` → `ProfilePipeline`) ve Repository Proof
+   (micro, `LiveRepositoryReportService` → repository analiz hattı) iki
+   ayrı akıştır; pipeline'lar, evidence kuralları ve raporlar
+   birleştirilmez.
+3. **Deterministik iki aşamalı sınıflandırma.** Aşama 1 yalnız *biçime*
+   bakarak canonical sahibi seçer; aşama 2 kabul kararını o canonical
+   parser'a devreder:
+
+   ~~~text
+   scheme yok, '/' yok        -> Profile adayı    (bare login)
+   scheme + 1 path segment    -> Profile adayı    (profile URL)
+   scheme + 2 path segment    -> Repository adayı (repository URL)
+   diğer her biçim            -> kabul edilmez
+   ~~~
+
+   Aday seçildikten sonra `GitHubProfileHandle.Parse` /
+   `GitHubRepositoryUrl.Parse` kabul etmezse giriş reddedilir.
+
+   `owner/repo` ve `github.com/owner/repo` **bare login değildir** (path
+   taşırlar) ve kabul edilen giriş sözleşmesinde yoktur; Profile'a
+   yönlendirilmezler, giriş seviyesinde reddedilirler.
+4. **Asla tahmin yok.** AI/intent sınıflandırması, olasılıksal skorlama,
+   repository/profile varlığını keşfetmek için GitHub çağrısı, veya
+   bozuk/non-canonical bir GitHub URL'inin sessizce canonical bir biçime
+   normalize edilmesi yasaktır. Aynı girdi her zaman aynı sonucu verir.
+5. **Canonical parsing sahipliği değişmez.** Login deseni, scheme, host,
+   userinfo, query ve fragment kuralları `GitHubProfileHandle.Parse` ve
+   `GitHubRepositoryUrl.Parse` sahipliğindedir. Web classifier bu kuralların
+   hiçbirini yeniden uygulamaz; yalnız *çağırır* ve kabul/ret cevabını alır.
+   Parse sonucu atılır, ham trim'lenmiş string ileri taşınır — yani
+   collector'ın kendi `GitHubProfileHandle.Parse`'ı hâlâ kayıt altındaki
+   parse'tır ve Web katmanı kendi kimliğini türetmez (P10-I1 sınırı
+   korunur). Bu ön-kontrol, kabul edilmeyen biçimin akışa özgü bir hata
+   sayfasında çıkmaz sokağa düşmek yerine birleşik girişte, kabul edilen
+   biçimleri listeleyen tek bir mesajla kalmasını sağlar.
+6. **Route'lar değişmez, ama profile analizi POST-only'dir.** `/profile`
+   Profile Proof route/result akışı, `/` birleşik giriş + Repository Proof
+   akışı olarak kalır.
+
+   ~~~text
+   GET  /profile  -> analiz YOK; birleşik girişe (/) yönlendirir
+   POST /profile  -> LiveProfileReportService; canlı profile analizi
+   ~~~
+
+   `/` üzerindeki profile-shaped gönderim `/profile`'a **preserve-method
+   (307)** ile yönlendirilir; kimlik yeniden gönderilen form body'sinde
+   taşınır, query string'e yazılmaz. Gerekçe: profile analizi hesabın
+   repository'lerine fan-out eder ve rate limit tüketir; refresh, browser
+   back/forward, prefetch, crawler veya link-preview kaynaklı bir GET asla
+   canlı toplama başlatmamalıdır. `/profile` POST'u ayrıca biçimi yeniden
+   sınıflandırır, böylece doğrudan POST ile repository-shaped veya
+   non-canonical bir değer profile akışına sokulamaz.
+7. **Macro/micro ilişkisi değişmez.** Profile Proof macro view, Repository
+   Proof micro view olarak kalır (§13.6).
+8. **Tüm evidence/inference yasakları aynen geçerlidir.** Bu karar hiçbir
+   evidence, pattern, scoring, role inference veya presentation kuralını
+   değiştirmez.
+
+Runtime sahibi: `GitHubEntryClassifier` (`src/GitHubProof.Web/Entry/`),
+`GitHubEntryRoute`, `GitHubEntryKind`.
+
 ## 13.1 `/profile` Route Boundary
 
 Yeni `Pages/Profile.cshtml` → route `/Profile` (`/profile`, Razor Pages
-case-insensitive). `/` (`Pages/Index.cshtml`) Repository Proof girişi olarak
-kalır — `OnPostAsync`/`RepositoryUrl`/analiz semantics'i değişmez (§13.5) —
-ancak landing markup'ı Profile Proof'a giden additive bir giriş noktası
-alabilir. İki route birbirinden bağımsızdır; biri diğerini yeniden
-yönlendirmez veya sarmalamaz, ve repository formu profile formuna
-dönüştürülmez.
+case-insensitive). `/` (`Pages/Index.cshtml`) birleşik giriş yüzeyini
+taşır (§13.0) ve repository-shaped gönderimler için Repository Proof
+akışını yerinde çalıştırır. İki route ayrı semantic boundary olmayı
+sürdürür; hiçbiri diğerinin analiz akışını sarmalamaz. `/`'ın Profile
+Proof'a yönlendirmesi (§13.0/6) bir *routing* adımıdır — iki analiz
+semantics'ini birleştirmez.
 
 ## 13.2 Profile Identity Input Contract
 
-Tek bir serbest metin girişi. Web katmanı kimlik string'ini yeniden parse
-etmez — trim edilmiş ham string doğrudan
-`IGitHubProfileSnapshotCollector.CollectAsync(profile, ct)`'e geçirilir.
-Repository Proof'un aksine (`GitHubRepositoryUrl.Parse` Web/Application
-seviyesinde, `LiveRepositoryReportService` içinde çağrılır), profile için
-parse adımı zaten Infrastructure seviyesinde
-(`GitHubProfileHandle.Parse`, `GitHubProfileSnapshotOrchestrator.CollectAsync`
-içinde) gerçekleşir. P10 bu parse'ı Web katmanında tekrar uygulamaz;
-geçersiz format `ArgumentException` olarak collector çağrısından yükselir ve
-P10-I1'in servis katmanında (Index akışındaki `IndexModel`'in
-`ArgumentException` yakalama örüntüsüne paralel biçimde) yakalanır.
+Birleşik girişten gelen profile-shaped değer.
+
+Web katmanı canonical parsing kurallarını yeniden implemente etmez ve parse
+sonucundan kendi profile/repository identity'sini türetmez.
+`GitHubEntryClassifier` yalnız acceptance preflight amacıyla mevcut canonical
+parser'ı çağırır; parse sonucunu discard eder ve raw trimmed input'u seçilen
+analysis boundary'ye taşır (§13.0/5).
+
+Bu nedenle `GitHubEntryClassifier`'ın iki aşaması farklı şeyler yapar:
+Stage 1'in segment sayımı bir doğrulama değil, yalnız canonical sahip
+seçimidir; Stage 2 ise doğrulamayı kendisi yapmaz, canonical parser'ı
+çağırıp yalnız kabul/ret cevabını kullanır.
+
+Analiz için kayıt altındaki parse hâlâ Infrastructure'dadır: trim edilmiş
+ham string `IGitHubProfileSnapshotCollector.CollectAsync(profile, ct)`'e
+geçirilir ve `GitHubProfileHandle.Parse`,
+`GitHubProfileSnapshotOrchestrator.CollectAsync` içinde çalışır. Repository
+Proof'ta karşılık gelen analiz parse'ı `GitHubRepositoryUrl.Parse` olarak
+`LiveRepositoryReportService` içinde çalışır. Preflight bu parse'ların
+yerine geçmez; onları yalnız erkenden bir kez daha çağırır.
+
+Geçersiz format `/profile`'a hiç ulaşmaz: birleşik giriş, aynı canonical
+parser'ı çağırarak kabul kontrolünü zaten yapmıştır (§13.0/5) ve
+`/profile` POST'u bunu bir kez daha doğrular. Bu nedenle page model'de
+`ArgumentException` yakalayan bir catch **yoktur** — collector aynı string'i
+aynı parser'la işlediği için bu yol ulaşılamazdır. Kullanıcıya görünen
+format hatası, akışa özgü bir hata sayfasında değil, kabul edilen üç biçimi
+listeleyen tek bir giriş-seviyesi mesajıyla birleşik girişte gösterilir.
 
 ## 13.3 Username ve Canonical Profile URL Davranışı
 
@@ -652,20 +765,31 @@ birebir profile karşılığı; hiçbir stage yeniden uygulanmaz.
 ## 13.5 Repository Proof Flow Korunması
 
 Korunan **semantics**: `LiveRepositoryReportService`, `RepositoryReportProjector`,
-tüm `_Repository*.cshtml` partial'ları, `/` routing, ve `Pages/Index.cshtml(.cs)`'in
-mevcut Repository Proof davranışı — `OnPostAsync`, `RepositoryUrl` bound
-property, `LiveRepositoryReportService.AnalyzeAsync` çağrısı, hata/partial
-mesaj switch'i, repository micro-view render'ı. Bu davranış P10 tarafından
-değiştirilmez.
+tüm `_Repository*.cshtml` rapor partial'ları, `/` route'u, ve repository
+analiz davranışı — `OnPostAsync`, `LiveRepositoryReportService.AnalyzeAsync`
+çağrısı, `GitHubRepositoryUrl.Parse` doğrulaması, hata/partial mesaj
+switch'i, repository micro-view render'ı. Bu davranış P10 tarafından
+değiştirilmez: canonical bir repository URL'i gönderildiğinde çalışan analiz
+akışı Session 095 öncesiyle aynıdır.
 
-`Pages/Index.cshtml(.cs)`'in kendisi ise **dosya seviyesinde** kilitli
-değildir: landing sunumu, yukarıdaki semantics'i bozmadan, Profile Proof'a
-giden additive bir giriş noktası (link/kart) içerebilir — bkz. P10-I2 ve
-§13.1. `LiveRepositoryReportService`, `RepositoryReportProjector` ve tüm
-`_Repository*.cshtml` partial'ları yine de değiştirilmez; yalnız
-`Pages/Index.cshtml` (markup) ve gerekirse `_Layout.cshtml` (navigasyon)
-additive bir Profile Proof girişi için genişleyebilir. Repository formu
-profile formuna dönüştürülmez; iki semantic boundary birleştirilmez.
+**Session 095 amendment.** Bu bölümün önceki hâli `RepositoryUrl` bound
+property'sini ve ayrı repository-only giriş formunu da korunan semantics
+listesine koyuyordu. §13.0'daki açık kullanıcı kararı bunu geçersiz kılar:
+
+- bound property `IndexModel.RepositoryUrl` → `IndexModel.GitHubTarget`,
+- giriş partial'ı `_RepositoryInput.cshtml` → `_GitHubInput.cshtml`,
+- presentation modeli `RepositoryInputModel` → `GitHubInputModel`,
+- alan `type="url"` → `type="text"` (bare login'i tarayıcı doğrulaması
+  reddetmesin diye).
+
+Bunlar **giriş yüzeyi** değişiklikleridir; repository analiz semantics'ini
+değiştirmezler. P10-I4 drill-down'ı (§13.6) `/` girişini önceden doldururken
+`GitHubTarget` alan adını kullanmalıdır.
+
+`LiveRepositoryReportService`, `RepositoryReportProjector` ve tüm
+`_Repository*.cshtml` rapor partial'ları değiştirilmez. Artık ayrı bir
+"repository formu" ve ayrı bir "profile formu" yoktur; tek birleşik giriş
+vardır (§13.0) ve iki analiz semantic boundary'si ayrı kalır.
 
 ## 13.6 Profile = Macro View / Repository = Micro View
 

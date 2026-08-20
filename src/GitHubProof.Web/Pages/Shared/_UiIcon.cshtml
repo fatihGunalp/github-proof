@@ -89,6 +89,30 @@
             <path d="m9 18 6-6-6-6"></path>
             break;
 
+        case UiIcon.ChartColumnOff:
+            <path d="M5 21v-4"></path>
+            <path d="M12 21v-7"></path>
+            <path d="M19 21V8"></path>
+            <path d="m4 4 16 16"></path>
+            break;
+
+        case UiIcon.ChevronsUpOff:
+            <path d="m7 13 5-4 5 4"></path>
+            <path d="m7 19 5-4 5 4"></path>
+            <path d="m4 4 16 16"></path>
+            break;
+
+        case UiIcon.SparklesOff:
+            <path d="M12 4.5 13.6 9l4.4 1.6-4.4 1.6L12 16.6l-1.6-4.4L6 10.6 10.4 9Z"></path>
+            <path d="m4 4 16 16"></path>
+            break;
+
+        case UiIcon.CircleCheckOff:
+            <circle cx="12" cy="12" r="8.5"></circle>
+            <path d="m8.5 12 2.5 2.5 4.5-5"></path>
+            <path d="m4 4 16 16"></path>
+            break;
+
         default:
             throw new InvalidOperationException(
                 $"Unsupported UI icon: {Model}");

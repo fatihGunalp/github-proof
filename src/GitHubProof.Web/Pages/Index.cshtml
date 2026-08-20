@@ -12,27 +12,79 @@
         aria-labelledby="home-title">
 
         <div class="home__content">
-            <p class="home__eyebrow">
-                Observable repository evidence
-            </p>
-
             <h1
                 class="home__title"
                 id="home-title">
-                What does this repository prove?
+                See what your GitHub communicates.
             </h1>
 
             <p class="home__summary">
-                Understand what a public GitHub repository makes visible:
-                its strongest evidence, its most important gaps,
-                and what to improve first.
+                Public evidence. Clear direction. No guesses.
             </p>
 
             <partial
-                name="_RepositoryInput"
-                model="@(new RepositoryInputModel(
-                    Model.RepositoryUrl,
+                name="_GitHubInput"
+                model="@(new GitHubInputModel(
+                    Model.GitHubTarget,
                     Model.ErrorMessage))" />
+        </div>
+
+        <div class="boundaries">
+            <h2
+                class="boundaries__title"
+                id="boundaries-title">
+                What GitHub Proof is not
+            </h2>
+
+            <div class="boundaries__grid">
+                <div class="boundaries__item">
+                    <span class="boundaries__item-icon">
+                        <partial
+                            name="_UiIcon"
+                            model="UiIcon.ChartColumnOff" />
+                    </span>
+                    <p class="boundaries__item-title">No developer ranking</p>
+                    <p class="boundaries__item-description">
+                        We don't rank or score developers.
+                    </p>
+                </div>
+
+                <div class="boundaries__item">
+                    <span class="boundaries__item-icon">
+                        <partial
+                            name="_UiIcon"
+                            model="UiIcon.ChevronsUpOff" />
+                    </span>
+                    <p class="boundaries__item-title">No seniority judgment</p>
+                    <p class="boundaries__item-description">
+                        We don't judge experience or seniority.
+                    </p>
+                </div>
+
+                <div class="boundaries__item">
+                    <span class="boundaries__item-icon">
+                        <partial
+                            name="_UiIcon"
+                            model="UiIcon.SparklesOff" />
+                    </span>
+                    <p class="boundaries__item-title">No AI authorship claims</p>
+                    <p class="boundaries__item-description">
+                        We don't guess or claim AI authorship.
+                    </p>
+                </div>
+
+                <div class="boundaries__item">
+                    <span class="boundaries__item-icon">
+                        <partial
+                            name="_UiIcon"
+                            model="UiIcon.CircleCheckOff" />
+                    </span>
+                    <p class="boundaries__item-title">No hire/no-hire verdict</p>
+                    <p class="boundaries__item-description">
+                        We don't tell you who to hire or not.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 }

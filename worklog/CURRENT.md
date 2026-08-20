@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 094)
+**Last Updated:** 2026-08-20 (Session 095)
 **Source of Truth:** docs/
 
 ## Development
@@ -38,8 +38,9 @@ Current:
 P9 COMPLETE (Session 092; P9-I1 Session 089 at 4a1bc5a, P9-I2 Session 090 at
 c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). P10 — Profile Web
 Flow contract/planning CLOSED (Session 093, docs-only). P10-I1 Live Profile
-Request Boundary COMPLETE (Session 094). P10-I2..I6 not started. See "P10
-Phase State" below.
+Request Boundary COMPLETE (Session 094). P10-I2 Profile Entry + Routing
+COMPLETE (Session 095) — landing entry unified by explicit user decision;
+`/profile` exists. P10-I3..I6 not started. See "P10 Phase State" below.
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -211,7 +212,7 @@ Full plan with per-slice responsibility, files, tests, invariants,
 out-of-scope and exit criteria:
 worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-P10 Phase State (Sessions 093-094):
+P10 Phase State (Sessions 093-095):
 
 ~~~text
 P10 contract/planning:
@@ -220,9 +221,20 @@ COMPLETE (docs-only)
 P10-I1 Live Profile Request Boundary:
 COMPLETE (Session 094)
 
-P10-I2..I6:
+P10-I2 Profile Entry + Routing:
+COMPLETE (Session 095)
+
+P10-I3..I6:
 NOT STARTED
 ~~~
+
+P10 entry contract amended (Session 095, explicit user decision after visual
+review of the running application): the landing carries ONE unified GitHub
+entry input, superseding the previously locked separate Profile Proof /
+Repository Proof entry surfaces. The two analysis semantics were NOT merged —
+Profile Proof remains the macro view, Repository Proof the micro view; only
+the entry experience is unified. Canonical owner of the decision:
+`docs/product/p10-web-profile-flow-implementation-plan.md` §13.0.
 
 Session 093 reconciled the two P10 drafts
 (`docs/product/p10-web-profile-flow-implementation-plan.md`,
@@ -299,47 +311,77 @@ BLOCKED
 ## Active Session
 
 Session:
-094 — P10-I1 Live Profile Request Boundary
+095 — P10-I2 Profile Entry + Routing
 
 Active Branch:
-session/094-p10-i1-live-profile-request-boundary
+session/095-p10-i2-profile-entry-routing
 
 Session Base:
-77f6f16 (docs(profile): close P10 implementation contract)
+f2ebd3c (feat(profile): add live profile request boundary)
 
 Goal:
-Implement P10-I1 (the first of six locked P10 implementation slices): add
-the missing `IGitHubProfileSnapshotCollector` Web composition-root
-registration to `Program.cs`, add the smallest Web service/result pair
-carrying a raw profile identity through the existing collector +
-`ProfilePipeline` to a `ProfileReport` (or a typed failure), and add
-targeted Web tests proving the boundary.
+Implement P10-I2 (Profile Entry + Routing) and, on explicit user decision
+after visual review of the running application, replace the previously
+locked separate Profile Proof / Repository Proof entry surfaces with ONE
+unified GitHub entry input.
+
+Session File:
+worklog/sessions/2026-08-20-095-p10-i2-profile-entry-routing.md
+
+Status:
+**P10-I2 COMPLETE.** The landing carries one unified GitHub entry input;
+the two analysis semantics were NOT merged (Profile Proof = macro view,
+Repository Proof = micro view — only the entry is unified). Entry routing is
+deterministic from the submitted string's shape — no heuristic, no
+probabilistic scoring, no AI/intent detection, no GitHub call to discover
+intent: bare GitHub login → Profile Proof, canonical profile URL → Profile
+Proof, canonical repository URL → Repository Proof, invalid/ambiguous shape →
+entry-level validation error, never guessed. `GitHubEntryClassifier`
+(`src/GitHubProof.Web/Entry/`) is two-stage — shape selects the canonical
+owner, then acceptance is delegated to `GitHubProfileHandle.Parse` /
+`GitHubRepositoryUrl.Parse` by calling them, never reimplementing them; the
+parse result is discarded and the raw string travels on, so the P10-I1
+boundary (Web derives no profile identity) holds. `/profile` exists: GET
+performs no live analysis and returns to the landing entry, POST invokes the
+existing P10-I1 `LiveProfileReportService`, and landing → profile routing
+preserves POST semantics via `RedirectToPagePreserveMethod` (307), so the
+identity travels in the re-posted body rather than a query string. Note the
+scope of that guarantee: GET `/profile` itself never analyzes, but a browser
+re-submitting the POST can still re-run the analysis — ordinary POST
+semantics. The existing Repository Proof analysis path remains intact
+(projector and all `_Repository*.cshtml` partials untouched); only the entry
+surface changed (`RepositoryUrl` → `GitHubTarget`, `_RepositoryInput.cshtml`
+→ `_GitHubInput.cshtml`, `RepositoryInputModel` → `GitHubInputModel`,
+`type="url"` → `type="text"`). Four decorative inline-SVG boundary icons were
+added through the existing `UiIcon` system (no package, CDN, asset, emoji or
+dependency). Accepted landing composition: hero centred and optically above
+the mathematical centre, two-line desktop title, one unified input, Analyze
+button below it, "What GitHub Proof is not" at the bottom of the first normal
+desktop viewport, responsive mobile behavior preserved. Canonical docs
+amended for the unified-entry decision (P10 plan §13.0 + affected clauses;
+design-principles and UI-system landing/component clauses). 145/145 Web,
+1448/1448 full solution, 0 warning / 0 error. Independent review: round 1
+PASS WITH FINDINGS (3 MEDIUM, all corrected in-session), round 2 PASS WITH
+FINDINGS (all three closed; remaining MEDIUM was worklog sync, resolved by
+this session's documentation step; 2 LOW deferred). Commit/push NOT performed
+(user-owned).
+
+Previously Active Session:
+094 — P10-I1 Live Profile Request Boundary
 
 Session File:
 worklog/sessions/2026-08-20-094-p10-i1-live-profile-request-boundary.md
 
 Status:
-**P10-I1 COMPLETE.** New `src/GitHubProof.Web/Profile/LiveProfileReportService.cs`
-+ `LiveProfileAnalysisResult.cs` (the profile counterpart of
-`LiveRepositoryReportService`/`LiveRepositoryAnalysisResult`) and an
-additive `Program.cs` registration (21 lines) following the pre-existing
-`IGitHubRepositorySnapshotCollector` pattern exactly (same named
-`"GitHubProof.GitHub"` HttpClient, same reused `TimeProvider`,
-`GitHubProfileSnapshotOrchestrator.CreateDefault`). The Web layer parses no
-profile identity itself (`GitHubProfileHandle.Parse` stays exclusively
-Infrastructure-owned); collector-level typed failures
-(`RateLimited`/`Forbidden`/`Unavailable`/...) are preserved verbatim and
-never invoke `ProfilePipeline`; a Failed/Composed `ProfilePipelineResult` is
-carried through unchanged, never reinterpreted. No
-`ProfilePipeline`/`ProfileComposer`/`ProfileReportProjector`/
-`IGitHubProfileSnapshotCollector`/`GitHubProfileHandle` changed; no
-canonical docs changed; no new package. 11 new targeted tests
-(`LiveProfileReportServiceTests.cs`, `ProfileCompositionRootTests.cs`);
-1386/1386 full solution, 0 warning. Independent review: PASS WITH FINDINGS
-(1 MEDIUM, worklog-sync only, resolved same session). Commit/push NOT
-performed (user-owned).
+P10-I1 COMPLETE. `IGitHubProfileSnapshotCollector` Web composition-root
+registration + `LiveProfileReportService`/`LiveProfileAnalysisResult`
+(`src/GitHubProof.Web/Profile/`), the profile counterpart of the repository
+live-report pair. Typed collector failures preserved; no pipeline/domain/
+infrastructure contract changed. 1386/1386 full solution, 0 warning.
+Independent review PASS WITH FINDINGS (1 MEDIUM, worklog-sync only,
+resolved same session).
 
-Previously Active Session:
+Previously Completed Session:
 093 — P10 Contract + Implementation Closure
 
 Session File:
@@ -738,10 +780,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/094-p10-i1-live-profile-request-boundary
+session/095-p10-i2-profile-entry-routing
 
 Session Base:
-77f6f16 (docs(profile): close P10 implementation contract)
+f2ebd3c (feat(profile): add live profile request boundary)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -865,10 +907,15 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 094 (last code change): 1386/1386 PASS across the full solution
-(Application 246, Domain 798, Infrastructure 259, Web 83 [72 baseline + 11
-new])
+Session 095 (last code change): 1448/1448 PASS across the full solution
+(Domain 798, Application 246, Infrastructure 259, Web 145 [83 baseline + 62
+new/updated])
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
+
+Note: builds/tests in Session 095 were run with `-c Release`, because the
+user's running `GitHubProof.Web` dev server held a lock on the Debug output
+for the whole session. Same sources, same result; independently confirmed by
+the reviewer.
 
 AnalyzerVersion:
 1.1.0
@@ -930,21 +977,42 @@ now the one running composition path from `GitHubProfileSnapshot` to
 `AddProfilePipeline` (Web, `src/GitHubProof.Web/Profile/`). See the Session
 088 status entry above and its session file for the full record.
 
-P10 contract/planning is CLOSED (Session 093, docs-only) and P10-I1 is
-COMPLETE (Session 094 — see "P10 Phase State" above and
-`worklog/sessions/2026-08-20-094-p10-i1-live-profile-request-boundary.md`):
+P10 contract/planning is CLOSED (Session 093, docs-only), P10-I1 is COMPLETE
+(Session 094) and P10-I2 is COMPLETE (Session 095 — see "P10 Phase State"
+above and
+`worklog/sessions/2026-08-20-095-p10-i2-profile-entry-routing.md`):
 
 ~~~text
-P10 contract/planning:               COMPLETE
+P10 contract/planning:                COMPLETE
 P10-I1 Live Profile Request Boundary: COMPLETE
-P10-I2..I6:                          NOT STARTED
+P10-I2 Profile Entry + Routing:       COMPLETE
+P10-I3..I6:                           NOT STARTED
 ~~~
 
 Exact next action:
 
 ~~~text
-P10-I2 — Profile Entry + Routing
+P10-I3 — Meaning / Direction / Starting Point
 ~~~
+
+Carried into later P10 slices (recorded in the Session 095 file, not
+blocking P10-I3):
+
+- P10-I5 — the rate-limit failure message still exposes the technical
+  `GITHUB_TOKEN` environment-variable name to end users. The typed
+  `RateLimited` state itself is correctly preserved; only the user-facing
+  wording is provisional.
+- P10-I6 — LOW cleanup: the unified input still uses the `.repository-input*`
+  CSS block and `wwwroot/css/repository-input.css`, naming a surface that now
+  also accepts profile identities. Deferred deliberately to avoid touching
+  the just-accepted visual composition.
+
+Production guardrails remain separately pending before the Milestone B
+production gate, unchanged by Session 095: a concurrency guard for profile
+analysis (it fans out across the account's admitted repositories), and GitHub
+request / rate-limit telemetry. P10-I2's POST-only `/profile` reduces
+accidental analysis triggering (GET, refresh-to-GET, prefetch, crawler, link
+preview) but replaces neither guardrail.
 
 P9 — Public Profile Evidence Validation (Validation Profile Set) is
 **COMPLETE**:

@@ -13,5 +13,13 @@ public enum UiIcon
     ExternalLink,
     Clock,
     Info,
-    ChevronRight
+    ChevronRight,
+
+    // Boundary ("what GitHub Proof is not") icons. Each pairs a concept mark
+    // with the same prohibition stroke, so it reads as the capability being
+    // declined — never as a judgment GitHub Proof performs.
+    ChartColumnOff,
+    ChevronsUpOff,
+    SparklesOff,
+    CircleCheckOff
 }

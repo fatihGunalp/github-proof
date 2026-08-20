@@ -9,6 +9,15 @@
 **Themes:** Light + Dark  
 **Design direction:** Evidence-first developer tool, low visual noise, strong information hierarchy, progressive disclosure  
 
+> **Amended:** 2026-08-20 / Session 095 — açık kullanıcı kararı. Landing artık
+> tek birleşik GitHub girişi taşır (`GitHubInput`: username / profile URL /
+> repository URL) ve trust şeridi dört kartlık "What GitHub Proof is not"
+> yüzeyidir. Etkilenen bölümler: domain component listeleri
+> (`RepositoryInput` → `GitHubInput`), §25 minimal home kompozisyonu, §40 build
+> order. Profile Proof ve Repository Proof ayrı semantic akışlar olarak kalır;
+> hiçbir token, tema veya status semantiği değişmemiştir. Kontrat sahibi:
+> `docs/product/p10-web-profile-flow-implementation-plan.md` §13.0.
+
 ---
 
 ## 1. Amaç
@@ -100,7 +109,7 @@ UI kit mümkün olduğunca az primitive kullanır.
 Ama domain component'leri güçlü ve anlamlıdır:
 
 ```text
-RepositoryInput
+GitHubInput
 RepositoryResult
 ProofItem
 GapItem
@@ -1371,22 +1380,43 @@ Amaç terminal estetiği değildir.
 Minimal home önerisi:
 
 ```text
-GitHub Proof                        Methodology   GitHub
+GitHub Proof                                          [theme]
 
 
-              Repository'n
-             neyi kanıtlıyor?
+              See what your GitHub communicates.
 
-        Herkese açık evidence'dan
-        güçlü yanları ve ilk
-        düzeltmen gerekenleri gör.
+              Public evidence. Clear direction. No guesses.
 
-      [ GitHub username or repo URL  → ]
+      [ GitHub username, profile URL, or repository URL   ]
 
-   Public data · 15 deterministic signals · No AI judgment
+                        [ Analyze ]
+
+  ──────────────────────────────────────────────────────────
+
+                  What GitHub Proof is not
+
+   No developer   No seniority   No AI authorship   No hire/no-hire
+     ranking        judgment         claims             verdict
 ```
 
 Light ve Dark aynı layout'u kullanır.
+
+Kilitli noktalar (Session 095):
+
+- **Tek `GitHubInput`.** Landing'de yalnız bir giriş alanı vardır; bare
+  GitHub login, canonical profile URL ve canonical repository URL kabul
+  eder. Ayrı bir profile giriş component'i yoktur.
+- **Giriş birleşik, analiz değil.** Profile Proof ve Repository Proof ayrı
+  semantic akışlardır; hangisinin çalışacağı gönderilen değerin biçiminden
+  deterministik olarak seçilir, tahmin edilmez. Kabul edilmeyen biçim aynı
+  giriş yüzeyinde validation error olarak kalır.
+- **Boundary şeridi dört kartlık "What GitHub Proof is not" yüzeyidir.**
+  Eski tek satırlık `Public data · 15 deterministic signals · No AI
+  judgment` şeridinin yerini alır. Dört madde birer decorative line icon
+  taşır (`currentColor`, mevcut `ui-icon` sistemi, inline SVG) — ikonlar
+  ikincildir, sözleşme metindedir.
+- Alan `type="text"`tir: `type="url"` bare login'i tarayıcı seviyesinde
+  reddederdi.
 
 ---
 
@@ -1627,7 +1657,7 @@ Dialog
 Domain:
 
 ```text
-RepositoryInput
+GitHubInput
 RepositoryPicker
 RepositoryIdentity
 ProofItem
@@ -1766,7 +1796,7 @@ Skeleton
 ## Domain Components
 
 ```text
-RepositoryInput
+GitHubInput
 RepositoryPicker
 RepositoryIdentity
 ProofItem
@@ -1807,7 +1837,7 @@ Error / Partial States
 04 Spacing / radius / borders
 05 Status semantics
 06 Button / Input
-07 RepositoryInput
+07 GitHubInput
 08 RepositoryPicker
 09 Proof / Gap / Action
 10 SignalRow

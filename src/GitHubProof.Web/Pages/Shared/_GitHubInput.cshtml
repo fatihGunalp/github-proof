@@ -1,0 +1,47 @@
+@model GitHubInputModel
+
+<form
+    class="repository-input"
+    method="post"
+    asp-page="/Index">
+
+    <label
+        class="repository-input__label"
+        for="github-target">
+        GitHub username, profile URL, or repository URL
+    </label>
+
+    <div class="repository-input__control">
+        <input
+            class="input repository-input__field"
+            id="github-target"
+            name="GitHubTarget"
+            type="text"
+            inputmode="url"
+            autocomplete="off"
+            spellcheck="false"
+            autocapitalize="none"
+            value="@Model.GitHubTarget"
+            placeholder="octocat or https://github.com/owner/repository"
+            required
+            aria-invalid="@(Model.HasError ? "true" : "false")"
+            aria-describedby="@(Model.HasError ? "github-input-error" : null)" />
+
+        <button
+            class="button button--primary repository-input__action"
+            type="submit">
+            <span>Analyze</span>
+            <span aria-hidden="true">→</span>
+        </button>
+    </div>
+
+    @if (Model.HasError)
+    {
+        <p
+            class="field__message field__message--error"
+            id="github-input-error"
+            role="alert">
+            @Model.ErrorMessage
+        </p>
+    }
+</form>

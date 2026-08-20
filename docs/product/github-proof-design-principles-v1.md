@@ -5,6 +5,15 @@
 > **Ana motto:** **Evidence first. Noise last.**  
 > **Temel soru:** **“Bu repository neyi kanıtlıyor ve kullanıcı ilk neyi düzeltmeli?”**
 
+> **Amended:** 2026-08-20 / Session 095 — açık kullanıcı kararı. Landing artık
+> tek birleşik GitHub girişi taşır (username / profile URL / repository URL) ve
+> trust yüzeyi "What GitHub Proof is not"tur. Etkilenen bölümler: Principle 13
+> component ailesi (`RepositoryInput` → `GitHubInput`), "Ana içerik" landing
+> kompozisyonu, "Product components" listesi. Profile Proof ve Repository Proof
+> ayrı semantic akışlar olarak kalır; hiçbir evidence, scoring veya inference
+> ilkesi değişmemiştir. Kontrat sahibi:
+> `docs/product/p10-web-profile-flow-implementation-plan.md` §13.0.
+
 ---
 
 ## 1. Neden Bu Belge Var?
@@ -517,7 +526,7 @@ Generic design-system adları yerine product semantics tercih edilmelidir.
 ### Temel component ailesi
 
 ```text
-RepositoryInput
+GitHubInput
 RepositoryIdentity
 RepositoryPicker
 RepositoryRow
@@ -696,26 +705,55 @@ Tercih edilen minimum yapı:
 ```text
 GitHub Proof
 
-Repository'n neyi kanıtlıyor?
+See what your GitHub communicates.
 
-Herkese açık repository evidence'ını incele.
-Güçlü yanları, boşlukları ve ilk düzeltmen gerekenleri gör.
+Public evidence. Clear direction. No guesses.
 
-[ GitHub kullanıcı adı veya repository URL'si        → ]
+[ GitHub username, profile URL, or repository URL        ]
 
-Public data only · 15 deterministic signals · No AI judgment
+                    [ Analyze ]
+
+────────────────────────────────────────────────────────
+
+              What GitHub Proof is not
+
+  No developer    No seniority    No AI authorship    No hire/no-hire
+    ranking         judgment          claims              verdict
 ```
+
+Kilitli landing yapısı (Session 095, açık kullanıcı kararı):
+
+- **Tek birleşik giriş.** Bir tane input alanı vardır ve üç biçimi kabul
+  eder: bare GitHub login, canonical profile URL, canonical repository URL.
+  Ayrı bir "profile girişi" / "repository girişi" yoktur.
+- **Analiz semantics'i ayrı kalır.** Profile Proof (macro) ve Repository
+  Proof (micro) iki ayrı akıştır; giriş birleşiktir, analiz değil. Hangi
+  akışın çalışacağı gönderilen string'in biçiminden deterministik olarak
+  belirlenir — tahmin, AI/intent sınıflandırması veya "hangisi acaba" diye
+  GitHub'a sorma yoktur. Çözülemeyen biçim giriş seviyesinde validation
+  error olur.
+- **Trust/boundary yüzeyi "What GitHub Proof is not"tur.** Eski tek satırlık
+  trust strip'in (`Public data only · 15 deterministic signals · No AI
+  judgment`) yerini alır; aynı sözü daha açık biçimde verir: no ranking, no
+  seniority judgment, no AI authorship claim, no hire/no-hire verdict.
+  Bu dört madde bir feature card seti değildir — satılan bir yetenek listesi
+  değil, reddedilen yetenekler listesidir.
 
 ### İlk viewport'ta olmaması tercih edilenler
 
 - büyük report preview,
-- 4–6 feature card,
+- feature card / yetenek pazarlaması,
 - hedef kitle kartları,
 - pricing,
 - testimonial,
 - uzun methodology,
 - büyük score mockup,
 - karmaşık navigation.
+
+Not: "What GitHub Proof is not" bu listeye girmez. Bir feature grid'i değil,
+boundary beyanıdır; ürünün ne yapmadığını ilk ekranda söylemek Principle
+2'nin (dürüstlük) ve Principle 12'nin (Unavailable ≠ Missing) doğrudan
+uzantısıdır.
 
 ### Navigation
 
@@ -1369,7 +1407,7 @@ State
 ## Product components
 
 ```text
-RepositoryInput
+GitHubInput
 RepositoryPicker
 RepositoryRow
 RepositoryIdentity

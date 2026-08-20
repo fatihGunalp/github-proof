@@ -6,6 +6,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Pages;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Xunit;
 
@@ -26,7 +27,7 @@ public sealed class IndexModelTests
         new("test-analyzer", "test-rules", 1);
 
     [Fact]
-    public async Task OnPostAsync_WithAvailableRepository_RendersTypedReport()
+    public async Task OnPostAsync_WithCanonicalRepositoryUrl_RunsRepositoryProofUnchanged()
     {
         FakeSnapshotCollector collector =
             new(CreateSuccessfulSnapshotResult());
@@ -34,7 +35,7 @@ public sealed class IndexModelTests
         IndexModel model =
             CreateModel(collector);
 
-        model.RepositoryUrl = RepositoryUrl;
+        model.GitHubTarget = RepositoryUrl;
 
         object action =
             await model.OnPostAsync(
@@ -52,8 +53,11 @@ public sealed class IndexModelTests
             model.Report.SignalDetails.Items.Count);
     }
 
-    [Fact]
-    public async Task OnPostAsync_WithInvalidRepositoryUrl_ShowsInputErrorWithoutCollection()
+    [Theory]
+    [InlineData("octocat")]
+    [InlineData("https://github.com/octocat")]
+    public async Task OnPostAsync_WithProfileShape_RedirectsToProfileProofPreservingPost(
+        string input)
     {
         FakeSnapshotCollector collector =
             new(CreateSuccessfulSnapshotResult());
@@ -61,8 +65,54 @@ public sealed class IndexModelTests
         IndexModel model =
             CreateModel(collector);
 
-        model.RepositoryUrl =
-            "https://example.com/owner/repository";
+        model.GitHubTarget = input;
+
+        object action =
+            await model.OnPostAsync(
+                CancellationToken.None);
+
+        RedirectToPageResult redirect =
+            Assert.IsType<RedirectToPageResult>(action);
+
+        Assert.Equal("/Profile", redirect.PageName);
+
+        // Preserve-method (307): the identity travels in the re-posted form
+        // body, and profile analysis therefore stays a POST. A GET of
+        // /profile must never be able to start a live collection.
+        Assert.True(redirect.PreserveMethod);
+        Assert.DoesNotContain(
+            redirect.RouteValues ?? new Microsoft.AspNetCore.Routing.RouteValueDictionary(),
+            entry => entry.Value is string value && value == input);
+
+        // The two semantics stay separate: the repository collector is never
+        // touched for a profile-shaped entry.
+        Assert.Equal(0, collector.CallCount);
+        Assert.Null(model.Report);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("https://github.com/owner/repository/tree/main")]
+    // Non-canonical shapes must stay on the unified entry rather than being
+    // pushed into either flow.
+    [InlineData("owner/repo")]
+    [InlineData("github.com/owner/repo")]
+    [InlineData("github.com/octocat")]
+    [InlineData("https://example.com/owner/repository")]
+    [InlineData("https://example.com/octocat")]
+    [InlineData("https://github.com/owner/repository?tab=readme")]
+    [InlineData("not a login")]
+    public async Task OnPostAsync_WithUnresolvableInput_StaysOnEntryWithValidationErrorAndDoesNotGuess(
+        string input)
+    {
+        FakeSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+
+        IndexModel model =
+            CreateModel(collector);
+
+        model.GitHubTarget = input;
 
         object action =
             await model.OnPostAsync(
@@ -70,12 +120,17 @@ public sealed class IndexModelTests
 
         Assert.IsType<PageResult>(action);
         Assert.Null(model.Report);
-        Assert.NotNull(model.ErrorMessage);
-        Assert.Contains(
-            "canonical public GitHub repository URL",
-            model.ErrorMessage!,
-            StringComparison.Ordinal);
         Assert.Equal(0, collector.CallCount);
+
+        // One entry-level message listing the accepted shapes — not a
+        // flow-specific error the user cannot act on.
+        Assert.NotNull(model.ErrorMessage);
+        Assert.Contains("username", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("profile URL", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("repository URL", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+
+        // The submitted value is kept so the user can correct it in place.
+        Assert.Equal(input, model.GitHubTarget);
     }
 
     [Fact]
@@ -96,7 +151,7 @@ public sealed class IndexModelTests
         IndexModel model =
             CreateModel(collector);
 
-        model.RepositoryUrl = RepositoryUrl;
+        model.GitHubTarget = RepositoryUrl;
 
         object action =
             await model.OnPostAsync(
@@ -130,7 +185,7 @@ public sealed class IndexModelTests
         IndexModel model =
             CreateModel(collector);
 
-        model.RepositoryUrl = RepositoryUrl;
+        model.GitHubTarget = RepositoryUrl;
 
         object action =
             await model.OnPostAsync(

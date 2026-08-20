@@ -4,97 +4,167 @@ namespace GitHubProof.Web.Tests;
 
 public sealed class HomeCompositionTests
 {
+    // Supersedes Repository_input_accepts_only_canonical_repository_url_scope.
+    // The separate repository-only entry field was replaced by one unified
+    // GitHub input accepting a username, a profile URL or a repository URL;
+    // which analysis flow runs is decided by GitHubEntryClassifier, not by the
+    // field. type="url" is therefore no longer correct — it would reject a
+    // bare login before the form is even submitted.
     [Fact]
-    public void Repository_input_accepts_only_canonical_repository_url_scope()
+    public void Github_input_accepts_the_three_unified_entry_shapes()
     {
         string content = ReadWebFile(
             "Pages",
             "Shared",
-            "_RepositoryInput.cshtml");
+            "_GitHubInput.cshtml");
 
         Assert.Contains(
-            "Public GitHub repository URL",
+            "GitHub username, profile URL, or repository URL",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "type=\"url\"",
+            "type=\"text\"",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "https://github.com/owner/repository",
+            "name=\"GitHubTarget\"",
             content,
             StringComparison.Ordinal);
 
         Assert.DoesNotContain(
-            "username",
+            "type=\"url\"",
             content,
-            StringComparison.OrdinalIgnoreCase);
+            StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Home_states_the_mvp_repository_boundary()
+    public void Landing_exposes_exactly_one_entry_form_and_no_separate_profile_link()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Index.cshtml");
+
+        Assert.DoesNotContain(
+            "Analyze a profile instead",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "home__profile-link",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Equal(
+            1,
+            CountOccurrences(content, "name=\"_GitHubInput\""));
+
+        Assert.DoesNotContain(
+            "_RepositoryInput",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    private static int CountOccurrences(string content, string value)
+    {
+        int count = 0;
+        int index = 0;
+
+        while ((index = content.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
+    }
+
+    [Fact]
+    public void Home_states_the_landing_hero_headline()
     {
         string content = ReadWebFile(
             "Pages",
             "Index.cshtml");
 
         Assert.Contains(
-            "public GitHub repository",
+            "See what your GitHub communicates.",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "What does this repository prove?",
+            "Public evidence. Clear direction. No guesses.",
             content,
             StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Repository_input_exposes_deterministic_and_non_judgment_context()
-    {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryInput.cshtml");
-
-        Assert.Contains(
-            "15 deterministic signals",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "No developer judgment",
-            content,
-            StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Home_does_not_promote_score_as_primary_content()
+    public void Home_states_what_github_proof_is_not()
     {
         string content = ReadWebFile(
             "Pages",
             "Index.cshtml");
 
+        Assert.Contains(
+            "What GitHub Proof is not",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "No developer ranking",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "No seniority judgment",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "No AI authorship claims",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "No hire/no-hire verdict",
+            content,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Home_does_not_promote_a_numeric_score_as_primary_content()
+    {
+        string content = ReadWebFile(
+            "Pages",
+            "Index.cshtml");
+
+        // The boundaries section explicitly disclaims scoring ("We don't
+        // rank or score developers."), so a blanket "score" ban would fail
+        // on the product's own disclaimer. What must never appear is an
+        // actual score presentation: a "x / 100" figure or a "Score:" label.
         Assert.DoesNotContain(
             "/ 100",
             content,
             StringComparison.Ordinal);
 
         Assert.DoesNotContain(
-            "score",
+            "Score:",
             content,
             StringComparison.OrdinalIgnoreCase);
+
+        Assert.Contains(
+            "We don't rank or score developers.",
+            content,
+            StringComparison.Ordinal);
     }
 
     [Fact]
-    public void Repository_input_posts_to_real_analysis_flow()
+    public void Github_input_posts_to_real_analysis_flow()
     {
         string content = ReadWebFile(
             "Pages",
             "Shared",
-            "_RepositoryInput.cshtml");
+            "_GitHubInput.cshtml");
 
         Assert.Contains(
             "method=\"post\"",
