@@ -33,8 +33,9 @@ independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
 P9 — Public Profile Evidence Validation — P9-I1 COMPLETE (Session 089,
-merged to main at 4a1bc5a); P9-I2 (Profile Validation Fixtures / Harness)
-IN PROGRESS (Session 090)
+merged to main at 4a1bc5a); P9-I2 COMPLETE (Session 090, merged to main at
+c195dc9); P9-I3 (Profile Risk and Traceability Validation) IN PROGRESS
+(Session 091)
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -217,45 +218,47 @@ BLOCKED
 ## Active Session
 
 Session:
-090 — P9-I2 Profile Validation Fixtures / Harness
+091 — P9-I3 Profile Risk and Traceability Validation
 
 Active Branch:
-session/090-p9-i2-profile-validation-harness
+session/091-p9-i3-risk-traceability-validation
 
 Session Base:
-4a1bc5a
+c195dc9
 
 Goal:
-P9-I2 — Profile Validation Fixtures / Harness (bounded, deterministic,
-network-free harness capable of running the canonical P9 profile scenarios
-through the real production `ProfilePipeline`)
+P9-I3 — Profile Risk and Traceability Validation (run the P9-I2 harness'
+11 concrete fixtures through the real `ProfilePipeline`, falsify the 9
+required risks, verify traceability/capability-boundary/prohibited-
+inference across all 11 scenarios)
 
 Session File:
-worklog/sessions/2026-08-20-090-p9-i2-profile-validation-harness.md
+worklog/sessions/2026-08-20-091-p9-i3-risk-traceability-validation.md
 
 Status:
-P9-I2 COMPLETE. New `tests/GitHubProof.Application.Tests/Profile/Validation/`
-harness (scenario enum/catalog, ProfileValidationHarness.RunAsync onto the
-real ProfilePipeline, traceability/capability-boundary helpers, 11 concrete
-deterministic scenario fixtures via ProfileValidationScenarioFixtures) +
-shared CreatePipeline/AssertSemanticallyEquivalent extraction. 30 new
-self-proof tests; 190/190 Application, 1319/1319 full solution, 0 warning.
-No src/, no canonical docs changed. Round 1 independent review PASS WITH
-FINDINGS (2 MEDIUM); F1 (§10 literal-fixture gap) resolved this
-continuation with 11 concrete fixtures — see session file; F2 (AI/ML-heavy
-vs generic Python production-wiring limitation) left unchanged as a
-documented P9-I3 input. Round 2 (F1-correction) review: PASS WITH FINDINGS
-(1 LOW, non-blocking, no correction needed — a pre-existing §10 vs.
-implementation-plan §8 wording tension over which slice owns risk-check
-hooks, carried forward as a P9-I3 handoff note). Commit/push NOT performed
-(user-owned).
+P9-I3 COMPLETE. New
+`tests/.../Profile/Validation/ProfileValidationRiskTests.cs` (11
+per-scenario risk facts + 2 cross-scenario theories over all 11 fixtures +
+1 reflection-based prohibited-inference check). 11/11 scenarios executed,
+9/9 required risks falsified, 0 traceability/prohibited-inference/
+unsupported-claim failures, **no production contract violation found** —
+production code untouched. 224/224 Application, 1353/1353 full solution,
+0 warning. No src/, no canonical docs changed. Independent review verdict
+in session file. Commit/push NOT performed (user-owned).
 
 Last Completed Session:
-089 — P9-I1 Validation Contract + Scenario Matrix — COMPLETE / merged to
-main at 4a1bc5a. Created `docs/product/p9-profile-validation-contract.md`
-(CONTRACT LOCKED): 11/11 scenarios, 9/9 required risks mapped. Docs-only,
-independent review PASS (0 BLOCKER/HIGH/MEDIUM/LOW). Session file:
-worklog/sessions/2026-08-20-089-p9-i1-validation-contract-scenario-matrix.md
+090 — P9-I2 Profile Validation Fixtures / Harness — COMPLETE / merged to
+main at c195dc9. New `tests/.../Profile/Validation/` harness (scenario
+enum/catalog, ProfileValidationHarness.RunAsync onto the real
+ProfilePipeline, traceability/capability-boundary helpers, 11 concrete
+deterministic scenario fixtures) + shared CreatePipeline/
+AssertSemanticallyEquivalent extraction. Round 1 review PASS WITH FINDINGS
+(2 MEDIUM: F1 §10 literal-fixture gap, resolved same session with 11
+concrete fixtures; F2 AI/ML-heavy vs generic Python production-wiring
+limitation, left as documented P9-I3 input). Round 2 review PASS WITH
+FINDINGS (1 LOW, non-blocking, a §10-vs-implementation-plan wording
+tension, carried forward as a P9-I3 note). Session file:
+worklog/sessions/2026-08-20-090-p9-i2-profile-validation-harness.md
 
 Previously Completed Session:
 088 — P8-I5 Integration and P8 Closure (Application/Infrastructure/Web
@@ -638,10 +641,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/090-p9-i2-profile-validation-harness
+session/091-p9-i3-risk-traceability-validation
 
 Session Base:
-4a1bc5a (docs(validation): lock p9 profile validation contract)
+c195dc9 (test(validation): add p9 profile validation harness)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -834,13 +837,15 @@ now the one running composition path from `GitHubProfileSnapshot` to
 Exact next action:
 
 ~~~text
-P9-I2 — Profile Validation Fixtures / Harness
+P9-I3 — Profile Risk and Traceability Validation
 ~~~
 
 P9-I1 (Validation Contract + Scenario Matrix) is COMPLETE (Session 089,
-merged to main at 4a1bc5a): `docs/product/p9-profile-validation-contract.md`
-(CONTRACT LOCKED). P9-I2 is IN PROGRESS (Session 090). P9/Milestone B remain
-explicitly not marked complete.
+merged to main at 4a1bc5a). P9-I2 (Profile Validation Fixtures / Harness) is
+COMPLETE (Session 090, merged to main at c195dc9). P9-I3 is IN PROGRESS
+(Session 091) — 11/11 scenarios executed, 9/9 required risks falsified, no
+production contract violation found (see session file). P9/Milestone B
+remain explicitly not marked complete.
 
 Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy
 and rules (DEFERRED, not blocking — see P7 closure below); `ProducedWorkEvidence`
