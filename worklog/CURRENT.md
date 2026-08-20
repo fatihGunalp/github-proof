@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 092)
+**Last Updated:** 2026-08-20 (Session 093)
 **Source of Truth:** docs/
 
 ## Development
@@ -36,8 +36,9 @@ independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
 P9 COMPLETE (Session 092; P9-I1 Session 089 at 4a1bc5a, P9-I2 Session 090 at
-c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). Next: P10 —
-Profile Web Flow (not started, not authorized to start by Session 092).
+c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). P10 — Profile Web
+Flow contract/planning CLOSED (Session 093, docs-only): P10 implementation
+is READY, not started. See "P10 Phase State" below.
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -209,6 +210,80 @@ Full plan with per-slice responsibility, files, tests, invariants,
 out-of-scope and exit criteria:
 worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
+P10 Phase State (Session 093):
+
+~~~text
+P10 contract/planning:
+COMPLETE (docs-only)
+
+P10 implementation:
+READY
+~~~
+
+Session 093 reconciled the two P10 drafts
+(`docs/product/p10-web-profile-flow-implementation-plan.md`,
+`docs/product/p10-presentation-language-contract.md`) against canonical
+roadmap/product/report contracts and the actual `GitHubProof.Web`
+architecture (routing, `ProfilePipeline` wiring, Repository Proof flow,
+design/token CSS architecture), and locked 16 decisions covering the
+`/profile` route boundary, profile identity input contract (reuses the
+existing `GitHubProfileHandle.Parse` username/canonical-URL behavior
+verbatim), the Web composition boundary from profile input to
+`GitHubProfileSnapshot` to `ProfilePipeline` to `ProfileReport`, Repository
+Proof flow preservation (behavioral: `OnPostAsync`/`RepositoryUrl`/analysis
+semantics unchanged; `Pages/Index.cshtml`'s landing markup may additively
+gain a Profile Proof entry point — corrected in a same-session ChatGPT
+review round, see the session file §10), the Profile = macro / Repository =
+micro drill-down mechanic (a live re-analysis through the existing `/`
+entry, since no `RepositoryAnalysis` is ever persisted), the locale
+boundary (`ProfileReportProjector` keeps zero locale parameters — all
+Profile presentation-language mapping stays Web-layer-only, one fixed
+English dictionary, no site-wide localization project), deterministic
+presentation-language mapping, distinct language for `TechnicalFocusAreas`
+("Visible technical direction") vs `EngineeringPracticePatterns`
+("Recurring engineering practices"), the `ProblemAreaPatterns`
+Unsupported/`RoleEvidenceAlignment` Deferred omission rules (both
+unchanged, re-locked), the closed partial/sparse/unavailable/rate-limited/
+forbidden/failed state vocabulary (`DataAvailabilityStatus` +
+`ProfileLimitationCode`/`ProfileWarningCode`, no new state invented), and
+the six implementation slices below (P10-I1's scope explicitly includes the
+missing `IGitHubProfileSnapshotCollector` Web composition-root
+registration, not only a new service — `Program.cs` registers
+`IGitHubRepositorySnapshotCollector` but never `IGitHubProfileSnapshotCollector`,
+verified by reading the actual file). No canonical `docs/architecture/` or
+`docs/product/public-profile-evidence-product-contract.md` file was
+amended — every decision was already derivable from existing locked
+contracts and actual code; only the two P10 drafts themselves were amended
+to state the reconciled, implementation-ready contract explicitly. `src/`
+and `tests/` were not touched. Five review passes ran in this session: (1)
+`github-proof-review` round 1 — PASS WITH FINDINGS (1 HIGH label
+inconsistency, 1 MEDIUM drill-down nullability gap), both corrected; (2) a
+same-session ChatGPT final review — found four further contract-closure
+gaps (P10-I1 scope, slice-overlap wording, presentation-language
+audit-trail accuracy, landing/routing over-lock), all corrected; (3)
+`github-proof-review` round 2 — **PASS, 0 BLOCKER/HIGH/MEDIUM/LOW**; (4) a
+same-session ChatGPT pre-commit audit — found three remaining doc
+consistency issues (drill-down mechanic still described via
+`RepositoryAnalysisReference` → `RepositoryIdentity.Url` in two spots
+instead of the locked `Repository.Url` rule; presentation-language
+contract's two internal notes contradicted each other on whether the §8
+dictionary changed; an invalid `P10-I8` slice reference), all corrected;
+(5) `github-proof-review` round 3, re-scoped to those three corrections —
+**PASS, 0 BLOCKER/HIGH/MEDIUM/LOW**. All findings across all five passes
+are closed. Full decision evidence and validation:
+worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md
+
+P10 Implementation Plan (Session 093):
+Six bounded slices, in order —
+P10-I1 Live Profile Request Boundary,
+P10-I2 Profile Entry + Routing,
+P10-I3 Meaning / Direction / Starting Point,
+P10-I4 Why + Evidence Drill-Down,
+P10-I5 Limitations + Partial / Failure UX,
+P10-I6 Experience Refinement + Closure.
+Full plan with per-slice responsibility and locked decisions:
+docs/product/p10-web-profile-flow-implementation-plan.md §7, §13
+
 ## Production Delivery
 
 Milestone A:
@@ -220,19 +295,29 @@ BLOCKED
 ## Active Session
 
 Session:
-092 — P9-I4 Determinism + Exit Validation
+093 — P10 Contract + Implementation Closure
 
 Active Branch:
-session/092-p9-i4-determinism-exit-validation
+session/093-p10-contract-implementation-closure
 
 Session Base:
-8d07321
+0710bb6 (test(validation): close p9 profile validation)
 
 Goal:
-P9-I4 — Determinism + Exit Validation (prove replay-determinism and
-repository-order invariance for all 11 canonical scenarios; establish the
-final P9 exit verdict reusing P9-I3's already-proven traceability/
-prohibited-inference/unsupported-claim record)
+Make P10 implementation-ready (docs-only): reconcile the two P10 drafts
+(`docs/product/p10-web-profile-flow-implementation-plan.md`,
+`docs/product/p10-presentation-language-contract.md`) against canonical
+roadmap/product/report contracts and the actual `GitHubProof.Web`
+architecture, and lock the six P10 implementation slices (P10-I1..I6).
+
+Session File:
+worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md
+
+Status:
+See "P10 Phase State" below for the full outcome.
+
+Previously Active Session:
+092 — P9-I4 Determinism + Exit Validation
 
 Session File:
 worklog/sessions/2026-08-20-092-p9-i4-determinism-exit-validation.md
@@ -249,7 +334,7 @@ across all of P9. `docs/roadmap/mvp-phases.md` Profile P9 section updated
 with a "P9 Validation Durumu" status subsection (mirrors the Profile P8
 precedent). 246/246 Application, 1375/1375 full solution, 0 warning.
 Independent review verdict in session file. Commit/push NOT performed
-(user-owned).
+(user-owned). Merged to `main` at `0710bb6` before Session 093 branched.
 
 Last Completed Session:
 091 — P9-I3 Profile Risk and Traceability Validation — COMPLETE / merged to
@@ -640,10 +725,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/092-p9-i4-determinism-exit-validation
+session/093-p10-contract-implementation-closure
 
 Session Base:
-8d07321 (test(validation): validate p9 profile risks)
+0710bb6 (test(validation): close p9 profile validation)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -833,10 +918,19 @@ now the one running composition path from `GitHubProfileSnapshot` to
 `AddProfilePipeline` (Web, `src/GitHubProof.Web/Profile/`). See the Session
 088 status entry above and its session file for the full record.
 
+P10 contract/planning is now CLOSED (Session 093, docs-only — see "P10
+Phase State" above and
+`worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md`):
+
+~~~text
+P10 contract/planning:  COMPLETE
+P10 implementation:     READY, not started
+~~~
+
 Exact next action:
 
 ~~~text
-P10 — Profile Web Flow
+P10-I1 — Live Profile Request Boundary
 ~~~
 
 P9 — Public Profile Evidence Validation (Validation Profile Set) is
@@ -860,10 +954,13 @@ traceability satisfied for every meaningful claim across all 11 scenarios,
 invariance). No production contract violation was found at any point across
 P9; `src/` was never changed across P9-I1 through P9-I4.
 
-P10 implementation is **not started** and not authorized by Session 092.
+P10 implementation is **not started**. Session 093 (docs-only) made it
+READY by locking the six implementation slices and their decisions (see
+"P10 Phase State" above); it did not authorize starting any slice's code.
 Milestone B's production gate additionally requires `P10 — Profile Web Flow
 COMPLETE` (`docs/roadmap/deployment-milestones.md`) — Milestone B therefore
-remains BLOCKED pending P10, unaffected by P9's closure.
+remains BLOCKED pending P10 implementation, unaffected by P9's or P10
+contract-closure's completion.
 
 Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy
 and rules (DEFERRED, not blocking — see P7 closure below); `ProducedWorkEvidence`

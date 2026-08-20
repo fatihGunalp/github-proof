@@ -1,7 +1,31 @@
 # GitHub Proof --- P10 Presentation & Language Contract
 
-**Status:** Draft / Product Direction\
-**Milestone:** B --- Profile P10 --- Web Profile Flow --- Presentation Language Contract
+**Status:** CONTRACT LOCKED / Product Direction\
+**Milestone:** B --- Profile P10 --- Web Profile Flow --- Presentation Language Contract\
+**Locked:** 2026-08-20 / Session 093 --- reconciled against
+`docs/product/p10-web-profile-flow-implementation-plan.md` §13 and the
+actual `GitHubProof.Web` rendered UI language (see the rendered-language
+note at the end of §8). No narrative, principle, ordering, or upstream
+structured semantic truth changed. §8's User Language Dictionary WAS
+edited: the single combined `TechnicalFocusAreas / EngineeringPracticePatterns`
+row was split into two separate rows with two distinct labels, to match
+the distinct-language decision locked in the implementation-plan document
+§13.9 (`docs/product/p10-web-profile-flow-implementation-plan.md` §13.9)
+and correct an internal inconsistency this same session's own edits had
+introduced (see that document's session-093 review-correction record).
+This is a presentation-dictionary clarification/split only --- it does not
+change, add, or remove any canonical concept, section, availability state,
+or ordering rule; `TechnicalFocusAreas` and `EngineeringPracticePatterns`
+remain, as before, two distinct upstream pattern families
+(`docs/architecture/public-profile-evidence-patterns.md`) that were always
+projected as two distinct report sections
+(`docs/architecture/public-profile-evidence-report-contract.md` §5/§7) ---
+only their shared row in this document's presentation dictionary was
+corrected to reflect that. Separately, this session also removed the
+locale ambiguity between this document's Turkish narrative copy and the
+site's actually-rendered language (see the rendered-language note at the
+end of §8); the fixed-English P10 rendered-language boundary itself was
+not reopened or changed by this correction.
 
 ------------------------------------------------------------------------
 
@@ -206,7 +230,8 @@ when they want deeper inspection.
   Signal                                                  İz
   Pattern                                                 Tekrar eden iz
   Representative Repository                               Başlangıç noktası
-  TechnicalFocusAreas / EngineeringPracticePatterns       Görünen teknik yön
+  TechnicalFocusAreas                                     Visible technical direction (Görünen teknik yön)
+  EngineeringPracticePatterns                             Recurring engineering practices (Tekrar eden üretim pratikleri)
   Role Evidence Alignment (Deferred --- not active in V1)  No active V1 user language; future direction only
   Profile Report                                          Profil görünümü
 
@@ -223,9 +248,36 @@ their underlying domain semantics, which are owned by
 concept inventory, not because it has an active V1 user language today: it
 is Deferred for Milestone B / Profile V1
 (`docs/product/public-profile-evidence-product-contract.md` §14) and
-produces no user-facing output in this version. "Görünen teknik yön" is
-produced by `TechnicalFocusAreas` / `EngineeringPracticePatterns` instead
-(see "Visible Direction" above).
+produces no user-facing output in this version. The "Visible Direction"
+narrative concept (above) is jointly evidenced by `TechnicalFocusAreas` and
+`EngineeringPracticePatterns`, but the two remain two distinct rendered
+sections with two distinct labels, never one merged label or one merged
+section (locked in
+`docs/product/p10-web-profile-flow-implementation-plan.md` §13.9 — see the
+split dictionary rows above).
+
+**Rendered-language note (Session 093):** This document's narrative copy
+(hero, supporting message, section prompts) is written in Turkish as
+product-direction narrative, matching the convention already used across
+`docs/product/`. It is not literal Razor/UI markup. The actual `GitHubProof.Web`
+site already renders in a single fixed language, English --- see
+`src/GitHubProof.Web/Pages/Index.cshtml`, `IndexModel`'s error strings, and
+`_Layout.cshtml`. P10 implements this dictionary as one deterministic,
+English-rendered key-to-label mapping (`docs/product/p10-web-profile-flow-implementation-plan.md`
+§13.7/§13.8), not a locale switcher and not a second rendered language.
+
+To be explicit about what changed and what did not, consistent with the
+header note above: the §8 `TechnicalFocusAreas` / `EngineeringPracticePatterns`
+dictionary split into two distinct rows **did happen** in this session (see
+the header note and the split rows above). Upstream structured semantic
+truth --- the concepts, sections, availability states, and canonical
+ordering owned by
+`docs/architecture/public-profile-evidence-report-contract.md` and
+`docs/architecture/public-profile-evidence-patterns.md` --- **did not
+change**; only this document's own presentation-dictionary row changed, to
+stop contradicting itself. This rendered-language note itself introduces no
+further semantic or dictionary change beyond that already-documented
+split, and it does not reopen the fixed-English P10 locale boundary.
 
 ------------------------------------------------------------------------
 
