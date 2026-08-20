@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 093)
+**Last Updated:** 2026-08-20 (Session 094)
 **Source of Truth:** docs/
 
 ## Development
@@ -37,8 +37,9 @@ independent-review rounds, all closed; detail in the Session 074 file)
 Current:
 P9 COMPLETE (Session 092; P9-I1 Session 089 at 4a1bc5a, P9-I2 Session 090 at
 c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). P10 — Profile Web
-Flow contract/planning CLOSED (Session 093, docs-only): P10 implementation
-is READY, not started. See "P10 Phase State" below.
+Flow contract/planning CLOSED (Session 093, docs-only). P10-I1 Live Profile
+Request Boundary COMPLETE (Session 094). P10-I2..I6 not started. See "P10
+Phase State" below.
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -210,14 +211,17 @@ Full plan with per-slice responsibility, files, tests, invariants,
 out-of-scope and exit criteria:
 worklog/sessions/2026-08-19-083-p8-implementation-planning.md
 
-P10 Phase State (Session 093):
+P10 Phase State (Sessions 093-094):
 
 ~~~text
 P10 contract/planning:
 COMPLETE (docs-only)
 
-P10 implementation:
-READY
+P10-I1 Live Profile Request Boundary:
+COMPLETE (Session 094)
+
+P10-I2..I6:
+NOT STARTED
 ~~~
 
 Session 093 reconciled the two P10 drafts
@@ -295,46 +299,55 @@ BLOCKED
 ## Active Session
 
 Session:
-093 — P10 Contract + Implementation Closure
+094 — P10-I1 Live Profile Request Boundary
 
 Active Branch:
-session/093-p10-contract-implementation-closure
+session/094-p10-i1-live-profile-request-boundary
 
 Session Base:
-0710bb6 (test(validation): close p9 profile validation)
+77f6f16 (docs(profile): close P10 implementation contract)
 
 Goal:
-Make P10 implementation-ready (docs-only): reconcile the two P10 drafts
-(`docs/product/p10-web-profile-flow-implementation-plan.md`,
-`docs/product/p10-presentation-language-contract.md`) against canonical
-roadmap/product/report contracts and the actual `GitHubProof.Web`
-architecture, and lock the six P10 implementation slices (P10-I1..I6).
+Implement P10-I1 (the first of six locked P10 implementation slices): add
+the missing `IGitHubProfileSnapshotCollector` Web composition-root
+registration to `Program.cs`, add the smallest Web service/result pair
+carrying a raw profile identity through the existing collector +
+`ProfilePipeline` to a `ProfileReport` (or a typed failure), and add
+targeted Web tests proving the boundary.
+
+Session File:
+worklog/sessions/2026-08-20-094-p10-i1-live-profile-request-boundary.md
+
+Status:
+**P10-I1 COMPLETE.** New `src/GitHubProof.Web/Profile/LiveProfileReportService.cs`
++ `LiveProfileAnalysisResult.cs` (the profile counterpart of
+`LiveRepositoryReportService`/`LiveRepositoryAnalysisResult`) and an
+additive `Program.cs` registration (21 lines) following the pre-existing
+`IGitHubRepositorySnapshotCollector` pattern exactly (same named
+`"GitHubProof.GitHub"` HttpClient, same reused `TimeProvider`,
+`GitHubProfileSnapshotOrchestrator.CreateDefault`). The Web layer parses no
+profile identity itself (`GitHubProfileHandle.Parse` stays exclusively
+Infrastructure-owned); collector-level typed failures
+(`RateLimited`/`Forbidden`/`Unavailable`/...) are preserved verbatim and
+never invoke `ProfilePipeline`; a Failed/Composed `ProfilePipelineResult` is
+carried through unchanged, never reinterpreted. No
+`ProfilePipeline`/`ProfileComposer`/`ProfileReportProjector`/
+`IGitHubProfileSnapshotCollector`/`GitHubProfileHandle` changed; no
+canonical docs changed; no new package. 11 new targeted tests
+(`LiveProfileReportServiceTests.cs`, `ProfileCompositionRootTests.cs`);
+1386/1386 full solution, 0 warning. Independent review: PASS WITH FINDINGS
+(1 MEDIUM, worklog-sync only, resolved same session). Commit/push NOT
+performed (user-owned).
+
+Previously Active Session:
+093 — P10 Contract + Implementation Closure
 
 Session File:
 worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md
 
 Status:
-See "P10 Phase State" below for the full outcome.
-
-Previously Active Session:
-092 — P9-I4 Determinism + Exit Validation
-
-Session File:
-worklog/sessions/2026-08-20-092-p9-i4-determinism-exit-validation.md
-
-Status:
-P9-I4 COMPLETE. **P9 COMPLETE.** New
-`tests/.../Profile/Validation/ProfileValidationDeterminismTests.cs` (22
-tests: replay-determinism + repository-order invariance, each `[Theory]`
-over all 11 scenarios). All four P9 exit criteria hold: prohibited
-inference = 0, unsupported profile claim = 0, evidence traceability = 11/11
-scenarios, determinism = PASS (11/11 scenarios). No production contract
-violation found anywhere across P9-I1..I4 — `src/` was never touched
-across all of P9. `docs/roadmap/mvp-phases.md` Profile P9 section updated
-with a "P9 Validation Durumu" status subsection (mirrors the Profile P8
-precedent). 246/246 Application, 1375/1375 full solution, 0 warning.
-Independent review verdict in session file. Commit/push NOT performed
-(user-owned). Merged to `main` at `0710bb6` before Session 093 branched.
+P10 contract/planning CLOSED (docs-only). See "P10 Phase State" below for
+the full outcome. `src/`/`tests/` were not touched by Session 093.
 
 Last Completed Session:
 091 — P9-I3 Profile Risk and Traceability Validation — COMPLETE / merged to
@@ -725,10 +738,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/093-p10-contract-implementation-closure
+session/094-p10-i1-live-profile-request-boundary
 
 Session Base:
-0710bb6 (test(validation): close p9 profile validation)
+77f6f16 (docs(profile): close P10 implementation contract)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -852,10 +865,9 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 088 (last code change, including its post-review bounded
-correction): 1289/1289 PASS across the full solution (Application 160 [151
-baseline + 9 new], Domain 798, Infrastructure 259 [255 baseline + 4 new],
-Web 72 [68 baseline + 4 new])
+Session 094 (last code change): 1386/1386 PASS across the full solution
+(Application 246, Domain 798, Infrastructure 259, Web 83 [72 baseline + 11
+new])
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
 
 AnalyzerVersion:
@@ -918,19 +930,20 @@ now the one running composition path from `GitHubProfileSnapshot` to
 `AddProfilePipeline` (Web, `src/GitHubProof.Web/Profile/`). See the Session
 088 status entry above and its session file for the full record.
 
-P10 contract/planning is now CLOSED (Session 093, docs-only — see "P10
-Phase State" above and
-`worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md`):
+P10 contract/planning is CLOSED (Session 093, docs-only) and P10-I1 is
+COMPLETE (Session 094 — see "P10 Phase State" above and
+`worklog/sessions/2026-08-20-094-p10-i1-live-profile-request-boundary.md`):
 
 ~~~text
-P10 contract/planning:  COMPLETE
-P10 implementation:     READY, not started
+P10 contract/planning:               COMPLETE
+P10-I1 Live Profile Request Boundary: COMPLETE
+P10-I2..I6:                          NOT STARTED
 ~~~
 
 Exact next action:
 
 ~~~text
-P10-I1 — Live Profile Request Boundary
+P10-I2 — Profile Entry + Routing
 ~~~
 
 P9 — Public Profile Evidence Validation (Validation Profile Set) is

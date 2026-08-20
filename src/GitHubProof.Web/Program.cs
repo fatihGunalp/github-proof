@@ -3,6 +3,7 @@ using GitHubProof.Application.Analysis;
 using GitHubProof.Application.Analysis.Presentation;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
+using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Profile;
 
@@ -67,6 +68,26 @@ builder.Services.AddScoped<IGitHubRepositorySnapshotCollector>(
 builder.Services.AddScoped<LiveRepositoryReportService>();
 
 builder.Services.AddProfilePipeline();
+
+builder.Services.AddScoped<IGitHubProfileSnapshotCollector>(
+    services =>
+    {
+        IHttpClientFactory httpClientFactory =
+            services.GetRequiredService<IHttpClientFactory>();
+
+        HttpClient httpClient =
+            httpClientFactory.CreateClient(
+                "GitHubProof.GitHub");
+
+        TimeProvider timeProvider =
+            services.GetRequiredService<TimeProvider>();
+
+        return GitHubProfileSnapshotOrchestrator.CreateDefault(
+            httpClient,
+            timeProvider);
+    });
+
+builder.Services.AddScoped<LiveProfileReportService>();
 
 var app = builder.Build();
 
