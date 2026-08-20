@@ -32,7 +32,8 @@ f32c5de7a6e21e7eedc786deb973b6aec159dcec (contract-only; five post-push
 independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
-P9 — Public Profile Evidence Validation (not started)
+P9 — Public Profile Evidence Validation — P9-I1 (Validation Contract +
+Scenario Matrix) IN PROGRESS (Session 089)
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -215,7 +216,27 @@ BLOCKED
 ## Active Session
 
 Session:
-NONE
+089 — P9-I1 Validation Contract + Scenario Matrix
+
+Active Branch:
+session/089-p9-i1-validation-contract-scenario-matrix
+
+Session Base:
+8bfdba5
+
+Goal:
+P9-I1 — Validation Contract + Scenario Matrix (lock the exact bounded P9
+profile-validation scenario set, risk mapping, expected behavior, prohibited
+claims, traceability rules and deterministic comparison surface, docs-only)
+
+Session File:
+worklog/sessions/2026-08-20-089-p9-i1-validation-contract-scenario-matrix.md
+
+Status:
+P9-I1 COMPLETE. Created `docs/product/p9-profile-validation-contract.md`
+(CONTRACT LOCKED). 11/11 scenarios, 9/9 required risks, all mapped. No
+src/, no tests/ changed. Independent review PASS (0 BLOCKER/HIGH/MEDIUM/
+LOW). Commit/push NOT performed (user-owned).
 
 Last Completed Session:
 088 — P8-I5 Integration and P8 Closure (Application/Infrastructure/Web
