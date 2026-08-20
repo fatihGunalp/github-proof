@@ -18,6 +18,12 @@ unified GitHub input; the separate Profile Proof / Repository Proof entry
 surfaces are superseded. See §13.0. Affected clauses: §7/P10-I2, §13.1,
 §13.2, §13.5. Underlying analysis semantics, evidence rules and all
 inference prohibitions are unchanged.
+**Amended:** 2026-08-20 / Session 096 — added §13.17 only: a cross-reference to
+the new `docs/architecture/public-profile-runtime-collection.md` runtime
+prerequisite, so §13.4 is not read as requiring Profile Proof to reuse the
+complete Repository Proof collection composition. No slice responsibility,
+route, entry, presentation-language, evidence, pattern or prohibition clause
+changed
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -930,3 +936,39 @@ sahipliği** bazında değil:
   presentation) bounded ekleme yapar — P10-I1/I2'nin kendi sorumluluğunu
   (request boundary, routing) yeniden üstlenmeden (bkz. P10-I5 "Dosya
   kapsamı notu", §7).
+
+## 13.17 Profile Runtime Collection Prerequisite (Session 096)
+
+Canonical owner:
+`docs/architecture/public-profile-runtime-collection.md` (CONTRACT LOCKED).
+
+§13.4'teki Web composition boundary'si, Profile Proof'un her admitted
+repository için **tam Repository Proof collection composition'ını** yeniden
+kullanmasını gerektirmez ve gerektiriyormuş gibi okunmamalıdır.
+
+Profile Proof, mevcut `IProfileRepositorySnapshotSource` seam'inde
+Profile'a özgü bir collection composition kullanabilir. Bu prerequisite'in
+P10 için pratik sonuçları:
+
+- Profile V1 aggregation path'i bounded raw `SourceFiles` ve
+  `DependencyDeclarations` enrichment yüzeylerini **toplamaz** (runtime
+  contract §5); bu omission asla negative evidence, warning, limitation veya
+  status değişikliği üretmez (§5.2).
+- Repository Proof collection path'i **değişmez** (§3.1) — `/` üzerinden
+  çalışan micro-view analizi bu iki yüzeyi bugünkü gibi toplamaya devam eder.
+- Görünmez bir "ilk N repository" kısıtlaması yasaktır (§7); mevcut
+  `GitHubProfileRepositoryCollector` sayfa bound'u ve completeness semantics'i
+  değişmeden authoritative kalır.
+- Concurrency bir request-cost optimizasyonu değildir (§8); P10 kapsamında
+  fan-out authorize edilmez.
+- Profile runtime telemetry (§9) ve bounded end-to-end execution guard (§10)
+  production beta öncesi gereklidir; guard expiration asla `Complete` profile
+  olarak sunulamaz. Guard expiration ile ordinary request cancellation ayrı
+  şeylerdir (§11.1 / §11.2): mevcut request-cancellation davranışı —
+  `OperationCanceledException`'ın propagate etmesi ve hiçbir analiz/pipeline/
+  partial/failure sonucunun uydurulmaması — değişmez.
+
+Bu bölüm hiçbir P10 slice'ının sorumluluğunu, presentation dilini, evidence
+kuralını veya inference yasağını değiştirmez; yalnız runtime collection
+prerequisite'ini işaret eder. Somut implementation ayrı bir authorized
+session'a aittir.

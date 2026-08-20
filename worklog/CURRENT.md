@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 095)
+**Last Updated:** 2026-08-20 (Session 096)
 **Source of Truth:** docs/
 
 ## Development
@@ -40,7 +40,10 @@ c195dc9, P9-I3 Session 091 at 8d07321, P9-I4 Session 092). P10 — Profile Web
 Flow contract/planning CLOSED (Session 093, docs-only). P10-I1 Live Profile
 Request Boundary COMPLETE (Session 094). P10-I2 Profile Entry + Routing
 COMPLETE (Session 095) — landing entry unified by explicit user decision;
-`/profile` exists. P10-I3..I6 not started. See "P10 Phase State" below.
+`/profile` exists. P10-I3..I6 not started. Session 096 (docs-only) locked the
+Profile runtime collection contract
+(`docs/architecture/public-profile-runtime-collection.md`). See "P10 Phase
+State" below.
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -226,7 +229,29 @@ COMPLETE (Session 095)
 
 P10-I3..I6:
 NOT STARTED
+
+Profile runtime collection contract (Session 096):
+CONTRACT LOCKED — implementation NOT STARTED
 ~~~
+
+Session 096 (docs-only) added a new canonical architecture owner,
+`docs/architecture/public-profile-runtime-collection.md` (CONTRACT LOCKED),
+and a minimal P10 cross-reference (§13.17 + header amendment line only). It
+locks that Profile Proof may use its own repository collection composition at
+the existing `IProfileRepositorySnapshotSource` seam — the composition may
+differ, the analysis semantics may not — that Profile V1 must not collect
+bounded raw `SourceFiles` or dependency-manifest `DependencyDeclarations` on
+the aggregation path (proven non-scoring by the two Application isolation test
+classes, whose baseline arm is the absent-surface case), that the omission
+never becomes negative evidence/warning/limitation/status change, that a
+silent top-N repository cap is prohibited, that concurrency is not a
+request-cost optimization, plus the minimum runtime telemetry surface and the
+bounded execution-guard semantics (guard expiration is never `Complete`, and is
+kept strictly distinct from ordinary request cancellation, whose current
+propagating behavior is unchanged).
+Repository Proof collection is explicitly unchanged. No `src/`, no `tests/`
+changed. Full record:
+`worklog/sessions/2026-08-20-096-profile-runtime-cost-contract.md`
 
 P10 entry contract amended (Session 095, explicit user decision after visual
 review of the running application): the landing carries ONE unified GitHub
@@ -311,9 +336,79 @@ BLOCKED
 ## Active Session
 
 Session:
-095 — P10-I2 Profile Entry + Routing
+096 — Profile Runtime Cost Contract
 
 Active Branch:
+session/096-profile-runtime-cost-contract
+
+Session Base:
+d64c858 (feat(profile): add unified profile entry routing)
+
+Goal:
+Define the canonical Profile V1 runtime collection contract that removes
+unnecessary GitHub request amplification without changing Repository Proof
+behavior or current Profile V1 semantic truth. Contract only.
+
+Session File:
+worklog/sessions/2026-08-20-096-profile-runtime-cost-contract.md
+
+Status:
+**CONTRACT LOCKED (docs-only).** New canonical owner:
+`docs/architecture/public-profile-runtime-collection.md`. All six handoff
+hypotheses were verified against code and contracts before any doc change and
+all six hold — **no contradiction found**. Verified facts: the Profile path
+delegates every admitted repository to the full Repository Proof collector
+composition (`GitHubProfileRepositorySnapshotSource` →
+`IGitHubRepositorySnapshotCollector` → `GitHubRepositorySnapshotOrchestrator.CreateDefault`);
+the source collector costs up to 34 requests per repository (2 tree-resolution
+requests — `git/commits/{sha}` then `git/trees/{rootTreeSha}?recursive=1` — plus
+32 content slots) and the dependency collector up to 32, a combined theoretical
+ceiling of 66 extra requests per admitted repository; both surfaces are provably non-scoring
+(the two Application isolation test classes use the *absent-surface* case as
+their baseline arm, which is exactly the omission state), `RepositoryAnalysis`
+status derives only from `CollectionWarnings` + signal statuses and the
+orchestrator deliberately keeps both surfaces out of `CollectionWarnings`;
+`CrossRepositoryEvidenceComposer` reads neither surface; the only Domain
+consumers (`RepositorySemanticEvidencePolicy`,
+`RepositorySourceReferenceEvidencePolicy`) still have no `src/` caller at all;
+and domain-model §13 already establishes that an Unsupported/Deferred
+capability is not an evidence obligation, so the omission is not a
+completeness deficit. Eight decisions locked: Repository Proof unchanged;
+Profile-specific composition allowed at the `IProfileRepositorySnapshotSource`
+seam (composition may differ, semantics may not); `SourceFiles` +
+`DependencyDeclarations` omitted from the Profile V1 aggregation path with a
+closed list and explicit never-negative-evidence rules; no silent top-N
+repository cap; no concurrency-as-cost-fix; a minimum runtime telemetry
+surface with hard token/content prohibitions; a bounded execution guard whose
+expiration can never be `Complete`; and a future re-activation rule.
+
+A bounded ChatGPT-review correction pass followed (docs-only, see §6b of the
+session file). Two valid findings, both corrected: (1) HIGH — the contract's own
+§10/§11 contradicted each other on cancellation, now separated exhaustively into
+§11.1 **external/request cancellation** (current behavior unchanged:
+`OperationCanceledException` propagates, no fabricated analysis/pipeline/partial/
+failure result, not developer evidence — verified against
+`ProfileRepositoryAnalysisOrchestrator`'s explicit rethrow and
+`LiveProfileReportService`'s pass-through) and §11.2 **internal guard
+expiration** (distinct from caller cancellation in both directions, never
+`Complete`, never the completed-so-far subset as a whole profile, no invented
+domain evidence status, STOP-and-report if the existing runtime result types
+cannot represent it truthfully), with §10 renumbered and §14 criteria 10-12
+rewritten to match; (2) MEDIUM — the source ceiling was off by one because
+`CollectTreeAsync` performs two requests, corrected to 34 / combined 66
+everywhere. Encoding was verified and **was not corrupted**: both new files are
+valid UTF-8, no BOM, no CR, zero mojibake byte sequences — the review paste's
+`â€`/`Â§`/`Ä±` were a PowerShell `Get-Content` ANSI-decoding artifact. The locked
+optimization decision itself did not change. P10 was
+NOT rewritten — only a header amendment line and a new §13.17 cross-reference
+so §13.4 is not read as requiring full-composition reuse. No `.cs`, `.csproj`,
+`.cshtml` or test file changed; no test suite run (documentation-only).
+Commit/push NOT performed (user-owned).
+
+Previously Active Session:
+095 — P10-I2 Profile Entry + Routing
+
+Branch:
 session/095-p10-i2-profile-entry-routing
 
 Session Base:
@@ -366,7 +461,7 @@ FINDINGS (all three closed; remaining MEDIUM was worklog sync, resolved by
 this session's documentation step; 2 LOW deferred). Commit/push NOT performed
 (user-owned).
 
-Previously Active Session:
+Earlier Session:
 094 — P10-I1 Live Profile Request Boundary
 
 Session File:
@@ -987,12 +1082,46 @@ P10 contract/planning:                COMPLETE
 P10-I1 Live Profile Request Boundary: COMPLETE
 P10-I2 Profile Entry + Routing:       COMPLETE
 P10-I3..I6:                           NOT STARTED
+
+Profile runtime collection contract:  CONTRACT LOCKED (Session 096)
+Profile runtime implementation:       NOT STARTED
 ~~~
 
-Exact next action:
+Exact next action — one ordering decision is open and belongs to the user /
+ChatGPT, because Session 096 locked a contract that was not in the original
+P10 slice order:
 
 ~~~text
+Option A (recommended)
+Session 097 — Profile runtime collection implementation
+              (docs/architecture/public-profile-runtime-collection.md §14)
+
+Option B
 P10-I3 — Meaning / Direction / Starting Point
+~~~
+
+Both are unblocked. Option A is recommended because the two production
+guardrails already recorded below (concurrency guard, GitHub request /
+rate-limit telemetry) now have a locked contract, because a live Profile Proof
+run still pays up to 66 unnecessary GitHub requests per admitted repository
+until it is implemented, and because §10 requires the guard numeric values to
+be chosen from measurement taken *after* the unnecessary requests are removed.
+Option A does not change any P10 slice scope; P10-I3 remains the next P10
+slice either way.
+
+Session 097 scope if Option A is taken (from the contract's §14 acceptance
+criteria):
+
+~~~text
+1. Profile-specific snapshot composition behind the existing
+   IProfileRepositorySnapshotSource registration; zero requests for the two
+   omitted surfaces; GitHubRepositorySnapshotOrchestrator and the Repository
+   Proof registration untouched.
+2. Semantic-equivalence test (§6) + no-warning/no-limitation/no-status-change
+   test (§5.2).
+3. Runtime telemetry counters (§9) + the §9.1 prohibition test.
+4. Measure the resulting per-profile request count, then propose the §10
+   guard numeric values from that measurement.
 ~~~
 
 Carried into later P10 slices (recorded in the Session 095 file, not
@@ -1012,7 +1141,11 @@ production gate, unchanged by Session 095: a concurrency guard for profile
 analysis (it fans out across the account's admitted repositories), and GitHub
 request / rate-limit telemetry. P10-I2's POST-only `/profile` reduces
 accidental analysis triggering (GET, refresh-to-GET, prefetch, crawler, link
-preview) but replaces neither guardrail.
+preview) but replaces neither guardrail. Session 096 did not implement either
+guardrail, but both now have a locked canonical contract:
+`docs/architecture/public-profile-runtime-collection.md` §9 (telemetry) and
+§10 (bounded end-to-end execution guard, plus §10.1 bounded
+concurrent-profile-execution policy as a production-beta requirement).
 
 P9 — Public Profile Evidence Validation (Validation Profile Set) is
 **COMPLETE**:
