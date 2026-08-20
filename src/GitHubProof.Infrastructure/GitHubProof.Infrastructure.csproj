@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GitHubProof.Domain\GitHubProof.Domain.csproj" />
+    <ProjectReference Include="..\GitHubProof.Application\GitHubProof.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

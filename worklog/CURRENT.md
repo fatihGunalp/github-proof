@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 087)
+**Last Updated:** 2026-08-20 (Session 088)
 **Source of Truth:** docs/
 
 ## Development
@@ -10,6 +10,10 @@ P6 — Technical, Practice and Problem Patterns — COMPLETE / REMOTE VERIFIED
 P7 — Representative Repository and Role Evidence Alignment — COMPLETE WITH
 EXPLICIT DEFERRAL (Session 076 decision; Session 077 canonical docs
 amendment — see below)
+P8 — Deterministic Profile Composer and Report Contract — COMPLETE, bounded
+post-review correction applied and validated, pending external reviewer
+confirmation of that correction (Sessions 083–088; see "P8 Phase State" and
+"Next Action" below)
 
 Completed Foundation:
 Session 066 — Repository Evidence Surface Expansion — COMPLETE / REMOTE VERIFIED
@@ -29,7 +33,7 @@ f32c5de7a6e21e7eedc786deb973b6aec159dcec (contract-only; five post-push
 independent-review rounds, all closed; detail in the Session 074 file)
 
 Current:
-Stage 7 — Public Profile Evidence Foundation
+P9 — Public Profile Evidence Validation (not started)
 
 Completed Product Work:
 Session 069 — Product Positioning Alignment — COMPLETE / REMOTE VERIFIED
@@ -142,6 +146,22 @@ Gate outcome: 0 BLOCKER, 0 HIGH, 0 MEDIUM, and no remaining semantic
 implementation-choice gap. P8 implementation does not have to guess any
 product or domain semantics.
 
+P8 CLOSED (Session 088), pending external reviewer confirmation of a bounded
+post-review correction (see the Session 088 status entry and session file):
+
+~~~text
+P8-I1 Final Repository Eligibility Runtime:  COMPLETE
+P8-I2 Profile Root Foundation:               COMPLETE
+P8-I3 Deterministic Profile Composer:        COMPLETE
+P8-I4 Typed Profile Report and Projector:    COMPLETE
+P8-I5 Integration and P8 Closure:            COMPLETE — bounded correction
+                                              applied and validated; pending
+                                              external reviewer confirmation
+
+P8 — Deterministic Profile Composer and Report Contract:  COMPLETE pending
+that confirmation
+~~~
+
 Canonical owners defining P8 implementation semantics:
 
 - final `RepositoryEligibilityResult` consumption contract —
@@ -201,6 +221,75 @@ Session:
 NONE
 
 Last Completed Session:
+088 — P8-I5 Integration and P8 Closure (Application/Infrastructure/Web
+integration wiring)
+
+Session File:
+worklog/sessions/2026-08-20-088-p8-i5-integration-and-p8-closure.md
+
+Status:
+P8-I5 COMPLETE. P8 COMPLETE pending external reviewer confirmation of a
+bounded post-review correction (see below). Added `ProfilePipeline`/`ProfilePipelineResult`
+(`src/GitHubProof.Application/Profile/`), the single running composition path
+`ProfileRepositoryAnalysisOrchestrator` (P3) -> `RepositoryEligibilityPolicy`
+(P8-I1, evaluated per repository against `snapshot.CapturedAt`, never a
+system clock) -> `CrossRepositoryEvidenceComposer` (P5) ->
+`ProfilePatternPromotionPolicy` (P6) ->
+`RepresentativeRepositorySelectionPolicy` (P7) -> `ProfileComposer` (P8-I3)
+-> `ProfileReportProjector` (P8-I4, only over a composed profile). No stage's
+algorithm was reimplemented; each stage's own output object is passed by
+reference into the next, which is what lets `ProfileComposer`'s existing
+reference-identity coherence checks succeed on a correctly-wired run.
+Established the first canonical production values `ObservationRuleVersion.V1`
+and `PatternRuleVersion.V1` (both `"1.0.0"`, following the
+`RepresentativeRepositoryRuleVersion.V1` precedent); reused
+`EligibilityPolicy.V1`, `ProfileAnalyzerVersion.V1`,
+`RepresentativeRepositoryRuleVersion.V1` as-is. Added the smallest production
+`IProfileRepositorySnapshotSource` adapter,
+`GitHubProfileRepositorySnapshotSource` (Infrastructure), wrapping the
+existing `IGitHubRepositorySnapshotCollector` single-repository GitHub
+collection path with no new collection semantics — this required one
+additive `ProjectReference` from `GitHubProof.Infrastructure` to
+`GitHubProof.Application` (no cycle: Application depends only on Domain).
+Added minimal Web DI wiring, `AddProfilePipelineServiceCollectionExtensions`
+(`src/GitHubProof.Web/Profile/`), called once from `Program.cs`; Web makes no
+eligibility, composition, pattern-promotion, representative-selection or
+report decision of its own, and no profile page/UI was added. Complete,
+Partial and the sparse-but-resolved-stays-Complete case are all proven
+end-to-end through the real pipeline; a correctly-wired pipeline cannot
+naturally retrigger `ProfileComposer`'s own `Failed` path (already
+exhaustively covered by P8-I3's tests), so this slice instead directly tests
+its own Failed-routing guard. Determinism (fixed snapshot + deterministic
+analysis IDs -> semantically identical profile and report),
+repository-order invariance, and the full trace
+`Report.WhyThisConclusion -> Pattern -> SupportingEvidence -> RepositoryAnalysisReference`
+are all proven through the real pipeline, including one guard
+(`snapshot.CapturedAt`, never `TimeProvider`, drives activity classification)
+empirically verified to fail when temporarily removed. No canonical docs
+changed; no conflicting canonical runtime-version literal found. Per the
+user's explicit task instructions, no `/github-proof-review` was run for
+this slice.
+
+Post-review bounded correction (same session): an external reviewer flagged
+1 MEDIUM finding — `ProfilePipelineResult.Create(ProfileCompositionResult,
+ProfileReport?)` was `public` and accepted the composition and the report as
+two independent parameters, so an external caller could pair one profile's
+composition with a different profile's report; `ProfilePipeline.RunAsync`
+itself always passed the correct same-run pair, so this was a public-API
+exposure risk, not a live defect. Corrected: `Create` removed, replaced with
+a public `Failed(composition)` (accepts only a `Failed` composition, always
+`Report = null`, carries no report parameter at all) and an `internal`
+`Composed(composition, report)` usable only from within
+`GitHubProof.Application` (i.e. only `ProfilePipeline`). `RunAsync` updated
+mechanically to call the new factories; no other pipeline semantics changed.
+New reflection-based test proves no public constructor/factory on
+`ProfilePipelineResult` accepts both a `ProfileCompositionResult` and a
+`ProfileReport`, empirically verified against a temporarily reintroduced
+`Create` method. Full solution build 0 warning / 0 error; 1289/1289 tests
+(Application 160 = 158 prior + 3 new − 1 removed; Infrastructure 259, Web 72,
+Domain 798 unchanged from the initial slice).
+
+Previous completed session:
 087 — P8-I4 Typed Profile Report and Projector (Application implementation,
 self-review, post-review bounded correction)
 
@@ -505,10 +594,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/087-p8-i4-typed-profile-report-projector
+session/088-p8-i5-integration-and-p8-closure
 
 Session Base:
-09037be (feat(profile): compose deterministic public evidence profile)
+b2b8624 (feat(profile): project typed public evidence report)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -632,10 +721,10 @@ RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
 
 ## Validation Baseline
 
-Session 087 (last code change, including its post-review bounded correction):
-1272/1272 PASS across the full solution (Application 151 [123 baseline + 28
-new], Domain 798, Infrastructure 255, Web 68 — the latter three unchanged
-from baseline)
+Session 088 (last code change, including its post-review bounded
+correction): 1289/1289 PASS across the full solution (Application 160 [151
+baseline + 9 new], Domain 798, Infrastructure 259 [255 baseline + 4 new],
+Web 72 [68 baseline + 4 new])
 Full solution build (GitHubProof.slnx): 0 warning / 0 error
 
 AnalyzerVersion:
@@ -655,74 +744,67 @@ SourceReferenceRuleVersion:
 
 RepresentativeRepositoryRuleVersion:
 1.0.0 (V1) — established by Session 075 as the first canonical Domain
-runtime rule version. Not yet wired into any running Application
-composition.
+runtime rule version. Wired into the running Application composition path
+(`ProfilePipeline`) as of Session 088.
+
+ObservationRuleVersion:
+1.0.0 (V1) — established by Session 088 as the first canonical Domain
+runtime observation rule version, wired into the running Application
+composition path.
+
+PatternRuleVersion:
+1.0.0 (V1) — established by Session 088 as the first canonical Domain
+runtime pattern rule version, wired into the running Application composition
+path.
+
+EligibilityPolicyVersion (profile composition):
+1.0.0 (`EligibilityPolicy.V1`) — established by Session 084, wired into the
+running Application composition path as of Session 088.
+
+ProfileAnalyzerVersion:
+1.0.0 (`ProfileAnalyzerVersion.V1`) — established by Session 085, wired into
+the running Application composition path as of Session 088.
 
 ## Next Action
 
-Session 082 ran the P8-1 exit gate against the corrected contract surface and
-it passed: 0 BLOCKER, 0 HIGH, 0 MEDIUM, and no remaining semantic
-implementation-choice gap. P8-1 is closed.
-
-~~~text
-P8-1 — Exact Contract Closure:
-COMPLETE
-
-P8 implementation:
-READY
-~~~
-
-Session 083 recorded the five-slice implementation plan; Session 084
-completed the first slice; Session 085 completed the second; Session 086
-completed the third; Session 087 completed the fourth.
+P8 is CLOSED (Session 088), pending external reviewer confirmation of a
+bounded post-review correction (1 MEDIUM finding, corrected and validated
+in-session — see the Session 088 status entry above and session file):
 
 ~~~text
 P8-I1 Final Repository Eligibility Runtime:  COMPLETE
 P8-I2 Profile Root Foundation:               COMPLETE
 P8-I3 Deterministic Profile Composer:        COMPLETE
 P8-I4 Typed Profile Report and Projector:    COMPLETE
-P8-I5 Integration and P8 Closure:            NOT STARTED
+P8-I5 Integration and P8 Closure:            COMPLETE — bounded correction
+                                              applied and validated; pending
+                                              external reviewer confirmation
+
+P8 — Deterministic Profile Composer and Report Contract:  COMPLETE pending
+that confirmation
 ~~~
+
+`ProfilePipeline` (Application, `src/GitHubProof.Application/Profile/`) is
+now the one running composition path from `GitHubProfileSnapshot` to
+`DeveloperPublicEvidenceProfile` + `ProfileReport`, wired behind
+`AddProfilePipeline` (Web, `src/GitHubProof.Web/Profile/`). See the Session
+088 status entry above and its session file for the full record.
 
 Exact next action:
 
 ~~~text
-P8-I5 — Integration and P8 Closure
+P9 — Public Profile Evidence Validation
 ~~~
 
-`ProfileReport`/`ProfileReportProjector` (Application,
-`src/GitHubProof.Application/Profile/Report/`) now project the canonical
-`DeveloperPublicEvidenceProfile` into the typed report contract (Session 087;
-see that session file for the exact shape). Per the report contract §5/§18
-and the Session 083 plan, P8-I5 wires the existing pieces —
-`ProfileRepositoryAnalysisOrchestrator` (P3) → `CrossRepositoryEvidenceComposer`
-(P5) → `ProfilePatternPromotionPolicy` (P6) →
-`RepresentativeRepositorySelectionPolicy` (P7) → `RepositoryEligibilityPolicy`
-(P8-I1) → `ProfileComposer` (P8-I3) → `ProfileReportProjector` (P8-I4) — into
-one running Application composition path, chooses and records the production
-runtime version values (`AnalyzerVersion`, `EligibilityPolicyVersion`,
-`ObservationRuleVersion`, `PatternRuleVersion`,
-`RepresentativeRepositoryRuleVersion` — all already have first canonical `V1`
-values from prior sessions), and validates end-to-end determinism over the
-whole profile flow. It also resolves the two independently-computed
-`RepositoryContributionAssessment` question `ProfileComposer`'s value-based
-(not reference-based) coherence checking currently works around (Session
-086) — P8-I5 may choose to share one computed instance between
-`CrossRepositoryEvidenceComposer` and `RepositoryEligibilityPolicy`, which
-would not require revisiting `ProfileComposer`. P8-I5 is a separate
-meaningful session and must be routed through its own model/effort gate.
-Full slice plan: worklog/sessions/2026-08-19-083-p8-implementation-planning.md
+Not started. P9/Milestone B are explicitly not marked complete by Session
+088.
 
-Sessions 078–086 are already committed as of `09037be`
-(`feat(profile): compose deterministic public evidence profile`), the base of
-`session/087-p8-i4-typed-profile-report-projector`. Session 087's own P8-I4
-implementation (`src/GitHubProof.Application/Profile/Report/**` and the two
-new test files under `tests/GitHubProof.Application.Tests/Profile/Report/`)
-remains uncommitted, alongside this session's worklog updates (`CURRENT.md`,
-`INDEX.md`, this session file). Commit/push remains user-owned.
+Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy
+and rules (DEFERRED, not blocking — see P7 closure below); `ProducedWorkEvidence`
+remains unresolved; `RepositoryProblemAreaEvidence` remains blocked by the
+Session 067 contract. Neither is required for P9.
 
-Session 077 is finalized. P7 closure state is now reflected in the canonical
-docs:
+P7 closure state (Session 076/077, unaffected by P8):
 
 ~~~text
 Representative Repository:
@@ -735,34 +817,7 @@ P7 V1:
 COMPLETE WITH EXPLICIT DEFERRAL
 ~~~
 
-DEFERRED means: not implemented in Profile V1 / Milestone B, not required to
-proceed to P8, not negative evidence, not permanently prohibited, and
-feasibility may be reopened later if the canonical evidence surface becomes
-strong enough. No upstream evidence expansion (ProducedWorkEvidence,
-ProblemArea, semantic-category/source-reference wiring, or any other
-Session 076 §6 candidate gap) is required now, and none was started.
-
-Session 077's own next-action (start P8) is superseded by the current Next
-Action section above. Its lasting effect is only that RoleEvidenceAlignment
-is not a dependency for Profile V1 / Milestone B / P8 composition / P9
-validation / P10 first-read surface.
-
-Separately, and independent of the RoleEvidenceAlignment question: Session
-075 implemented the locked Representative Repository contract in Domain with
-a full test suite, closed across four correction/hardening turns and a final
-closure review (PASS WITH FINDINGS, 1 MEDIUM worklog-only finding, resolved).
-A later session may wire `RepresentativeRepositorySelectionPolicy` into
-Application orchestration once that layer is ready to consume a
-`ProfilePatternSet`, using `RepresentativeRepositoryRuleVersion.V1` as the
-production rule version. Not started.
-
-Known remaining work, none of it started and none of it in this session's
-scope: Application orchestration integration for
-RepresentativeRepositorySelectionPolicy; report/UI consumption; P8
-deterministic profile composer; RoleEvidenceAlignment taxonomy and rules
-(deferred, not blocking); ProducedWorkEvidence remains unresolved;
-RepositoryProblemAreaEvidence remains blocked by the Session 067 contract.
-
-Session 077's changes were committed and integrated into `main` before
-Session 078 began (`f68d258`, `16c0447`). Current uncommitted working-tree
-state belongs to Sessions 078/079; see the Next Action section above.
+DEFERRED means: not implemented in Profile V1 / Milestone B, not required,
+not negative evidence, not permanently prohibited — feasibility may be
+reopened later if the canonical evidence surface becomes strong enough. No
+upstream evidence expansion is required or started by this status.

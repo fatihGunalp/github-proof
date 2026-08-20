@@ -4,6 +4,7 @@ using GitHubProof.Application.Analysis.Presentation;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Analysis;
+using GitHubProof.Web.Profile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +65,8 @@ builder.Services.AddScoped<IGitHubRepositorySnapshotCollector>(
     });
 
 builder.Services.AddScoped<LiveRepositoryReportService>();
+
+builder.Services.AddProfilePipeline();
 
 var app = builder.Build();
 
