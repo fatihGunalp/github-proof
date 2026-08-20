@@ -1,10 +1,20 @@
 # GitHub Proof — Milestone B UX Direction
 
 **Status:** WORKING UX DIRECTION
-**Current Development Position:** Milestone B / Profile P7
+**Current Development Position (yazıldığı andaki):** Milestone B / Profile P7
 **Scope:** Milestone B — Profile Proof Beta
 **Document Alignment:** DEFERRED — canonical product/design documentation alignment will be handled later
 **Purpose:** Milestone B kapsamında bugüne kadar kilitlenen kullanıcı sancısı, deneyim, sadeleştirme ve presentation kararlarını tek bir çalışma dokümanında toplamak.
+
+> **Tarihsel bağlam notu (P8 kapanışı sonrası eklendi):** Bu doküman Profile
+> P7 aşamasında yazılmıştır. O tarihten bu yana development Profile P8'i
+> (Deterministic Profile Composer ve Report Contract) tamamlamış — P8-I1
+> ... P8-I5 COMPLETE — ve proje şu anda P9 (Public Profile Evidence
+> Validation) hazırlığındadır (`worklog/CURRENT.md`). Bu not, dokümandaki
+> tarihsel kararları değiştirmez; yalnızca hangi geliştirme aşamasında
+> yazıldığını ve mevcut projenin bu aşamayı geride bıraktığını kaydeder.
+> RoleEvidenceAlignment ile ilgili aşağıdaki kararların bu notla birlikte
+> okunması gerekir — bkz. Adım 13 ve §20.
 
 ---
 
@@ -14,9 +24,11 @@ GitHub Proof şu anda Milestone B kapsamında ilerlemektedir.
 
 Milestone B'nin amacı, ürünü tek repository analizinden çıkarıp public GitHub profile evidence ürününe dönüştürmektir.
 
-Mevcut development konumu:
+Bu dokümanın yazıldığı andaki development konumu:
 
 > **Profile P7 — Representative Repositories ve Role Evidence Alignment**
+
+(Yukarıdaki tarihsel bağlam notuna bakınız: mevcut proje konumu artık bunun ilerisindedir.)
 
 Bu doküman şu anda canonical product/design dokümanlarını değiştirmez. Doküman hizalaması daha sonra yapılacaktır.
 
@@ -161,7 +173,8 @@ Karar:
 | RepositoryAnalysis[] | “Hepsini tek tek inceleyemem.” | Sistem kullanıcı adına inceler |
 | Cross-repository evidence | “Genel anlamı çıkaramıyorum.” | Dağınık noktalar bir araya gelir |
 | RepeatedProfilePattern | “Tek seferlik olanla tekrar edeni ayıramıyorum.” | Tekrar eden üretim görünür olur |
-| Technical / Practice / Problem patterns | “Bu profil genel olarak ne anlatıyor?” | Ana üretim yönü sadeleşir |
+| Technical / Practice patterns (Supported, V1'de aktif) | “Bu profil genel olarak ne anlatıyor?” | Ana üretim yönü sadeleşir |
+| Problem Area patterns (Unsupported — V1'de taksonomisi ve production yolu yok) | “Bu profil hangi problem alanlarında çalışıyor?” | V1'de üretilmez; gelecek yön |
 | RepresentativeRepository | “Nereden başlamalıyım?” | İlk bakılması gereken projeler görünür olur |
 | Limitations / warnings | “Bu sonuç ne kadar ileri götürülebilir?” | Kanıtın sınırı görünür olur |
 | Repository drill-down | “Dayanak nerede?” | Gerçek kanıta inilebilir |
@@ -340,7 +353,10 @@ Devam yolunu açık tut
 
 ## Adım 13 — Dağınık Teknik İzleri Tek Bir Yöne İndir
 
-P7 kapsamında RoleEvidenceAlignment capability'si vardır.
+P7 kapsamında hem Supported/aktif pattern kavramları (TechnicalFocusAreas,
+EngineeringPracticePatterns) hem de ayrı ve Deferred olan RoleEvidenceAlignment
+capability'si tanımlanmıştır. Bu adımdaki "yön hissi" kararı, aktif olan
+TechnicalFocusAreas/EngineeringPracticePatterns'a aittir — bkz. §20.
 
 Kullanıcının sancısı:
 
@@ -348,13 +364,21 @@ Kullanıcının sancısı:
 
 Karar:
 
-> **Canonical RoleEvidenceAlignment truth korunur; presentation kullanıcıya mümkün olan en sade teknik yön duygusunu verir.**
+> **Canonical TechnicalFocusAreas / EngineeringPracticePatterns truth korunur; presentation kullanıcıya mümkün olan en sade teknik yön duygusunu verir.**
 
 Ana ilke:
 
 > **Kategori verme; yönü hissettir.**
 
 Bu yön Job Fit, Candidate Score, Seniority, Hire Recommendation veya Employability judgment değildir.
+
+**Sınır notu (P8 kapanışı sonrası eklendi):** RoleEvidenceAlignment, Milestone
+B / Profile V1 için DEFERRED'dır (Session 076/077 kararı;
+`docs/product/public-profile-evidence-product-contract.md` §14). Bugün aktif
+bir kullanıcı çıktısı üretmez, yapısal olarak boştur ve default raporda hiç
+gösterilmeyebilir (`docs/architecture/public-profile-evidence-report-contract.md`
+§6.3/§6.5). Bu adımdaki "yön hissi" kararı RoleEvidenceAlignment'a değil,
+yukarıda belirtilen aktif pattern kavramlarına dayanır.
 
 ---
 
@@ -428,17 +452,40 @@ Presentation görevi:
 
 > **İlk bakılması gereken projeyi/projeleri görünür hale getirmek.**
 
-### RoleEvidenceAlignment
+### TechnicalFocusAreas / EngineeringPracticePatterns
 
 Sistem anlamı:
 
-> Public evidence ile bounded technical role evidence definition arasındaki örtüşme.
+> Profile V1'de Supported ve aktif olan, tekrar eden teknik/mühendislik örüntüleri.
 
 Kullanıcı sancısı:
 
 > **“Bu profil genel olarak hangi teknik yönde üretim yapıyor?”**
 
 Presentation görevi:
+
+> **Dağınık teknik izleri sade bir yön olarak hissettirmek.**
+
+### RoleEvidenceAlignment (Deferred — Profile V1'de aktif değil)
+
+Sistem anlamı:
+
+> Public evidence ile bounded technical role evidence definition arasındaki örtüşme.
+
+**Durum:** Milestone B / Profile V1 için DEFERRED (Session 076/077 kararı;
+`docs/product/public-profile-evidence-product-contract.md` §14). Bu
+capability bugün aktif bir kullanıcı çıktısı üretmez; yapısal olarak boştur
+ve default raporda hiç gösterilmeyebilir. Aşağıdaki kullanıcı sancısı ve
+presentation görevi, capability ileride canonical kanıt yüzeyi
+güçlendiğinde ve feasibility yeniden açıldığında geçerli olacak bir
+gelecek-yön kaydıdır — Profile V1'in bugünkü kullanıcı deneyiminin bir
+parçası değildir.
+
+Kullanıcı sancısı (gelecek, deferred):
+
+> **“Bu profil genel olarak hangi teknik yönde üretim yapıyor?”**
+
+Presentation görevi (gelecek, deferred):
 
 > **Dağınık teknik izleri sade bir yön olarak hissettirmek.**
 

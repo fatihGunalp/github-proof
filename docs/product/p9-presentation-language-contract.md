@@ -148,6 +148,15 @@ A trace is not a judgment.
 A visible direction is a recurring technical production tendency
 observed from multiple traces.
 
+**Source (Milestone B / Profile V1):** Visible Direction is derived from
+`TechnicalFocusAreas` and `EngineeringPracticePatterns` --- Supported,
+active pattern concepts that already produce output in this product
+version. It is not derived from `RoleEvidenceAlignment`. RoleEvidenceAlignment
+is a separate, Deferred capability for Milestone B / Profile V1
+(`docs/product/public-profile-evidence-product-contract.md` §14): it
+produces no active user-facing output today, and this document does not
+present it as one. See the User Language Dictionary note below.
+
 The system must not state:
 
 > This person is a backend developer.
@@ -191,14 +200,32 @@ when they want deeper inspection.
 
 # 8. User Language Dictionary
 
-  Internal Concept            User Language
-  --------------------------- --------------------
-  Evidence                    Görünen iz / Kanıt
-  Signal                      İz
-  Pattern                     Tekrar eden iz
-  Representative Repository   Başlangıç noktası
-  Role Evidence Alignment     Görünen teknik yön
-  Profile Report              Profil görünümü
+  Internal Concept                                      User Language
+  -----------------------------------------------------  ---------------------------------------------
+  Evidence                                                Görünen iz / Kanıt
+  Signal                                                  İz
+  Pattern                                                 Tekrar eden iz
+  Representative Repository                               Başlangıç noktası
+  TechnicalFocusAreas / EngineeringPracticePatterns       Görünen teknik yön
+  Role Evidence Alignment (Deferred --- not active in V1)  No active V1 user language; future direction only
+  Profile Report                                          Profil görünümü
+
+**Terminology note (vocabulary simplification only):** This dictionary is a
+presentation-layer simplification. `Evidence`, `Signal` and `Pattern` remain
+distinct canonical concepts at the domain level
+(`Evidence != Signal != Pattern`); unifying them under related user-facing
+words (the "iz" root) is a presentation choice and does not merge or replace
+their underlying domain semantics, which are owned by
+`docs/architecture/public-profile-evidence-domain-model.md` and
+`docs/architecture/public-profile-evidence-patterns.md`.
+
+`Role Evidence Alignment` is listed here for completeness of the internal
+concept inventory, not because it has an active V1 user language today: it
+is Deferred for Milestone B / Profile V1
+(`docs/product/public-profile-evidence-product-contract.md` §14) and
+produces no user-facing output in this version. "Görünen teknik yön" is
+produced by `TechnicalFocusAreas` / `EngineeringPracticePatterns` instead
+(see "Visible Direction" above).
 
 ------------------------------------------------------------------------
 
