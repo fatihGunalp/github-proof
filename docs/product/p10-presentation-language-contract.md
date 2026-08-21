@@ -21,11 +21,20 @@ remain, as before, two distinct upstream pattern families
 projected as two distinct report sections
 (`docs/architecture/public-profile-evidence-report-contract.md` §5/§7) ---
 only their shared row in this document's presentation dictionary was
-corrected to reflect that. Separately, this session also removed the
-locale ambiguity between this document's Turkish narrative copy and the
-site's actually-rendered language (see the rendered-language note at the
-end of §8); the fixed-English P10 rendered-language boundary itself was
-not reopened or changed by this correction.
+corrected to reflect that. The fixed-English rendered-language boundary
+described by this Session 093 record is historical and was later superseded
+by Session 101 below.
+
+**Amended:** 2026-08-21 / Session 101 --- the fixed-English P10 Web boundary
+is superseded. `GitHubProof.Web` supports exactly English (`en`) and Turkish
+(`tr`), resolved by persistent explicit user choice, then browser
+`Accept-Language` preference/q ordering, then English fallback. The selected
+request culture owns the whole user-facing Web surface. Geolocation and every
+IP/device/browser-location signal are prohibited from language selection.
+Profile structured truth and `ProfileReportProjector` remain locale-neutral;
+Profile localization is deterministic and Web-owned. A truthful immediate
+indeterminate processing state is also added without fake progress telemetry
+or any change to analysis semantics.
 
 ------------------------------------------------------------------------
 
@@ -224,16 +233,17 @@ when they want deeper inspection.
 
 # 8. User Language Dictionary
 
-  Internal Concept                                      User Language
-  -----------------------------------------------------  ---------------------------------------------
-  Evidence                                                Görünen iz / Kanıt
-  Signal                                                  İz
-  Pattern                                                 Tekrar eden iz
-  Representative Repository                               Başlangıç noktası
-  TechnicalFocusAreas                                     Visible technical direction (Görünen teknik yön)
-  EngineeringPracticePatterns                             Recurring engineering practices (Tekrar eden üretim pratikleri)
-  Role Evidence Alignment (Deferred --- not active in V1)  No active V1 user language; future direction only
-  Profile Report                                          Profil görünümü
+| Internal concept | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| Evidence | Visible trace / Evidence | Görünen iz / Kanıt |
+| Signal | Trace | İz |
+| Pattern | Recurring trace | Tekrar eden iz |
+| Representative Repository | Starting point | Başlangıç noktası |
+| TechnicalFocusAreas | Visible technical direction | Görünen teknik yön |
+| EngineeringPracticePatterns | Recurring engineering practices | Tekrar eden üretim pratikleri |
+| WhyThisConclusion | Why this view | Bu görünümü neden görüyoruz? |
+| Role Evidence Alignment (Deferred --- not active in V1) | No active V1 user language; future direction only | Aktif V1 kullanıcı dili yok; yalnız gelecek yönü |
+| Profile Report | Profile view | Profil görünümü |
 
 **Terminology note (vocabulary simplification only):** This dictionary is a
 presentation-layer simplification. `Evidence`, `Signal` and `Pattern` remain
@@ -256,15 +266,12 @@ section (locked in
 `docs/product/p10-web-profile-flow-implementation-plan.md` §13.9 — see the
 split dictionary rows above).
 
-**Rendered-language note (Session 093):** This document's narrative copy
-(hero, supporting message, section prompts) is written in Turkish as
-product-direction narrative, matching the convention already used across
-`docs/product/`. It is not literal Razor/UI markup. The actual `GitHubProof.Web`
-site already renders in a single fixed language, English --- see
-`src/GitHubProof.Web/Pages/Index.cshtml`, `IndexModel`'s error strings, and
-`_Layout.cshtml`. P10 implements this dictionary as one deterministic,
-English-rendered key-to-label mapping (`docs/product/p10-web-profile-flow-implementation-plan.md`
-§13.7/§13.8), not a locale switcher and not a second rendered language.
+**Historical rendered-language note (Session 093, superseded by Session
+101):** Session 093 recorded the then-current fixed-English rendered Web
+surface and treated Turkish narrative copy as product-direction prose rather
+than literal Razor/UI markup. Session 101 replaces that rendering decision
+with the explicit EN/TR contract above. The historical observation remains
+useful context only; it is not the current locale rule.
 
 To be explicit about what changed and what did not, consistent with the
 header note above: the §8 `TechnicalFocusAreas` / `EngineeringPracticePatterns`
@@ -277,7 +284,105 @@ ordering owned by
 change**; only this document's own presentation-dictionary row changed, to
 stop contradicting itself. This rendered-language note itself introduces no
 further semantic or dictionary change beyond that already-documented
-split, and it does not reopen the fixed-English P10 locale boundary.
+split. Session 101 separately supersedes the former fixed-English boundary.
+
+## 8.1 Web Culture Resolution and Persistence
+
+`GitHubProof.Web` supports exactly `en` and `tr`.
+
+Resolution precedence:
+
+```text
+explicit user choice persisted with the ASP.NET Core culture cookie
+→ browser Accept-Language preference / q ordering
+→ English fallback
+```
+
+Browser negotiation chooses the first supported language family:
+
+- `tr`, `tr-TR`, `tr-*` → `tr`,
+- `en`, `en-US`, `en-GB`, `en-*` → `en`,
+- unsupported families are ignored while searching later browser preferences,
+- no supported preference → `en`.
+
+The implementation contract prefers
+`CookieRequestCultureProvider` →
+`AcceptLanguageHeaderRequestCultureProvider` → default `en`. Ordinary
+language resolution has no `QueryStringRequestCultureProvider`. No external
+localization package is required.
+
+Geolocation, IP-derived location, device location and browser Geolocation API
+must never participate in language selection. Explicit user choice always
+wins over browser preference.
+
+The header exposes a quiet persistent `EN | TR` utility alongside theme
+control. It is not a primary CTA. Current selection is perceivable and the
+control is keyboard/screen-reader accessible with the existing target/focus
+contract.
+
+Transient Repository/Profile results are POST-produced and not persisted.
+Changing language from such a result persists the new culture, never silently
+reruns GitHub analysis, and navigates to the localized landing. The last
+`GitHubTarget` may be prefilled only when the existing entry model can carry it
+safely; a new analysis begins only after an explicit Analyze submission. No
+result cache or persistence is introduced by P10-I2A.
+
+## 8.2 Whole-Web Presentation Ownership
+
+Selected request culture owns all user-facing Web presentation, including:
+
+- `<html lang>`, header utilities, language selector and theme accessibility
+  copy,
+- landing hero/supporting copy, input label/placeholder/Analyze button and
+  validation copy,
+- analysis-running copy,
+- Repository Proof and Profile Proof Web presentation,
+- user-facing failures, rendered limitations/warnings and accessibility
+  labels/titles/status messages.
+
+Repository Proof keeps its existing Application EN/TR catalogs and projector;
+Web passes the resolved request UI culture to that projector. Profile keeps a
+locale-neutral `ProfileReport` and a locale-neutral `ProfileReportProjector`;
+Web maps existing structured identities deterministically into the selected
+culture. `ProblemAreaPatterns` remains Unsupported/unrendered and
+`RoleEvidenceAlignment` remains Deferred/unrendered.
+
+Literal evidence is never translated: repository names, GitHub usernames,
+URLs, paths, branches, SHAs, tags, raw evidence values, or programming/GitHub
+language identities such as C#, JavaScript and Python.
+
+## 8.3 Truthful Analysis-Running Language
+
+The unified landing input may immediately announce an indeterminate state
+after native form constraint validation succeeds:
+
+```text
+EN: GitHub Proof is processing your request…
+TR: GitHub Proof isteğinizi işliyor…
+```
+
+A neutral explanation headed `What this analysis includes` / `Bu analiz
+neleri içerir` may list:
+
+| English | Turkish |
+|---|---|
+| Validating the GitHub target | GitHub hedefi doğrulanıyor |
+| Reading public GitHub data | Herkese açık GitHub verileri okunuyor |
+| Collecting visible evidence | Görünür kanıtlar toplanıyor |
+| Analyzing traces | İzler analiz ediliyor |
+| Preparing the view | Görünüm hazırlanıyor |
+
+These lines describe the general analysis, not individually tracked runtime
+states. They never receive completed/active/pending labels, progress position,
+percentage, ETA or checkmarks without a future telemetry contract that proves
+those states. No SSE, SignalR, polling, streaming response or new backend
+progress telemetry is introduced. Existing `ProfileExecutionTelemetry` is
+completion/observation telemetry, not a live UI progress source.
+
+The form/container exposes `aria-busy`; visible copy uses a polite atomic
+`role=status` live region; duplicate submit is blocked without disabling
+`GitHubTarget` out of form serialization; BFCache/back restoration clears
+stale state; and motion respects `prefers-reduced-motion`.
 
 ------------------------------------------------------------------------
 
@@ -327,9 +432,21 @@ before:
 
 ## Hero
 
+EN:
+
+> See what your GitHub communicates.
+
+TR:
+
 > GitHub'ınızda ne olduğunu değil, ne anlattığını görün.
 
 ## Supporting Message
+
+EN:
+
+> Discover the bigger picture formed by the visible traces in your GitHub profile.
+
+TR:
 
 > GitHub profilinizde bıraktığınız izlerden oluşan büyük resmi keşfedin.
 
@@ -345,23 +462,23 @@ Avoid leading with:
 
 # 11. Result Presentation Principles
 
-The result experience should answer:
+The result experience should answer the same sequence in the selected culture:
 
-First:
+First — EN / TR:
 
-> Bu GitHub ne anlatıyor?
+> What does this GitHub communicate? / Bu GitHub ne anlatıyor?
 
-Then:
+Then — EN / TR:
 
-> Görünen üretim yönü
+> Visible technical direction / Görünen teknik yön
 
-Then:
+Then — EN / TR:
 
-> Tekrar eden izler
+> Recurring engineering practices / Tekrar eden üretim pratikleri
 
-Finally:
+Finally — EN / TR:
 
-> Bunu neden görüyoruz?
+> Why this view / Bu görünümü neden görüyoruz?
 
 ------------------------------------------------------------------------
 

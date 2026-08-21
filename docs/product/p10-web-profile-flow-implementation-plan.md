@@ -4,14 +4,16 @@
 **Milestone:** B — Profile Evidence Experience
 **Phase:** P10 — Web Profile Flow
 **Depends On:** P9 Complete
-**Locked:** 2026-08-20 / Session 093 — reconciled against
+**Historical lock record:** 2026-08-20 / Session 093 — reconciled against
 `docs/product/p10-presentation-language-contract.md`,
 `docs/roadmap/mvp-phases.md` (Profile P10), `docs/product/public-profile-evidence-product-contract.md`
 §12/§14/§16/§23/§24, `docs/architecture/public-profile-evidence-report-contract.md`,
 and the actual `GitHubProof.Web` composition/routing code. §7 replaces the
 prior 4-slice draft with the 6 locked implementation slices (P10-I1..I6).
 See `worklog/sessions/2026-08-20-093-p10-contract-implementation-closure.md`
-for the full decision evidence record.
+for the full decision evidence record. This six-slice sequence was the
+Session 093 state and is superseded for current execution sequencing by the
+Session 101 P10-I2A amendment below; existing slice identities remain intact.
 **Amended:** 2026-08-20 / Session 095 — explicit user decision after visual
 review of the running application. The landing entry surface is now ONE
 unified GitHub input; the separate Profile Proof / Repository Proof entry
@@ -30,6 +32,15 @@ the omission list is now three surfaces (`Contributors` added), and the
 admission rule (§16, eligibility §6.3) are pointed at. No slice responsibility,
 route, entry, presentation-language, evidence, pattern or prohibition clause
 changed
+**Amended:** 2026-08-21 / Session 101 — the previous fixed-English Web
+presentation boundary is superseded by the explicit EN/TR product decision.
+P10 now has one additional prerequisite slice, `P10-I2A — Web Experience
+Foundation`, between the already-complete P10-I2 and P10-I3. Existing slice
+identities are not renumbered. Request localization, the persistent EN/TR
+utility, common Web localization, Repository Proof locale wiring, the
+Profile Web-localization foundation and a truthful immediate processing state
+belong to P10-I2A. Domain, evidence, eligibility, scoring and report semantics
+are unchanged.
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -227,7 +238,10 @@ P10 içinde kullanıcı çıktısı oluşturmaz.
 
 # 7. P10 Implementation Slices
 
-Altı slice additive ve implementation-ready'dir; her biri kendi
+Current P10 execution sequence yedi additive slice içerir: P10-I1 ve P10-I2
+complete'tir; P10-I2A mandatory Web experience prerequisite'tir; P10-I3'ten
+P10-I6'ya kadar olan slice'lar previously locked semantic responsibilities'ı
+korur. Her slice kendi
 başlığındaki **sorumluluk/çıktı** kümesiyle non-overlapping'dir (§13.16'da
 tanım kesinleştirilmiştir) — bu, dosya seviyesinde ayrık (disjoint) bir
 küme anlamına gelmez: sonraki bir slice, önceki bir slice'ın tanıttığı bir
@@ -368,6 +382,94 @@ profile akışı `/profile` üzerinde bir sonuç sınırına ulaşır.
 
 ---
 
+## P10-I2A — Web Experience Foundation
+
+Amaç:
+
+P10-I3 başlamadan önce Repository Proof ve Profile Proof'un paylaştığı Web
+request-language ve request-in-progress deneyimini kurmak; bunu yaparken
+analiz semantics'ine, transient POST-result modeline veya Profile report
+architecture sınırına yeni davranış eklememek.
+
+Sequence içindeki zorunlu konumu:
+
+```text
+P10-I1 — COMPLETE
+P10-I2 — COMPLETE
+P10-I2A — Web Experience Foundation
+P10-I3 — Meaning / Direction / Starting Point
+P10-I4 — Why + Evidence Drill-Down
+P10-I5 — Limitations + Partial / Failure UX
+P10-I6 — Experience Refinement + Closure
+```
+
+Kapsam:
+
+- framework-native ASP.NET Core Request Localization; desteklenen culture'lar
+  yalnız `en` ve `tr`, resolution precedence explicit persistent user choice
+  (`CookieRequestCultureProvider`) → browser preference/q-order
+  (`AcceptLanguageHeaderRequestCultureProvider`) → `en` fallback,
+- `tr`, `tr-TR`, `tr-*` → `tr`; `en`, `en-*` → `en`; unsupported browser
+  language family'leri supported bir sonraki preference aranırken atlanır;
+  supported preference yoksa `en`,
+- ordinary resolution için `QueryStringRequestCultureProvider` yok;
+  geolocation, IP-derived location, device location ve browser Geolocation API
+  hiçbir biçimde language selection'a katılmaz,
+- header'da theme control ile birlikte sessiz, persistent ve accessible
+  `EN | TR` language utility; current selection algılanabilir ve Analyze CTA
+  ile yarışmaz,
+- selected request culture'ın `<html lang>`, navbar/header utility copy,
+  theme accessibility copy, landing/input/validation/processing copy,
+  mevcut user-facing failure copy ve rendered Repository/Profile Web
+  presentation'ı sürmesi,
+- Repository Proof'ta mevcut Application EN/TR catalog'ları ve
+  `RepositoryReportProjector` korunarak hard-coded Web locale yerine resolved
+  request UI culture'ın projection'a geçirilmesi; `RepositoryAnalysis`
+  yeniden çalıştırılmaz,
+- `ProfileReportProjector` locale-neutral kalırken Web-owned deterministic
+  Profile presentation/localization mapping foundation'ının kurulması;
+  `ProfileReportSectionKey`, `ProfilePatternFamily`, `PatternKey`,
+  `ProfileLimitationCode`, `ProfileWarningCode` ve mevcut availability/status
+  identities dışında yeni semantic identity üretilmez,
+- tek unified girişte native constraint validation başarılı olduktan hemen
+  sonra başlayan truthful indeterminate processing state: duplicate submit
+  engeli, serialization-safe control davranışı, `aria-busy="true"`,
+  `role="status"`, `aria-live="polite"`, `aria-atomic="true"`, BFCache/back
+  restoration reset'i ve `prefers-reduced-motion` uyumu,
+- no percentage, ETA, completed/active/pending stage, checkmark, SSE, SignalR,
+  polling, streaming response veya sırf UI için yeni backend progress
+  telemetry. Existing `ProfileExecutionTelemetry` live progress source değildir.
+
+Language utility transient bir Repository/Profile POST result üzerinde
+değiştirildiğinde yeni culture persist edilir; GitHub analizi sessizce yeniden
+çalıştırılmaz ve cache/persistence icat edilmez. Kullanıcı localized landing'e
+döner. Mevcut entry model ile güvenli ise son `GitHubTarget` prefilled taşınır;
+yeni analiz yalnız açık bir Analyze submit'iyle başlar. Bu interaction P10-I6
+tarafından daha sonra, user testing gerektirirse refine edilebilir.
+
+P10-I2A mevcut failure copy'yi localize edebilir; final partial/failure semantic
+branch'leri ve bunların kapsamlı UX'i P10-I5'in sorumluluğu olarak kalır.
+
+Literal evidence çevrilmez: repository/user names, URL, path, branch, SHA,
+tag, raw evidence value ve C#/JavaScript/Python gibi programming/GitHub
+language identities aynı kalır.
+
+Çıkış kriteri:
+
+- cookie → Accept-Language → English fallback precedence'i ve EN/TR family
+  normalization'ı targeted Web testleriyle kanıtlanmış,
+- persistent selector, whole-Web culture ownership ve dynamic `<html lang>`
+  doğrulanmış,
+- Repository projection resolved request culture'ı kullanıyor ve locale
+  değişimi analysis'i rerun etmiyor,
+- Profile Web mapping locale-neutral `ProfileReport` sınırını koruyor,
+- unified input processing state iki analysis flow'un başlangıcında truthful,
+  accessible ve duplicate-submit-safe,
+- hiçbir yeni external/NuGet localization package, result cache/persistence
+  veya progress infrastructure eklenmemiş.
+
+---
+
 ## P10-I3 — Meaning / Direction / Starting Point
 
 Amaç:
@@ -380,16 +482,20 @@ sunmak.
 Sunum sırası:
 
 ```
-PublicProfileSummary        ("Bu GitHub ne anlatıyor?")
+PublicProfileSummary        (localized meaning summary)
         ↓
-TechnicalFocusAreas          "Visible technical direction"
+TechnicalFocusAreas          "Visible technical direction" /
+                             "Görünen teknik yön"
         ↓
-EngineeringPracticePatterns  "Recurring engineering practices"
+EngineeringPracticePatterns  "Recurring engineering practices" /
+                             "Tekrar eden üretim pratikleri"
         ↓
-RepresentativeRepositories   "Nereden başlamalı?"
+RepresentativeRepositories   "Starting point" /
+                             "Başlangıç noktası"
 ```
 
-Bölüm etiketleri §13.9'da kilitli, tek İngilizce sözlükten gelir (bkz.
+Bölüm etiketleri §13.9'da kilitli, selected request culture için deterministic
+EN/TR Web presentation mapping'inden gelir (bkz.
 `p10-presentation-language-contract.md` §8) — bu iki bölüm hiçbir zaman
 ortak/birleşik tek bir etikete indirgenmez.
 
@@ -599,19 +705,19 @@ Eğer kullanıcı:
 
 # 12. Next Step
 
-Session 093 ile P10 implementation-ready hâle geldi (bkz. §13). Sonraki
-adım, altı slice'ı sırayla (P10-I1 → P10-I6) implementasyona açmaktır; her
-slice kendi Claude görev promptuyla ayrı ayrı yetkilendirilir. Bu doküman
-kendisi implementasyon yetkisi vermez — yalnız implementation-ready contract'ı
-kilitler.
-
-İlk implementasyon slice'ı:
+P10-I1 ve P10-I2 complete'tir. Session 101 ile current remaining sequence:
 
 ```
-P10-I1 — Live Profile Request Boundary
+P10-I2A — Web Experience Foundation
+→ P10-I3
+→ P10-I4
+→ P10-I5
+→ P10-I6
 ```
 
-ile başlayacaktır.
+P10-I2A, P10-I3 başlamadan önce tamamlanmalıdır. Her slice ayrıca
+yetkilendirilir; bu document tek başına production implementation yetkisi
+vermez.
 
 ---
 
@@ -817,7 +923,7 @@ yoktur). `AnalysisReference` (`RepositoryAnalysisReference?`, nullable)
 linkin kaynağı veya ön koşulu **değildir**; yalnız §13.14'te açıklandığı
 gibi opsiyonel kimlik/durum context'i sağlar.
 
-## 13.7 Locale Boundary (Site-Wide Localization Genişletilmez)
+## 13.7 Web EN/TR Locale Boundary (Session 101)
 
 `ProfileReportProjector.Project(DeveloperPublicEvidenceProfile)` **locale
 parametresi almaz** (`src/GitHubProof.Application/Profile/Report/ProfileReportProjector.cs`;
@@ -825,34 +931,63 @@ Session 087: "locale independence is structural"). Bu, Repository Proof'un
 gerçek bir `SignalPresentationLocalizer` süren
 `RepositoryReportProjector.Project(analysis, locale)`'ından farklıdır. P10
 `ProfileReportProjector`'a locale parametresi eklemez ve Application
-seviyesinde profile localization başlatmaz — bu bir contract değişikliği
-olur ve docs-only bir session'ın kapsamı dışındadır. Presentation-language
-mapping tamamen Web katmanında, sabit tek dilli (İngilizce — mevcut sitenin
-zaten yerleşik render dili; bkz. `Pages/Index.cshtml`, `IndexModel`,
-`_Layout.cshtml`) statik bir sözlükle uygulanır. Bu bir locale switcher
-değildir; site-wide bir localization projesi başlatmaz.
+seviyesinde profile localization başlatmaz. Profile presentation mapping
+tamamen Web katmanında kalır.
 
-`docs/product/p10-presentation-language-contract.md`'deki Türkçe örnek
-metinler ürün-yönü anlatımıdır (bu doküman gibi Türkçe yazılan diğer
-canonical `docs/product/` dosyalarıyla aynı konvansiyon); P10'un fiilen
-render edeceği Razor/UI string'leri değildir.
+`GitHubProof.Web` yalnız `en` ve `tr` culture'larını destekler. Request culture
+resolution sırası şöyledir:
+
+```text
+explicit persistent user choice (culture cookie)
+→ Accept-Language browser preference / q order
+→ English fallback
+```
+
+Browser negotiation ilk supported language family'yi seçer: `tr`, `tr-TR`,
+`tr-*` → `tr`; `en`, `en-*` → `en`. Unsupported family'ler atlanır; supported
+preference yoksa `en` kullanılır. Ordinary resolution'da query string yoktur.
+Geolocation, IP-derived location, device location ve browser Geolocation API
+language selection'a katılamaz.
+
+Selected request culture bütün user-facing Web surface'i sürer: `<html lang>`,
+header utilities, language selector, theme accessibility copy, landing/input,
+validation, processing state, Repository Proof, Profile Proof Web
+presentation, failures, rendered limitations/warnings ve accessibility
+labels/status messages. Literal evidence ve canonical semantic identities
+locale-independent kalır.
 
 ## 13.8 Deterministic Presentation-Language Mapping
 
-Web-owned statik anahtar→etiket sözlüğü
-(`p10-presentation-language-contract.md` §8 "User Language Dictionary"
-kavramının İngilizce render edilmiş hâli), yalnız zaten canonical/locale-
+Web-owned deterministic EN/TR presentation mapping
+(`p10-presentation-language-contract.md` §8) yalnız zaten canonical/locale-
 independent kimliklerle anahtarlanır: `ProfileReportSectionKey`, pattern
 family/key, `ProfileLimitationCode`, `ProfileWarningCode`,
-`DataAvailabilityStatus`. Report contract §7.1/§9: "localized label !=
-semantic truth" — eşitlik anahtarı her zaman canonical identity'dir, etiket
-değil.
+`DataAvailabilityStatus` ve mevcut typed availability/status codes. Report
+contract §7.1/§9: "localized label != semantic truth" — eşitlik anahtarı her
+zaman canonical identity'dir, etiket değildir.
+
+Required labels:
+
+| Canonical identity | EN | TR |
+|---|---|---|
+| `TechnicalFocusAreas` | Visible technical direction | Görünen teknik yön |
+| `EngineeringPracticePatterns` | Recurring engineering practices | Tekrar eden üretim pratikleri |
+| `RepresentativeRepositories` | Starting point | Başlangıç noktası |
+| `WhyThisConclusion` | Why this view | Bu görünümü neden görüyoruz? |
+| Profile Report | Profile view | Profil görünümü |
+
+Technical-focus identities such as C#, JavaScript and Python are GitHub/literal
+language values and are never translated. `ProblemAreaPatterns` remains
+Unsupported and unrendered; `RoleEvidenceAlignment` remains Deferred and
+unrendered.
 
 ## 13.9 TechnicalFocusAreas vs EngineeringPracticePatterns Ayrı Dil
 
-- `TechnicalFocusAreas` → **"Visible technical direction"**
+- `TechnicalFocusAreas` → EN **"Visible technical direction"** / TR
+  **"Görünen teknik yön"**
   (tekrar eden technical-focus evidence — hangi tür sistemler tekrarlanıyor).
-- `EngineeringPracticePatterns` → **"Recurring engineering practices"**
+- `EngineeringPracticePatterns` → EN **"Recurring engineering practices"** /
+  TR **"Tekrar eden üretim pratikleri"**
   (tekrar eden practice evidence — test/CI/docs vb. — asla "direction"
   olarak yeniden ifade edilmez).
 
@@ -925,13 +1060,15 @@ contract §16).
 
 ## 13.16 Slice Responsibility Boundary
 
-P10-I1..I6 **sorumluluk/çıktı** bazında non-overlapping'dir — **dosya
+Current P10 sequence (`P10-I1`, `P10-I2`, `P10-I2A`, `P10-I3`, `P10-I4`,
+`P10-I5`, `P10-I6`) **sorumluluk/çıktı** bazında non-overlapping'dir — **dosya
 sahipliği** bazında değil:
 
 - Her slice'ın kendine ait, başka hiçbir slice'ın tekrar üstlenmediği bir
   sorumluluğu vardır (§7'de tanımlı: P10-I1 request/DI boundary, P10-I2
-  routing/entry, P10-I3 presentation ordering, P10-I4 drill-down, P10-I5
-  failure/partial presentation, P10-I6 visual refinement).
+  routing/entry, P10-I2A shared Web locale/processing foundation, P10-I3
+  presentation ordering, P10-I4 drill-down, P10-I5 failure/partial
+  presentation, P10-I6 visual refinement).
 - Daha sonraki bir slice, önceki bir slice'ın tanıttığı veya değiştirdiği
   bir dosyaya **bounded** bir ekleme yapabilir; bu, dosya seviyesinde
   ayrık (disjoint) bir küme gerektirmez.

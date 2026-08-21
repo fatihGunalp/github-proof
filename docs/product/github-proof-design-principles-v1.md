@@ -14,13 +14,23 @@
 > ilkesi değişmemiştir. Kontrat sahibi:
 > `docs/product/p10-web-profile-flow-implementation-plan.md` §13.0.
 
+> **Amended:** 2026-08-21 / Session 101 — Web presentation now supports
+> exactly EN/TR. Navigation includes a quiet persistent `EN | TR` utility
+> alongside theme control. Analysis progress is an immediate truthful
+> indeterminate state, not a telemetry-backed completed/active/pending stage
+> tracker. The accessibility and localization sections now carry the shared
+> P10-I2A Web foundation contract.
+
 ---
 
 ## 1. Neden Bu Belge Var?
 
 GitHub Proof sıradan bir dashboard, GitHub istatistik ekranı veya geliştirici puanlama ürünü değildir.
 
-Ürün, tek bir public GitHub repository içerisinde dışarıdan gözlemlenebilen mühendislik kanıtlarını analiz eder ve bunları açıklanabilir bir rapora dönüştürür.
+Ürün iki ilişkili proof surface taşır: Repository Proof tek bir public
+repository için deterministic micro view; Profile Proof ise public bir GitHub
+profilindeki görünür repository evidence'ını canonical Profile contracts
+üzerinden aggregate eden deterministic, job-agnostic macro view üretir.
 
 Bu nedenle tasarımın görevi yalnızca veriyi “güzel göstermek” değildir. Tasarımın görevi:
 
@@ -42,16 +52,26 @@ UI ürün contract'ını yeniden tanımlayamaz.
 
 Canonical ürün belgeleri tasarımdan üstündür. Bu belge aşağıdaki mevcut ürün gerçeklerini korur:
 
-- GitHub Proof bir geliştiriciyi değil, **tek bir public repository'yi** analiz eder.
-- Analiz dışarıdan gözlemlenebilir repository evidence'ına dayanır.
-- MVP deterministiktir.
+- **Repository Proof**, tek bir public repository için deterministic micro
+  view'dur; mevcut 15-signal / 4-category contract'ı, repository
+  score/categories/proves/weakens/do-first semantics'i yalnız bu surface'e
+  aittir.
+- **Profile Proof**, public profile üzerindeki visible repository evidence'ını
+  canonical Profile contracts üzerinden aggregate eden deterministic,
+  job-agnostic macro view'dur; Repository Proof score'unu developer/profile
+  score'una dönüştürmez.
+- Her iki surface yalnız public ve dışarıdan gözlemlenebilir evidence/traces
+  üzerinden çalışır.
+- Her iki surface deterministiktir.
 - LLM veya serbest metin yorumu doğrudan scoring gerçeği oluşturmaz.
-- MVP'de 15 canonical signal vardır.
-- MVP'de 4 canonical kategori vardır.
-- Rapor en fazla 3 güçlü sinyal, 3 kritik boşluk ve 3 öncelikli aksiyonu ilk katmanda öne çıkarır.
-- Overall score vardır ancak ürünün birincil anlamı değildir.
+- Repository Proof'ta 15 canonical signal ve 4 canonical kategori vardır.
+- Repository Proof ilk katmanı en fazla 3 güçlü sinyal, 3 kritik boşluk ve 3
+  öncelikli aksiyonu öne çıkarır.
+- Repository Proof overall score'u vardır ancak ürünün birincil anlamı değildir
+  ve Profile Proof'a taşınmaz.
 - `Missing`, `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` birbirinden farklı semantik durumlardır.
-- GitHub Proof developer seniority, employability, AI usage, authorship/originality veya production readiness hükmü vermez.
+- Hiçbir surface seniority, employability, role, AI authorship, ownership,
+  personality veya unsupported capability inference üretmez.
 
 Canonical referanslar:
 
@@ -64,28 +84,28 @@ docs/product/sample-analysis-report.md
 docs/roadmap/mvp-phases.md
 ```
 
-## 2.1 Önerilen UX genişlemesi: username → repository discovery
+## 2.1 Current Unified Entry and Proof-Surface Routing
 
-Mevcut MVP contract'ında ana analiz girdisi public repository URL'sidir.
-
-Tasarım çalışmasında ortaya çıkan aşağıdaki akış ise **önerilen bir UX genişlemesidir**:
+Current Web contract tek bir unified input kullanır:
 
 ```text
-GitHub username
-→ public repository listesi
-→ repository seçimi
-→ tek repository analizi
+GitHub username veya canonical profile URL
+→ Profile Proof (macro)
+
+canonical repository URL
+→ Repository Proof (micro)
 ```
 
-Bu genişleme analiz domain'ini değiştirmez; yine tek repository analiz edilir. Ancak product contract'a eklenmeden canonical MVP davranışı gibi uygulanmamalıdır.
+Giriş birleşiktir; analiz semantics'i değildir. Routing input shape'ten
+deterministically seçilir; AI/intent guess veya existence-discovery GitHub
+çağrısı yapılmaz. Profile Proof ve Repository Proof kendi canonical
+pipeline/report sınırlarını korur.
 
-Direct repository URL akışı ise doğrudan analize gidebilir:
-
-```text
-Repository URL
-→ Analyze
-→ Report
-```
+Historical note: bu belgenin ilk v1 taslağı username → repository discovery →
+single-repository analysis akışını proposed extension olarak kaydetmişti.
+Session 095 unified entry kararı ve tamamlanan P10-I2 bu öneriyi current Web
+contract olarak supersede etti; ayrı repository picker akışı current entry
+contract'ı değildir.
 
 ---
 
@@ -110,6 +130,10 @@ GitHub Proof bir bilgi azaltma ürünü değil; **bilgi hiyerarşisi ürünüdü
 ## Evidence First. Noise Last.
 
 Her tasarım kararında önce evidence görünür olmalıdır.
+
+Aşağıdaki `Action → Score` katmanları Repository Proof micro report'una
+aittir. Profile Proof macro view score üretmez; kendi canonical meaning →
+direction → starting point → evidence sırasını kullanır.
 
 Öncelik sırası:
 
@@ -153,10 +177,10 @@ Bir ekranın birincil görevi tek cümleyle ifade edilemiyorsa tasarım henüz y
 Hangi GitHub kullanıcısını veya repository'yi incelemek istiyorsun?
 ```
 
-### Repository discovery
+### Profile Proof
 
 ```text
-Hangi repository'yi incelemek istiyorsun?
+Bu public GitHub profilinde hangi görünür teknik üretim örüntüleri tekrarlanıyor?
 ```
 
 ### Analysis state
@@ -165,7 +189,7 @@ Hangi repository'yi incelemek istiyorsun?
 Şu anda ne oluyor?
 ```
 
-### Report
+### Repository Proof report
 
 ```text
 Bu repository neyi kanıtlıyor ve ilk neyi düzeltmeliyim?
@@ -189,7 +213,7 @@ Bir ekran birden fazla ana soruyu aynı anda cevaplamaya çalışıyorsa progres
 
 ## Principle 02 — Bilgiyi azaltma, gürültüyü azalt
 
-GitHub Proof doğal olarak bilgi yoğun bir üründür:
+Repository Proof doğal olarak bilgi yoğun bir micro view'dur:
 
 - repository identity,
 - 15 signal,
@@ -203,6 +227,9 @@ GitHub Proof doğal olarak bilgi yoğun bir üründür:
 - version metadata.
 
 Bunları silmek yanlış olur.
+
+Bu 15-signal / 4-category / score katmanları Profile Proof'a taşınmaz.
+Profile Proof kendi canonical macro-report meaning/evidence yapısını kullanır.
 
 Doğru yaklaşım katmanlamaktır.
 
@@ -313,20 +340,20 @@ UI sonucu kanıttan koparamaz.
 
 Kullanıcıya uzun kullanım talimatları vermek yerine interface doğru davranışı yönlendirmelidir.
 
-Örneğin gelecekte username discovery desteklenirse tek input yeterlidir:
+Current unified entry tek input kullanır:
 
 ```text
-GitHub kullanıcı adı veya repository URL'si
+GitHub username, profile URL veya repository URL
 ```
 
 Davranış:
 
 ```text
-username girildi
-→ public repository'ler görünür
+username veya profile URL girildi
+→ Profile Proof
 
 repository URL girildi
-→ doğrudan analysis
+→ Repository Proof
 ```
 
 Kullanıcının bunu üç ayrı açıklama paragrafından öğrenmesi gerekmemelidir.
@@ -528,8 +555,8 @@ Generic design-system adları yerine product semantics tercih edilmelidir.
 ```text
 GitHubInput
 RepositoryIdentity
-RepositoryPicker
-RepositoryRow
+ProfileRepositoryList
+RepositoryEvidenceRow
 AnalysisProgress
 ProofItem
 EvidenceGapItem
@@ -569,7 +596,9 @@ Bir ekran güzel olduğu için doğru değildir.
 
 ## Principle 15 — Score psikolojik merkez değildir
 
-Overall score MVP contract'ında vardır ve kaldırılmaz.
+Overall score yalnız Repository Proof MVP contract'ında vardır ve kaldırılmaz.
+Profile Proof score üretmez; repository score'u developer/profile score'una
+dönüştürmez.
 
 Ancak tasarımda score:
 
@@ -603,11 +632,15 @@ Her ekranda tek bir primary action bulunmalıdır.
 Continue / Analyze
 ```
 
-### Repository picker
+### Profile repository evidence exploration
 
 ```text
-Select repository
+Inspect repository evidence
 ```
+
+Bu action entry routing değildir. Profile Proof içindeki repository evidence
+exploration / drill-down'a aittir; final link mechanics P10-I4'ün
+sorumluluğudur ve bu design contract amendment onları implement etmez.
 
 ### Report
 
@@ -762,29 +795,34 @@ MVP için mümkün olan en az öğe:
 ```text
 Methodology
 GitHub
+EN | TR          (quiet persistent language utility)
+Theme            (quiet utility)
 ```
 
-Gerekli olduğunda `Example Report` eklenebilir; ancak first action ile yarışmamalıdır.
+Gerekli olduğunda `Example Report` eklenebilir; ancak first action ile
+yarışmamalıdır. Language ve theme controls navigation destination veya primary
+CTA değildir. `EN | TR` current selection'ı perceivable, keyboard-accessible
+ve screen-reader-accessible yapar; explicit choice persist edilir.
 
 ---
 
-## 7.2 Repository Discovery — Proposed Extension
+## 7.2 Unified Entry — Current Contract
 
-Username kabulü product contract'a alındığı takdirde:
+Current landing bir username/profile URL'yi Profile Proof'a, canonical
+repository URL'yi Repository Proof'a route eder. Ayrı repository discovery
+veya repository picker entry step'i yoktur.
 
 ```text
-fatihGunalp
-
-Public repositories
-
-repo-a                      C#          →
-repo-b                      TypeScript  →
-repo-c                      Python      →
-
-Show all repositories
+fatihGunalp                         → Profile Proof
+https://github.com/fatihGunalp      → Profile Proof
+https://github.com/owner/repository → Repository Proof
 ```
 
-### Gösterilebilecek düşük riskli metadata
+Profile result içindeki later evidence drill-down, canonical Profile report
+contract'ının ayrı sorumluluğudur; unified entry'yi repository selection
+flow'una dönüştürmez.
+
+### Repository-specific listelerde gösterilebilecek düşük riskli metadata
 
 - repository name,
 - primary language,
@@ -805,18 +843,35 @@ Show all repositories
 
 ## 7.3 Analysis Progress
 
-Amaç sahte hareket üretmek değil, gerçek pipeline'ı anlaşılır hale getirmektir.
+Amaç uygulamanın request üzerinde çalıştığını derhal ve dürüstçe
+göstermektir. Mevcut synchronous POST runtime backend stage telemetry
+üretmediği için UI indeterminate kalır.
 
-Örnek:
+Primary status örneği:
 
 ```text
-Repository found
-Collecting public evidence
-Evaluating 15 signals
-Building report
+GitHub Proof is processing your request…
+GitHub Proof isteğinizi işliyor…
 ```
 
-Animation varsa düşük yoğunluklu olmalı ve yalnız process state'i desteklemelidir.
+Optional neutral explanation `What this analysis includes` / `Bu analiz
+neleri içerir` altında target validation, public-data reading, visible-evidence
+collection, trace analysis ve view preparation genel olarak anlatılabilir.
+Bu satırlar individually tracked sequential runtime states değildir.
+
+Şunlar runtime telemetry açıkça kanıtlamadıkça yasaktır:
+
+- completed / active / pending stage,
+- checkmark veya progress position,
+- percentage veya ETA,
+- SSE, SignalR, polling, streaming response ya da sırf UI için yeni backend
+  telemetry.
+
+Processing state tek unified input'ta native constraint validation başarılı
+olduktan sonra başlar; duplicate submit engellenir ve `GitHubTarget` form
+serialization'dan çıkaracak biçimde disabled yapılmaz. Back/BFCache dönüşü
+stale busy/disabled state'i temizler. Animation varsa düşük yoğunluklu olmalı
+ve `prefers-reduced-motion`'a uymalıdır.
 
 Kaçınılacak:
 
@@ -1340,13 +1395,19 @@ Minimum gereklilikler:
 - expandable content ARIA semantics taşır,
 - mobile touch target yeterlidir,
 - reduced motion desteklenir,
-- heading hierarchy anlamlıdır.
+- heading hierarchy anlamlıdır,
+- request işlenirken ilgili form/container `aria-busy="true"` taşır,
+- visible processing status `role="status"`, `aria-live="polite"` ve
+  `aria-atomic="true"` kullanır,
+- duplicate-submit prevention keyboard ve screen-reader interaction'ı bozmaz,
+- language selection current choice'i yalnız renkle anlatmaz ve existing
+  target/focus contract'ına uyar.
 
 ---
 
 # 16. Localization Principles
 
-MVP presentation EN/TR destekleyebilir.
+Web presentation exactly English (`en`) ve Turkish (`tr`) destekler.
 
 ## Kurallar
 
@@ -1355,7 +1416,12 @@ MVP presentation EN/TR destekleyebilir.
 - semantic IDs aynı kalır,
 - locale değişimi analysis'i yeniden çalıştırmaz,
 - evidence literal'ları çevrilmez,
-- unknown locale fallback davranışı presentation katmanında çözülür.
+- explicit persistent user choice browser preference'tan önce gelir,
+- browser `Accept-Language` supported family/q ordering ile çözülür,
+- supported preference yoksa English fallback kullanılır,
+- geolocation, IP/device location ve browser Geolocation API kullanılmaz,
+- selected request culture bütün user-facing Web copy ve accessibility
+  mesajlarını sürer.
 
 Türkçe daha uzun olduğu için responsive test özellikle TR copy ile yapılmalıdır.
 
@@ -1408,8 +1474,8 @@ State
 
 ```text
 GitHubInput
-RepositoryPicker
-RepositoryRow
+ProfileRepositoryList
+RepositoryEvidenceRow
 RepositoryIdentity
 AnalysisProgress
 ProofItem
@@ -1662,14 +1728,15 @@ MVP'de tasarlanması gereken temel ekranlar:
 
 ```text
 1. Home
-2. Repository discovery — yalnız product contract'a alınırsa
-3. Analyzing
-4. Report
-5. Signal detail
-6. Error states
-7. Uncertainty states
-8. Mobile variants
-9. Methodology / boundary access
+2. Unified entry routing
+3. Profile Proof macro result
+4. Repository Proof micro report
+5. Analyzing
+6. Repository signal detail
+7. Error states
+8. Uncertainty states
+9. Mobile variants
+10. Methodology / boundary access
 ```
 
 MVP'de tasarım scope'u dışında tutulması tercih edilenler:
@@ -1816,7 +1883,8 @@ Ana kararlar:
 - Domain-aware components.
 - Minimal visual chrome.
 - First-10-second report test.
-- Username → repository discovery fikri yalnız proposed UX extension olarak işaretlendi.
+- Historical v1 username → repository discovery proposal was superseded by
+  the Session 095 unified-entry and P10-I2 two-proof-surface contract.
 
 ---
 

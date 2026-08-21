@@ -18,21 +18,35 @@
 > hiçbir token, tema veya status semantiği değişmemiştir. Kontrat sahibi:
 > `docs/product/p10-web-profile-flow-implementation-plan.md` §13.0.
 
+> **Amended:** 2026-08-21 / Session 101 — current header composition adds a
+> quiet persistent `EN | TR` utility beside the existing theme control.
+> §27 no longer models current analysis as completed/active/pending stages;
+> the current runtime supports a truthful accessible indeterminate processing
+> state only. Light/Dark/System theme semantics are unchanged.
+
 ---
 
 ## 1. Amaç
 
 Bu doküman GitHub Proof için kullanılacak UI sisteminin görsel, semantik ve etkileşimsel temelini tanımlar.
 
-UI kit'in amacı yalnızca tutarlı ekranlar üretmek değildir. Sistem, GitHub Proof'un ürün gerçeğini görsel dile doğru çevirmelidir:
+UI kit'in amacı yalnızca tutarlı ekranlar üretmek değildir. Sistem, GitHub
+Proof'un iki ilişkili proof surface'ini görsel dile doğru çevirmelidir:
 
-- analiz edilen şey geliştirici değil repository'dir,
-- yalnızca public ve gözlemlenebilir evidence değerlendirilir,
-- 15 deterministic signal bulunur,
-- dört canonical kategori bulunur,
-- evidence score ürünün merkezi değil ikincil özetidir,
-- `Missing`, `UnavailableEvidence`, `NotApplicable` ve `RequiresHumanReview` birbirinden farklı anlam taşır,
-- raporun ilk katmanı en fazla üç güçlü kanıt, üç kritik boşluk ve üç öncelikli aksiyondur,
+- **Repository Proof**, tek bir public repository için deterministic micro
+  view'dur; existing 15-signal / 4-category contract'ı ve repository
+  score/categories/proves/weakens/do-first semantics'i bu surface'e aittir,
+- **Profile Proof**, public profile üzerindeki visible repository evidence'ını
+  canonical Profile contracts üzerinden aggregate eden deterministic,
+  job-agnostic macro view'dur; Repository Proof score'unu developer/profile
+  score'una dönüştürmez,
+- her iki surface yalnız public ve observable evidence/traces kullanır,
+- hiçbir surface seniority, employability, role, AI authorship, ownership,
+  personality veya unsupported capability inference üretmez,
+- Repository Proof'ta `Missing`, `UnavailableEvidence`, `NotApplicable` ve
+  `RequiresHumanReview` birbirinden farklı anlam taşır,
+- Repository Proof ilk katmanı en fazla üç güçlü kanıt, üç kritik boşluk ve üç
+  öncelikli aksiyondur; evidence score ürünün merkezi değil ikincil özetidir,
 - UI kesinlik üretmemeli; sistemin emin olmadığı durumları açıkça göstermelidir.
 
 Bu nedenle GitHub Proof UI System bir “SaaS dashboard kit” değildir.
@@ -64,7 +78,7 @@ Her UI kararı aşağıdaki sırayla değerlendirilir:
 
 Kullanıcı önce sonucu değil, sonucu destekleyen anlamı görür.
 
-Önerilen hiyerarşi:
+Repository Proof micro report için hiyerarşi:
 
 ```text
 Evidence
@@ -106,7 +120,9 @@ Card yalnız bağımsız yüzey gerektiğinde kullanılır.
 
 UI kit mümkün olduğunca az primitive kullanır.
 
-Ama domain component'leri güçlü ve anlamlıdır:
+Ama domain component'leri güçlü ve anlamlıdır. Aşağıdaki score/signal
+component'leri Repository Proof'a özgüdür; Profile Proof bunlardan developer
+veya profile score üretmez:
 
 ```text
 GitHubInput
@@ -129,7 +145,7 @@ EvidenceScore
 
 İlk bakışta her şey gösterilmez.
 
-Katmanlar:
+Repository Proof katmanları:
 
 ```text
 Layer 1
@@ -153,11 +169,11 @@ Her ekran tek bir ana soruyu cevaplamalıdır.
 
 | Ekran | Ana soru |
 |---|---|
-| Home | Hangi repository incelenecek? |
-| Repository picker | Hangi public repository? |
+| Home | Hangi GitHub kullanıcısı veya repository incelenecek? |
 | Analyzing | Şu anda ne oluyor? |
-| Report | Bu repository neyi kanıtlıyor ve önce neyi düzeltmeliyim? |
-| Signal detail | Bu sonuca neden vardık? |
+| Profile Proof | Bu profilde hangi görünür örüntüler tekrarlanıyor ve nereden başlamalıyım? |
+| Repository Proof | Bu repository neyi kanıtlıyor ve önce neyi düzeltmeliyim? |
+| Repository signal detail | Bu repository sonucuna neden vardık? |
 | Methodology | Bu sistem hangi kurallarla karar veriyor? |
 
 ---
@@ -718,7 +734,7 @@ card padding    20–24
 
 ### Compact
 
-Signal list, repository picker, metadata.
+Signal list, Profile Proof repository drill-down list, metadata.
 
 ```text
 row height      36–40
@@ -1055,11 +1071,12 @@ Davranış:
 
 # 21. Domain Components
 
-# 21.1 Repository Input
+# 21.1 GitHub Input
 
 Amaç:
 
-> Analiz edilecek repository'yi mümkün olan en az sürtünmeyle almak.
+> Username, canonical profile URL veya canonical repository URL'yi mümkün olan
+> en az sürtünmeyle doğru proof surface'e taşımak.
 
 Anatomy:
 
@@ -1070,21 +1087,27 @@ Arrow / Continue
 Helper state
 ```
 
-Placeholder:
+Accepted entry shapes:
 
 ```text
-GitHub kullanıcı adı veya repository URL'si
+GitHub username
+canonical profile URL
+canonical repository URL
 ```
 
-Not:
-
-Username → repository discovery akışı uygulanırsa bu, mevcut single-repository analysis contract'ını değiştirmez; yalnız giriş katmanıdır.
+Routing deterministic'tir: username/profile URL → Profile Proof macro view;
+repository URL → Repository Proof micro view. Giriş birleşiktir, analysis
+semantics değildir. Ayrı repository discovery/picker entry step'i current
+contract'ta yoktur.
 
 ---
 
-# 21.2 Repository Result
+# 21.2 Repository Evidence Row
 
-Repository picker satırı.
+Profile Proof evidence exploration / repository drill-down listesinde tek bir
+repository reference satırı. Bu entry routing veya repository selection step'i
+değildir. Final drill-down mechanics P10-I4'e aittir ve burada implement
+edilmez.
 
 Anatomy:
 
@@ -1279,7 +1302,9 @@ Avoid:
 
 # 21.10 Evidence Score
 
-Overall score secondary diagnostic summary'dir.
+Bu component yalnız Repository Proof'a aittir. Repository overall score'u
+secondary diagnostic summary'dir; Profile Proof veya developer score'u
+değildir.
 
 Önerilen anatomy:
 
@@ -1302,7 +1327,7 @@ Hireability score
 
 # 22. Report Composition
 
-Canonical first-reading order:
+Repository Proof canonical first-reading order:
 
 ```text
 Repository identity
@@ -1380,7 +1405,7 @@ Amaç terminal estetiği değildir.
 Minimal home önerisi:
 
 ```text
-GitHub Proof                                          [theme]
+GitHub Proof                                 EN | TR   [theme]
 
 
               See what your GitHub communicates.
@@ -1401,6 +1426,12 @@ GitHub Proof                                          [theme]
 
 Light ve Dark aynı layout'u kullanır.
 
+`EN | TR` language utility theme control ile birlikte header'da yaşar. Bir
+navigation destination veya primary CTA değildir; Analyze ile yarışmaz.
+Current selection perceivable, keyboard/screen-reader accessible ve
+persistent'tir. Selected request culture bütün visible/accessibility copy'yi
+sürer.
+
 Kilitli noktalar (Session 095):
 
 - **Tek `GitHubInput`.** Landing'de yalnız bir giriş alanı vardır; bare
@@ -1420,18 +1451,24 @@ Kilitli noktalar (Session 095):
 
 ---
 
-# 26. Repository Picker Composition
+# 26. Profile Repository Evidence List Composition (P10-I4)
+
+Bu composition yalnız Profile Proof macro view içindeki visible repository
+evidence exploration / repository drill-down yüzeyidir. Unified landing entry
+değildir; username → choose repository → Repository Proof akışı kurmaz. Final
+drill-down mechanics P10-I4 ownership'ında kalır ve Session 101 bunları
+implement etmez.
 
 ```text
 fatihGunalp
 
-Public repositories
+Repository evidence in this profile
 
  github-proof                 C#             →
  Localora                     C#             →
  softbreak-ai-lab             Jupyter        →
 
-Show all repositories
+Explore all repository evidence
 ```
 
 Card stack yerine list-first yaklaşım tercih edilir.
@@ -1440,25 +1477,48 @@ Card stack yerine list-first yaklaşım tercih edilir.
 
 # 27. Analysis Progress
 
-Gerçek pipeline durumları kullanılır.
+Current runtime, Repository/Profile analysis'i tek synchronous POST request'i
+içinde çalıştırır ve UI'a live backend stage telemetry sağlamaz. Bu nedenle
+current `AnalysisProgress` component'i truthful indeterminate state'tir.
 
 ```text
-Repository found
-Collecting evidence
-Evaluating signals
-Building report
+GitHub Proof is processing your request…
+GitHub Proof isteğinizi işliyor…
 ```
 
-Sahte AI narration yoktur.
-
-Önerilen pattern:
+Optional static explanation:
 
 ```text
-● Repository found
-● Collecting evidence
-◉ Evaluating 15 signals
-○ Building report
+What this analysis includes / Bu analiz neleri içerir
+
+Validating the GitHub target / GitHub hedefi doğrulanıyor
+Reading public GitHub data / Herkese açık GitHub verileri okunuyor
+Collecting visible evidence / Görünür kanıtlar toplanıyor
+Analyzing traces / İzler analiz ediliyor
+Preparing the view / Görünüm hazırlanıyor
 ```
+
+Bu satırlar individually tracked sequential states değildir. Current runtime
+şu pattern'i desteklemez ve UI bunu render etmez:
+
+```text
+completed stage
+active stage
+pending stage
+percentage / ETA / progress position / checkmark
+```
+
+Sahte AI narration yoktur. SSE, SignalR, polling, streaming response veya sırf
+bu component için backend progress telemetry eklenmez. Existing
+`ProfileExecutionTelemetry` completion/observation telemetry'sidir; live UI
+progress source değildir.
+
+Unified form native constraint validation başarılı olduktan sonra state
+hemen görünür; accidental duplicate submit engellenir; `GitHubTarget` form
+serialization'dan çıkaracak biçimde disabled yapılmaz. Relevant form/container
+`aria-busy="true"`; visible status `role="status"`, `aria-live="polite"`,
+`aria-atomic="true"` taşır. Back/BFCache restore stale state'i temizler.
+Motion `prefers-reduced-motion` ile kapatılabilir.
 
 ---
 
@@ -1501,7 +1561,12 @@ Kurallar:
 - target minimum 40x40 önerilir,
 - keyboard navigation desteklenir,
 - prefers-reduced-motion desteklenir,
-- dark mode contrast ayrıca test edilir.
+- dark mode contrast ayrıca test edilir,
+- processing container `aria-busy` taşır,
+- processing live region polite ve atomic `role=status` kullanır,
+- duplicate-submit guard keyboard/screen-reader flow'u bozmaz,
+- EN/TR utility current selection'ı yalnız renkle anlatmaz ve minimum target /
+  visible-focus contract'ını korur.
 
 ---
 
@@ -1658,7 +1723,8 @@ Domain:
 
 ```text
 GitHubInput
-RepositoryPicker
+ProfileRepositoryList
+RepositoryEvidenceRow
 RepositoryIdentity
 ProofItem
 GapItem
@@ -1797,7 +1863,8 @@ Skeleton
 
 ```text
 GitHubInput
-RepositoryPicker
+ProfileRepositoryList
+RepositoryEvidenceRow
 RepositoryIdentity
 ProofItem
 GapItem
@@ -1817,7 +1884,7 @@ AnalysisProgress
 
 ```text
 Home
-Repository Picker
+Profile Repository Evidence List (P10-I4 drill-down)
 Analyzing
 Report Summary
 Signal List
@@ -1838,7 +1905,7 @@ Error / Partial States
 05 Status semantics
 06 Button / Input
 07 GitHubInput
-08 RepositoryPicker
+08 ProfileRepositoryList / RepositoryEvidenceRow (P10-I4 drill-down)
 09 Proof / Gap / Action
 10 SignalRow
 11 SignalDetail

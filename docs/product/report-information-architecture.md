@@ -422,10 +422,20 @@ MVP presentation catalog'ları en az şunları sağlar:
 
 ```text
 en  = canonical global default ve fallback
-tr  = first-launch locale
+tr  = supported locale
 ```
 
-Locale çözümü renderer girişinde yapılır. İstenen locale desteklenmiyorsa `en` fallback uygulanır; analysis state değişmez. TR ve EN aynı semantic key setini eksiksiz kapsamalıdır.
+Repository report projection, Web tarafından resolve edilmiş request UI
+culture'ını renderer girişinde alır. `GitHubProof.Web` request resolution
+contract'ı: persistent explicit user choice → browser `Accept-Language`
+preference/q ordering → English fallback. Browser negotiation `tr-*` family'yi
+`tr`, `en-*` family'yi `en` olarak çözer; unsupported family'leri supported
+bir sonraki preference aranırken atlar. Supported preference yoksa `en`
+kullanılır. Geolocation bu karara katılmaz. İstenen locale desteklenmiyorsa
+`en` fallback uygulanır; analysis state değişmez. TR ve EN aynı semantic key
+setini eksiksiz kapsamalıdır. Exact Web ownership ve persistence contract'ı
+`docs/product/p10-web-profile-flow-implementation-plan.md` §13.7 ile
+`docs/product/p10-presentation-language-contract.md` §8.1'dedir.
 
 AI/LLM translation, scoring, report truth, selection, ranking veya canonical copy kaynağı değildir. MVP'de copy sürümleri source-controlled presentation catalog'lardan gelir.
 
