@@ -5,11 +5,13 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Analysis;
+using GitHubProof.Web.Localization;
 using GitHubProof.Web.Profile;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.AddWebExperienceLocalization();
 
 builder.Services.AddSingleton<TimeProvider>(
     TimeProvider.System);
@@ -100,6 +102,8 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseWebExperienceLocalization();
 
 app.UseRouting();
 

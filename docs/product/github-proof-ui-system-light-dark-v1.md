@@ -24,6 +24,12 @@
 > the current runtime supports a truthful accessible indeterminate processing
 > state only. Light/Dark/System theme semantics are unchanged.
 
+> **Amended:** 2026-08-21 / Session 102 — açık kullanıcı kararı. §25 landing
+> boundary is now one collapsed native `details` / `summary` disclosure with
+> a concise localized statement and text label. Expansion reveals the same
+> four short text-only meanings. The prior four-card/icon composition is
+> superseded; Analyze remains the only primary CTA.
+
 ---
 
 ## 1. Amaç
@@ -1418,10 +1424,15 @@ GitHub Proof                                 EN | TR   [theme]
 
   ──────────────────────────────────────────────────────────
 
-                  What GitHub Proof is not
+  GitHub Proof doesn't rank developers or judge seniority, AI authorship,
+  or hiring.
+  View boundaries →
 
-   No developer   No seniority   No AI authorship   No hire/no-hire
-     ranking        judgment         claims             verdict
+    (expanded)
+    - No developer ranking
+    - No seniority judgment
+    - No AI authorship claims
+    - No hire/no-hire verdict
 ```
 
 Light ve Dark aynı layout'u kullanır.
@@ -1441,11 +1452,12 @@ Kilitli noktalar (Session 095):
   semantic akışlardır; hangisinin çalışacağı gönderilen değerin biçiminden
   deterministik olarak seçilir, tahmin edilmez. Kabul edilmeyen biçim aynı
   giriş yüzeyinde validation error olarak kalır.
-- **Boundary şeridi dört kartlık "What GitHub Proof is not" yüzeyidir.**
-  Eski tek satırlık `Public data · 15 deterministic signals · No AI
-  judgment` şeridinin yerini alır. Dört madde birer decorative line icon
-  taşır (`currentColor`, mevcut `ui-icon` sistemi, inline SVG) — ikonlar
-  ikincildir, sözleşme metindedir.
+- **Boundary yüzeyi minimal progressive disclosure'dır.** Bir adet collapsed
+  native `details` / `summary` içinde localized kısa boundary cümlesi ile
+  `View boundaries →` / `Sınırları gör →` etiketi görünür. Expanded durumda
+  dört mevcut anlam kısa text-only liste olarak sunulur. Card/column, boundary
+  icon'u, yeni icon veya JavaScript yoktur. Yüzey hero/input/Analyze'a görsel
+  olarak ikincildir ve yeni primary CTA üretmez.
 - Alan `type="text"`tir: `type="url"` bare login'i tarayıcı seviyesinde
   reddederdi.
 

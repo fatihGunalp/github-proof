@@ -2,7 +2,7 @@
 @model ProfileModel
 
 @{
-    ViewData["Title"] = "Profile Proof";
+    ViewData["Title"] = Text.Get(WebTextKey.ProfileView);
 }
 
 @*
@@ -17,7 +17,7 @@
     <h1
         class="profile-result__title"
         id="profile-result-title">
-        Profile Proof
+        @Text.Get(WebTextKey.ProfileView)
     </h1>
 
     <p class="profile-result__identity">
@@ -35,13 +35,13 @@
     else if (Model.HasComposedProfile)
     {
         <p class="profile-result__status">
-            Public evidence was collected and composed for this profile.
+            @Text.Get(WebTextKey.ProfileCollected)
         </p>
     }
 
     <a
         class="profile-result__back"
         href="/">
-        <span aria-hidden="true">←</span> Analyze something else
+        <span aria-hidden="true">←</span> @Text.Get(WebTextKey.AnalyzeSomethingElse)
     </a>
 </section>

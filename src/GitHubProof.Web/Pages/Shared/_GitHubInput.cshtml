@@ -3,12 +3,15 @@
 <form
     class="repository-input"
     method="post"
-    asp-page="/Index">
+    asp-page="/Index"
+    data-analysis-form
+    data-submitting="false"
+    aria-busy="false">
 
     <label
         class="repository-input__label"
         for="github-target">
-        GitHub username, profile URL, or repository URL
+        @Text.Get(WebTextKey.InputLabel)
     </label>
 
     <div class="repository-input__control">
@@ -22,15 +25,16 @@
             spellcheck="false"
             autocapitalize="none"
             value="@Model.GitHubTarget"
-            placeholder="octocat or https://github.com/owner/repository"
+            placeholder="@Text.Get(WebTextKey.InputPlaceholder)"
             required
             aria-invalid="@(Model.HasError ? "true" : "false")"
             aria-describedby="@(Model.HasError ? "github-input-error" : null)" />
 
         <button
             class="button button--primary repository-input__action"
-            type="submit">
-            <span>Analyze</span>
+            type="submit"
+            data-analysis-submit>
+            <span>@Text.Get(WebTextKey.Analyze)</span>
             <span aria-hidden="true">→</span>
         </button>
     </div>
@@ -44,4 +48,17 @@
             @Model.ErrorMessage
         </p>
     }
+
+    <div
+        class="analysis-progress"
+        data-analysis-status
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden>
+        <span class="analysis-progress__indicator" aria-hidden="true"></span>
+        <p class="analysis-progress__message">
+            @Text.Get(WebTextKey.ProcessingRequest)
+        </p>
+    </div>
 </form>

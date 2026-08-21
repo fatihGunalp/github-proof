@@ -1,107 +1,94 @@
-using System.Text.RegularExpressions;
-using GitHubProof.Web.Presentation;
+using GitHubProof.Web.Localization;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
 
-// The four "What GitHub Proof is not" icons are decorative only. They must
-// stay inline SVG in the existing icon system, share the theme-toggle icon
-// language, and never become the carrier of the boundary meaning — the text
-// remains the contract.
-public sealed class BoundaryIconTests
+public sealed class BoundaryDisclosureTests
 {
-    private static readonly UiIcon[] BoundaryIcons =
-    [
-        UiIcon.ChartColumnOff,
-        UiIcon.ChevronsUpOff,
-        UiIcon.SparklesOff,
-        UiIcon.CircleCheckOff
-    ];
-
     [Fact]
-    public void Every_boundary_icon_is_rendered_by_the_shared_inline_svg_partial()
-    {
-        string content = ReadWebFile("Pages", "Shared", "_UiIcon.cshtml");
-
-        foreach (UiIcon icon in BoundaryIcons)
-        {
-            Assert.Contains(
-                $"case UiIcon.{icon}:",
-                content,
-                StringComparison.Ordinal);
-        }
-    }
-
-    [Fact]
-    public void Shared_icon_partial_matches_the_theme_toggle_icon_language()
-    {
-        string content = ReadWebFile("Pages", "Shared", "_UiIcon.cshtml");
-
-        Assert.Contains("fill=\"none\"", content, StringComparison.Ordinal);
-        Assert.Contains("stroke=\"currentColor\"", content, StringComparison.Ordinal);
-        Assert.Contains("stroke-width=\"1.75\"", content, StringComparison.Ordinal);
-        Assert.Contains("stroke-linecap=\"round\"", content, StringComparison.Ordinal);
-        Assert.Contains("stroke-linejoin=\"round\"", content, StringComparison.Ordinal);
-        Assert.Contains("aria-hidden=\"true\"", content, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Landing_renders_one_icon_per_boundary_item()
+    public void Landing_uses_native_details_and_summary_without_scripted_disclosure()
     {
         string content = ReadWebFile("Pages", "Index.cshtml");
 
-        foreach (UiIcon icon in BoundaryIcons)
-        {
-            Assert.Contains(
-                $"UiIcon.{icon}",
-                content,
-                StringComparison.Ordinal);
-        }
-
-        int iconSlots = Regex.Matches(
-            content,
-            "boundaries__item-icon").Count;
-
-        int items = Regex.Matches(
-            content,
-            "boundaries__item-title").Count;
-
-        Assert.Equal(4, items);
-        Assert.Equal(items, iconSlots);
+        Assert.Contains("<details class=\"boundaries\">", content, StringComparison.Ordinal);
+        Assert.Contains("<summary class=\"boundaries__summary\">", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("<script", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(" open", content, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void Icons_do_not_carry_the_boundary_text_contract()
+    public void Localized_summary_and_disclosure_label_match_the_locked_copy()
     {
-        // The four statements must remain real text, not icon-only or
-        // image-encoded content — the icons add nothing readable.
+        WebPresentationLocalizer text = new();
+
+        Assert.Equal(
+            "GitHub Proof doesn't rank developers or judge seniority, AI authorship, or hiring.",
+            text.Get(WebTextKey.BoundariesSummary, WebCulture.English));
+        Assert.Equal(
+            "View boundaries →",
+            text.Get(WebTextKey.BoundariesDisclosureLabel, WebCulture.English));
+        Assert.Equal(
+            "GitHub Proof geliştiricileri puanlamaz; kıdem, AI yazarlığı veya işe alım hükmü vermez.",
+            text.Get(WebTextKey.BoundariesSummary, WebCulture.Turkish));
+        Assert.Equal(
+            "Sınırları gör →",
+            text.Get(WebTextKey.BoundariesDisclosureLabel, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Four_localized_boundary_meanings_remain_text_content_when_expanded()
+    {
         string content = ReadWebFile("Pages", "Index.cshtml");
 
-        string[] boundaryStatements =
+        WebTextKey[] boundaryMeanings =
         [
-            "We don't rank or score developers.",
-            "We don't judge experience or seniority.",
-            "We don't guess or claim AI authorship.",
-            "We don't tell you who to hire or not."
+            WebTextKey.NoDeveloperRankingTitle,
+            WebTextKey.NoSeniorityTitle,
+            WebTextKey.NoAiAuthorshipTitle,
+            WebTextKey.NoHireVerdictTitle
         ];
 
-        foreach (string statement in boundaryStatements)
+        foreach (WebTextKey meaning in boundaryMeanings)
         {
-            Assert.Contains(statement, content, StringComparison.Ordinal);
+            Assert.Contains($"WebTextKey.{meaning}", content, StringComparison.Ordinal);
         }
 
-        Assert.DoesNotContain("<img", content, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(4, content.Split("<li>", StringSplitOptions.None).Length - 1);
+
+        WebPresentationLocalizer text = new();
+        string[] english =
+        [
+            "No developer ranking",
+            "No seniority judgment",
+            "No AI authorship claims",
+            "No hire/no-hire verdict"
+        ];
+        string[] turkish =
+        [
+            "Geliştirici sıralaması yok",
+            "Kıdem yargısı yok",
+            "Yapay zekâ yazarlığı iddiası yok",
+            "İşe al / alma hükmü yok"
+        ];
+
+        Assert.Equal(
+            english,
+            boundaryMeanings.Select(key => text.Get(key, WebCulture.English)));
+        Assert.Equal(
+            turkish,
+            boundaryMeanings.Select(key => text.Get(key, WebCulture.Turkish)));
     }
 
     [Fact]
-    public void Boundary_icons_use_no_external_asset_or_emoji_source()
+    public void Landing_boundary_renders_no_icons_or_competing_primary_action()
     {
-        string content = ReadWebFile("Pages", "Shared", "_UiIcon.cshtml");
+        string content = ReadWebFile("Pages", "Index.cshtml");
 
-        Assert.DoesNotContain("http://", content, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("https://", content, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("<img", content, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("<use", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("_UiIcon", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("UiIcon.", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("boundaries__item-icon", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("<button", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("class=\"button", content, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ReadWebFile(params string[] relativeSegments)

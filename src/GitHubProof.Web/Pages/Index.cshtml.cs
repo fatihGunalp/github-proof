@@ -4,6 +4,7 @@ using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Entry;
+using GitHubProof.Web.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,15 +14,19 @@ public sealed class IndexModel : PageModel
 {
     private readonly LiveRepositoryReportService reportService;
     private readonly AnalysisVersion analysisVersion;
+    private readonly WebPresentationLocalizer text;
 
     public IndexModel(
         LiveRepositoryReportService reportService,
-        AnalysisVersion analysisVersion)
+        AnalysisVersion analysisVersion,
+        WebPresentationLocalizer text)
     {
         this.reportService = reportService
             ?? throw new ArgumentNullException(nameof(reportService));
         this.analysisVersion = analysisVersion
             ?? throw new ArgumentNullException(nameof(analysisVersion));
+        this.text = text
+            ?? throw new ArgumentNullException(nameof(text));
     }
 
     [BindProperty]
@@ -99,7 +104,7 @@ public sealed class IndexModel : PageModel
 
         Report = reportService.Project(
             analysis,
-            locale: "en");
+            locale: WebCulture.Resolve(PageContext?.HttpContext));
 
         return Page();
     }
@@ -107,28 +112,26 @@ public sealed class IndexModel : PageModel
     // One message for every shape the unified entry cannot resolve to exactly
     // one analysis flow. It restates the three accepted shapes instead of
     // reinterpreting the submitted value.
-    private static string CreateUnclassifiedInputMessage() =>
-        "Enter a GitHub username (octocat), a profile URL "
-        + "(https://github.com/octocat), or a repository URL "
-        + "(https://github.com/owner/repository).";
+    private string CreateUnclassifiedInputMessage() =>
+        text.Get(WebTextKey.InvalidTarget, PageContext?.HttpContext);
 
-    private static string CreateRepositoryFailureMessage(
+    private string CreateRepositoryFailureMessage(
         DataAvailability availability) =>
         availability.Status switch
         {
             DataAvailabilityStatus.NotApplicable =>
-                "Only public GitHub repositories are supported in the current MVP.",
+                text.Get(WebTextKey.RepositoryPublicOnly, PageContext?.HttpContext),
 
             DataAvailabilityStatus.RateLimited =>
-                "GitHub's API rate limit was reached. Try again later or configure GITHUB_TOKEN.",
+                text.Get(WebTextKey.RepositoryRateLimited, PageContext?.HttpContext),
 
             DataAvailabilityStatus.Forbidden =>
-                "GitHub denied access to this repository. Confirm that it is public and accessible.",
+                text.Get(WebTextKey.RepositoryForbidden, PageContext?.HttpContext),
 
             DataAvailabilityStatus.Failed =>
-                "GitHub could not be reached reliably. Try the analysis again.",
+                text.Get(WebTextKey.RepositoryFailed, PageContext?.HttpContext),
 
             _ =>
-                "We could not access that public GitHub repository. Check the URL and try again."
+                text.Get(WebTextKey.RepositoryUnavailable, PageContext?.HttpContext)
         };
 }

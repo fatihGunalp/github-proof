@@ -5,9 +5,12 @@ using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Analysis;
+using GitHubProof.Web.Localization;
 using GitHubProof.Web.Pages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -51,6 +54,31 @@ public sealed class IndexModelTests
         Assert.Equal(
             15,
             model.Report.SignalDetails.Items.Count);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_Projects_existing_repository_analysis_in_resolved_request_culture()
+    {
+        FakeSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+        IndexModel model = CreateModel(collector);
+        DefaultHttpContext context = new();
+        context.Features.Set<IRequestCultureFeature>(
+            new RequestCultureFeature(
+                new RequestCulture(WebCulture.Turkish),
+                provider: null));
+        model.PageContext = new PageContext { HttpContext = context };
+        model.GitHubTarget = RepositoryUrl;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(1, collector.CallCount);
+        Assert.NotNull(model.Report);
+        Assert.Equal(WebCulture.Turkish, model.Report!.Locale);
+        Assert.Contains(
+            "Önce",
+            model.Report.DoFirst.Title,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     [Theory]
@@ -213,7 +241,8 @@ public sealed class IndexModelTests
 
         return new IndexModel(
             service,
-            Version);
+            Version,
+            new WebPresentationLocalizer());
     }
 
     private static GitHubRepositorySnapshotResult

@@ -2,6 +2,7 @@ using GitHubProof.Application.Profile;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Web.Entry;
+using GitHubProof.Web.Localization;
 using GitHubProof.Web.Profile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -24,15 +25,19 @@ public sealed class ProfileModel : PageModel
 {
     private readonly LiveProfileReportService profileReportService;
     private readonly AnalysisVersion analysisVersion;
+    private readonly WebPresentationLocalizer text;
 
     public ProfileModel(
         LiveProfileReportService profileReportService,
-        AnalysisVersion analysisVersion)
+        AnalysisVersion analysisVersion,
+        WebPresentationLocalizer text)
     {
         this.profileReportService = profileReportService
             ?? throw new ArgumentNullException(nameof(profileReportService));
         this.analysisVersion = analysisVersion
             ?? throw new ArgumentNullException(nameof(analysisVersion));
+        this.text = text
+            ?? throw new ArgumentNullException(nameof(text));
     }
 
     // Re-posted by the landing's preserve-method redirect, under the same
@@ -85,7 +90,7 @@ public sealed class ProfileModel : PageModel
         if (!pipelineResult.HasProfile)
         {
             ErrorMessage =
-                "We could not compose a profile from that GitHub account's public evidence.";
+                text.Get(WebTextKey.ProfileCouldNotCompose, PageContext?.HttpContext);
 
             return Page();
         }
@@ -97,23 +102,23 @@ public sealed class ProfileModel : PageModel
 
     // Mirrors the Repository Proof failure vocabulary so a rate limit stays a
     // rate limit and never collapses into a negative claim about the profile.
-    private static string CreateProfileFailureMessage(
+    private string CreateProfileFailureMessage(
         DataAvailability availability) =>
         availability.Status switch
         {
             DataAvailabilityStatus.NotApplicable =>
-                "Only public GitHub profiles are supported in the current MVP.",
+                text.Get(WebTextKey.ProfilePublicOnly, PageContext?.HttpContext),
 
             DataAvailabilityStatus.RateLimited =>
-                "GitHub's API rate limit was reached. Try again later or configure GITHUB_TOKEN.",
+                text.Get(WebTextKey.ProfileRateLimited, PageContext?.HttpContext),
 
             DataAvailabilityStatus.Forbidden =>
-                "GitHub denied access to this profile. Confirm that it is public and accessible.",
+                text.Get(WebTextKey.ProfileForbidden, PageContext?.HttpContext),
 
             DataAvailabilityStatus.Failed =>
-                "GitHub could not be reached reliably. Try the analysis again.",
+                text.Get(WebTextKey.ProfileFailed, PageContext?.HttpContext),
 
             _ =>
-                "We could not access that public GitHub profile. Check the username and try again."
+                text.Get(WebTextKey.ProfileUnavailable, PageContext?.HttpContext)
         };
 }

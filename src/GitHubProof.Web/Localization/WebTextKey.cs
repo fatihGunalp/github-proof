@@ -1,0 +1,36 @@
+namespace GitHubProof.Web.Localization;
+
+public enum WebTextKey
+{
+    ThemeSwitchToLight,
+    ThemeSwitchToDark,
+    LanguageSelectorLabel,
+    LandingTitle,
+    LandingSummary,
+    BoundariesSummary,
+    BoundariesDisclosureLabel,
+    NoDeveloperRankingTitle,
+    NoSeniorityTitle,
+    NoAiAuthorshipTitle,
+    NoHireVerdictTitle,
+    InputLabel,
+    InputPlaceholder,
+    Analyze,
+    ProcessingRequest,
+    InvalidTarget,
+    RepositoryPublicOnly,
+    RepositoryRateLimited,
+    RepositoryForbidden,
+    RepositoryFailed,
+    RepositoryUnavailable,
+    ProfileView,
+    ProfileCollected,
+    ProfileCouldNotCompose,
+    ProfilePublicOnly,
+    ProfileRateLimited,
+    ProfileForbidden,
+    ProfileFailed,
+    ProfileUnavailable,
+    AnalyzeSomethingElse,
+    ReportPreviewTitle
+}

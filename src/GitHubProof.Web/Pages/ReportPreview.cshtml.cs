@@ -1,5 +1,6 @@
 using GitHubProof.Application.Analysis.Presentation;
 using GitHubProof.Web.Development;
+using GitHubProof.Web.Localization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,14 +13,15 @@ public sealed class ReportPreviewModel(
 {
     public RepositoryReport Report { get; private set; } = null!;
 
-    public IActionResult OnGet(string? locale = null)
+    public IActionResult OnGet()
     {
         if (!environment.IsDevelopment())
         {
             return NotFound();
         }
 
-        Report = RepositoryReportPreviewFactory.Create(locale);
+        Report = RepositoryReportPreviewFactory.Create(
+            WebCulture.Resolve(PageContext?.HttpContext));
 
         return Page();
     }

@@ -21,6 +21,13 @@
 > tracker. The accessibility and localization sections now carry the shared
 > P10-I2A Web foundation contract.
 
+> **Amended:** 2026-08-21 / Session 102 — açık kullanıcı kararı. Landing
+> boundary composition is now one collapsed native `details` / `summary`
+> disclosure. Its concise EN/TR statement remains visible; the same four
+> boundary meanings are short text-only items when expanded. The superseded
+> four-card/icon presentation is removed. Product boundaries and analysis
+> semantics are unchanged.
+
 ---
 
 ## 1. Neden Bu Belge Var?
@@ -748,10 +755,15 @@ Public evidence. Clear direction. No guesses.
 
 ────────────────────────────────────────────────────────
 
-              What GitHub Proof is not
+GitHub Proof doesn't rank developers or judge seniority, AI authorship,
+or hiring.
+View boundaries →
 
-  No developer    No seniority    No AI authorship    No hire/no-hire
-    ranking         judgment          claims              verdict
+  (expanded)
+  - No developer ranking
+  - No seniority judgment
+  - No AI authorship claims
+  - No hire/no-hire verdict
 ```
 
 Kilitli landing yapısı (Session 095, açık kullanıcı kararı):
@@ -765,12 +777,13 @@ Kilitli landing yapısı (Session 095, açık kullanıcı kararı):
   belirlenir — tahmin, AI/intent sınıflandırması veya "hangisi acaba" diye
   GitHub'a sorma yoktur. Çözülemeyen biçim giriş seviyesinde validation
   error olur.
-- **Trust/boundary yüzeyi "What GitHub Proof is not"tur.** Eski tek satırlık
-  trust strip'in (`Public data only · 15 deterministic signals · No AI
-  judgment`) yerini alır; aynı sözü daha açık biçimde verir: no ranking, no
-  seniority judgment, no AI authorship claim, no hire/no-hire verdict.
-  Bu dört madde bir feature card seti değildir — satılan bir yetenek listesi
-  değil, reddedilen yetenekler listesidir.
+- **Trust/boundary yüzeyi tek bir progressive disclosure'dır.** Collapsed
+  native `details` / `summary`, ürünün geliştiricileri sıralamadığını; kıdem,
+  AI yazarlığı veya işe alım hükmü vermediğini kısa EN/TR cümleyle görünür
+  tutar. `View boundaries →` / `Sınırları gör →` ile açıldığında no ranking,
+  no seniority judgment, no AI authorship claim ve no hire/no-hire verdict
+  anlamları dört kısa text-only madde olarak görünür. İkon, card/column veya
+  JavaScript disclosure yoktur; Analyze tek primary CTA olarak kalır.
 
 ### İlk viewport'ta olmaması tercih edilenler
 
@@ -783,10 +796,10 @@ Kilitli landing yapısı (Session 095, açık kullanıcı kararı):
 - büyük score mockup,
 - karmaşık navigation.
 
-Not: "What GitHub Proof is not" bu listeye girmez. Bir feature grid'i değil,
-boundary beyanıdır; ürünün ne yapmadığını ilk ekranda söylemek Principle
-2'nin (dürüstlük) ve Principle 12'nin (Unavailable ≠ Missing) doğrudan
-uzantısıdır.
+Not: Landing boundary bu listeye girmez. Collapsed cümle ilk ekranda kalır;
+dört kısa anlam yalnız kullanıcı native disclosure'ı açtığında görünür.
+Bu yüzey feature grid'i değil, boundary beyanıdır ve görsel olarak primary
+giriş/Analyze görevine ikincildir.
 
 ### Navigation
 

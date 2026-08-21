@@ -14,13 +14,10 @@
             : "light";
 
     const updateAccessibleName = theme => {
-        const nextTheme =
-            theme === "dark"
-                ? "light"
-                : "dark";
-
         const label =
-            `Switch to ${nextTheme} theme`;
+            theme === "dark"
+                ? toggle.dataset.labelLight
+                : toggle.dataset.labelDark;
 
         toggle.setAttribute(
             "aria-label",

@@ -27,6 +27,22 @@
     font-size: var(--font-size-body-large);
 }
 
+.repository-input__field[readonly],
+.repository-input__field[readonly]:focus {
+    border-color: var(--border-default);
+    outline: none;
+    background: var(--surface-subtle);
+    box-shadow: none;
+    color: var(--fg-secondary);
+    caret-color: transparent;
+    cursor: default;
+}
+
+.repository-input__field[readonly]:focus-visible {
+    outline: var(--focus-ring-width) solid var(--border-strong);
+    outline-offset: var(--focus-ring-offset);
+}
+
 .repository-input__action {
     min-width: 11rem;
     min-height: 3.5rem;
@@ -47,5 +63,52 @@
 
     .repository-input__action {
         width: 100%;
+    }
+}
+
+.repository-input__action[aria-disabled="true"] {
+    opacity: 1;
+    border-color: var(--border-default);
+    background: var(--surface-subtle);
+    color: var(--fg-tertiary);
+    cursor: wait;
+}
+
+.analysis-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    color: var(--fg-secondary);
+}
+
+.analysis-progress[hidden] {
+    display: none;
+}
+
+.analysis-progress__indicator {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    border: 2px solid var(--border-subtle);
+    border-top-color: var(--fg-secondary);
+    border-radius: 50%;
+    animation: analysis-progress-spin 0.8s linear infinite;
+}
+
+.analysis-progress__message {
+    margin: 0;
+    font-size: var(--font-size-small);
+}
+
+@keyframes analysis-progress-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .analysis-progress__indicator {
+        animation: none;
     }
 }

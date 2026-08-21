@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@Text.Culture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -48,6 +48,11 @@
         asp-append-version="true"
         defer>
     </script>
+    <script
+        src="~/js/analysis-progress.js"
+        asp-append-version="true"
+        defer>
+    </script>
 </head>
 <body>
     <div class="site-shell">
@@ -56,12 +61,39 @@
                 GitHub Proof
             </a>
 
-            <button
-                class="theme-toggle"
-                type="button"
-                data-theme-toggle
-                aria-label="Switch theme"
-                title="Switch theme">
+            <div class="site-utilities">
+                <form
+                    class="language-selector"
+                    method="post"
+                    asp-page="/Language"
+                    aria-label="@Text.Get(WebTextKey.LanguageSelectorLabel)">
+                    <button
+                        class="language-selector__choice"
+                        type="submit"
+                        name="Culture"
+                        value="en"
+                        aria-pressed="@(Text.Culture == WebCulture.English ? "true" : "false")">
+                        EN
+                    </button>
+                    <span class="language-selector__separator" aria-hidden="true">|</span>
+                    <button
+                        class="language-selector__choice"
+                        type="submit"
+                        name="Culture"
+                        value="tr"
+                        aria-pressed="@(Text.Culture == WebCulture.Turkish ? "true" : "false")">
+                        TR
+                    </button>
+                </form>
+
+                <button
+                    class="theme-toggle"
+                    type="button"
+                    data-theme-toggle
+                    data-label-light="@Text.Get(WebTextKey.ThemeSwitchToLight)"
+                    data-label-dark="@Text.Get(WebTextKey.ThemeSwitchToDark)"
+                    aria-label="@Text.Get(WebTextKey.ThemeSwitchToDark)"
+                    title="@Text.Get(WebTextKey.ThemeSwitchToDark)">
 
                 <svg
                     class="theme-toggle__icon theme-toggle__icon--sun"
@@ -98,7 +130,8 @@
                     aria-hidden="true">
                     <path d="M20 15.4A8.4 8.4 0 0 1 8.6 4a8.5 8.5 0 1 0 11.4 11.4Z"></path>
                 </svg>
-            </button>
+                </button>
+            </div>
         </header>
 
         <main class="site-main">

@@ -1,3 +1,4 @@
+using GitHubProof.Web.Localization;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -19,7 +20,7 @@ public sealed class HomeCompositionTests
             "_GitHubInput.cshtml");
 
         Assert.Contains(
-            "GitHub username, profile URL, or repository URL",
+            "WebTextKey.InputLabel",
             content,
             StringComparison.Ordinal);
 
@@ -88,47 +89,45 @@ public sealed class HomeCompositionTests
             "Index.cshtml");
 
         Assert.Contains(
-            "See what your GitHub communicates.",
+            "WebTextKey.LandingTitle",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "Public evidence. Clear direction. No guesses.",
+            "WebTextKey.LandingSummary",
             content,
             StringComparison.Ordinal);
+
+        WebPresentationLocalizer text = new();
+        Assert.Equal(
+            "See what your GitHub communicates.",
+            text.Get(WebTextKey.LandingTitle, WebCulture.English));
+        Assert.Equal(
+            "GitHub'ınızda ne olduğunu değil, ne anlattığını görün.",
+            text.Get(WebTextKey.LandingTitle, WebCulture.Turkish));
     }
 
     [Fact]
-    public void Home_states_what_github_proof_is_not()
+    public void Home_exposes_one_secondary_native_boundary_disclosure()
     {
         string content = ReadWebFile(
             "Pages",
             "Index.cshtml");
 
         Assert.Contains(
-            "What GitHub Proof is not",
+            "<details class=\"boundaries\">",
             content,
             StringComparison.Ordinal);
 
         Assert.Contains(
-            "No developer ranking",
+            "<summary class=\"boundaries__summary\">",
             content,
             StringComparison.Ordinal);
 
-        Assert.Contains(
-            "No seniority judgment",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "No AI authorship claims",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "No hire/no-hire verdict",
-            content,
-            StringComparison.Ordinal);
+        Assert.Equal(1, CountOccurrences(content, "<details"));
+        Assert.Equal(1, CountOccurrences(content, "<summary"));
+        Assert.DoesNotContain("boundaries__grid", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("type=\"button\"", content, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -138,10 +137,6 @@ public sealed class HomeCompositionTests
             "Pages",
             "Index.cshtml");
 
-        // The boundaries section explicitly disclaims scoring ("We don't
-        // rank or score developers."), so a blanket "score" ban would fail
-        // on the product's own disclaimer. What must never appear is an
-        // actual score presentation: a "x / 100" figure or a "Score:" label.
         Assert.DoesNotContain(
             "/ 100",
             content,
@@ -152,10 +147,6 @@ public sealed class HomeCompositionTests
             content,
             StringComparison.OrdinalIgnoreCase);
 
-        Assert.Contains(
-            "We don't rank or score developers.",
-            content,
-            StringComparison.Ordinal);
     }
 
     [Fact]

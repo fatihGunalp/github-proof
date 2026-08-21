@@ -7,10 +7,13 @@ using GitHubProof.Domain.Profile;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub.Profile;
+using GitHubProof.Web.Localization;
 using GitHubProof.Web.Pages;
 using GitHubProof.Web.Profile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -158,6 +161,30 @@ public sealed class ProfileModelTests
     }
 
     [Fact]
+    public async Task OnPostAsync_WhenRateLimited_Uses_resolved_Turkish_Web_copy()
+    {
+        FakeProfileSnapshotCollector collector =
+            new(new GitHubProfileSnapshotResult(
+                snapshot: null,
+                DataAvailability.Unavailable(
+                    "profile",
+                    DataAvailabilityStatus.RateLimited,
+                    "GitHub API rate limit.")));
+        ProfileModel model = CreateModel(collector);
+        DefaultHttpContext context = new();
+        context.Features.Set<IRequestCultureFeature>(
+            new RequestCultureFeature(
+                new RequestCulture(WebCulture.Turkish),
+                provider: null));
+        model.PageContext = new PageContext { HttpContext = context };
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Contains("hız sınırına", model.ErrorMessage!, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task OnPostAsync_WhenProfileUnavailable_ShowsBoundedFailure()
     {
         DataAvailability unavailable =
@@ -188,7 +215,8 @@ public sealed class ProfileModelTests
         IGitHubProfileSnapshotCollector collector) =>
         new(
             new LiveProfileReportService(collector, CreateRealPipeline()),
-            Version);
+            Version,
+            new WebPresentationLocalizer());
 
     private static ProfilePipeline CreateRealPipeline() =>
         new(

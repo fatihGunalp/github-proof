@@ -59,63 +59,53 @@
 
 .boundaries {
     grid-row: 4;
-    width: min(100%, 64rem);
-    padding-top: var(--space-6);
+    width: min(100%, 46rem);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border-subtle);
+}
+
+.boundaries__summary {
+    color: var(--fg-tertiary);
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-body);
+    list-style: none;
     text-align: center;
 }
 
-.boundaries__title {
-    margin: 0 0 var(--space-4);
-    color: var(--fg-primary);
-    font-size: var(--font-size-h2);
-    font-weight: var(--font-weight-h2);
+.boundaries__summary::-webkit-details-marker {
+    display: none;
 }
 
-.boundaries__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-5);
+.boundaries__summary:focus-visible {
+    border-radius: var(--radius-sm);
+    outline: var(--focus-ring-width) solid var(--border-focus);
+    outline-offset: var(--focus-ring-offset);
 }
 
-/* Decorative and secondary to the text: same weight, size and alignment
-   across all four items, inheriting currentColor for both themes. */
-.boundaries__item-icon {
-    display: flex;
-    justify-content: center;
-    margin-bottom: var(--space-3);
-    color: var(--fg-muted);
+.boundaries__summary-text,
+.boundaries__disclosure-label {
+    display: block;
 }
 
-.boundaries__item-icon .ui-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-
-.boundaries__item-title {
-    margin: 0 0 var(--space-2);
-    color: var(--fg-primary);
-    font-size: var(--font-size-body);
+.boundaries__disclosure-label {
+    margin-top: var(--space-1);
+    color: var(--fg-link);
     font-weight: var(--font-weight-label);
 }
 
-.boundaries__item-description {
-    margin: 0;
+.boundaries__summary:hover .boundaries__disclosure-label {
+    color: var(--fg-link-hover);
+}
+
+.boundaries__list {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-4) auto 0;
+    padding-inline-start: var(--space-6);
+    width: fit-content;
     color: var(--fg-tertiary);
     font-size: var(--font-size-small);
     line-height: var(--line-height-body);
-}
-
-@media (max-width: 48rem) {
-    .boundaries__grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-8) var(--space-6);
-    }
-}
-
-@media (max-width: 30rem) {
-    .boundaries__grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-6);
-    }
+    text-align: start;
 }
