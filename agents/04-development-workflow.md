@@ -16,6 +16,23 @@ Pre-existing değişiklikleri not et.
 
 Unrelated kullanıcı değişikliklerine dokunma.
 
+Default meaningful session modeli:
+
+~~~text
+1 meaningful session → 1 working branch
+~~~
+
+`CURRENT.md` veya ilgili session Active Branch ya da Base HEAD bildiriyorsa,
+mutation öncesi bunları Git ile karşılaştır.
+
+~~~text
+branch mismatch → DUR
+base mismatch   → DUR
+~~~
+
+Mismatch'i sessizce repair etme. Session base → branch HEAD diff'i primary
+structural scope evidence'dır.
+
 ## 2. Active Work
 
 GitHub Proof'a ait geçerli bir `worklog/CURRENT.md` varsa:
@@ -30,6 +47,14 @@ CURRENT
 ~~~
 
 Active Session `IN_PROGRESS` ise aynı iş için yeni session açma.
+
+~~~text
+same active session + same bounded objective
+→ existing branch/session üzerinde devam et
+
+new independent objective
+→ kullanıcı açıkça aksini seçmedikçe new meaningful session/branch
+~~~
 
 Kullanıcı bağımsız başka bir task istiyorsa mevcut session'ı sessizce terk etme; scope çatışmasını raporla.
 

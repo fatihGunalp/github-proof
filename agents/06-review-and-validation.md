@@ -33,9 +33,10 @@ presentation completeness excluded from overall
 
 ## 3. Tests
 
-Önce en dar ilgili testleri çalıştır.
+Code task'larında önce en dar ilgili testleri çalıştır.
 
-Sonra risk gerektiriyorsa broader suite/build çalıştır.
+Sonra risk gerektiriyorsa broader suite/build çalıştır. Docs/worklog-only task
+otomatik olarak build/test gerektirmez.
 
 Repository'nin gerçek solution/project yapısını keşfetmeden command uydurma.
 
@@ -84,7 +85,7 @@ Worklog'a full terminal dump koyma.
 Kısa ve actionable olmalı:
 
 ~~~text
-Sonuç: PASS / PARTIAL / BLOCKED / FAILED
+Sonuç: PASS / PASS WITH FINDINGS / BLOCKED / FAILED
 Değişenler: <özet>
 Validation: <çalıştırılan kontroller>
 Risk / kalan iş: <varsa>
@@ -94,3 +95,21 @@ Suggested commit: <mesaj>
 Commit/push yapıldı diye yalnız gerçekten yapıldıysa söyle.
 
 Varsayılan olarak yalnız suggested commit mesajı ver.
+
+`PARTIAL` review verdict değildir. Canonical product/domain analysis status'u
+olarak anlamlı olabilir; review vocabulary ile karıştırma.
+
+## 7. Independent Closure Review
+
+Codex self-validation implementation validation'dır; final independent closure
+review değildir.
+
+Meaningful bir session commit edilmeden önce resulting scope/diff/contract
+evidence, riskle orantılı independent review'den geçmelidir. Reviewer ChatGPT,
+kullanıcının yönlendirdiği reviewer veya açıkça atanmış başka bir review path
+olabilir.
+
+Bu, her docs/worklog-only task için ikinci agent ya da build/test zorunluluğu
+getirmez. Codex, kendi yazdığı implementation için ayrı bir review role'ünde
+ve author olmadığı evidence üzerinde açıkça çalışmadıkça independent PASS iddia
+etmez.

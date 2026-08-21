@@ -10,9 +10,9 @@ Bu klasör Codex'in **nasıl çalışacağını** tanımlar.
 |---|---|
 | `01-model-routing.md` | Sol / Terra / Luna + low / medium / high seçimi ve `devam et` gate'i |
 | `02-context-loading.md` | Göreve göre minimum belge/kod bağlamını seçmek |
-| `03-project-contract.md` | GitHub Proof MVP invariant'larının kısa operational özeti |
+| `03-project-contract.md` | Repository/Profile product boundary'nin kısa operational özeti |
 | `04-development-workflow.md` | Git, session, implementation ve scope akışı |
-| `05-domain-development.md` | Faz 1 Domain foundation için C# kuralları |
+| `05-domain-development.md` | Repository Proof V1 / original Domain foundation için C# kuralları |
 | `06-review-and-validation.md` | Test, diff, validation ve final rapor kuralları |
 | `07-worklog-integration.md` | worklog yaklaşımını GitHub Proof'a güvenli biçimde bağlamak |
 
@@ -34,7 +34,10 @@ Yeni görev
 → 06-review-and-validation
 ~~~
 
-Domain foundation veya domain model görevi ise `05-domain-development.md` zorunludur.
+Repository Proof V1 domain/scoring foundation görevi ise
+`05-domain-development.md` zorunludur. Profile domain işi ise önce
+`02-context-loading.md` Profile route'ları, sonra yalnız ilgili canonical
+Profile docs okunur.
 
 Worklog kullanılıyorsa `07-worklog-integration.md` zorunludur.
 

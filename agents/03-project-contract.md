@@ -1,4 +1,4 @@
-# GitHub Proof — Operational Project Contract
+# GitHub Proof — Operational Product Boundary
 
 Bu dosya canonical docs'un kısa operational özetidir.
 
@@ -6,14 +6,27 @@ Bu dosya canonical docs'un kısa operational özetidir.
 
 ## Product Boundary
 
-GitHub Proof:
+GitHub Proof iki ilişkili proof surface içerir.
 
-- tek bir public GitHub repository analiz eder,
+### Repository Proof
+
+- tek bir public GitHub repository için micro view üretir,
 - dışarıdan gözlemlenebilen mühendislik kanıtlarını değerlendirir,
-- açıklanabilir ve deterministik rapor üretir,
+- mevcut 15-sinyal / 4-kategori contract'ıyla açıklanabilir ve deterministik
+  repository analizi üretir,
 - repository üzerinde uygulanabilir geliştirme önerileri üretir.
 
-GitHub Proof şunları yapmaz:
+Repository Proof V1 private repository analizi veya repository karşılaştırması
+üretmez.
+
+### Profile Proof
+
+- bir public GitHub profili için macro view üretir,
+- visible repository evidence'ını canonical Profile contracts üzerinden
+  deterministic ve job-agnostic biçimde aggregate eder,
+- Repository Proof scoring semantics'ini sessizce değiştirmez.
+
+Her iki proof surface şunları yapmaz:
 
 - junior/mid/senior sınıflandırması,
 - işe alınabilirlik kararı,
@@ -21,10 +34,12 @@ GitHub Proof şunları yapmaz:
 - kod sahipliği/orijinallik çıkarımı,
 - geliştirici kişiliği veya genel yetkinlik hükmü,
 - production-ready veya güvenli repository hükmü,
-- MVP'de private repository analizi,
-- MVP'de repository karşılaştırması.
+- unsupported capability inference.
 
-## Canonical Pipeline
+Profile domain/pipeline ayrıntıları canonical Profile docs'un sahibindedir;
+bu dosya ikinci bir Profile contract değildir.
+
+## Repository Proof V1 Pipeline
 
 ~~~text
 Repository URL
@@ -37,6 +52,9 @@ Repository URL
 → ImprovementPlan
 → RepositoryAnalysis
 ~~~
+
+Bu, mevcut Repository Proof V1 pipeline'ıdır. Profile Proof macro pipeline'ı
+yalnız ilgili canonical Profile docs'tan yüklenir.
 
 Kanıt ile yorum ayrıdır.
 

@@ -25,7 +25,7 @@ Pre-existing working tree değişikliklerini session/task diff'i ile karıştır
 
 ## Belge Haritası
 
-### Domain primitive / domain model
+### Repository Proof domain primitive / domain model
 
 Öncelik:
 
@@ -113,6 +113,63 @@ docs/decisions/001-portfolio-presentation-category.md
 docs/architecture/mvp-signal-definitions.md — Portföy Sunumu
 docs/product/scoring-and-report-contract.md
 ~~~
+
+### Profile domain / model
+
+Primary:
+
+~~~text
+docs/architecture/public-profile-evidence-domain-model.md
+~~~
+
+### Profile eligibility / admission
+
+Primary:
+
+~~~text
+docs/architecture/public-profile-evidence-repository-eligibility.md
+~~~
+
+### Profile repository runtime collection / composition
+
+Primary:
+
+~~~text
+docs/architecture/public-profile-runtime-collection.md
+~~~
+
+### Cross-repository patterns
+
+Yalnız task'ın etkilediği canonical pattern contract'ını oku:
+
+~~~text
+docs/architecture/public-profile-evidence-patterns.md
+~~~
+
+### Representative repositories
+
+Yalnız task'ın etkilediği canonical representative-repository contract'ını oku:
+
+~~~text
+docs/architecture/public-profile-representative-repositories.md
+~~~
+
+### P10 Web Profile Flow
+
+Primary:
+
+~~~text
+docs/product/p10-web-profile-flow-implementation-plan.md
+~~~
+
+Presentation/report language etkileniyorsa ayrıca:
+
+~~~text
+docs/product/p10-presentation-language-contract.md
+~~~
+
+Profile task'ı Repository Proof semantics'ini değiştiriyor veya ona bağlıysa,
+yalnız etkilenen Repository canonical contract'ını ayrıca oku.
 
 ## Source-of-Truth Kuralı
 

@@ -1,53 +1,11 @@
 # Worklog Integration
 
-## İncelenen worklog.zip Hakkında
+## Authority Boundary
 
-Paylaşılan `worklog.zip` güçlü bir **operational memory pattern** içeriyor:
+Foreign/example project state GitHub Proof authority değildir ve `CURRENT.md`e
+import edilmez.
 
-- `docs/` source of truth
-- `agents/` çalışma playbook'ları
-- `worklog/CURRENT.md` current snapshot
-- `worklog/INDEX.md` session catalog
-- `worklog/sessions/` meaningful development history
-- Active Session + `IN_PROGRESS`
-- Base HEAD
-- pre-existing working tree guard
-- checkpoint/handoff
-- destructive Git guard
-- agent edit/test eder, kullanıcı commit/push eder
-- minimum context / minimum token yaklaşımı
-
-Bu pattern GitHub Proof için uygundur.
-
-## Kritik Uyarı: Zip İçeriği GitHub Proof State'i Değildir
-
-Paylaşılan worklog'un live içerikleri başka bir project'e aittir.
-
-Özellikle şu kavramlar GitHub Proof current state'i olarak **import edilmemelidir**:
-
-~~~text
-Localora
-Partner != User
-Product != Offer
-Offer != Opportunity
-Workspace / Inbox / Outbox foundation
-Creator SaaS
-softbreak_db
-softbreak_test
-Localora PostgreSQL
-~~~
-
-Bunlar worklog pattern'inin örnek/önceki project içeriğidir; GitHub Proof ürün sözleşmesi değildir.
-
-Bu nedenle Codex mevcut `worklog/` içinde bu tür foreign state görürse:
-
-~~~text
-onu GitHub Proof current state'i olarak kullanma
-onu docs/ üstünde authority sayma
-onu implementation kararı olarak taşıma
-~~~
-
-## GitHub Proof İçin Reuse Edilecek Kurallar
+## GitHub Proof Worklog Kuralları
 
 Şunlar reuse edilir:
 
@@ -137,7 +95,8 @@ Worklog içine secret, token, private key, credential veya gereksiz PII koyma.
 
 ## CURRENT Compaction
 
-`worklog/CURRENT.md` append-only history değildir; live operational snapshot'tır.
+`CURRENT.md` **SESSION REPORT DEĞİLDİR.** Append-only history değildir; live
+operational snapshot'tır.
 
 CURRENT yalnız gerekli semantic state'i taşır:
 
@@ -149,7 +108,9 @@ CURRENT yalnız gerekli semantic state'i taşır:
 - exact next action,
 - last remote-verified main.
 
-Closed-session detail session dosyasında kalır.
+Closed implementation detail, review-round history, defect chronology,
+validation transcript ve live-check telemetry detail session dosyasında kalır;
+yalnız next task için gerekli tek bir concise operational fact istisnadır.
 Git structural facts'i worklog prose'unda tekrar etme.
 
 Dedicated session branch'te:
@@ -160,5 +121,17 @@ Worklog = semantic memory.
 Primary structural scope evidence:
 session base → branch HEAD diff.
 
-Meaningful session başlangıcında obsolete CURRENT state'i replace/compact et.
+Session kapatılırken obsolete current state'i replace et; ikinci bir historical
+layer append etme. Detailed history session dosyasına taşınır.
+
+CURRENT yalnız yeni bir agent'ın sonraki kararı için gerekenleri taşır:
+
+- current / next stage,
+- active session,
+- active branch + base,
+- current goal/scope,
+- live blocker/risk,
+- exact next action,
+- operationally useful ise last remote-verified main.
+
 Amaç ucuz ve güvenilir first operational read'dir.
