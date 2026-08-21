@@ -230,6 +230,69 @@ Snapshot eksik olabilir.
 
 Eksik snapshot otomatik olarak başarısız analiz anlamına gelmez. Kullanılabilir verilerle kısmi analiz üretilebilir.
 
+### CollectionObservationState (Session 098)
+
+`RepositoryCollection<T>`, koleksiyonun **nasıl gözlendiğini** taşıyan kapalı bir
+duruma sahiptir. Bu, `IsComplete`'in ikinci bir anlamı değildir; onun yanında
+duran ayrı bir gerçektir.
+
+~~~text
+Enumerated
+DecisionBounded
+Incomplete
+~~~
+
+**Enumerated**
+Provider koleksiyonunun tamamı sayıldı.
+
+**DecisionBounded**
+Sayım bilerek durduruldu, çünkü bu Profile V1 yüzeyinin **o an yetkili olan
+bütün tüketicileri** gözlenen kanıttan semantik kararını geri döndürülemez
+biçimde verebiliyordu.
+
+**Incomplete**
+Sayım hata, kesinti veya gerekli gözlemi tamamlayamama nedeniyle eksik kaldı.
+
+#### IsComplete ile ilişki
+
+~~~text
+IsComplete = true   ⇔   CollectionObservationState = Enumerated
+~~~
+
+`IsComplete`'in anlamı değişmez ve asla sahte `true` üretilmez.
+
+#### DecisionBounded zorunlulukları
+
+- `IsComplete: false` — koleksiyon gerçekten tam sayılmadı.
+- `TotalCount: null` — gözlenen öğe sayısı yalnız bir **alt sınırdır**; hiçbir
+  koşulda repository toplamı olarak sunulamaz.
+- `DataAvailability` değişmez: yüzey erişilebilirdi, bu yüzden `Available`
+  kalır. Bu durum için yeni bir `DataAvailabilityStatus` **yaratılmaz**.
+- `CollectionWarnings` üretilmez. Bilinçli bir gözlem sınırı toplama arızası
+  değildir; bugünkü "`IsComplete: false` ⇒ collection warning" bağı yalnız
+  `Incomplete` için geçerlidir.
+- Tek başına `limitation.snapshot.collection-partial` üretmez.
+- Tek başına `RepositoryAnalysis.Status` değerini düşürmez.
+- Asla negatif developer evidence olmaz.
+
+#### Sorumluluk sınırı
+
+Collector eşikleri bilmez ve bilmemelidir. Collector yalnız dürüst olur:
+"erken durdum, elimdeki bir önektir". Kararın yeterli olup olmadığına
+**evaluator** hükmeder: `DecisionBounded` bir koleksiyondan ancak gözlenen önek
+sınıflandırmayı monoton-maksimal olarak kanıtlıyorsa terminal sonuç üretilebilir
+(`docs/architecture/mvp-signal-definitions.md`).
+
+Bu monotonluk gözlem sırasından bağımsızdır: gözlenen küme büyüdükçe sayımlar ve
+distinct-gün sayısı azalamaz, `max − min` aralığı da daralamaz.
+
+#### Repository Proof
+
+Repository Proof composition'ı `DecisionBounded` **üretmez**; her koleksiyonu
+`Enumerated` veya `Incomplete` olur ve tam-sayım tabanlı davranışı değişmez.
+`DecisionBounded` yalnız Profile V1 composition'ının üretebileceği bir durumdur
+(`docs/architecture/public-profile-runtime-collection.md`).
+
 ---
 
 ## 5. DataAvailability

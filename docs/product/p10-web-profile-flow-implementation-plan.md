@@ -24,6 +24,12 @@ prerequisite, so §13.4 is not read as requiring Profile Proof to reuse the
 complete Repository Proof collection composition. No slice responsibility,
 route, entry, presentation-language, evidence, pattern or prohibition clause
 changed
+**Amended:** 2026-08-21 / Session 098 — §13.17 cross-reference refreshed only:
+the omission list is now three surfaces (`Contributors` added), and the
+`DecisionBounded` pagination stop rule (runtime contract §15) plus the fork
+admission rule (§16, eligibility §6.3) are pointed at. No slice responsibility,
+route, entry, presentation-language, evidence, pattern or prohibition clause
+changed
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -950,12 +956,20 @@ Profile Proof, mevcut `IProfileRepositorySnapshotSource` seam'inde
 Profile'a özgü bir collection composition kullanabilir. Bu prerequisite'in
 P10 için pratik sonuçları:
 
-- Profile V1 aggregation path'i bounded raw `SourceFiles` ve
-  `DependencyDeclarations` enrichment yüzeylerini **toplamaz** (runtime
-  contract §5); bu omission asla negative evidence, warning, limitation veya
-  status değişikliği üretmez (§5.2).
+- Profile V1 aggregation path'i bounded raw `SourceFiles`,
+  `DependencyDeclarations` ve (Session 098) `Contributors` yüzeylerini
+  **toplamaz** (runtime contract §5); bu omission asla negative evidence,
+  warning, limitation veya status değişikliği üretmez (§5.2).
+- Profile V1, gereken yüzeylerde karar geri döndürülemez hâle geldiğinde
+  sayfalamayı durdurabilir (runtime contract §15, `DecisionBounded`); bu bir
+  page cap, örnekleme veya yaklaşıklama değildir ve `IsComplete` asla sahte
+  `true` yapılmaz.
+- Bilinen fork'lar Profile V1'de admission aşamasında `Skip` / `ForkDetected`
+  olur (runtime contract §16, eligibility §6.3); bu bir performans
+  optimizasyonu değil, açık bir eligibility semantik kararıdır.
 - Repository Proof collection path'i **değişmez** (§3.1) — `/` üzerinden
-  çalışan micro-view analizi bu iki yüzeyi bugünkü gibi toplamaya devam eder.
+  çalışan micro-view analizi bu üç yüzeyi bugünkü gibi toplamaya devam eder ve
+  hiçbir zaman `DecisionBounded` üretmez.
 - Görünmez bir "ilk N repository" kısıtlaması yasaktır (§7); mevcut
   `GitHubProfileRepositoryCollector` sayfa bound'u ve completeness semantics'i
   değişmeden authoritative kalır.
@@ -972,3 +986,8 @@ Bu bölüm hiçbir P10 slice'ının sorumluluğunu, presentation dilini, evidenc
 kuralını veya inference yasağını değiştirmez; yalnız runtime collection
 prerequisite'ini işaret eder. Somut implementation ayrı bir authorized
 session'a aittir.
+
+**Session 098 amendment notu.** Yukarıdaki liste Session 098'in kilitlediği
+kararlarla güncellendi: omission listesi artık üç yüzeydir, `DecisionBounded`
+sayfalama durdurma ve fork admission kuralı eklendi. P10 slice sorumlulukları,
+route'ları, presentation dili ve inference yasakları değişmedi.

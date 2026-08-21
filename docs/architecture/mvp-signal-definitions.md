@@ -58,6 +58,59 @@ RequiresHumanReview
 - `IncludeInOverallScore: false` olan sinyaller kendi kategori skorunda kullanılabilir.
 - Hiçbir sinyal geliştirici seviyesi, işe alınabilirlik veya AI kullanımı hakkında hüküm üretmemelidir.
 
+### Gözlenen alt sınır kanıt dili (Session 098)
+
+Bu kural **yalnız `CollectionObservationState: DecisionBounded` koleksiyonlar**
+için geçerlidir (`docs/architecture/analysis-domain-model.md`). Böyle bir
+koleksiyondan türetilen her kanıt değeri **gözlenen alt sınırı** taşımalı ve
+bunu kesin bir toplam gibi sunmamalıdır.
+
+`Enumerated` ve `Incomplete` koleksiyonların kanıt değerleri **değişmez**.
+`Incomplete` bugünkü kanıt dilini aynen korur. Repository Proof yalnız bu iki
+durumu üretir, dolayısıyla Repository Proof'un hiçbir kanıt değeri bu kuraldan
+etkilenmez.
+
+~~~text
+DOĞRU:   observedCountAtLeast=10
+         activeDaysAtLeast=8
+         spanDaysAtLeast=14
+         firstObservedCommitAt=<gözlenen en eski>
+         observation=decision-bounded
+
+YANLIŞ:  total=10
+         firstCommitAt=<gözlenen en eski>
+~~~
+
+`firstCommitAt` gibi repository-mutlak bir kimlik, yalnız `Enumerated`
+koleksiyonda kullanılabilir; aksi hâlde `firstObservedCommitAt` kullanılır,
+çünkü gözlenen en eski commit deponun ilk commit'i değildir.
+
+Kanıt **key**'leri sabit kalır; değişen yalnız kanıt değerinin dilidir. Bir key
+değişikliği ancak canonical owner'ı bunu gerektirdiğini kanıtlarsa yapılabilir.
+
+`DecisionBounded` yalnız Profile V1 composition'ında oluşabildiği için bu kural
+pratikte Profile path'indeki `commits`, `issues`, `pull-requests`, `releases` ve
+`tags` yüzeylerine uygulanır.
+
+#### Version sahipliği
+
+Bu bölümün ve §7/§8'deki `DecisionBounded` istisnalarının getirdiği değişiklik
+**evaluator semantiğidir**: bir sinyalin hangi girdiden terminal skor
+üretebileceği değişmektedir. Eşikler, puanlar ve `MaximumScore` değerleri
+değişmez.
+
+Bu nedenle §1 "İlk sürüm kuralı" gereği:
+
+- `process.commit-history` ve `process.commit-distribution` sinyallerinin
+  `Version` değeri artırılmalıdır,
+- `RuleSetVersion` yeni bir değere geçmelidir, çünkü scoring/evaluator sahipliği
+  ona aittir.
+
+Kanıt değerlerinin ve snapshot normalizasyonunun değişmesi ayrıca
+`AnalyzerVersion` sahipliğindedir. Somut değerler implementation session'ında,
+mevcut versiyonlama convention'ı içinde belirlenir; paralel bir versiyon kimliği
+uydurulmaz.
+
 ### İlk sürüm kuralı
 
 Bu belge kodlama öncesindeki ilk uygulanabilir sözleşmeyi kilitler.
@@ -989,8 +1042,10 @@ Repository'nin tek bir nihai dosya yüklemesi dışında görünür geliştirme 
 
 ### Version 1 veri bütünlüğü
 
-- Sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonu tam (`IsComplete: true`) olmalıdır.
-- Eksik sayfalama (`IsComplete: false`) gözlenen commit sayısı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- Sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonunun `CollectionObservationState` değeri `Enumerated` olmalıdır (`IsComplete: true`).
+- **Session 098 istisnası — DecisionBounded.** `CollectionObservationState: DecisionBounded` olan bir koleksiyonda gözlenen commit sayısı `>= 10` ise terminal `Strong`, 7 puan korunur: sayım yalnız artabileceği için sonraki commitler bu maksimum sonucu değiştiremez. Bu, `validation.continuous-integration` sinyalinde zaten kilitli olan "incomplete corpus içinde maksimum sonucun terminal hâle gelmesi" kuralının aynısıdır.
+- `CollectionObservationState: Incomplete` (hata/kesinti kaynaklı eksik sayfalama) gözlenen commit sayısı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- `DecisionBounded` koleksiyonda `>= 10` eşiği karşılanmıyorsa terminal skor üretilemez; bu durumda tam sayım gerekir. 1/2/3/5/7 bantları kesin sayı gerektirir ve alt sınırla belirlenemez.
 - Commit sayısı normalize edilmiş snapshot koleksiyonundaki öğe sayısıdır. Provider katmanının aynı SHA için yaptığı tekrar giderme sonrasında evaluator ikinci bir tekrar giderme kuralı uygulamaz; giriş sırası sonucu değiştirmez.
 
 ### Öneri
@@ -1045,8 +1100,10 @@ Geliştirme faaliyetinin farklı günlere veya dönemlere yayılıp yayılmadı�
 - İlk-son commit aralığı, en erken ve en geç normalize edilmiş UTC commit zamanı arasındaki geçen süredir. Tam 14 günlük aralık Strong koşulunu karşılar.
 - Repository yaşını belirlemek için metadata erişilebilirliği `Available` ve metadata değeri mevcut olmalıdır; aksi durumda sonuç `UnavailableEvidence` olur.
 - `CreatedAt`, snapshot `CapturedAt` zamanından sonraysa repository yaşı tutarsızdır ve sonuç `UnavailableEvidence` olur.
-- Repository en az 14 günlükse sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonu tam (`IsComplete: true`) olmalıdır.
-- Eksik sayfalama (`IsComplete: false`) gözlenen aktif gün veya ilk-son aralığı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- Repository en az 14 günlükse sayısal sonuç veya `Missing` üretmek için `commits` erişilebilirliği `Available` ve commit koleksiyonunun `CollectionObservationState` değeri `Enumerated` olmalıdır (`IsComplete: true`).
+- **Session 098 istisnası — DecisionBounded.** `CollectionObservationState: DecisionBounded` olan bir koleksiyonda gözlenen aktif gün sayısı `>= 8` **ve** gözlenen ilk-son aralığı `>= 14 gün` ise terminal `Strong`, 8 puan korunur. Gözlenen küme büyüdükçe distinct aktif gün sayısı azalamaz ve `max − min` aralığı daralamaz; bu nedenle maksimum sonuç geri döndürülemezdir ve bu monotonluk gözlem sırasından bağımsızdır.
+- `CollectionObservationState: Incomplete` (hata/kesinti kaynaklı eksik sayfalama) gözlenen aktif gün veya ilk-son aralığı bir eşiği geçmiş olsa bile terminal skor üretmez; `UnavailableEvidence`, `Score: null` olur.
+- **Strong dışındaki hiçbir bant alt sınırla belirlenemez.** 1/2/3/4/5/6 aktif gün bantları kesin aktif gün sayısı gerektirir; görülmemiş her commit yeni bir distinct gün ekleyebilir ve bu gerçeği kesinleştiren hiçbir provider alanı yoktur. Bu durumda tam sayım zorunludur — uydurulmuş bir sınır veya örnekleme kullanılamaz.
 - Dağılım normalize edilmiş snapshot commit koleksiyonunu kullanır; giriş sırası sonucu değiştirmez ve evaluator provider normalizasyonuna ek bir tekrar giderme kuralı uygulamaz.
 
 ### Bağlam kuralları

@@ -10,6 +10,11 @@
 `docs/architecture/public-profile-evidence-report-contract.md`,
 `docs/architecture/public-profile-evidence-domain-model.md`,
 `docs/product/validation-repository-set.md`
+**Amended:** 2026-08-21 / Session 098 — §4.5 `mostly forks` note only, recording
+that fork admission changed to `Skip` / `ForkDetected`
+(`docs/architecture/public-profile-evidence-repository-eligibility.md` §6.3).
+No scenario, risk mapping, comparison surface, PASS/FAIL rule or prohibited-claim
+rule changed
 **Production Code:** NOT IN SCOPE
 
 ---
@@ -205,6 +210,16 @@ Forks may remain visible context (product contract §7 Fork).
 
 Must not: profile repetition count'u sessizce şişirmek, authorship/
 original-production claim'e dönüşmek.
+
+**Session 098 notu.** Fork admission `Skip` / `ForkDetected` oldu
+(`docs/architecture/public-profile-evidence-repository-eligibility.md` §6.3,
+§22.1.1). Bu senaryonun yukarıdaki iki "must not" kuralı **değişmedi** ve hâlâ
+geçerlidir; değişen, kuralların nasıl sağlandığıdır: fork'lar artık hiç evidence
+üretmediği için repetition şişmesi ve original-production claim'i kaynağında
+imkânsızdır. Fork'lar profile repository universe'ünde ve
+`RepositoryDrillDown`'da görünür kalır; eligibility sonuçları
+`NonContributing` / `ForkDetected` olur. Senaryo kimliği, risk eşlemesi (R2, R9)
+ve karşılaştırma yüzeyi değişmez.
 
 ### 4.6 `mostly archived`
 

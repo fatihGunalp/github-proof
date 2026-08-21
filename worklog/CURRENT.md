@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-21 (Session 097 — live smoke failure finalization)
+**Last Updated:** 2026-08-21 (Session 098)
 **Source of Truth:** docs/
 
 ## Development
@@ -236,8 +236,11 @@ CONTRACT LOCKED
 Profile runtime collection implementation (Session 097):
 PASS WITH FINDINGS — automated proofs PASS, controlled live smoke FAILED
 
+Profile decision-sufficient pagination contract (Session 098):
+CONTRACT LOCKED — implementation NOT STARTED
+
 Profile runtime readiness:
-BLOCKED — unbounded required-surface pagination
+BLOCKED — unblocking requires the Session 099 implementation
 
 Profile execution guard:
 NOT IMPLEMENTED — no numeric value selected
@@ -345,9 +348,81 @@ BLOCKED
 ## Active Session
 
 Session:
-097 — Profile Runtime Collection Implementation
+098 — Profile Decision-Sufficient Pagination Contract
 
 Active Branch:
+session/098-profile-decision-sufficient-pagination-contract
+
+Session Base:
+545210e (Session 097 — profile runtime collection implementation)
+
+Goal:
+Decide and lock the smallest truthful Profile V1 runtime contract that lets
+collection stop when the authorized semantic decision is already mathematically
+irreversible, without pretending a partially observed provider collection was
+fully enumerated. Decision session first, then canonical amendment.
+
+Session File:
+worklog/sessions/2026-08-21-098-profile-decision-sufficient-pagination-contract.md
+
+Status:
+**CONTRACT LOCKED (docs-only).** A Decision Packet was produced and approved
+with corrections before any document was edited.
+
+Locked: (1) **`CollectionObservationState`** — a closed three-value Domain
+concept (`Enumerated` / `DecisionBounded` / `Incomplete`) on
+`RepositoryCollection<T>`. `IsComplete` keeps its exact meaning and is never
+overloaded: `IsComplete = true` ⇔ `Enumerated`, no fake completeness.
+`DecisionBounded` means `IsComplete: false`, `TotalCount: null`,
+`DataAvailability` still `Available`, **no** `CollectionWarning`, therefore no
+`limitation.snapshot.collection-partial` and no `RepositoryAnalysis.Status`
+downgrade from the bound alone, and never negative developer evidence.
+Collectors know no thresholds; the evaluator decides sufficiency.
+(2) **commits** — stop when observed count >= 10 **and** distinct observed UTC
+days >= 8 **and** observed span >= 14 days (both commit signals then pinned at
+their maximum, monotone and ordering-independent); otherwise enumerate in full.
+`Link rel="last"` deliberately not adopted. (3) **issues** >= 2 qualifying,
+**pull requests** >= 2 merged, **releases** first published-with-notes,
+**tags** >= 1 tag or first page exhausted — each requiring the
+repository-analysis-level `DecisionBounded` change, because today an unfinished
+collection emits a `CollectionWarning` that the orchestrator merges into
+`Partial`. (4) **contributors omitted entirely** from the Profile V1
+composition, on a re-verified zero-production-consumer proof; Repository Proof
+unchanged. (5) **Fork Policy B** — a known fork is `Skip` / `ForkDetected`,
+contributing no `ProfileObservation`, `IndependentRepetition`, `CurrentFocus`
+or `HistoricalEvidence`, status `NonContributing`, while staying visible in the
+repository universe and drill-down. **This is an eligibility semantics change,
+not a performance optimization**: the runtime blocker is solved by (1)–(3)
+alone, and the fork rule was chosen because Profile V1 owns no attribution
+contract able to prove which fork changes belong to the owner. The false
+negative is explicitly accepted. (6) **lower-bound evidence language** for
+`DecisionBounded` only; evidence keys stay stable.
+
+Six canonical docs amended; `public-profile-evidence-domain-model.md`,
+`mvp-phases.md`, the product contract, the patterns doc and the representative
+doc were inspected and deliberately left unchanged because no contradiction
+exists. Version ownership recorded without inventing any identity: a new
+`EligibilityPolicyVersion` (major), a new `RuleSetVersion`, increased `Version`
+on both commit signals, and an `AnalyzerVersion` change. Two independent
+reviews. Round 1: **PASS WITH FINDINGS** (0 BLOCKER, 1 HIGH, 2 MEDIUM, 4 LOW) —
+six closed, the HIGH (an evidence-language rule that would otherwise have changed
+Repository Proof evidence values) only partially. Round 2: **BLOCKED**
+(1 BLOCKER, 2 HIGH, 1 MEDIUM, 1 LOW), all five closed — §14.2 "no Domain policy"
+vs the §17.7 fork rule made Session 099's criteria mutually impossible (§14 is
+now the historical Session 096 surface with a Session-099-scoped supersession
+note); §15.5 still carried the round-1 "non-`Enumerated`" defect and is now
+strictly `DecisionBounded`-only; §17.8 overstated fork semantic equivalence —
+fork-derived supporting observations, repositories, evidence references and
+traceability content **may intentionally disappear** under Fork Policy B, and
+only pattern existence, the `>= 2` independent rule and representative
+winner/selection semantics are held equal; §5.3's two-surface wording and a stale
+future-tense block in this file were corrected. No `src/`, no `tests/`, no test run.
+Commit/push NOT performed (user-owned).
+
+Previously Active Session:
+097 — Profile Runtime Collection Implementation
+
+Branch:
 session/097-profile-runtime-collection-implementation
 
 Session Base:
@@ -980,10 +1055,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/097-profile-runtime-collection-implementation
+session/098-profile-decision-sufficient-pagination-contract
 
 Session Base:
-715c55a (Session 096 — profile runtime collection contract)
+545210e (Session 097 — profile runtime collection implementation)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -1191,40 +1266,50 @@ P10-I3..I6:                           NOT STARTED
 Profile runtime collection contract:  CONTRACT LOCKED (Session 096)
 Profile runtime implementation:       PASS WITH FINDINGS (Session 097)
 Controlled live smoke:                FAILED
-Profile runtime readiness:            BLOCKED
+Decision-sufficient pagination:       CONTRACT LOCKED (Session 098)
+Profile runtime readiness:            BLOCKED — pending Session 099
 Profile execution guard:              NOT IMPLEMENTED
 ~~~
 
 Exact next action:
 
 ~~~text
-Session 098 — Profile Decision-Sufficient Pagination Contract
-(bounded CONTRACT AMENDMENT / DECISION session — NOT implementation)
+Session 099 — Profile Decision-Sufficient Collection Implementation
 ~~~
 
-Session 098 must decide how Profile Proof may stop required-surface pagination
-**only** when the existing V1 semantic decision has already become
-mathematically irreversible, without pretending the underlying collection is
-complete.
+Acceptance criteria are locked in
+`docs/architecture/public-profile-runtime-collection.md` §17. Expected code
+areas and the test obligations are listed in the Session 098 file §12.
 
-Locked constraints for that session:
+After implementation the controlled live smoke must be re-run **by the user**
+and measured before any §10 execution-guard numeric value is proposed. Whether
+these decisions actually let a real profile run finish is an unmeasured
+hypothesis until then.
+
+Session 098 **decided** how Profile Proof may stop required-surface pagination:
+only when the existing V1 semantic decision has already become mathematically
+irreversible, and without pretending the underlying collection is complete. The
+outcome is locked in `docs/architecture/public-profile-runtime-collection.md`
+§15-§17 and summarized in the Active Session entry above.
+
+The constraints Session 097 handed forward were honoured as follows:
 
 ~~~text
-- no fake IsComplete = true
-- no arbitrary hard page cap
-- no sampling and no approximation
-- no concurrency-as-cost-fix
-- Repository Proof unchanged
-- fork semantics are a separate product decision and are NOT changed by 097
-- contributors omission requires an explicit amendment of Session 096 §5.4
-- commits need a contract change before any implementation
+no fake IsComplete = true          HONOURED — IsComplete = true ⇔ Enumerated
+no arbitrary hard page cap         HONOURED — every stop rule is decision-bounded
+no sampling / no approximation     HONOURED
+no concurrency-as-cost-fix         HONOURED
+Repository Proof unchanged         HONOURED — it never produces DecisionBounded
+fork semantics                     DECIDED — Fork Policy B adopted as an explicit
+                                   eligibility semantics change (not a runtime fix)
+contributors omission              AMENDED — Session 096 §4/§5/§5.4 updated
+commits contract change            DONE — mvp-signal-definitions.md amended
 ~~~
 
-Still true and unchanged by the live failure: the §10 execution guard has no
-numeric value, and P10-I3 (Meaning / Direction / Starting Point) remains the next
-P10 slice. Neither can proceed usefully before Session 098, because no §9
-measurement exists yet — the live run aborted before any telemetry line was
-produced.
+Still true and unchanged: the §10 execution guard has no numeric value, and
+P10-I3 (Meaning / Direction / Starting Point) remains the next P10 slice. Neither
+can proceed usefully before Session 099, because no §9 measurement exists yet —
+the Session 097 live run aborted before any telemetry line was produced.
 
 Carried into later P10 slices (recorded in the Session 095 file, not
 blocking P10-I3):

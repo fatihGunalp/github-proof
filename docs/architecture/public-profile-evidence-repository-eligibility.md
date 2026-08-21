@@ -19,6 +19,19 @@ updated the §31.5 prerequisite note accordingly. No other lifecycle,
 independence, provenance, contribution or derivation rule changed; §19.3
 policy-version ownership is unchanged and still requires a new
 `EligibilityPolicyVersion` to alter the value
+**Amended:** 2026-08-21 / Session 098 — **Profile V1 eligibility semantics
+change.** Fork lineage now requires `AnalysisAdmissionDecision = Skip` with
+reason `ForkDetected` (§6.3, new §19.3.2, new §22.1.1, §25 Fork and the §28
+"Fork + Active + EvidenceAvailable" example). A known fork
+therefore contributes no `ProfileObservation`, no `IndependentRepetition`, no
+`CurrentFocus` and no `HistoricalEvidence`, and its overall status is
+`NonContributing`. This is a product/eligibility decision, **not** a
+performance optimization: Profile V1 has no attribution contract able to prove
+which fork changes belong to the profile owner, so a fork must not be used as
+developer evidence. It requires a new `EligibilityPolicyVersion` under the
+unchanged §19.3 ownership rule. `TemplateDerived`, archive, activity,
+independence, reason identities, status derivation and every other rule are
+unchanged
 **Production Code:** NOT IN SCOPE
 
 ## 1. Purpose
@@ -251,10 +264,36 @@ EmptyRepository
 
 RepositoryAnalysis is not required to establish this condition.
 
-### 6.3 Non-Empty Repository Admission
+### 6.3 Fork Admission (Session 098)
 
-Original, fork, template-derived, archived, active or historical state does not
-by itself require Skip.
+When normalized manifest provenance deterministically identifies a fork:
+
+AnalysisAdmissionDecision
+=
+Skip
+
+Reason:
+ForkDetected
+
+`RepositoryAnalysis` is not required to establish this condition, exactly as
+§6.2 already holds for an empty repository. The fork condition is known from
+the profile repository manifest before any repository collection begins.
+
+The rule exists because Profile V1 owns **no attribution contract**. It cannot
+prove which changes inside a fork were authored by the profile owner, so it
+must not consume fork content as developer evidence. This deliberately accepts
+a possible false negative — the owner may have meaningful work inside a fork —
+in preference to a claim the contract cannot support.
+
+Reactivating fork evidence requires a new, explicit attribution surface capable
+of proving owner-authored contribution. No such surface may be inferred today.
+
+This rule belongs to the `EligibilityPolicyVersion` that carries it (§19.3).
+
+### 6.3.1 Other Non-Empty Repository Admission
+
+Original, template-derived, archived, active or historical state does not by
+itself require Skip.
 
 When required orchestration input is available:
 
@@ -755,6 +794,23 @@ policy definition containing an exact positive CurrentActivityWindow.
 
 Changing CurrentActivityWindow requires a new EligibilityPolicyVersion.
 
+### 19.3.2 Fork Admission Ownership (Session 098)
+
+The §6.3 fork admission rule belongs to the same immutable policy definition.
+
+The Session 098 change — fork lineage requiring `Skip` with reason
+`ForkDetected` — withdraws contributions a previous version allowed, so it is a
+breaking eligibility semantic change and **requires a new
+`EligibilityPolicyVersion`**. It may not be applied under the version that
+carried the previous rule.
+
+The concrete version identity is fixed by the implementation session under the
+existing semantic-versioning convention already used by
+`EligibilityPolicyVersion`, `ObservationRuleVersion`, `PatternRuleVersion` and
+`RepresentativeRepositoryRuleVersion`; a withdrawal of previously allowed
+contribution is a **major** increase. No parallel version identity may be
+invented for it.
+
 An implementation must not:
 
 - choose a hidden default window,
@@ -1012,6 +1068,44 @@ EmptyRepository
 
 Empty repository visibility remains profile context only.
 
+### 22.1.1 Known Fork (Session 098)
+
+When:
+
+AnalysisAdmissionDecision
+=
+Skip
+
+and reason:
+ForkDetected
+
+the canonical decisions are:
+
+| Purpose | Decision |
+|---|---|
+| ProfileContext | Allowed |
+| ProfileObservation | NotAllowed |
+| IndependentRepetition | NotAllowed |
+| CurrentFocus | NotAllowed |
+| HistoricalEvidence | NotAllowed |
+
+Overall status:
+
+NonContributing
+
+Reason:
+ForkDetected
+
+The fork remains visible in the profile repository universe and its observable
+fork condition remains visible; only its evidence-bearing contribution is
+withheld.
+
+This is not negative developer evidence, not a quality judgment and not a claim
+that the repository contains no work.
+
+Because deep collection of a fork is not a V1 evidence obligation, a failure to
+collect one can no longer make the profile `Partial`.
+
 ### 22.2 Completed RepositoryAnalysis
 
 When:
@@ -1129,6 +1223,11 @@ IndependentRepetition
 =
 NotAllowed
 
+(Session 098: under the current policy version a known fork never reaches a
+RepositoryAnalysis at all — admission is `Skip` per §6.3, so §22.1.1 applies
+instead. This example remains valid only for a policy version that admitted
+forks.)
+
 Known Archived
 +
 RepositoryAnalysis Failed
@@ -1193,6 +1292,10 @@ Admission Undetermined
 IndependentRepetition
 =
 NotAllowed
+
+(Session 098: a deterministically known fork resolves to `Skip` per §6.3 before
+this baseline is reached, so under the current policy version this example is
+unreachable. It remains valid only for a policy version that admitted forks.)
 
 Known Archived
 +
@@ -1353,16 +1456,23 @@ It does not by itself prove authorship.
 
 ### Fork
 
-Fork condition:
+Fork condition (amended by Session 098):
 
 - does not remove ProfileContext,
-- does not automatically remove ProfileObservation,
-- does not automatically remove HistoricalEvidence,
+- **removes ProfileObservation**,
+- **removes CurrentFocus**,
+- **removes HistoricalEvidence**,
 - prevents IndependentRepetition.
 
-Fork-derived evidence must retain fork provenance in traceability.
+The mechanism is admission: a known fork is `Skip` with reason `ForkDetected`
+(§6.3, §22.1.1), so no fork-derived evidence is produced at all.
 
-A fork must not be narrated as original production.
+A fork must not be narrated as original production, and its withheld
+contribution must not be narrated as absence of work.
+
+Where fork-derived evidence exists in an earlier `EligibilityPolicyVersion`, it
+must retain fork provenance in traceability. Under the current version no such
+evidence is produced.
 
 ### TemplateDerived
 
@@ -1458,22 +1568,27 @@ Contributing
 
 ### Fork + Active + EvidenceAvailable
 
+Amended by Session 098. A known fork never reaches this evidence state, because
+admission is `Skip` before any repository collection:
+
 ProfileObservation:
-Allowed
+NotAllowed (ForkDetected)
 
 IndependentRepetition:
-NotAllowed
+NotAllowed (ForkDetected)
 
 CurrentFocus:
-Allowed
+NotAllowed (ForkDetected)
 
 HistoricalEvidence:
-Allowed
+NotAllowed (ForkDetected)
 
 Overall:
-Restricted
+NonContributing
 
-The result does not imply authorship.
+Active lifecycle state does not override the provenance restriction (§20
+principle 7). The result does not imply authorship, and it is not a statement
+that the fork contains no work.
 
 ### Original + Archived + Historical + EvidenceAvailable + Independent
 

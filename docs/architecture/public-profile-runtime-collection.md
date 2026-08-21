@@ -6,6 +6,12 @@
 telemetry and execution guard semantics
 **Session:** 096
 **Date:** 2026-08-20
+**Amended:** 2026-08-21 / Session 098 — after the Session 097 controlled live
+smoke failed on unbounded required-surface pagination: added §15
+(decision-sufficient collection) and §16 (fork policy), moved `Contributors`
+from the §4 required surface list into the §5 omission list with its
+zero-consumer proof, and added §17 acceptance criteria. §14 remains Session
+096's criteria, unchanged
 **Production Code:** NOT IN SCOPE (contract only)
 
 ## 1. Purpose
@@ -23,11 +29,17 @@ It owns:
 - the request-amplification vs latency distinction,
 - the minimal profile runtime telemetry surface,
 - the end-to-end execution guard semantics,
-- the future re-activation rule for the omitted enrichment surfaces.
+- the future re-activation rule for the omitted enrichment surfaces,
+- the Profile V1 decision-sufficient collection stop rules (§15),
+- the Profile V1 consequences of the fork admission rule (§16).
 
 It owns no signal, no scoring rule, no eligibility rule, no pattern promotion
 rule, no representative-selection rule and no report presentation rule. Every
-one of those stays with its existing canonical owner.
+one of those stays with its existing canonical owner. In particular §15 consumes
+`CollectionObservationState` from `analysis-domain-model.md` and the terminal
+score permissions from `mvp-signal-definitions.md`, and §16 consumes the fork
+admission rule from `public-profile-evidence-repository-eligibility.md`; it
+defines none of them.
 
 Input contracts:
 
@@ -135,9 +147,11 @@ otherwise change:
 - repository availability, limitation or warning semantics,
 - source or dependency enrichment for Repository Proof.
 
-A Repository Proof run keeps collecting `SourceFiles` and
-`DependencyDeclarations` exactly as it does today, on exactly the bounds their
-own contracts define.
+A Repository Proof run keeps collecting `SourceFiles`,
+`DependencyDeclarations` and `Contributors` exactly as it does today, on exactly
+the bounds their own contracts define, and it never produces a
+`DecisionBounded` collection (§15): every Repository Proof collection is
+`Enumerated` or `Incomplete`.
 
 ### 3.2 Profile Proof may use its own composition
 
@@ -171,8 +185,10 @@ be collected for every admitted profile repository:
 - pull requests,
 - releases,
 - tags,
-- contributors,
 - topics.
+
+`Contributors` was a required surface in the Session 096 text. Session 098
+moved it to §5 after re-verifying it has no production consumer (§5.1.1).
 
 Each of those feeds at least one of: the canonical 15 signals
 (`mvp-signal-definitions.md`), the eligibility/contribution assessment
@@ -190,9 +206,10 @@ Proof aggregation path:
 
 - bounded raw `SourceFiles` (`repository-source-evidence-collection.md`),
 - `DependencyDeclarations` / dependency-manifest enrichment
-  (`repository-dependency-evidence.md`).
+  (`repository-dependency-evidence.md`),
+- `Contributors` (added by Session 098; see §5.1.1).
 
-The omission list is exactly those two surfaces. It is closed.
+The omission list is exactly those three surfaces. It is closed.
 
 ### 5.1 Basis for the omission
 
@@ -212,6 +229,49 @@ introduce `limitation.snapshot.collection-partial`.
 The baseline arm of those tests is the absent case. That is precisely the state
 an omitting Profile composition produces, which is why the omission is provable
 rather than merely plausible.
+
+### 5.1.1 Basis for the Contributors omission (Session 098)
+
+Re-verified against the current tree, not inherited from an earlier session.
+
+The surface has a collector, a collection type, an interface declaration and a
+snapshot property, exactly like every other surface. What matters is that
+**nothing reads it**. Outside its own collection and transport types, every
+`Contributor` occurrence in `src/` is one of:
+
+~~~text
+RepositorySnapshot                      ctor parameter, normalization, property
+                                        (carrier only, never read by a consumer)
+GitHubRepositorySnapshotOrchestrator    the single line writing it into the
+                                        snapshot
+ProfileGitHubRequestCategory            a telemetry category name (not a reader)
+~~~
+
+The excluded types are `GitHubRepositoryContributorCollector`,
+`GitHubRepositoryContributorCollection` and the `IGitHubRepositoryCollectors`
+interface declaration — the surface's own production path, which Repository Proof
+keeps using unchanged.
+
+Supporting facts, each checked directly:
+
+- **no** signal evaluator declares `contributors` in its `requiredDataKeys`
+  (all fourteen independent evaluators plus the presentation-completeness
+  evaluator were enumerated);
+- **no** `FindAvailability("contributors")` call exists anywhere;
+- **nothing** enumerates `RepositorySnapshot.Availability` wholesale, so the
+  entry cannot be consumed indirectly;
+- `CrossRepositoryEvidenceComposer` reads signal results, the `languages`
+  availability entry, the contribution assessment and
+  `IsRepositoryManifestComplete` only.
+
+Therefore omitting it is provably neutral for the canonical 15 signals,
+`RepositoryAnalysis` (status, score, limitations, warnings), eligibility,
+`CrossRepositoryEvidenceComposer`, pattern promotion, representative selection
+and `ProfileReport`.
+
+Required consequences on the Profile path: no contributor GitHub request, no
+`contributors` availability entry, and no warning, limitation or status effect.
+Repository Proof continues to collect contributors exactly as before (§3.1).
 
 ### 5.2 What the omission may never become
 
@@ -237,19 +297,31 @@ pattern and representative-repository contracts already impose, and states that
 an Unsupported or Deferred capability is not an obligation and its absence is
 never a completeness deficit.
 
-Neither omitted surface is an obligation under any of those three contracts, and
-their only documented downstream consumer is the Unsupported ProblemArea chain.
-The omission is therefore not a completeness deficit and must never be accounted
-as one.
+**None of the three omitted surfaces** is an obligation under any of those three
+contracts:
+
+- `SourceFiles` and `DependencyDeclarations` have exactly one documented
+  downstream chain, and it ends in the Unsupported ProblemArea capability
+  (`repository-source-evidence-collection.md` §26);
+- `Contributors` has **no production consumer at all** (§5.1.1).
+
+The omission of any of the three is therefore not a completeness deficit and must
+never be accounted as one.
 
 ### 5.4 Non-extension rule
 
 Do not extend the omission list without explicit proof. In particular the
 following are **not** covered and are **not** safe to omit: commits, issues,
 pull requests, releases, tags, README, languages, file tree, project files,
-workflows, repository metadata, topics, license, documentation Markdown,
-contributors. Each feeds existing signal or profile semantics unless separately
-proven otherwise, by the same standard of proof used in §5.1.
+workflows, repository metadata, topics, license, documentation Markdown. Each
+feeds existing signal or profile semantics unless separately proven otherwise,
+by the same standard of proof used in §5.1 and §5.1.1.
+
+`Contributors` was removed from this list by Session 098 because that proof was
+produced. Removing any other name requires the same evidence.
+
+Note the distinction this section does **not** cover: §15 bounds *how much* of a
+required surface is enumerated. It never omits a required surface.
 
 ## 6. Semantic-Equivalence Invariant
 
@@ -280,6 +352,15 @@ and at profile level:
 
 If a composition change cannot meet this invariant, it is out of scope for this
 contract and requires a product/domain decision instead.
+
+**Session 098 scope note.** This invariant governs *collection composition*
+changes. §16 is not one: it is an eligibility semantics change made through the
+product/domain route this paragraph requires, so it deliberately changes the
+admission decision for a known fork and therefore the observation set that
+follows from it. §15 remains fully inside the invariant — a `DecisionBounded`
+collection must still produce the identical repository-level and profile-level
+result, with the single documented exception of the §15.5 evidence-value
+language.
 
 ## 7. Repository Completeness — No Hidden Cap
 
@@ -506,6 +587,10 @@ the current Profile V1 request surface.
 
 ## 13. Non-Goals
 
+**Session 098 scope note.** The list below is Session 096's. Two of its items
+were deliberately narrowed by Session 098 and are restated after the list; every
+other item still holds exactly as written.
+
 This contract does not:
 
 - change any Repository Proof behavior,
@@ -519,7 +604,36 @@ This contract does not:
 - fix production numeric values for the execution guard,
 - implement anything: no production code is in scope for this session.
 
-## 14. Implementation Acceptance Criteria
+Narrowed by Session 098:
+
+- **signals and their evidence** — the 15 signal thresholds, scores and evidence
+  *keys* are still unchanged, but §15 changes when the two commit signals may
+  produce a terminal score, and §15.5 changes evidence *values* for a
+  `DecisionBounded` collection. Canonical owner: `mvp-signal-definitions.md`.
+- **contribution rules** — eligibility thresholds and the current activity window
+  are still unchanged, but §16 changes fork admission. Canonical owner:
+  `public-profile-evidence-repository-eligibility.md` §6.3.
+
+Repository Proof behavior remains unchanged without exception.
+
+## 14. Implementation Acceptance Criteria (Session 096)
+
+**Session 098 supersession note.** This section is the historical Session 096
+acceptance surface, and Session 097 implemented it. It is preserved unchanged as
+that baseline.
+
+Where a §17 requirement deliberately changes an invariant stated here, **§17
+supersedes the conflicting §14 requirement for Session 099 only**. The one
+current instance is §14.2's "or any Domain policy" restriction: it does **not**
+prohibit the explicitly authorized Fork Policy B eligibility amendment (§16,
+`public-profile-evidence-repository-eligibility.md` §6.3), which necessarily
+changes `AnalysisAdmissionPolicy` and the `EligibilityPolicy` version identity.
+
+Everything else in §14.2 still binds:
+`ProfileRepositoryAnalysisOrchestrator`, `CrossRepositoryEvidenceComposer`,
+`ProfileComposer` and `ProfileReportProjector` remain unchanged unless another
+§17 rule explicitly requires otherwise, and no §14 or §17 rule weakens
+Repository Proof preservation.
 
 An implementation of this contract is acceptable only if all of the following
 hold:
@@ -555,3 +669,208 @@ hold:
     types, the implementation stops and reports a typed-boundary gap instead
     (§10 principle 3, §11.2).
 12. Full solution build and test run green with 0 warnings.
+
+## 15. Decision-Sufficient Collection (Session 098)
+
+The Session 097 controlled live smoke failed: a real profile run exceeded three
+minutes without producing a result, dominated by unbounded commit pagination on
+one repository. The cause was not the removed enrichment surfaces. It was that
+the collection model could not express **"enough has been observed"** — only
+**"everything was enumerated"** or **"collection broke"**.
+
+### 15.1 The distinction
+
+    Enumeration completeness
+      every item in the provider collection was enumerated
+
+    Decision sufficiency
+      every currently authorized consumer of this Profile V1 surface can
+      already make its semantic decision irreversibly from what was observed
+
+`IsComplete` keeps its exact existing meaning and is never overloaded. The
+distinction is carried by `CollectionObservationState`, whose canonical owner is
+`docs/architecture/analysis-domain-model.md`:
+
+    Enumerated        IsComplete = true
+    DecisionBounded   IsComplete = false, deliberate, no warning
+    Incomplete        IsComplete = false, failure/interruption, today's semantics
+
+`DecisionBounded` requires: `TotalCount = null`, `DataAvailability` unchanged at
+`Available`, **no** `CollectionWarning`, and therefore no
+`limitation.snapshot.collection-partial` and no `RepositoryAnalysis.Status`
+downgrade from the bound alone. It is never negative developer evidence.
+
+### 15.2 Why every early-stopping surface needs this
+
+`IssueUsage`, `PullRequestUsage` and `ReleaseUsage` already produce their
+terminal maximum result before consulting `IsComplete`
+(`mvp-signal-definitions.md`). That is a **signal-level** permission only.
+
+At the **repository-analysis level** the picture is different: today every
+collector represents an unfinished collection by emitting a `CollectionWarning`,
+and `GitHubRepositorySnapshotOrchestrator` merges those warnings into
+`RepositorySnapshot.CollectionWarnings`, which produces
+`limitation.snapshot.collection-partial` and turns `RepositoryAnalysis.Status`
+into `Partial`.
+
+Therefore stopping issues, pull requests, releases or tags early **without**
+`DecisionBounded` would still change `RepositoryAnalysis.Status`. This contract
+does not claim those surfaces need no repository-analysis-level change. They do.
+
+### 15.3 Per-surface Profile V1 stop rules
+
+Each rule is monotone-maximal: the observed quantity can only grow, and the
+result is already the signal's maximum, so no further page can change it. The
+monotonicity is independent of provider ordering.
+
+| Surface | Stop when | Resulting state |
+|---|---|---|
+| commits | observed count >= 10 **and** distinct observed UTC commit days >= 8 **and** observed span >= 14 days | `DecisionBounded` |
+| issues | >= 2 qualifying issues observed | `DecisionBounded` if further pages exist |
+| pull requests | >= 2 merged pull requests observed | `DecisionBounded` if further pages exist |
+| releases | first published release with notes observed | `DecisionBounded` if further pages exist |
+| tags | >= 1 tag observed, **or** the first page is exhausted with no tag | `DecisionBounded` if >= 1 tag and further pages exist; `Enumerated` if no next page exists |
+
+The tags rule is a decision-sufficiency rule, not a one-page cap. `tagCount >= 1`
+already pins the tag contribution, and a first page containing no tag has no
+`rel="next"`, so the collection is genuinely `Enumerated`. The two conditions
+together cover every case; neither permits stopping while a tag decision is still
+open.
+
+A stop condition that is never reached means the surface is enumerated exactly
+as it is today. No arbitrary page cap, no sampling, no approximation and no
+probabilistic inference is authorized by this section.
+
+### 15.4 Commits — what cannot be proven
+
+For commits the fallback is not a convenience, it is a proof obligation.
+
+`CommitHistory` bands below 10 (1, 2, 3, 5, 7) require an exact count.
+`CommitDistribution` bands below Strong (1, 2, 3, 4, 5, 6 active days) require an
+exact distinct-day count, and **any unseen commit can add a new distinct day**.
+
+There is no provider field that establishes the exact distinct commit-day count
+over a repository's whole history. The GitHub statistics endpoints cover only the
+last 52 weeks and answer asynchronously, so they cannot establish it either.
+
+Consequence, stated plainly: **a repository with thousands of commits spread over
+fewer than eight distinct UTC days cannot have its exact `CommitDistribution`
+classification proven without enumerating its full history.** Such repositories
+are enumerated in full. No bound is manufactured for them, and the §10 execution
+guard remains the only outer operational limit.
+
+`Link rel="last"` count optimization is deliberately **not** adopted in Profile
+V1: it does not establish the distinct-day fact and would broaden the first
+implementation without closing the actual gap.
+
+### 15.5 Evidence language
+
+The lower-bound vocabulary applies **strictly and only** to
+`CollectionObservationState.DecisionBounded`.
+
+Evidence derived from a `DecisionBounded` collection must report observed lower
+bounds and never exact repository totals — `observedCountAtLeast`,
+`activeDaysAtLeast`, `spanDaysAtLeast`, `firstObservedCommitAt`. Evidence keys
+stay stable.
+
+Explicitly preserved, with no change of any kind:
+
+- `Enumerated` evidence semantics;
+- `Incomplete` evidence semantics — `Incomplete` is also non-`Enumerated`, and it
+  is **not** covered by this rule;
+- Repository Proof evidence semantics, which produce only `Enumerated` or
+  `Incomplete` collections and therefore never enter this rule at all.
+
+The canonical owner of this rule is `mvp-signal-definitions.md`, whose wording
+carries the same strict scope.
+
+## 16. Fork Policy (Session 098)
+
+**This is a Profile V1 product and eligibility semantics change. It is not a
+performance optimization and must never be described as one.**
+
+For a repository whose profile manifest deterministically reports
+`Fork = Present`:
+
+    AnalysisAdmissionDecision = Skip
+    Reason                    = ForkDetected
+
+Canonical owner of the rule and its evidence-surface baseline:
+`public-profile-evidence-repository-eligibility.md` §6.3, §19.3.2, §22.1.1, §25.
+
+Profile V1 consequences:
+
+- the repository remains visible in the profile repository universe and its
+  observable fork condition remains visible;
+- `RepositoryAnalysis` is not run for it, so this contract's §4 required-surface
+  obligation does not apply to it at all;
+- it contributes no `ProfileObservation`, no `IndependentRepetition`, no
+  `CurrentFocus` and no `HistoricalEvidence`;
+- it cannot promote a `TechnicalFocus` or `EngineeringPractice` pattern, and it
+  can never become a `RepresentativeRepository` — both were already true, because
+  promotion and selection draw only from independent supporters;
+- a failure to deeply collect a fork can no longer make the whole profile
+  `Partial`, because that deep collection is not a V1 evidence obligation.
+
+### 16.1 The accepted false negative
+
+This deliberately accepts that the profile owner may have meaningful work inside
+a fork and that Profile V1 will not see it.
+
+The reason is epistemic, not operational: Profile V1 owns **no attribution
+contract** capable of proving which changes inside a fork belong to the profile
+owner. Using the fork as developer evidence would assert something the contract
+cannot support.
+
+### 16.2 Reactivation
+
+Fork evidence may be reactivated only by a new, explicit attribution surface —
+for example a contract able to prove owner-authored delta or contribution. No
+such capability may be inferred today, and no partial fork collection may be
+introduced as a substitute.
+
+`TemplateDerived` semantics are **not** changed by Session 098.
+
+## 17. Session 098 Acceptance Criteria
+
+These are additional to §14, which remains Session 096's criteria unchanged and
+which §17 supersedes only where §14's supersession note says so. Session 099 must
+be able to satisfy §14 and §17 together; no criterion here may be read as
+requiring something another criterion forbids.
+
+1. The Profile path issues zero contributor requests and contributes no
+   `contributors` availability entry; Repository Proof still collects them.
+2. A `DecisionBounded` collection produces no `CollectionWarning`, no
+   `limitation.snapshot.collection-partial` and no `RepositoryAnalysis.Status`
+   downgrade attributable to the bound.
+3. `IsComplete` is `true` only for `Enumerated`; no code path fabricates it.
+4. `TotalCount` is `null` for every `DecisionBounded` collection.
+5. Each §15.3 stop rule is proven monotone-maximal by test, and a repository that
+   never reaches its stop condition is still enumerated in full.
+6. Evidence values from a `DecisionBounded` collection use lower-bound language
+   and carry no exact-total or repository-first-commit claim.
+7. A known fork is skipped before any repository collection request, and its
+   eligibility result is `NonContributing` with reason `ForkDetected`.
+8. For a profile whose forks were already non-independent, and given the same
+   independent supporting repositories:
+   - no `RepeatedProfilePattern` is created or removed **solely** because a fork
+     is now skipped — pattern existence and pattern identity are preserved;
+   - `IndependentSupportingRepositories` stays governed by the unchanged
+     `MinimumIndependentSupportingRepositories` (>= 2) rule;
+   - `RepresentativeRepository` winner and selection semantics are unchanged.
+
+   This is deliberately **not** a claim of exact `ProfilePatternSet` or
+   `ProfileReport` equality across the old and new fork policy.
+   Fork-derived `SupportingObservations`, `SupportingRepositories`,
+   `ProfileEvidenceReference` entries and traceability content **may
+   intentionally disappear**, because `CrossRepositoryEvidenceComposer` admits
+   evidence from any repository whose `ProfileObservation` is `Allowed` and
+   tracks independent support separately. That disappearance is the expected
+   eligibility semantic change of §16, never a regression, and no test may assert
+   traceability equality across the two policies.
+9. Repository Proof composition, the 15 signal thresholds and scores,
+   `DataAvailabilityStatus`, `AnalysisStatus`, the promotion threshold and the
+   representative-selection rule are all unchanged.
+10. No repository-count cap, sampling, approximation, concurrency fan-out or
+    arbitrary page cap is introduced, and no execution-guard numeric value is
+    selected.
