@@ -1,5 +1,8 @@
-/* P10-I2 result boundary only. Report-section presentation (P10-I3..I5)
-   brings its own styles; this file stays minimal on purpose. */
+/* P10-I2 identity boundary + P10-I3 Meaning/Direction/Starting Point result.
+   One readable narrative, not a card/icon grid: quiet typographic hierarchy,
+   the Meaning sentence carries the strongest visual priority and each
+   following section reads progressively quieter. P10-I4/P10-I5 sections
+   bring their own styles later. */
 .profile-result {
     width: min(100%, 52rem);
     margin-inline: auto;
@@ -22,13 +25,6 @@
     line-height: var(--line-height-body-large);
 }
 
-.profile-result__status {
-    margin: var(--space-6) 0 0;
-    color: var(--fg-tertiary);
-    font-size: var(--font-size-small);
-    line-height: var(--line-height-small);
-}
-
 .profile-result__back {
     display: inline-flex;
     align-items: center;
@@ -36,4 +32,58 @@
     margin-top: var(--space-8);
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-label);
+}
+
+.profile-result__section {
+    margin-top: var(--space-10);
+    text-align: left;
+}
+
+.profile-result__section-title {
+    margin: 0 0 var(--space-3);
+    color: var(--fg-primary);
+    font-size: var(--font-size-title);
+    font-weight: var(--font-weight-title);
+    line-height: var(--line-height-title);
+}
+
+.profile-result__meaning {
+    margin-top: var(--space-12);
+}
+
+.profile-result__meaning-title {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-h3);
+    line-height: var(--line-height-h3);
+}
+
+.profile-result__meaning-text {
+    margin: 0;
+    color: var(--fg-primary);
+    font-size: var(--font-size-body-large);
+    line-height: var(--line-height-body-large);
+}
+
+.profile-result__section-empty {
+    margin: 0;
+    color: var(--fg-tertiary);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+}
+
+.profile-result__pattern-list,
+.profile-result__repository-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.profile-result__pattern-item,
+.profile-result__repository-item {
+    color: var(--fg-secondary);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
 }

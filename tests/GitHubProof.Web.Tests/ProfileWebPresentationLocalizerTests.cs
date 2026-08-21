@@ -76,6 +76,187 @@ public sealed class ProfileWebPresentationLocalizerTests
             localizer.GetSectionLabel(section, WebCulture.English));
     }
 
+    // --- P10-I3 Meaning layer (presentation-language-contract.md §8.4) ---
+
+    private static ProfileSummaryFact SupportedFact(
+        ProfileReportSectionKey section,
+        int itemCount) =>
+        new(section, ProfileReportSectionAvailability.Supported, itemCount);
+
+    private static IReadOnlyList<ProfileSummaryFact> MeaningFacts(
+        int technicalFocusItemCount,
+        int engineeringPracticeItemCount) =>
+        [
+            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, technicalFocusItemCount),
+            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, engineeringPracticeItemCount)
+        ];
+
+    [Fact]
+    public void Meaning_M1_technical_direction_and_engineering_practice_present()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
+            technicalFocusItemCount: 1,
+            engineeringPracticeItemCount: 1);
+
+        Assert.Equal(
+            "The visible public evidence shows recurring technical direction and recurring engineering practices.",
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+        Assert.Equal(
+            "Görünen herkese açık kanıtlar, tekrar eden teknik yön ve tekrar eden üretim pratikleri gösteriyor.",
+            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Meaning_M2_technical_direction_present_engineering_practice_empty()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
+            technicalFocusItemCount: 1,
+            engineeringPracticeItemCount: 0);
+
+        Assert.Equal(
+            "The visible public evidence shows recurring technical direction.",
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+        Assert.Equal(
+            "Görünen herkese açık kanıtlar, tekrar eden teknik yön gösteriyor.",
+            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Meaning_M3_technical_direction_empty_engineering_practice_present()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
+            technicalFocusItemCount: 0,
+            engineeringPracticeItemCount: 1);
+
+        Assert.Equal(
+            "The visible public evidence shows recurring engineering practices.",
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+        Assert.Equal(
+            "Görünen herkese açık kanıtlar, tekrar eden üretim pratikleri gösteriyor.",
+            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Meaning_M4_technical_direction_and_engineering_practice_empty()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
+            technicalFocusItemCount: 0,
+            engineeringPracticeItemCount: 0);
+
+        Assert.Equal(
+            "The current analysis did not establish a recurring technical direction or engineering-practice pattern from the visible public evidence.",
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+        Assert.Equal(
+            "Mevcut analiz, görünen herkese açık kanıtlardan tekrar eden bir teknik yön veya üretim pratiği ortaya koymadı.",
+            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Meaning_ignores_every_fact_other_than_the_two_locked_dimensions()
+    {
+        // RepresentativeRepositories, WhyThisConclusion, Limitations,
+        // RepositoryDrillDown, ProblemAreaPatterns and RoleEvidenceAlignment
+        // facts must not influence the Meaning synthesis at all.
+        IReadOnlyList<ProfileSummaryFact> facts =
+        [
+            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 1),
+            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 0),
+            SupportedFact(ProfileReportSectionKey.RepresentativeRepositories, 5),
+            SupportedFact(ProfileReportSectionKey.WhyThisConclusion, 5),
+            SupportedFact(ProfileReportSectionKey.Limitations, 2),
+            SupportedFact(ProfileReportSectionKey.RepositoryDrillDown, 5),
+            new(ProfileReportSectionKey.ProblemAreaPatterns, ProfileReportSectionAvailability.Unsupported, 0),
+            new(ProfileReportSectionKey.RoleEvidenceAlignment, ProfileReportSectionAvailability.Deferred, 0)
+        ];
+
+        Assert.Equal(
+            "The visible public evidence shows recurring technical direction.",
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+    }
+
+    [Fact]
+    public void Meaning_never_renders_ItemCount_regardless_of_its_magnitude()
+    {
+        IReadOnlyList<ProfileSummaryFact> oneItem = MeaningFacts(1, 1);
+        IReadOnlyList<ProfileSummaryFact> manyItems = MeaningFacts(47, 312);
+
+        Assert.Equal(
+            localizer.GetMeaningSummary(oneItem, WebCulture.English),
+            localizer.GetMeaningSummary(manyItems, WebCulture.English));
+    }
+
+    [Fact]
+    public void Meaning_fails_loudly_when_an_expected_fact_is_missing()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts =
+        [
+            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
+        ];
+
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+    }
+
+    [Fact]
+    public void Meaning_fails_loudly_when_an_expected_fact_is_duplicated()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts =
+        [
+            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 1),
+            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 0),
+            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
+        ];
+
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+    }
+
+    [Fact]
+    public void Meaning_fails_loudly_when_an_expected_fact_is_not_Supported()
+    {
+        IReadOnlyList<ProfileSummaryFact> facts =
+        [
+            new(ProfileReportSectionKey.TechnicalFocusAreas, ProfileReportSectionAvailability.Unsupported, 0),
+            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
+        ];
+
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetMeaningSummary(facts, WebCulture.English));
+    }
+
+    [Theory]
+    [InlineData(
+        ProfileReportSectionKey.TechnicalFocusAreas,
+        "The visible public evidence did not establish a repeated technical direction under the current analysis rules.",
+        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı.")]
+    [InlineData(
+        ProfileReportSectionKey.EngineeringPracticePatterns,
+        "The visible public evidence did not establish recurring engineering practices under the current analysis rules.",
+        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden üretim pratikleri ortaya koymadı.")]
+    [InlineData(
+        ProfileReportSectionKey.RepresentativeRepositories,
+        "No starting-point repository was selected from the current visible public evidence.",
+        "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.")]
+    public void Supported_empty_section_copy_is_locked_EN_TR(
+        ProfileReportSectionKey section,
+        string english,
+        string turkish)
+    {
+        Assert.Equal(english, localizer.GetEmptySectionMessage(section, WebCulture.English));
+        Assert.Equal(turkish, localizer.GetEmptySectionMessage(section, WebCulture.Turkish));
+    }
+
+    [Theory]
+    [InlineData(ProfileReportSectionKey.ProblemAreaPatterns)]
+    [InlineData(ProfileReportSectionKey.RoleEvidenceAlignment)]
+    [InlineData(ProfileReportSectionKey.WhyThisConclusion)]
+    public void Supported_empty_section_copy_has_no_mapping_outside_the_three_locked_sections(
+        ProfileReportSectionKey section)
+    {
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetEmptySectionMessage(section, WebCulture.English));
+    }
+
     [Fact]
     public void Every_current_limitation_and_warning_code_has_EN_TR_mapping()
     {

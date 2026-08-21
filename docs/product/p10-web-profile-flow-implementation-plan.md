@@ -41,6 +41,17 @@ utility, common Web localization, Repository Proof locale wiring, the
 Profile Web-localization foundation and a truthful immediate processing state
 belong to P10-I2A. Domain, evidence, eligibility, scoring and report semantics
 are unchanged.
+**Amended:** 2026-08-21 / Session 103 — added §13.18 only, plus a one-line
+pointer inside §7/P10-I3. Both are cross-references to the P10-I3 Meaning
+layer contract that `docs/product/p10-presentation-language-contract.md`
+§8.4/§8.5 now owns normatively. This document defines no new presentation
+semantics, copy, state or template of its own. §7/P10-I3's scope clause was
+additionally corrected: its former "yalnız yeni `_Profile*.cshtml`
+partial'ları" restriction contradicted the actual Web boundary --- today
+`Pages/Profile.cshtml.cs` records only `HasComposedProfile` and never exposes
+the successful `ProfilePipelineResult.Report` --- and is replaced by a
+minimum-change responsibility description. No slice identity, route, entry,
+section label, ordering, evidence, pattern or prohibition clause changed
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -502,13 +513,43 @@ ortak/birleşik tek bir etikete indirgenmez.
 `ProblemAreaPatterns` (pozisyon 4) §13.10 gereği render edilmez; sıralama bu
 atlamayla bozulmaz (report contract §7).
 
+Meaning katmanının exact deterministic sentezi, kapalı state matrisi ve EN/TR
+copy'si `p10-presentation-language-contract.md` §8.4'te; üç bölümün
+`Supported`-but-empty EN/TR copy'si §8.5'te kilitlidir (bkz. §13.18).
+
 Yasak: dashboard, score, ranking, seniority, employability, role inference
 veya herhangi bir unsupported taxonomy widget'ı. Product contract §18 ve
 report contract §16'daki yasaklı liste doğrudan geçerlidir.
 
-Kapsam: yalnız yeni `_Profile*.cshtml` partial'ları; mevcut
-`tokens.css`/`components.css`/`base.css` reuse edilir, yeni design token
-eklenmez.
+Kapsam (Session 103'te düzeltildi — önceki "yalnız yeni `_Profile*.cshtml`
+partial'ları" kısıtı gerçek Web boundary'siyle uyumsuzdu ve geçersizdir):
+P10-I3, typed report'u presentation'a taşımak için gereken **minimum** Web
+değişikliklerini kapsar. Sorumluluk bazında:
+
+- `Pages/Profile.cshtml.cs` mevcut başarılı `ProfilePipelineResult.Report`
+  (`ProfileReport`) değerini presentation yüzeyine **expose edebilir**. Bugün
+  yalnız `HasComposedProfile = true` kaydediyor ve raporu hiç açmıyor; bu
+  yüzden slice yalnız partial ekleyerek uygulanamaz. Bu sayfa report truth'unu
+  yeniden hesaplayamaz, değiştiremez veya yeniden yorumlayamaz; yalnız zaten
+  üretilmiş typed değeri taşır.
+- `Pages/Profile.cshtml` P10-I3 result bölümlerini kompoze edebilir.
+- Yeni `_Profile*.cshtml` partial'ları şunları render edebilir: Meaning,
+  `TechnicalFocusAreas`, `EngineeringPracticePatterns`,
+  `RepresentativeRepositories`.
+- `ProfileWebPresentationLocalizer` yalnız
+  `p10-presentation-language-contract.md` §8.4/§8.5'te kilitlenmiş
+  deterministic mapping'leri alabilir; başka hiçbir yeni presentation
+  semantiği eklenemez.
+- Targeted Web testleri eklenebilir/güncellenebilir.
+- Gerekiyorsa bounded Profile-result CSS eklenebilir/güncellenebilir; mevcut
+  `tokens.css`/`components.css`/`base.css` ve mevcut design token'lar reuse
+  edilir. Yeni design token, dashboard veya yeni component sistemi authorize
+  edilmemiştir.
+
+Değişmeyenler: Domain ve Application, `ProfileReportProjector` (locale-neutral
+kalır), Repository Proof davranışı, ve P10-I4 (`WhyThisConclusion` +
+drill-down) ile P10-I5 (final Limitations / Partial / Failure UX, `Warnings`
+bildirimi) sahipliği.
 
 ---
 
@@ -1128,3 +1169,31 @@ session'a aittir.
 kararlarla güncellendi: omission listesi artık üç yüzeydir, `DecisionBounded`
 sayfalama durdurma ve fork admission kuralı eklendi. P10 slice sorumlulukları,
 route'ları, presentation dili ve inference yasakları değişmedi.
+
+## 13.18 P10-I3 Meaning Layer Synthesis Cross-Reference (Session 103)
+
+Canonical owner:
+`docs/product/p10-presentation-language-contract.md` §8.4 (Meaning layer
+deterministic synthesis) and §8.5 (`Supported`-but-empty section copy).
+
+Bu bölüm normatif metin taşımaz; yalnız işaret eder. Çelişki bulunursa
+presentation-language contract kazanır.
+
+- §13.8'in "yalnız canonical/locale-independent kimliklerle anahtarlanır"
+  kuralı Meaning katmanını da kapsar: sentez copy'si iki presence bit'i
+  (`TechnicalFocusAreas`, `EngineeringPracticePatterns`) artı selected request
+  culture ile anahtarlanır, hiçbir zaman presentation text'iyle.
+- `RepresentativeRepositories` Meaning state derivation'ına **katılmaz**. O,
+  canonical pozisyon 5'te kendi kilitli etiketiyle (EN "Starting point" / TR
+  "Başlangıç noktası") ayrıca render edilir ve kendi `Supported`-but-empty
+  copy'sini taşır.
+- §13.9'daki iki ayrı etiket kararı değişmedi; §13.10 (`ProblemAreaPatterns`
+  Unsupported/unrendered) ve §13.11 (`RoleEvidenceAlignment`
+  Deferred/unrendered) değişmedi.
+- §13.15 Presentation Invariant aynen geçerlidir: P10 yeni analysis truth
+  üretemez.
+- `WhyThisConclusion` + drill-down P10-I4'ün, final Limitations/Partial/
+  Failure UX ve `Warnings` bildirimi P10-I5'in sorumluluğunda kalır.
+- P10-I3 kapsam clause'u (§7/P10-I3) Session 103'te düzeltildi: slice, typed
+  `ProfilePipelineResult.Report`'u presentation'a taşımak için gereken minimum
+  Web değişikliklerini kapsar; "yalnız yeni partial'lar" kısıtı geçersizdir.

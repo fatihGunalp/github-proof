@@ -45,6 +45,106 @@ public sealed class ProfileWebPresentationLocalizer
                 $"Profile section '{section}' has no active Web presentation mapping.")
         };
 
+    // P10-I3 Meaning layer (presentation-language-contract.md §8.4). Reads
+    // exactly the two Supported TechnicalFocusAreas/EngineeringPracticePatterns
+    // facts, reduces each to a presence bit (ItemCount is never rendered) and
+    // selects exactly one of the four locked M1-M4 variants. RepresentativeRepositories
+    // and every other section never participate.
+    public string GetMeaningSummary(
+        IReadOnlyList<ProfileSummaryFact> summaryFacts,
+        string? culture)
+    {
+        ArgumentNullException.ThrowIfNull(summaryFacts);
+
+        bool technicalDirectionPresent = RequireSupportedPresence(
+            summaryFacts,
+            ProfileReportSectionKey.TechnicalFocusAreas);
+        bool engineeringPracticePresent = RequireSupportedPresence(
+            summaryFacts,
+            ProfileReportSectionKey.EngineeringPracticePatterns);
+
+        bool isTurkish =
+            WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish;
+
+        return (technicalDirectionPresent, engineeringPracticePresent) switch
+        {
+            (true, true) => isTurkish
+                ? "Görünen herkese açık kanıtlar, tekrar eden teknik yön ve tekrar eden üretim pratikleri gösteriyor."
+                : "The visible public evidence shows recurring technical direction and recurring engineering practices.",
+            (true, false) => isTurkish
+                ? "Görünen herkese açık kanıtlar, tekrar eden teknik yön gösteriyor."
+                : "The visible public evidence shows recurring technical direction.",
+            (false, true) => isTurkish
+                ? "Görünen herkese açık kanıtlar, tekrar eden üretim pratikleri gösteriyor."
+                : "The visible public evidence shows recurring engineering practices.",
+            (false, false) => isTurkish
+                ? "Mevcut analiz, görünen herkese açık kanıtlardan tekrar eden bir teknik yön veya üretim pratiği ortaya koymadı."
+                : "The current analysis did not establish a recurring technical direction or engineering-practice pattern from the visible public evidence."
+        };
+    }
+
+    // §8.5 Supported+empty copy for TechnicalFocusAreas, EngineeringPracticePatterns
+    // and RepresentativeRepositories only. Never called for Unsupported/Deferred
+    // sections (ProblemAreaPatterns, RoleEvidenceAlignment): those are omitted
+    // entirely, not rendered as an empty result.
+    public string GetEmptySectionMessage(
+        ProfileReportSectionKey section,
+        string? culture) =>
+        (section, WebCulture.NormalizeOrEnglish(culture)) switch
+        {
+            (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.English) =>
+                "The visible public evidence did not establish a repeated technical direction under the current analysis rules.",
+            (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.Turkish) =>
+                "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı.",
+            (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.English) =>
+                "The visible public evidence did not establish recurring engineering practices under the current analysis rules.",
+            (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.Turkish) =>
+                "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden üretim pratikleri ortaya koymadı.",
+            (ProfileReportSectionKey.RepresentativeRepositories, WebCulture.English) =>
+                "No starting-point repository was selected from the current visible public evidence.",
+            (ProfileReportSectionKey.RepresentativeRepositories, WebCulture.Turkish) =>
+                "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.",
+            _ => throw new InvalidOperationException(
+                $"Profile section '{section}' has no active Supported+empty presentation mapping.")
+        };
+
+    // Fails loudly (missing, duplicated or non-Supported) rather than inventing
+    // an empty Meaning state: presentation-language-contract.md §8.4.1.
+    private static bool RequireSupportedPresence(
+        IReadOnlyList<ProfileSummaryFact> summaryFacts,
+        ProfileReportSectionKey section)
+    {
+        ProfileSummaryFact? match = null;
+        int matchCount = 0;
+
+        foreach (ProfileSummaryFact fact in summaryFacts)
+        {
+            if (fact.ReferencedSection != section)
+            {
+                continue;
+            }
+
+            matchCount++;
+            match = fact;
+        }
+
+        if (matchCount != 1)
+        {
+            throw new InvalidOperationException(
+                $"PublicProfileSummary must carry exactly one '{section}' fact "
+                + $"for the Meaning layer, but found {matchCount}.");
+        }
+
+        if (match!.ReferencedSectionAvailability != ProfileReportSectionAvailability.Supported)
+        {
+            throw new InvalidOperationException(
+                $"PublicProfileSummary fact for '{section}' must be Supported "
+                + $"for the Meaning layer, but was {match.ReferencedSectionAvailability}.");
+        }
+
+        return match.ItemCount > 0;
+    }
+
     public string GetPatternLabel(
         ProfilePatternFamily family,
         string patternKey,

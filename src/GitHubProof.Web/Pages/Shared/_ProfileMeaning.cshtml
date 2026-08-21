@@ -1,0 +1,26 @@
+@model IReadOnlyList<ProfileSummaryFact>
+
+@*
+    P10-I3 Meaning layer. Input boundary is exactly the summary facts
+    (presentation-language-contract.md §8.4) — never the whole ProfileReport,
+    a pattern item, a representative repository, a snapshot or raw evidence.
+    ProfileText.GetMeaningSummary reads only the Supported TechnicalFocusAreas
+    and EngineeringPracticePatterns facts and renders exactly one of the four
+    locked M1-M4 variants; RepresentativeRepositories never participates.
+*@
+<section
+    class="profile-result__section profile-result__meaning"
+    aria-labelledby="profile-meaning-title">
+
+    <h2
+        class="profile-result__section-title profile-result__meaning-title"
+        id="profile-meaning-title">
+        @ProfileText.GetSectionLabel(
+            ProfileReportSectionKey.PublicProfileSummary,
+            Text.Culture)
+    </h2>
+
+    <p class="profile-result__meaning-text">
+        @ProfileText.GetMeaningSummary(Model, Text.Culture)
+    </p>
+</section>

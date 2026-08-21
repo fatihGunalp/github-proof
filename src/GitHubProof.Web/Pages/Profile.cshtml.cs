@@ -1,4 +1,5 @@
 using GitHubProof.Application.Profile;
+using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Web.Entry;
@@ -11,10 +12,11 @@ namespace GitHubProof.Web.Pages;
 
 // P10-I2 Profile Proof route boundary: deterministic invocation of the
 // existing P10-I1 LiveProfileReportService and a minimal typed result
-// boundary. It renders no profile report section — Meaning / Direction /
-// Starting Point presentation is P10-I3, and the final failure/partial
-// presentation UX is P10-I5. It makes no eligibility, composition or report
-// decision of its own.
+// boundary. P10-I3 exposes the already-projected typed ProfileReport for
+// Meaning / Direction / Starting Point presentation; WhyThisConclusion +
+// evidence drill-down is P10-I4, and the final failure/partial presentation
+// UX is P10-I5. It makes no eligibility, composition or report decision of
+// its own, and never re-projects or reinterprets report truth.
 //
 // Live profile analysis is POST-only. GET carries no analysis at all, so a
 // refresh, a browser back/forward, a prefetch, a crawler or a link-preview
@@ -48,6 +50,11 @@ public sealed class ProfileModel : PageModel
     public string? Identity { get; private set; }
 
     public bool HasComposedProfile { get; private set; }
+
+    // The P10-I3 presentation truth: the already-projected typed report from
+    // the pipeline run that produced HasComposedProfile == true. Never
+    // re-projected, re-derived from Profile, or computed from raw evidence.
+    public ProfileReport? Report { get; private set; }
 
     public string? ErrorMessage { get; private set; }
 
@@ -94,6 +101,15 @@ public sealed class ProfileModel : PageModel
 
             return Page();
         }
+
+        // A composed (HasProfile == true) pipeline result always carries its
+        // projected report (ProfilePipelineResult.Composed requires one); a
+        // null Report here would mean the pipeline contract was violated, not
+        // a valid empty presentation state.
+        Report = pipelineResult.Report
+            ?? throw new InvalidOperationException(
+                "A composed profile pipeline result must always carry a "
+                + "projected report.");
 
         HasComposedProfile = true;
 

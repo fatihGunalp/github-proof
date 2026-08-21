@@ -1,0 +1,47 @@
+@model ProfileReportSection<RepresentativeRepository>
+
+@*
+    P10-I3 Starting Point. Renders each repository's full name as presentation
+    text only, in existing report order — no sorting, ranking or
+    deduplication, no selection-support detail, no quality/ranking language,
+    no analysis-linkage identity, no eligibility state and no Repository Proof
+    drill-down link/action: that action is P10-I4's responsibility
+    (implementation-plan.md §13.14/P10-I4).
+*@
+@{
+    if (Model.SectionKey != ProfileReportSectionKey.RepresentativeRepositories)
+    {
+        throw new InvalidOperationException(
+            "Starting point partial requires the RepresentativeRepositories "
+            + $"section, but received '{Model.SectionKey}'.");
+    }
+}
+
+<section
+    class="profile-result__section"
+    aria-labelledby="profile-starting-point-title">
+
+    <h2
+        class="profile-result__section-title"
+        id="profile-starting-point-title">
+        @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+    </h2>
+
+    @if (Model.Items.Count > 0)
+    {
+        <ul class="profile-result__repository-list">
+            @foreach (RepresentativeRepository item in Model.Items)
+            {
+                <li class="profile-result__repository-item">
+                    @item.Repository.FullName
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="profile-result__section-empty">
+            @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+        </p>
+    }
+</section>

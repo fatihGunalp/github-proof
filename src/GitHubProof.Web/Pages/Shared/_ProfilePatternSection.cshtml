@@ -1,0 +1,55 @@
+@model ProfileReportSection<PatternReportItem>
+
+@*
+    Shared by TechnicalFocusAreas and EngineeringPracticePatterns (P10-I3):
+    both are a Supported ProfileReportSection<PatternReportItem> rendered the
+    same way — heading + item list or, when empty, the locked §8.5 copy. The
+    two sections are still rendered as two fully independent <section>
+    invocations with their own heading and empty copy driven by the model's
+    own SectionKey; sharing this template merges no label, section or
+    canonical identity (presentation-language-contract.md §13.9 of the
+    implementation plan).
+*@
+@{
+    string sectionTitleId = Model.SectionKey switch
+    {
+        ProfileReportSectionKey.TechnicalFocusAreas =>
+            "profile-technical-focus-title",
+        ProfileReportSectionKey.EngineeringPracticePatterns =>
+            "profile-engineering-practice-title",
+        _ => throw new InvalidOperationException(
+            $"Pattern section partial does not support '{Model.SectionKey}'.")
+    };
+}
+
+<section
+    class="profile-result__section"
+    aria-labelledby="@sectionTitleId">
+
+    <h2
+        class="profile-result__section-title"
+        id="@sectionTitleId">
+        @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+    </h2>
+
+    @if (Model.Items.Count > 0)
+    {
+        <ul class="profile-result__pattern-list">
+            @foreach (PatternReportItem item in Model.Items)
+            {
+                <li class="profile-result__pattern-item">
+                    @ProfileText.GetPatternLabel(
+                        item.Pattern.Family,
+                        item.Pattern.PatternKey,
+                        Text.Culture)
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="profile-result__section-empty">
+            @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+        </p>
+    }
+</section>

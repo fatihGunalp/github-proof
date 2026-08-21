@@ -1,5 +1,6 @@
 using GitHubProof.Application.Analysis;
 using GitHubProof.Application.Profile;
+using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
@@ -91,6 +92,90 @@ public sealed class ProfileModelTests
         Assert.Equal(Identity, model.Identity);
         Assert.True(model.HasComposedProfile);
         Assert.Null(model.ErrorMessage);
+        Assert.NotNull(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithAvailableProfile_ExposesTheExactTypedProfileReport()
+    {
+        // P10-I3: ProfileModel must expose the already-projected typed
+        // ProfileReport itself — not a re-derived value, not raw profile
+        // evidence. Asserting the canonical nine-section shape (report
+        // contract §5/§7) is the strongest available proof of that without
+        // reaching into ProfilePipelineResult's internal construction path.
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        ProfileReport report = model.Report
+            ?? throw new InvalidOperationException(
+                "Expected a composed profile to expose a typed report.");
+
+        Assert.Equal(9, report.Sections.Count);
+        Assert.Equal(
+            ProfileReportSectionKey.PublicProfileSummary,
+            report.Sections[0].SectionKey);
+        Assert.Equal(
+            ProfileReportSectionKey.TechnicalFocusAreas,
+            report.Sections[1].SectionKey);
+        Assert.Equal(
+            ProfileReportSectionKey.EngineeringPracticePatterns,
+            report.Sections[2].SectionKey);
+        Assert.Equal(
+            ProfileReportSectionKey.RepresentativeRepositories,
+            report.Sections[4].SectionKey);
+        Assert.Equal(8, report.PublicProfileSummary.Items.Count);
+    }
+
+    [Fact]
+    public async Task ProfilePipelineResult_Composed_CannotCarryANullReport()
+    {
+        // The state ProfileModel defensively guards against with
+        // InvalidOperationException — HasProfile == true with Report == null
+        // — cannot be produced through the pipeline's own construction path:
+        // ProfilePipelineResult.Composed (internal, invoked only by
+        // ProfilePipeline from the same run that produced the composition) is
+        // guarded by ArgumentNullException.ThrowIfNull(report). There is no
+        // InternalsVisibleTo from Application to this test assembly and no
+        // public seam that could hand ProfileModel a composed-but-reportless
+        // result, so that branch is provably unreachable in production; this
+        // test proves the invariant at its one source of truth via reflection
+        // instead of altering Application internals to make it reachable.
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+        LiveProfileReportService service =
+            new(collector, CreateRealPipeline());
+
+        LiveProfileAnalysisResult result = await service.AnalyzeAsync(
+            Identity,
+            Version,
+            CancellationToken.None);
+
+        ProfilePipelineResult pipelineResult = result.PipelineResult
+            ?? throw new InvalidOperationException(
+                "Expected a successful result to carry a pipeline result.");
+
+        Assert.True(pipelineResult.HasProfile);
+
+        System.Reflection.MethodInfo composedFactory = typeof(ProfilePipelineResult)
+            .GetMethod(
+                "Composed",
+                System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Static)
+            ?? throw new InvalidOperationException(
+                "ProfilePipelineResult.Composed was not found by reflection.");
+
+        System.Reflection.TargetInvocationException thrown =
+            Assert.Throws<System.Reflection.TargetInvocationException>(() =>
+                composedFactory.Invoke(
+                    null,
+                    [pipelineResult.Composition, null]));
+
+        Assert.IsType<ArgumentNullException>(thrown.InnerException);
     }
 
     [Fact]

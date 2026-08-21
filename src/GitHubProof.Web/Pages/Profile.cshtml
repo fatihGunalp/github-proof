@@ -6,9 +6,12 @@
 }
 
 @*
-    P10-I2 result boundary only, rendered from the POST handler. Report
-    sections (Meaning / Direction / Starting Point, Why, drill-down,
-    limitations) arrive in P10-I3..I5.
+    P10-I3 result boundary, rendered from the POST handler. Renders the
+    already-projected typed ProfileReport in canonical experience order:
+    Meaning -> Visible technical direction -> Recurring engineering practices
+    -> Starting point. WhyThisConclusion + evidence drill-down is P10-I4;
+    final Limitations/Warnings/Partial/Failure UX is P10-I5 — neither is
+    rendered here.
 *@
 <section
     class="profile-result"
@@ -32,11 +35,23 @@
             @Model.ErrorMessage
         </p>
     }
-    else if (Model.HasComposedProfile)
+    else if (Model.Report is { } report)
     {
-        <p class="profile-result__status">
-            @Text.Get(WebTextKey.ProfileCollected)
-        </p>
+        @await Html.PartialAsync(
+            "_ProfileMeaning",
+            report.PublicProfileSummary.Items)
+
+        @await Html.PartialAsync(
+            "_ProfilePatternSection",
+            report.TechnicalFocusAreas)
+
+        @await Html.PartialAsync(
+            "_ProfilePatternSection",
+            report.EngineeringPracticePatterns)
+
+        @await Html.PartialAsync(
+            "_ProfileStartingPoint",
+            report.RepresentativeRepositories)
     }
 
     <a
