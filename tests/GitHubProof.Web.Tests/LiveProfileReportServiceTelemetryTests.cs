@@ -66,6 +66,22 @@ public sealed class LiveProfileReportServiceTelemetryTests
             key => Assert.Contains(key, ProfileRepositoryOutcome.All));
     }
 
+    // Session 099: the profile composition no longer collects contributors, so
+    // that request category can never appear in a profile execution. The
+    // load-bearing zero-request proof is the Infrastructure composition test;
+    // this is the runtime regression guard beside it.
+    [Fact]
+    public async Task AnalyzeAsync_NeverRecordsAContributorRequestCategory()
+    {
+        LiveProfileReportService service = CreateService(out _);
+
+        await service.AnalyzeAsync(ProfileIdentity, Version);
+
+        Assert.DoesNotContain(
+            ProfileGitHubRequestCategory.RepositoryContributors,
+            service.LastExecutionTelemetry!.RequestCategories.Keys);
+    }
+
     [Fact]
     public async Task AnalyzeAsync_RecordsDurationStatusAndOutcome()
     {
@@ -276,7 +292,7 @@ public sealed class LiveProfileReportServiceTelemetryTests
             new ProfileRepositoryAnalysisOrchestrator(
                 new TelemetryProfileRepositorySnapshotSource(source),
                 new TelemetryRepositoryAnalysisRunner(new RepositoryAnalysisRunner()),
-                new AnalysisAdmissionPolicy(EligibilityPolicy.V1.Version)),
+                new AnalysisAdmissionPolicy(EligibilityPolicy.V1)),
             new RepositoryEligibilityPolicy(EligibilityPolicy.V1),
             new CrossRepositoryEvidenceComposer(
                 new RepositoryContributionPolicy(EligibilityPolicy.V1.Version)),

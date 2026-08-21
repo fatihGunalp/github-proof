@@ -9,6 +9,12 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
 {
     public const string SignalKey = "process.commit-history";
 
+    // The canonical Strong threshold. It lives here and nowhere else: a
+    // collection boundary that wants to know whether further commits could
+    // still change this signal must ask IsStrongThresholdReached rather than
+    // restate the number.
+    public const int StrongCommitCount = 10;
+
     private const string CommitsDataKey = "commits";
     private readonly TimeProvider _timeProvider;
 
@@ -23,7 +29,13 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
         maximumScore: 7,
         requiredDataKeys: [CommitsDataKey],
         includeInOverallScore: true,
-        version: 1);
+        version: 2);
+
+    // Deterministic and side-effect-free. Observed commit count only grows as
+    // more pages are read, so once this returns true the Strong classification
+    // is irreversible and no further page can change the signal result.
+    public static bool IsStrongThresholdReached(int observedCommitCount) =>
+        observedCommitCount >= StrongCommitCount;
 
     public SignalResult Evaluate(RepositorySnapshot snapshot)
     {
@@ -31,24 +43,34 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
 
         DateTimeOffset evaluatedAt = _timeProvider.GetUtcNow();
         DataAvailability? availability = snapshot.FindAvailability(CommitsDataKey);
-        EvidenceCollection evidence = CollectEvidence(snapshot, availability);
+        int commitCount = snapshot.Commits.Items.Count;
+        bool isAvailable = availability?.IsAvailable == true;
 
-        if (availability?.IsAvailable != true || !snapshot.Commits.IsComplete)
+        // A deliberately bounded collection may still carry the terminal Strong
+        // result, because the observed count is a lower bound and the
+        // classification is monotone. An Incomplete collection may not: it
+        // keeps today's semantics exactly.
+        bool decisionBoundedStrong = isAvailable
+            && snapshot.Commits.IsDecisionBounded
+            && IsStrongThresholdReached(commitCount);
+
+        if (!isAvailable || (!snapshot.Commits.IsComplete && !decisionBoundedStrong))
         {
             return CreateResult(
                 SignalStatus.UnavailableEvidence,
                 score: null,
-                evidence,
+                CollectEvidence(snapshot, availability, canInspect: false),
                 evaluatedAt);
         }
 
-        int commitCount = snapshot.Commits.Items.Count;
-        (SignalStatus Status, int Score) classification = Classify(commitCount);
+        (SignalStatus Status, int Score) classification = decisionBoundedStrong
+            ? (SignalStatus.Strong, Definition.MaximumScore)
+            : Classify(commitCount);
 
         return CreateResult(
             classification.Status,
             classification.Score,
-            evidence,
+            CollectEvidence(snapshot, availability, canInspect: true),
             evaluatedAt);
     }
 
@@ -56,7 +78,7 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
     {
         return commitCount switch
         {
-            >= 10 => (SignalStatus.Strong, 7),
+            >= StrongCommitCount => (SignalStatus.Strong, 7),
             >= 7 => (SignalStatus.Present, 6),
             >= 5 => (SignalStatus.Present, 5),
             >= 3 => (SignalStatus.Present, 4),
@@ -68,17 +90,25 @@ public sealed class CommitHistorySignalEvaluator : ISignalEvaluator
 
     private static EvidenceCollection CollectEvidence(
         RepositorySnapshot snapshot,
-        DataAvailability? availability)
+        DataAvailability? availability,
+        bool canInspect)
     {
-        bool canInspect = availability?.IsAvailable == true
-            && snapshot.Commits.IsComplete;
         string availabilityState = availability is null
             ? "not-recorded"
             : availability.Status.ToString();
-        string observedCount = snapshot.Commits.Items.Count.ToString(CultureInfo.InvariantCulture);
-        string value = $"observedCount={observedCount};complete={snapshot.Commits.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={availabilityState}";
+        string observedCount = snapshot.Commits.Items.Count.ToString(
+            CultureInfo.InvariantCulture);
+        bool isDecisionBounded = snapshot.Commits.IsDecisionBounded;
+
+        // A bounded observation reports a lower bound and never a total. Only
+        // an enumerated collection may state complete=True.
+        string value = isDecisionBounded
+            ? $"observedCountAtLeast={observedCount};observation=decision-bounded;availability={availabilityState}"
+            : $"observedCount={observedCount};complete={snapshot.Commits.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={availabilityState}";
         string notes = canInspect
-            ? $"Commit erişilebilirliği Available ve koleksiyon tam; {observedCount} normalize edilmiş commit bulundu."
+            ? isDecisionBounded
+                ? $"Commit erişilebilirliği Available ve koleksiyon karar-yeterli olarak sınırlandı; en az {observedCount} normalize edilmiş commit gözlendi. Bu bir alt sınırdır, repository toplamı değildir."
+                : $"Commit erişilebilirliği Available ve koleksiyon tam; {observedCount} normalize edilmiş commit bulundu."
             : CreateUnavailableNotes(snapshot, availability);
 
         EvidenceCollection evidence = new();

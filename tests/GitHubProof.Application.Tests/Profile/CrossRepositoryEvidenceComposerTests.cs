@@ -313,7 +313,7 @@ public sealed class CrossRepositoryEvidenceComposerTests
         await new ProfileRepositoryAnalysisOrchestrator(
                 source,
                 CreateAnalysisRunner(),
-                new AnalysisAdmissionPolicy(TestPolicyVersion),
+                new AnalysisAdmissionPolicy(TestEligibilityPolicy),
                 new SequentialAnalysisIdFactory().Next)
             .AnalyzeAsync(
                 CreateProfileSnapshot(repositories, isRepositoryManifestComplete),

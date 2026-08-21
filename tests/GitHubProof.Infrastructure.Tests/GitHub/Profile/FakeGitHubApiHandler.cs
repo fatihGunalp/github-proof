@@ -149,10 +149,16 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
             || path == $"{prefix}/issues"
             || path == $"{prefix}/pulls"
             || path == $"{prefix}/releases"
-            || path == $"{prefix}/tags"
-            || path == $"{prefix}/contributors")
+            || path == $"{prefix}/tags")
         {
             return Json("[]");
+        }
+
+        // Served with a real entry so a test can prove the full composition
+        // genuinely collects contributors while the profile composition does not.
+        if (path == $"{prefix}/contributors")
+        {
+            return Json($$"""[ { "login": "{{Owner}}", "contributions": 42 } ]""");
         }
 
         return NotFound();

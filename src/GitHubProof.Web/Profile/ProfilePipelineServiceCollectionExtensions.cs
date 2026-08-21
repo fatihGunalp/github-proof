@@ -41,7 +41,10 @@ public static class ProfilePipelineServiceCollectionExtensions
             .AddHttpClient(GitHubHttpClientName, ConfigureGitHubClient)
             .AddHttpMessageHandler<ProfileGitHubRequestTelemetryHandler>();
 
-        services.AddSingleton(EligibilityPolicy.V1);
+        // Session 099: the production profile path runs on the eligibility
+        // policy version that carries the Fork Policy B admission rule. V1 stays
+        // immutable and is still the historical definition.
+        services.AddSingleton(EligibilityPolicy.V2);
         services.AddSingleton(ObservationRuleVersion.V1);
         services.AddSingleton(PatternRuleVersion.V1);
         services.AddSingleton(RepresentativeRepositoryRuleVersion.V1);
@@ -56,9 +59,11 @@ public static class ProfilePipelineServiceCollectionExtensions
                 provider.GetRequiredService<RepositoryAnalysisRunner>()));
 
         // The Profile V1 collection composition: the same repository snapshot
-        // assembly with the two non-scoring enrichment collectors omitted, so no
-        // source-tree, source-content or dependency-manifest request is issued
-        // on this path (§5).
+        // assembly with three surfaces omitted — SourceFiles,
+        // DependencyDeclarations and (Session 099) Contributors — so no
+        // source-tree, source-content, dependency-manifest or contributor
+        // request is issued on this path (§5). The five paginated surfaces also
+        // carry their canonical decision boundaries (§15).
         services.AddScoped<IProfileRepositorySnapshotSource>(
             provider => new TelemetryProfileRepositorySnapshotSource(
                 new GitHubProfileRepositorySnapshotSource(
@@ -66,9 +71,12 @@ public static class ProfilePipelineServiceCollectionExtensions
                         CreateGitHubClient(provider),
                         provider.GetRequiredService<TimeProvider>()))));
 
+        // Constructed from the policy — the only construction input — so Stage A
+        // reads the fork admission rule the version owns and cannot be paired
+        // with a rule that version does not carry.
         services.AddScoped(
             provider => new AnalysisAdmissionPolicy(
-                provider.GetRequiredService<EligibilityPolicy>().Version));
+                provider.GetRequiredService<EligibilityPolicy>()));
 
         services.AddScoped(
             provider => new ProfileRepositoryAnalysisOrchestrator(

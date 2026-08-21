@@ -192,7 +192,7 @@ public sealed class CrossRepositoryLanguageEvidenceTests
                                 CreateCollected(repository.Snapshot))))
                         .ToArray()),
                     CreateAnalysisRunner(),
-                    new AnalysisAdmissionPolicy(TestPolicyVersion),
+                    new AnalysisAdmissionPolicy(TestEligibilityPolicy),
                     new SequentialAnalysisIdFactory().Next)
                 .AnalyzeAsync(
                     CreateProfileSnapshot(profileRepositories),

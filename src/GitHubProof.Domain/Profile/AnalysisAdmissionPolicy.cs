@@ -9,25 +9,55 @@ namespace GitHubProof.Domain.Profile;
 // RepositoryEligibilityResult and produces no contribution decision.
 public sealed class AnalysisAdmissionPolicy
 {
-    public AnalysisAdmissionPolicy(EligibilityPolicyVersion policyVersion)
+    // The eligibility policy is the ONLY construction input, deliberately.
+    //
+    // A version-only constructor would let a caller pair a canonical
+    // EligibilityPolicyVersion with fork behavior that version does not own —
+    // for example provenance "2.0.0" executing the V1 Analyze rule. Because
+    // EligibilityPolicy itself refuses to rebind a canonical version to a
+    // different rule, taking the policy makes that pairing unconstructible
+    // rather than merely discouraged.
+    public AnalysisAdmissionPolicy(EligibilityPolicy policy)
     {
-        PolicyVersion = policyVersion
-            ?? throw new ArgumentNullException(nameof(policyVersion));
+        ArgumentNullException.ThrowIfNull(policy);
+
+        PolicyVersion = policy.Version;
+        ForkAdmission = policy.ForkAdmission;
     }
 
     public EligibilityPolicyVersion PolicyVersion { get; }
+
+    public ForkAdmissionRule ForkAdmission { get; }
 
     public AnalysisAdmissionResult Evaluate(ProfileRepository repository)
     {
         ArgumentNullException.ThrowIfNull(repository);
 
-        return repository.Empty switch
+        // Empty resolves first, so an empty repository keeps reporting exactly
+        // the reason it always reported.
+        if (repository.Empty == RepositoryConditionState.Present)
         {
-            RepositoryConditionState.Present => Create(
+            return Create(
                 repository,
                 AnalysisAdmissionDecision.Skip,
-                EligibilityReason.EmptyRepository),
+                EligibilityReason.EmptyRepository);
+        }
 
+        // Deterministically known fork lineage is sufficient on its own under a
+        // policy version whose fork admission rule is Skip. It resolves before
+        // the empty-state Undetermined branch because the fork fact is already
+        // known from the manifest and no repository collection could change it.
+        if (ForkAdmission == ForkAdmissionRule.Skip
+            && repository.Fork == RepositoryConditionState.Present)
+        {
+            return Create(
+                repository,
+                AnalysisAdmissionDecision.Skip,
+                EligibilityReason.ForkDetected);
+        }
+
+        return repository.Empty switch
+        {
             RepositoryConditionState.Absent => Create(
                 repository,
                 AnalysisAdmissionDecision.Analyze,

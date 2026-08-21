@@ -452,12 +452,12 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             snapshot.FindAvailability("source-files")!.Status);
     }
 
-    // Session 097 / public-profile-runtime-collection.md §5, §14.3: the Profile
-    // V1 composition never reaches the two enrichment collectors at all, so no
-    // request attributable to them can be issued, and it leaves the collection
-    // order of every required surface unchanged.
+    // public-profile-runtime-collection.md §5, §14.3: the Profile V1 composition
+    // never reaches the omitted collectors at all, so no request attributable to
+    // them can be issued, and it leaves the collection order of every required
+    // surface unchanged. Session 099 added Contributors to that omission list.
     [Fact]
-    public async Task ProfileComposition_NeverInvokesTheTwoEnrichmentCollectors()
+    public async Task ProfileComposition_NeverInvokesTheOmittedCollectors()
     {
         StubCollectors collectors = new();
         GitHubRepositorySnapshotOrchestrator orchestrator =
@@ -476,14 +476,13 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
                 "issues",
                 "pull-requests",
                 "releases",
-                "tags",
-                "contributors"
+                "tags"
             ],
             collectors.Calls);
     }
 
     [Fact]
-    public async Task ProfileComposition_LeavesBothOmittedSurfacesAbsent()
+    public async Task ProfileComposition_LeavesEveryOmittedSurfaceAbsent()
     {
         StubCollectors collectors = new();
         GitHubRepositorySnapshotResult result =
@@ -494,8 +493,141 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
 
         Assert.Empty(snapshot.SourceFiles.Items);
         Assert.Empty(snapshot.DependencyDeclarations.Items);
+        Assert.Empty(snapshot.Contributors.Items);
         Assert.Null(snapshot.FindAvailability("source-files"));
         Assert.Null(snapshot.FindAvailability("dependency-manifests"));
+        Assert.Null(snapshot.FindAvailability("contributors"));
+    }
+
+    // Session 099 regression guard: the mapped surfaces must carry the
+    // observation state through to the snapshot. Dropping it would silently
+    // relabel a deliberate DecisionBounded stop as an Incomplete failure and
+    // make the evaluators' lower-bound evidence unreachable.
+    [Fact]
+    public async Task DecisionBoundedCollections_KeepThatStateInTheSnapshot()
+    {
+        StubCollectors collectors = new();
+
+        collectors.Commits = collectors.Commits with
+        {
+            Commits = RepositoryCollection<RepositoryCommit>.DecisionBounded(
+                collectors.Commits.Commits.Items)
+        };
+        collectors.Issues = collectors.Issues with
+        {
+            Issues = RepositoryCollection<GitHubRepositoryIssue>.DecisionBounded(
+                collectors.Issues.Issues.Items)
+        };
+        collectors.PullRequests = collectors.PullRequests with
+        {
+            PullRequests =
+                RepositoryCollection<GitHubRepositoryPullRequest>.DecisionBounded(
+                    collectors.PullRequests.PullRequests.Items)
+        };
+        collectors.Releases = collectors.Releases with
+        {
+            Releases = RepositoryCollection<RepositoryRelease>.DecisionBounded(
+                collectors.Releases.Releases.Items)
+        };
+        collectors.Tags = collectors.Tags with
+        {
+            Tags = RepositoryCollection<GitHubRepositoryTag>.DecisionBounded(
+                collectors.Tags.Tags.Items)
+        };
+
+        GitHubRepositorySnapshotResult result =
+            await CreateOrchestrator(collectors).CollectAsync(
+                "https://github.com/octocat/hello-world");
+
+        RepositorySnapshot snapshot = result.Snapshot!;
+
+        Assert.True(snapshot.Commits.IsDecisionBounded);
+        Assert.True(snapshot.Issues.IsDecisionBounded);
+        Assert.True(snapshot.PullRequests.IsDecisionBounded);
+        Assert.True(snapshot.Releases.IsDecisionBounded);
+        Assert.True(snapshot.Tags.IsDecisionBounded);
+
+        // A deliberate bound is never a total and never a failure.
+        Assert.Null(snapshot.Issues.TotalCount);
+        Assert.Null(snapshot.PullRequests.TotalCount);
+        Assert.Null(snapshot.Tags.TotalCount);
+    }
+
+    // An ordinary Incomplete collection must NOT be promoted to DecisionBounded
+    // anywhere along the mapping path.
+    [Fact]
+    public async Task IncompleteCollections_AreNeverPromotedToDecisionBounded()
+    {
+        StubCollectors collectors = new();
+
+        collectors.Issues = collectors.Issues with
+        {
+            Issues = new RepositoryCollection<GitHubRepositoryIssue>(
+                collectors.Issues.Issues.Items,
+                isComplete: false)
+        };
+
+        GitHubRepositorySnapshotResult result =
+            await CreateOrchestrator(collectors).CollectAsync(
+                "https://github.com/octocat/hello-world");
+
+        Assert.Equal(
+            CollectionObservationState.Incomplete,
+            result.Snapshot!.Issues.ObservationState);
+        Assert.False(result.Snapshot.Issues.IsDecisionBounded);
+    }
+
+    // The pinned-commit warning names the sections that were actually read from
+    // live state. A composition that omits contributors must not claim they
+    // were, and the omission itself stays neutral: no warning of its own.
+    [Fact]
+    public async Task ProfileComposition_PinnedCommitWarning_DoesNotClaimContributorsWereCollected()
+    {
+        StubCollectors collectors = new();
+        collectors.Contents = collectors.Contents with
+        {
+            HeadCommitSha = HistoricalCommitSha
+        };
+
+        GitHubRepositorySnapshotResult result =
+            await CreateProfileOrchestrator(collectors).CollectAtCommitAsync(
+                "https://github.com/octocat/hello-world",
+                HistoricalCommitSha);
+
+        string warning = Assert.Single(
+            result.Snapshot!.CollectionWarnings,
+            text => text.Contains("requested commit SHA", StringComparison.Ordinal));
+
+        Assert.DoesNotContain("contributors", warning, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(
+            "releases, and tags were collected from live GitHub state",
+            warning,
+            StringComparison.Ordinal);
+    }
+
+    // Repository Proof's wording is unchanged, contributors included.
+    [Fact]
+    public async Task FullComposition_PinnedCommitWarning_StillNamesContributors()
+    {
+        StubCollectors collectors = new();
+        collectors.Contents = collectors.Contents with
+        {
+            HeadCommitSha = HistoricalCommitSha
+        };
+
+        GitHubRepositorySnapshotResult result =
+            await CreateOrchestrator(collectors).CollectAtCommitAsync(
+                "https://github.com/octocat/hello-world",
+                HistoricalCommitSha);
+
+        string warning = Assert.Single(
+            result.Snapshot!.CollectionWarnings,
+            text => text.Contains("requested commit SHA", StringComparison.Ordinal));
+
+        Assert.Contains(
+            "releases, tags, and contributors were collected from live GitHub state",
+            warning,
+            StringComparison.Ordinal);
     }
 
     private static GitHubRepositorySnapshotOrchestrator CreateOrchestrator(
@@ -514,10 +646,11 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             collectors,
             new FixedTimeProvider(CapturedAt));
 
+    // Session 099: the Profile composition constructor now takes eight
+    // collectors — Contributors joined the omitted surfaces.
     private static GitHubRepositorySnapshotOrchestrator CreateProfileOrchestrator(
         StubCollectors collectors) =>
         new(
-            collectors,
             collectors,
             collectors,
             collectors,

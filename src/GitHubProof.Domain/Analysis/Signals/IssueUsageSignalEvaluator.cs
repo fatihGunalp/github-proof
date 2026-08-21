@@ -9,6 +9,9 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
 {
     public const string SignalKey = "process.issue-usage";
 
+    // The canonical terminal threshold. It lives here and nowhere else.
+    public const int TerminalQualifyingIssueCount = 2;
+
     private const string IssuesDataKey = "issues";
     private readonly TimeProvider _timeProvider;
 
@@ -24,6 +27,12 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
         requiredDataKeys: [IssuesDataKey],
         includeInOverallScore: true,
         version: 1);
+
+    // Deterministic and side-effect-free. The observed qualifying count only
+    // grows, and Present/5 is this signal's maximum, so once this returns true
+    // no further page can change the result.
+    public static bool IsTerminalThresholdReached(int observedQualifyingCount) =>
+        observedQualifyingCount >= TerminalQualifyingIssueCount;
 
     public SignalResult Evaluate(RepositorySnapshot snapshot)
     {
@@ -43,7 +52,7 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
                 evaluatedAt);
         }
 
-        if (qualifyingCount >= 2)
+        if (IsTerminalThresholdReached(qualifyingCount))
         {
             return CreateResult(
                 SignalStatus.Present,
@@ -86,7 +95,10 @@ public sealed class IssueUsageSignalEvaluator : ISignalEvaluator
         string state = availability is null
             ? "not-recorded"
             : availability.Status.ToString();
-        string value = $"qualifying={Format(snapshot.Issues.Items.Count)};open={Format(openCount)};closed={Format(closedCount)};complete={snapshot.Issues.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={state}";
+        // A bounded observation reports lower bounds and never a total.
+        string value = snapshot.Issues.IsDecisionBounded
+            ? $"qualifyingAtLeast={Format(snapshot.Issues.Items.Count)};openAtLeast={Format(openCount)};closedAtLeast={Format(closedCount)};observation=decision-bounded;availability={state}"
+            : $"qualifying={Format(snapshot.Issues.Items.Count)};open={Format(openCount)};closed={Format(closedCount)};complete={snapshot.Issues.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={state}";
 
         EvidenceCollection evidence = new();
         evidence.Add(new EvidenceItem(

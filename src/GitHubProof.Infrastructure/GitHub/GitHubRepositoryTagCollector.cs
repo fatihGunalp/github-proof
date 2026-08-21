@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GitHubProof.Domain.Analysis.Collection;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
@@ -20,12 +21,19 @@ public sealed class GitHubRepositoryTagCollector : IGitHubRepositoryTagCollector
     private readonly HttpClient httpClient;
     private readonly TimeProvider timeProvider;
 
-    public GitHubRepositoryTagCollector(HttpClient httpClient, TimeProvider? timeProvider = null)
+    // Null for every composition that must enumerate fully. Only the
+    // Profile V1 composition supplies a boundary, which is why Repository
+    // Proof cannot inherit early stopping.
+    private readonly CountCollectionDecisionBoundary? decisionBoundary;
+
+    public GitHubRepositoryTagCollector(HttpClient httpClient, TimeProvider? timeProvider = null,
+        CountCollectionDecisionBoundary? decisionBoundary = null)
     {
         this.httpClient = httpClient
             ?? throw new ArgumentNullException(nameof(httpClient));
         this.httpClient.BaseAddress ??= GitHubApiBaseUri;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.decisionBoundary = decisionBoundary;
     }
 
     public async Task<GitHubRepositoryTagCollection> CollectAsync(
@@ -60,6 +68,14 @@ public sealed class GitHubRepositoryTagCollector : IGitHubRepositoryTagCollector
                 {
                     tags.Add(tag);
                 }
+            }
+
+            // The observed prefix already decides every authorized consumer of
+            // this surface, and another page exists, so stopping here is a
+            // deliberate bound rather than an incomplete collection.
+            if (page.NextPage is not null && decisionBoundary?.Invoke(tags.Count) == true)
+            {
+                return CreateDecisionBoundedResult(tags);
             }
 
             nextPage = page.NextPage;
@@ -149,6 +165,16 @@ public sealed class GitHubRepositoryTagCollector : IGitHubRepositoryTagCollector
                 reason),
             [reason]);
     }
+
+    // A deliberate bound is not a failure: availability stays Available and
+    // no collection warning is produced, so RepositoryAnalysis.Status cannot
+    // be downgraded by the bound itself.
+    private GitHubRepositoryTagCollection CreateDecisionBoundedResult(
+        IEnumerable<GitHubRepositoryTag> tags) =>
+        new(
+            RepositoryCollection<GitHubRepositoryTag>.DecisionBounded(tags),
+            DataAvailability.Available(TagsDataKey, timeProvider.GetUtcNow()),
+            Array.Empty<string>());
 
     private static GitHubRepositoryTagCollection CreateIncompleteResult(
         IEnumerable<GitHubRepositoryTag> tags,

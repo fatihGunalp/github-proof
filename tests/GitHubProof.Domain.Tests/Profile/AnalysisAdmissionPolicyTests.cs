@@ -89,7 +89,10 @@ public sealed class AnalysisAdmissionPolicyTests
             () => new AnalysisAdmissionPolicy(null!));
     }
 
-    private static AnalysisAdmissionPolicy CreatePolicy() => new(PolicyVersion);
+    // A non-canonical policy carrying PolicyVersion, so these tests keep
+    // exercising the historical Analyze fork rule they always did.
+    private static AnalysisAdmissionPolicy CreatePolicy() =>
+        new(EligibilityPolicy.Create(PolicyVersion, TimeSpan.FromDays(365)));
 
     private static ProfileRepository CreateRepository(
         RepositoryConditionState empty,

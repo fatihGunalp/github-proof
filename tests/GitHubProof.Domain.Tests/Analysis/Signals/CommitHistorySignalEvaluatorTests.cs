@@ -23,7 +23,7 @@ public sealed class CommitHistorySignalEvaluatorTests
         Assert.Equal("process.commit-history", definition.Key);
         Assert.Equal(AnalysisCategory.DevelopmentProcessVisibility, definition.Category);
         Assert.Equal(7, definition.MaximumScore);
-        Assert.Equal(1, definition.Version);
+        Assert.Equal(2, definition.Version);
         Assert.True(definition.IncludeInOverallScore);
         Assert.Equal(["commits"], definition.RequiredDataKeys);
     }

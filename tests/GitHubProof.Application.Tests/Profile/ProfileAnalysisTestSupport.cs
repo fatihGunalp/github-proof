@@ -26,6 +26,11 @@ internal static class ProfileAnalysisTestSupport
     public static readonly EligibilityPolicyVersion TestPolicyVersion =
         new("test-eligibility-policy");
 
+    // The non-canonical test policy carrying TestPolicyVersion. Its fork rule is
+    // the historical Analyze, which is what these tests have always exercised.
+    public static readonly EligibilityPolicy TestEligibilityPolicy =
+        EligibilityPolicy.Create(TestPolicyVersion, TimeSpan.FromDays(365));
+
     public static ProfileRepositoryReference CreateReference(
         string name,
         string owner = "octocat") =>

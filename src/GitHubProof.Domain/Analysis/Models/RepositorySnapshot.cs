@@ -139,7 +139,8 @@ public sealed record RepositorySnapshot
         return new RepositoryCollection<RepositoryDependencyDeclaration>(
             normalized,
             declarations.IsComplete ? normalized.Length : declarations.TotalCount,
-            declarations.IsComplete);
+            declarations.IsComplete,
+            declarations.ObservationState);
     }
 
     // Deterministic ordering by path, Ordinal ascending; identical paths
@@ -161,7 +162,8 @@ public sealed record RepositorySnapshot
         return new RepositoryCollection<RepositorySourceFile>(
             normalized,
             sourceFiles.IsComplete ? normalized.Length : sourceFiles.TotalCount,
-            sourceFiles.IsComplete);
+            sourceFiles.IsComplete,
+            sourceFiles.ObservationState);
     }
 
     private static IReadOnlyList<string> NormalizeTopics(

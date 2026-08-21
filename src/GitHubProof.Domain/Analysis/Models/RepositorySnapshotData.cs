@@ -301,10 +301,17 @@ public sealed record RepositoryContributor
 
 public sealed class RepositoryCollection<T>
 {
+    // observationState is deliberately optional and last, so every existing
+    // caller keeps meaning exactly what it always meant:
+    //     isComplete: true  -> Enumerated
+    //     isComplete: false -> Incomplete
+    // Only a caller that has actually proven decision sufficiency passes
+    // DecisionBounded.
     public RepositoryCollection(
         IEnumerable<T>? items = null,
         int? totalCount = null,
-        bool isComplete = true)
+        bool isComplete = true,
+        CollectionObservationState? observationState = null)
     {
         List<T> normalizedItems = items?.ToList() ?? [];
 
@@ -323,9 +330,60 @@ public sealed class RepositoryCollection<T>
                 "Total count cannot be less than the collected item count.");
         }
 
+        CollectionObservationState state = observationState
+            ?? (isComplete
+                ? CollectionObservationState.Enumerated
+                : CollectionObservationState.Incomplete);
+
+        if (!Enum.IsDefined(state))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(observationState),
+                state,
+                "Collection observation state is not defined.");
+        }
+
+        // IsComplete = true <=> Enumerated. The equivalence is exact in both
+        // directions, so no caller can fabricate completeness and no caller
+        // can hide a fully enumerated collection behind another state.
+        if ((state == CollectionObservationState.Enumerated) != isComplete)
+        {
+            throw new ArgumentException(
+                $"Observation state '{state}' cannot be combined with "
+                + $"IsComplete={isComplete}: Enumerated requires IsComplete=true "
+                + "and every other state requires IsComplete=false.",
+                nameof(observationState));
+        }
+
+        // A deliberately bounded collection knows a lower bound, never a total.
+        if (state == CollectionObservationState.DecisionBounded
+            && totalCount is not null)
+        {
+            throw new ArgumentException(
+                "A DecisionBounded collection observed a lower bound, so it "
+                + "cannot carry a total count.",
+                nameof(totalCount));
+        }
+
+        // Enumerated means the provider collection was fully enumerated, so an
+        // explicitly supplied total that disagrees with the enumerated items is
+        // structurally impossible rather than merely suspicious. Incomplete may
+        // still carry a provider-known total larger than what was collected.
+        if (state == CollectionObservationState.Enumerated
+            && totalCount is not null
+            && totalCount != normalizedItems.Count)
+        {
+            throw new ArgumentException(
+                $"An Enumerated collection was fully enumerated, so its total "
+                + $"count must equal the {normalizedItems.Count} collected "
+                + $"item(s); {totalCount} was supplied.",
+                nameof(totalCount));
+        }
+
         Items = new ReadOnlyCollection<T>(normalizedItems);
         TotalCount = totalCount ?? (isComplete ? normalizedItems.Count : null);
         IsComplete = isComplete;
+        ObservationState = state;
     }
 
     public IReadOnlyList<T> Items { get; }
@@ -333,6 +391,21 @@ public sealed class RepositoryCollection<T>
     public int? TotalCount { get; }
 
     public bool IsComplete { get; }
+
+    public CollectionObservationState ObservationState { get; }
+
+    // Enumeration stopped deliberately, not because anything failed.
+    public bool IsDecisionBounded =>
+        ObservationState == CollectionObservationState.DecisionBounded;
+
+    // The deliberately bounded collection every early-stopping Profile
+    // collector produces: a lower bound, no total, never a failure.
+    public static RepositoryCollection<T> DecisionBounded(IEnumerable<T> items) =>
+        new(
+            items,
+            totalCount: null,
+            isComplete: false,
+            CollectionObservationState.DecisionBounded);
 
     public static RepositoryCollection<T> Empty { get; } = new();
 }

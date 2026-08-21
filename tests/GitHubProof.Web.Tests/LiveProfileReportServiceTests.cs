@@ -195,7 +195,7 @@ public sealed class LiveProfileReportServiceTests
             new ProfileRepositoryAnalysisOrchestrator(
                 new NeverCalledSnapshotSource(),
                 new NeverCalledAnalysisRunner(),
-                new AnalysisAdmissionPolicy(EligibilityPolicy.V1.Version)),
+                new AnalysisAdmissionPolicy(EligibilityPolicy.V1)),
             new RepositoryEligibilityPolicy(EligibilityPolicy.V1),
             new CrossRepositoryEvidenceComposer(
                 new RepositoryContributionPolicy(EligibilityPolicy.V1.Version)),

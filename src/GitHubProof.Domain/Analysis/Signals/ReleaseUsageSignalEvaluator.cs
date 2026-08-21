@@ -26,6 +26,17 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
         includeInOverallScore: true,
         version: 1);
 
+    // Deterministic and side-effect-free. Present/6 is this signal's maximum
+    // and one published release with notes already establishes it, so once this
+    // returns true no further release page can change the result.
+    public static bool IsTerminalThresholdReached(int observedPublishedWithNotesCount) =>
+        observedPublishedWithNotesCount > 0;
+
+    // Tag presence alone pins this signal's tag contribution: every branch that
+    // reads the tag count only asks whether at least one tag exists.
+    public static bool IsTagContributionPinned(int observedTagCount) =>
+        observedTagCount > 0;
+
     public SignalResult Evaluate(RepositorySnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -47,7 +58,7 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
             draftCount,
             tagCount);
 
-        if (publishedWithNotesCount > 0)
+        if (IsTerminalThresholdReached(publishedWithNotesCount))
         {
             return CreateResult(
                 SignalStatus.Present,
@@ -75,7 +86,7 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
                 evaluatedAt);
         }
 
-        if (tagCount > 0)
+        if (IsTagContributionPinned(tagCount))
         {
             return CreateResult(
                 SignalStatus.Partial,
@@ -132,7 +143,23 @@ public sealed class ReleaseUsageSignalEvaluator : ISignalEvaluator
     {
         string releasesState = GetAvailabilityState(releasesAvailability);
         string tagsState = GetAvailabilityState(tagsAvailability);
-        string value = $"published={Format(publishedCount)};publishedWithNotes={Format(publishedWithNotesCount)};draft={Format(draftCount)};tags={Format(tagCount)};releasesComplete={snapshot.Releases.IsComplete.ToString(CultureInfo.InvariantCulture)};tagsComplete={snapshot.Tags.IsComplete.ToString(CultureInfo.InvariantCulture)};releasesAvailability={releasesState};tagsAvailability={tagsState}";
+        // A bounded observation reports lower bounds and never a total. The
+        // releases and tags surfaces are bounded independently, and the field
+        // ORDER is preserved exactly, so an Enumerated evaluation produces the
+        // byte-identical value it always did.
+        string releaseCounts = snapshot.Releases.IsDecisionBounded
+            ? $"publishedAtLeast={Format(publishedCount)};publishedWithNotesAtLeast={Format(publishedWithNotesCount)};draftAtLeast={Format(draftCount)}"
+            : $"published={Format(publishedCount)};publishedWithNotes={Format(publishedWithNotesCount)};draft={Format(draftCount)}";
+        string tagCounts = snapshot.Tags.IsDecisionBounded
+            ? $"tagsAtLeast={Format(tagCount)}"
+            : $"tags={Format(tagCount)}";
+        string releasesObservation = snapshot.Releases.IsDecisionBounded
+            ? "releasesObservation=decision-bounded"
+            : $"releasesComplete={snapshot.Releases.IsComplete.ToString(CultureInfo.InvariantCulture)}";
+        string tagsObservation = snapshot.Tags.IsDecisionBounded
+            ? "tagsObservation=decision-bounded"
+            : $"tagsComplete={snapshot.Tags.IsComplete.ToString(CultureInfo.InvariantCulture)}";
+        string value = $"{releaseCounts};{tagCounts};{releasesObservation};{tagsObservation};releasesAvailability={releasesState};tagsAvailability={tagsState}";
         DateTimeOffset observedAt = GetObservedAt(
             snapshot.CapturedAt,
             releasesAvailability,

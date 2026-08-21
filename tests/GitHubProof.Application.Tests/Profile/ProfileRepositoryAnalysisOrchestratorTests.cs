@@ -119,7 +119,7 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
                     new FailingAnalysisRunner(
                         CreateAnalysisRunner(),
                         "analysis-fails"),
-                    new AnalysisAdmissionPolicy(TestPolicyVersion))
+                    new AnalysisAdmissionPolicy(TestEligibilityPolicy))
                 .AnalyzeAsync(
                     CreateProfileSnapshot(
                     [
@@ -306,7 +306,7 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
     public void Constructor_WhenDependenciesAreMissing_FailsFast()
     {
         FakeSnapshotSource source = CreateSource();
-        AnalysisAdmissionPolicy policy = new(TestPolicyVersion);
+        AnalysisAdmissionPolicy policy = new(TestEligibilityPolicy);
 
         Assert.Throws<ArgumentNullException>(
             () => new ProfileRepositoryAnalysisOrchestrator(
@@ -333,7 +333,7 @@ public sealed class ProfileRepositoryAnalysisOrchestratorTests
         new(
             source,
             CreateAnalysisRunner(),
-            new AnalysisAdmissionPolicy(TestPolicyVersion),
+            new AnalysisAdmissionPolicy(TestEligibilityPolicy),
             analysisIdFactory);
 
     private static ProfileRepositoryAnalysisResult FindResult(

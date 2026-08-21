@@ -51,8 +51,10 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
     {
         using ServiceProvider provider = BuildProvider();
 
+        // Session 099: production runs on the policy version carrying the Fork
+        // Policy B admission rule. V1 stays immutable and is still canonical.
         Assert.Equal(
-            EligibilityPolicy.V1,
+            EligibilityPolicy.V2,
             provider.GetRequiredService<EligibilityPolicy>());
         Assert.Equal(
             ObservationRuleVersion.V1,

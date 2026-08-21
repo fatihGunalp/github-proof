@@ -259,22 +259,27 @@ internal static class ProfileCompositionTestSupport
     // (tests/GitHubProof.Application.Tests/Profile/Validation/), so both
     // exercise the exact same real ProfilePipeline wiring rather than two
     // independent constructions of it.
+    // policy defaults to V1 so every pre-Session-099 caller keeps exercising the
+    // exact rules it always did; a fork-policy test passes V2 explicitly.
     public static ProfilePipeline CreatePipeline(
         FakeSnapshotSource source,
         Func<Guid>? analysisIdFactory = null,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        EligibilityPolicy? policy = null)
     {
+        policy ??= EligibilityPolicy.V1;
+
         ProfileRepositoryAnalysisOrchestrator analysisOrchestrator = new(
             source,
             CreateAnalysisRunner(),
-            new AnalysisAdmissionPolicy(EligibilityPolicy.V1.Version),
+            new AnalysisAdmissionPolicy(policy),
             analysisIdFactory);
 
         return new ProfilePipeline(
             analysisOrchestrator,
-            new RepositoryEligibilityPolicy(EligibilityPolicy.V1),
+            new RepositoryEligibilityPolicy(policy),
             new CrossRepositoryEvidenceComposer(
-                new RepositoryContributionPolicy(EligibilityPolicy.V1.Version)),
+                new RepositoryContributionPolicy(policy.Version)),
             new ProfilePatternPromotionPolicy(PatternRuleVersion.V1),
             new RepresentativeRepositorySelectionPolicy(RepresentativeRepositoryRuleVersion.V1),
             new ProfileComposer(),

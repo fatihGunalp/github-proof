@@ -10,7 +10,12 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
     public const string SignalKey = "process.commit-distribution";
 
     private static readonly TimeSpan MinimumRepositoryAge = TimeSpan.FromDays(14);
-    private static readonly TimeSpan StrongMinimumSpan = TimeSpan.FromDays(14);
+
+    // The canonical Strong thresholds. They live here and nowhere else: a
+    // collection boundary asks IsStrongThresholdReached rather than restating
+    // the numbers.
+    public static readonly TimeSpan StrongMinimumSpan = TimeSpan.FromDays(14);
+    public const int StrongActiveDayCount = 8;
 
     private const string CommitsDataKey = "commits";
     private const string MetadataDataKey = "metadata";
@@ -27,7 +32,37 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
         maximumScore: 8,
         requiredDataKeys: [CommitsDataKey, MetadataDataKey],
         includeInOverallScore: true,
-        version: 1);
+        version: 2);
+
+    // Deterministic and side-effect-free. Both observed quantities are monotone
+    // as more commits are read — a growing set cannot lose a distinct active
+    // day, and max - min cannot shrink — so once this returns true the Strong
+    // classification is irreversible regardless of provider ordering.
+    public static bool IsStrongThresholdReached(
+        int observedActiveDayCount,
+        TimeSpan observedCommitSpan) =>
+        observedActiveDayCount >= StrongActiveDayCount
+        && observedCommitSpan >= StrongMinimumSpan;
+
+    // The two observed quantities the Strong decision needs, derived from a
+    // normalized commit prefix. Exposed so a Profile collection boundary never
+    // reimplements the derivation.
+    public static (int ActiveDayCount, TimeSpan CommitSpan) Observe(
+        IReadOnlyList<RepositoryCommit> commits)
+    {
+        ArgumentNullException.ThrowIfNull(commits);
+
+        int activeDayCount = commits
+            .Select(commit => DateOnly.FromDateTime(commit.CommittedAt.UtcDateTime))
+            .Distinct()
+            .Count();
+        TimeSpan commitSpan = commits.Count == 0
+            ? TimeSpan.Zero
+            : commits.Max(commit => commit.CommittedAt)
+                - commits.Min(commit => commit.CommittedAt);
+
+        return (activeDayCount, commitSpan);
+    }
 
     public SignalResult Evaluate(RepositorySnapshot snapshot)
     {
@@ -71,8 +106,21 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
         }
 
         DataAvailability? commitsAvailability = snapshot.FindAvailability(CommitsDataKey);
+        IReadOnlyList<RepositoryCommit> commits = snapshot.Commits.Items;
+        (int activeDayCount, TimeSpan commitSpan) = Observe(commits);
+        bool isAvailable = commitsAvailability?.IsAvailable == true;
 
-        if (commitsAvailability?.IsAvailable != true || !snapshot.Commits.IsComplete)
+        // A deliberately bounded collection may still carry the terminal Strong
+        // result, because both observed quantities are lower bounds and the
+        // classification is monotone. An Incomplete collection may not: it
+        // keeps today's semantics exactly.
+        bool decisionBoundedStrong = isAvailable
+            && snapshot.Commits.IsDecisionBounded
+            && IsStrongThresholdReached(activeDayCount, commitSpan);
+
+        if (!isAvailable
+            || commitsAvailability is null
+            || (!snapshot.Commits.IsComplete && !decisionBoundedStrong))
         {
             return CreateUnavailableResult(
                 snapshot,
@@ -81,18 +129,11 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
                 repositoryAge);
         }
 
-        IReadOnlyList<RepositoryCommit> commits = snapshot.Commits.Items;
-        int activeDayCount = commits
-            .Select(commit => DateOnly.FromDateTime(commit.CommittedAt.UtcDateTime))
-            .Distinct()
-            .Count();
-        TimeSpan commitSpan = commits.Count == 0
-            ? TimeSpan.Zero
-            : commits.Max(commit => commit.CommittedAt)
-                - commits.Min(commit => commit.CommittedAt);
-        (SignalStatus Status, int Score) classification = Classify(
-            activeDayCount,
-            commitSpan);
+        (SignalStatus Status, int Score) classification = decisionBoundedStrong
+            ? (SignalStatus.Strong, Definition.MaximumScore)
+            : Classify(
+                activeDayCount,
+                commitSpan);
         EvidenceCollection resultEvidence = CollectDistributionEvidence(
             snapshot,
             commitsAvailability,
@@ -111,7 +152,7 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
         int activeDayCount,
         TimeSpan commitSpan)
     {
-        if (activeDayCount >= 8 && commitSpan >= StrongMinimumSpan)
+        if (IsStrongThresholdReached(activeDayCount, commitSpan))
         {
             return (SignalStatus.Strong, 8);
         }
@@ -156,10 +197,16 @@ public sealed class CommitDistributionSignalEvaluator : ISignalEvaluator
         string commitsState = activeDayCount is null
             ? "not-evaluated"
             : GetAvailabilityState(snapshot.FindAvailability(CommitsDataKey));
-        string value = $"repositoryAgeDays={FormatDays(repositoryAge)};activeDays={activeDays};firstCommitAt={firstCommitAt};lastCommitAt={lastCommitAt};spanDays={spanDays};commitsComplete={snapshot.Commits.IsComplete.ToString(CultureInfo.InvariantCulture)};metadataAvailability={metadataState};commitsAvailability={commitsState}";
+        // A bounded observation reports lower bounds and never claims the
+        // observed oldest commit is the repository's first commit.
+        string value = snapshot.Commits.IsDecisionBounded
+            ? $"repositoryAgeDays={FormatDays(repositoryAge)};activeDaysAtLeast={activeDays};firstObservedCommitAt={firstCommitAt};lastObservedCommitAt={lastCommitAt};spanDaysAtLeast={spanDays};observation=decision-bounded;metadataAvailability={metadataState};commitsAvailability={commitsState}"
+            : $"repositoryAgeDays={FormatDays(repositoryAge)};activeDays={activeDays};firstCommitAt={firstCommitAt};lastCommitAt={lastCommitAt};spanDays={spanDays};commitsComplete={snapshot.Commits.IsComplete.ToString(CultureInfo.InvariantCulture)};metadataAvailability={metadataState};commitsAvailability={commitsState}";
         string notes = activeDayCount is null
             ? "Repository yaşı UTC snapshot zamanlarına göre hesaplandı; commit dağılımı uygulanabilirlik nedeniyle incelenmedi."
-            : "Aktif günler UTC takvim günlerine, ilk-son aralığı normalize edilmiş UTC commit zamanlarına göre hesaplandı.";
+            : snapshot.Commits.IsDecisionBounded
+                ? "Aktif günler ve ilk-son aralığı gözlenen commit önekinden hesaplandı; koleksiyon karar-yeterli olarak sınırlandı, bu yüzden değerler alt sınırdır ve gözlenen en eski commit deponun ilk commit'i değildir."
+                : "Aktif günler UTC takvim günlerine, ilk-son aralığı normalize edilmiş UTC commit zamanlarına göre hesaplandı.";
 
         EvidenceCollection evidence = new();
         evidence.Add(new EvidenceItem(

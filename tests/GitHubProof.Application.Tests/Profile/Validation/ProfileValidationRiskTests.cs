@@ -241,6 +241,11 @@ public sealed class ProfileValidationRiskTests
             ProfileLimitationCode.LimitedIndependentEvidenceSurface,
             result.Profile.Limitations.Select(limitation => limitation.Code));
 
+        // Session 098 §4.5 / eligibility §6.3, §22.1.1: under the production
+        // policy a known fork is skipped at admission, so it contributes no
+        // evidence-bearing purpose at all and its overall status is
+        // NonContributing. It still appears in the repository universe, so its
+        // withheld contribution is never narrated as an absence of work.
         Assert.All(
             result.Profile.RepositoryEligibilityResults.Where(
                 r => r.Reference.Name.Contains("-fork-")),
@@ -248,7 +253,18 @@ public sealed class ProfileValidationRiskTests
             {
                 Assert.False(r.IndependentRepetition.IsAllowed);
                 Assert.Contains(EligibilityReason.ForkDetected, r.IndependentRepetition.Reasons);
+                Assert.False(r.ProfileObservation.IsAllowed);
+                Assert.False(r.CurrentFocus.IsAllowed);
+                Assert.False(r.HistoricalEvidence.IsAllowed);
+                Assert.Equal(RepositoryEligibilityStatus.NonContributing, r.Status);
+                Assert.Null(r.AnalysisReference);
             });
+
+        Assert.Equal(3, result.Profile.RepositoryEligibilityResults.Count);
+        Assert.Equal(
+            2,
+            result.Report.RepositoryDrillDown.Items.Count(
+                item => item.Repository.Name.Contains("-fork-")));
 
         // R9: with no meaningful claims produced, the trace check holds
         // vacuously true — no orphan claim leaked around the fork exclusion.

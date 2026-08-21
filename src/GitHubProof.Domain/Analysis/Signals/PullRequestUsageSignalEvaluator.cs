@@ -9,6 +9,9 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
 {
     public const string SignalKey = "process.pull-request-usage";
 
+    // The canonical terminal threshold. It lives here and nowhere else.
+    public const int TerminalMergedPullRequestCount = 2;
+
     private const string PullRequestsDataKey = "pull-requests";
     private readonly TimeProvider _timeProvider;
 
@@ -25,6 +28,12 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
         includeInOverallScore: true,
         version: 1);
 
+    // Deterministic and side-effect-free. The observed merged count only
+    // grows, and Strong/6 is this signal's maximum, so once this returns true
+    // no further page can change the result.
+    public static bool IsTerminalThresholdReached(int observedMergedCount) =>
+        observedMergedCount >= TerminalMergedPullRequestCount;
+
     public SignalResult Evaluate(RepositorySnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -34,7 +43,7 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
         int mergedCount = snapshot.PullRequests.Items.Count(pullRequest => pullRequest.IsMerged);
         EvidenceCollection evidence = CollectEvidence(snapshot, availability);
 
-        if (mergedCount >= 2)
+        if (IsTerminalThresholdReached(mergedCount))
         {
             return CreateResult(
                 SignalStatus.Strong,
@@ -88,7 +97,10 @@ public sealed class PullRequestUsageSignalEvaluator : ISignalEvaluator
         string state = availability is null
             ? "not-recorded"
             : availability.Status.ToString();
-        string value = $"total={Format(snapshot.PullRequests.Items.Count)};merged={Format(mergedCount)};open={Format(openCount)};closedUnmerged={Format(closedUnmergedCount)};complete={snapshot.PullRequests.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={state}";
+        // A bounded observation reports lower bounds and never a total.
+        string value = snapshot.PullRequests.IsDecisionBounded
+            ? $"totalAtLeast={Format(snapshot.PullRequests.Items.Count)};mergedAtLeast={Format(mergedCount)};openAtLeast={Format(openCount)};closedUnmergedAtLeast={Format(closedUnmergedCount)};observation=decision-bounded;availability={state}"
+            : $"total={Format(snapshot.PullRequests.Items.Count)};merged={Format(mergedCount)};open={Format(openCount)};closedUnmerged={Format(closedUnmergedCount)};complete={snapshot.PullRequests.IsComplete.ToString(CultureInfo.InvariantCulture)};availability={state}";
 
         EvidenceCollection evidence = new();
         evidence.Add(new EvidenceItem(

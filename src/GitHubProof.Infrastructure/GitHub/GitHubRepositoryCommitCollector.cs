@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GitHubProof.Domain.Analysis.Collection;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
@@ -21,14 +22,21 @@ public sealed class GitHubRepositoryCommitCollector : IGitHubRepositoryCommitCol
     private readonly HttpClient httpClient;
     private readonly TimeProvider timeProvider;
 
+    // Null for every composition that must enumerate fully. Only the
+    // Profile V1 composition supplies a boundary, which is why Repository
+    // Proof cannot inherit early stopping.
+    private readonly CommitCollectionDecisionBoundary? decisionBoundary;
+
     public GitHubRepositoryCommitCollector(
         HttpClient httpClient,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        CommitCollectionDecisionBoundary? decisionBoundary = null)
     {
         this.httpClient = httpClient
             ?? throw new ArgumentNullException(nameof(httpClient));
         this.httpClient.BaseAddress ??= GitHubApiBaseUri;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.decisionBoundary = decisionBoundary;
     }
 
     public async Task<GitHubRepositoryCommitCollection> CollectAsync(
@@ -63,6 +71,14 @@ public sealed class GitHubRepositoryCommitCollector : IGitHubRepositoryCommitCol
                 {
                     commits.Add(commit);
                 }
+            }
+
+            // The observed prefix already decides every authorized consumer of
+            // this surface, and another page exists, so stopping here is a
+            // deliberate bound rather than an incomplete collection.
+            if (page.NextPage is not null && decisionBoundary?.Invoke(commits) == true)
+            {
+                return CreateDecisionBoundedResult(commits);
             }
 
             nextPage = page.NextPage;
@@ -182,6 +198,16 @@ public sealed class GitHubRepositoryCommitCollector : IGitHubRepositoryCommitCol
                 reason),
             [reason]);
     }
+
+    // A deliberate bound is not a failure: availability stays Available and
+    // no collection warning is produced, so RepositoryAnalysis.Status cannot
+    // be downgraded by the bound itself.
+    private GitHubRepositoryCommitCollection CreateDecisionBoundedResult(
+        IEnumerable<RepositoryCommit> commits) =>
+        new(
+            RepositoryCollection<RepositoryCommit>.DecisionBounded(commits),
+            DataAvailability.Available(CommitsDataKey, timeProvider.GetUtcNow()),
+            Array.Empty<string>());
 
     private static GitHubRepositoryCommitCollection CreateIncompleteResult(
         IEnumerable<RepositoryCommit> commits,

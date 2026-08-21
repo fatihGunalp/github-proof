@@ -47,10 +47,10 @@ public sealed class RepositoryReportProjectorTests
             AnalysisCategory.RepositoryUnderstandability, 7, true),
 
         new("process.commit-history",
-            AnalysisCategory.DevelopmentProcessVisibility, 7, true),
+            AnalysisCategory.DevelopmentProcessVisibility, 7, true, 2),
 
         new("process.commit-distribution",
-            AnalysisCategory.DevelopmentProcessVisibility, 8, true),
+            AnalysisCategory.DevelopmentProcessVisibility, 8, true, 2),
 
         new("process.issue-usage",
             AnalysisCategory.DevelopmentProcessVisibility, 5, true),
@@ -593,7 +593,7 @@ public sealed class RepositoryReportProjectorTests
 
                 return new SignalResult(
                     spec.Key,
-                    signalVersion: 1,
+                    spec.Version,
                     spec.Category,
                     state.Status,
                     state.Score,
@@ -673,7 +673,8 @@ public sealed class RepositoryReportProjectorTests
         string Key,
         AnalysisCategory Category,
         int MaximumScore,
-        bool IncludeInOverallScore);
+        bool IncludeInOverallScore,
+        int Version = 1);
 
     private sealed record ResultState(
         SignalStatus Status,

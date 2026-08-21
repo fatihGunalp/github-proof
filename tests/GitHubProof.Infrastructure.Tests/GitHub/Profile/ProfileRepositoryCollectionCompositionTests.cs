@@ -30,6 +30,8 @@ public sealed class ProfileRepositoryCollectionCompositionTests
     private static string DependencyManifestContentPath =>
         $"/contents/{FakeGitHubApiHandler.DependencyManifestPath}";
 
+    private const string ContributorsPath = "/contributors";
+
     [Fact]
     public async Task ProfileComposition_IssuesNoSourceFileRequestAtAll()
     {
@@ -86,11 +88,15 @@ public sealed class ProfileRepositoryCollectionCompositionTests
                 path.Contains(SourceContentPath, StringComparison.Ordinal)
                     || path.Contains(
                         DependencyManifestContentPath,
-                        StringComparison.Ordinal),
+                        StringComparison.Ordinal)
+                    || path.Contains(ContributorsPath, StringComparison.Ordinal),
                 $"Unexpected request removed from the profile composition: {path}"));
 
+        // Session 099 added the contributors request to the removed set: one
+        // source-content, one manifest-content, the source collector's duplicate
+        // git/commits + git/trees pair, and the single contributors page.
         Assert.Equal(
-            full.Handler.RequestPaths.Count - 4,
+            full.Handler.RequestPaths.Count - 5,
             profile.Handler.RequestPaths.Count);
     }
 
@@ -109,6 +115,21 @@ public sealed class ProfileRepositoryCollectionCompositionTests
         Assert.Contains(
             full.Snapshot.Availability,
             availability => availability.DataKey == "dependency-manifests");
+    }
+
+    [Fact]
+    public async Task ProfileComposition_IssuesNoContributorRequestAtAll()
+    {
+        CollectionRun full = await RunFullCompositionAsync();
+        CollectionRun profile = await RunProfileCompositionAsync();
+
+        Assert.Equal(1, full.Handler.CountRequests(ContributorsPath));
+        Assert.Equal(0, profile.Handler.CountRequests(ContributorsPath));
+        Assert.NotEmpty(full.Snapshot.Contributors.Items);
+        Assert.Empty(profile.Snapshot.Contributors.Items);
+        Assert.DoesNotContain(
+            profile.Snapshot.Availability,
+            availability => availability.DataKey == "contributors");
     }
 
     [Fact]
@@ -140,7 +161,8 @@ public sealed class ProfileRepositoryCollectionCompositionTests
             .. full.Snapshot.Availability
                 .Where(availability =>
                     availability.DataKey is not "source-files"
-                        and not "dependency-manifests")
+                        and not "dependency-manifests"
+                        and not "contributors")
                 .Select(availability => $"{availability.DataKey}:{availability.Status}")
         ];
         string[] actual =

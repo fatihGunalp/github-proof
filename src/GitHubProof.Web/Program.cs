@@ -15,9 +15,13 @@ builder.Services.AddSingleton<TimeProvider>(
     TimeProvider.System);
 
 builder.Services.AddSingleton<AnalysisVersion>(
+    // Session 099 / Session 098 contract: AnalyzerVersion owns snapshot
+    // normalization (CollectionObservationState) and evidence values;
+    // RuleSetVersion owns scoring/evaluator semantics, and the two commit
+    // signals' terminal-decision gate changed. The report schema is unchanged.
     new AnalysisVersion(
-        analyzerVersion: "1.1.0",
-        ruleSetVersion: "2026.08.15",
+        analyzerVersion: "1.2.0",
+        ruleSetVersion: "2026.08.21",
         reportSchemaVersion: 1));
 
 builder.Services.AddScoped<RepositoryAnalysisRunner>();

@@ -23,7 +23,7 @@ public sealed class CommitDistributionSignalEvaluatorTests
         Assert.Equal("process.commit-distribution", definition.Key);
         Assert.Equal(AnalysisCategory.DevelopmentProcessVisibility, definition.Category);
         Assert.Equal(8, definition.MaximumScore);
-        Assert.Equal(1, definition.Version);
+        Assert.Equal(2, definition.Version);
         Assert.True(definition.IncludeInOverallScore);
         Assert.Equal(["commits", "metadata"], definition.RequiredDataKeys);
     }

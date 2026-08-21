@@ -1,3 +1,4 @@
+using GitHubProof.Domain.Analysis.Collection;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 
@@ -32,16 +33,26 @@ public sealed class GitHubRepositorySnapshotOrchestrator
 
     // The Profile V1 composition contracted by
     // docs/architecture/public-profile-runtime-collection.md §3.2 and §5: the
-    // same repository snapshot assembly with the two non-scoring enrichment
-    // collectors omitted, so a Profile Proof run issues no source-tree,
-    // source-content or dependency-manifest request at all.
+    // same repository snapshot assembly with the three omitted surfaces left
+    // out — SourceFiles, DependencyDeclarations and Contributors — so a Profile
+    // Proof run issues no source-tree, source-content, dependency-manifest or
+    // contributor request at all.
     //
-    // Nothing else about the collected result differs. Every surface the
-    // canonical 15 signals, the eligibility contract and
+    // Nothing else about the collected result differs for the surfaces that
+    // stay: every one the canonical 15 signals, the eligibility contract and
     // CrossRepositoryEvidenceComposer actually read is still collected by the
     // same collector, in the same order, from the same HttpClient.
-    // CreateDefault stays the Repository Proof composition and still builds the
-    // full collector set.
+    //
+    // Session 099 adds two things to this composition and to nothing else:
+    // Contributors is omitted (contract §5, no production consumer), and the
+    // five paginated surfaces are given their canonical decision boundaries
+    // (§15) so they may stop once the authorized V1 decision is already
+    // irreversible. The boundaries come from the Domain evaluators that own the
+    // thresholds; this composition restates none of them.
+    //
+    // CreateDefault stays the Repository Proof composition, still builds the
+    // full collector set and supplies no boundary at all, so it keeps
+    // enumerating fully.
     public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
         HttpClient httpClient,
         TimeProvider? timeProvider = null)
@@ -52,12 +63,26 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             new GitHubRepositoryMetadataCollector(httpClient),
             new GitHubRepositoryContentsCollector(httpClient),
             new GitHubRepositoryDescriptiveDataCollector(httpClient),
-            new GitHubRepositoryCommitCollector(httpClient),
-            new GitHubRepositoryIssueCollector(httpClient),
-            new GitHubRepositoryPullRequestCollector(httpClient),
-            new GitHubRepositoryReleaseCollector(httpClient),
-            new GitHubRepositoryTagCollector(httpClient),
-            new GitHubRepositoryContributorCollector(httpClient),
+            new GitHubRepositoryCommitCollector(
+                httpClient,
+                timeProvider,
+                RepositoryCollectionDecisionBoundary.AreCommitDecisionsIrreversible),
+            new GitHubRepositoryIssueCollector(
+                httpClient,
+                timeProvider,
+                RepositoryCollectionDecisionBoundary.IsIssueDecisionIrreversible),
+            new GitHubRepositoryPullRequestCollector(
+                httpClient,
+                timeProvider,
+                RepositoryCollectionDecisionBoundary.IsPullRequestDecisionIrreversible),
+            new GitHubRepositoryReleaseCollector(
+                httpClient,
+                timeProvider,
+                RepositoryCollectionDecisionBoundary.IsReleaseDecisionIrreversible),
+            new GitHubRepositoryTagCollector(
+                httpClient,
+                timeProvider,
+                RepositoryCollectionDecisionBoundary.IsTagDecisionIrreversible),
             timeProvider);
     }
 
@@ -69,7 +94,10 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     private readonly IGitHubRepositoryPullRequestCollector pullRequestCollector;
     private readonly IGitHubRepositoryReleaseCollector releaseCollector;
     private readonly IGitHubRepositoryTagCollector tagCollector;
-    private readonly IGitHubRepositoryContributorCollector contributorCollector;
+    // Null exactly when this composition omits the surface entirely (the
+    // Profile V1 composition), for the same reason and with the same
+    // absent-not-failed meaning as the two enrichment collectors below.
+    private readonly IGitHubRepositoryContributorCollector? contributorCollector;
     // Null exactly when this composition omits the surface entirely (the
     // Profile V1 composition). Null never means "collection failed": the
     // omitted surface contributes no availability entry, no declaration, no
@@ -79,9 +107,9 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     private readonly IGitHubRepositorySourceFileCollector? sourceFileCollector;
     private readonly TimeProvider timeProvider;
 
-    // The Profile V1 composition constructor: the same nine required
-    // collectors, with the two non-scoring enrichment surfaces omitted. It is
-    // deliberately a separate overload rather than a nullable parameter on the
+    // The Profile V1 composition constructor: the eight required collectors,
+    // with the two non-scoring enrichment surfaces and Contributors omitted. It
+    // is deliberately a separate overload rather than nullable parameters on the
     // full constructor, so the Repository Proof constructor below keeps its
     // existing non-null contract exactly.
     public GitHubRepositorySnapshotOrchestrator(
@@ -93,7 +121,6 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         IGitHubRepositoryPullRequestCollector pullRequestCollector,
         IGitHubRepositoryReleaseCollector releaseCollector,
         IGitHubRepositoryTagCollector tagCollector,
-        IGitHubRepositoryContributorCollector contributorCollector,
         TimeProvider? timeProvider = null)
     {
         this.metadataCollector = metadataCollector
@@ -112,8 +139,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             ?? throw new ArgumentNullException(nameof(releaseCollector));
         this.tagCollector = tagCollector
             ?? throw new ArgumentNullException(nameof(tagCollector));
-        this.contributorCollector = contributorCollector
-            ?? throw new ArgumentNullException(nameof(contributorCollector));
+        contributorCollector = null;
         dependencyManifestCollector = null;
         sourceFileCollector = null;
         this.timeProvider = timeProvider ?? TimeProvider.System;
@@ -242,11 +268,15 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             repository,
             metadata,
             cancellationToken);
-        GitHubRepositoryContributorCollection contributors =
-            await contributorCollector.CollectAsync(
-                repository,
-                metadata,
-                cancellationToken);
+        // Omitted compositions never reach the collector, so no contributor
+        // request is issued at all.
+        GitHubRepositoryContributorCollection? contributors =
+            contributorCollector is null
+                ? null
+                : await contributorCollector.CollectAsync(
+                    repository,
+                    metadata,
+                    cancellationToken);
         // Omitted compositions never reach the collector, so no dependency
         // manifest request is issued at all.
         GitHubRepositoryDependencyManifestCollection? dependencyManifests =
@@ -284,7 +314,10 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             metadata.Topics,
             descriptive.License,
             descriptive.Languages,
-            contributors.Contributors,
+
+            // Null on an omitted composition; RepositorySnapshot normalizes it
+            // to the same empty collection the absent-surface baseline uses.
+            contributors?.Contributors,
             CollectAvailability(
                 metadata,
                 contents,
@@ -385,13 +418,17 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         RepositoryCollection<GitHubRepositoryTag> tags) =>
         MapCollection(tags, tag => new RepositoryTag(tag.Name));
 
+    // The observation state travels with the mapped collection. Dropping it
+    // would silently relabel a deliberate DecisionBounded stop as an Incomplete
+    // failure and make the evaluators' lower-bound evidence unreachable.
     private static RepositoryCollection<TTarget> MapCollection<TSource, TTarget>(
         RepositoryCollection<TSource> source,
         Func<TSource, TTarget> map) =>
         new(
             source.Items.Select(map),
             source.TotalCount,
-            source.IsComplete);
+            source.IsComplete,
+            source.ObservationState);
 
     private static IReadOnlyList<DataAvailability> CollectAvailability(
         GitHubRepositoryMetadataCollection metadata,
@@ -402,7 +439,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryPullRequestCollection pullRequests,
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
-        GitHubRepositoryContributorCollection contributors,
+        GitHubRepositoryContributorCollection? contributors,
         GitHubRepositoryDependencyManifestCollection? dependencyManifests,
         GitHubRepositorySourceFileCollection? sourceFiles) =>
         [
@@ -417,7 +454,12 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             pullRequests.Availability,
             releases.Availability,
             tags.Availability,
-            contributors.Availability,
+
+            // An omitted composition contributes no entry at all: an omission is
+            // not an availability outcome.
+            .. contributors is null
+                ? Array.Empty<DataAvailability>()
+                : new[] { contributors.Availability },
 
             // The dependency evidence surface contributes availability only.
             // Its warnings are deliberately not merged into the snapshot
@@ -444,7 +486,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryPullRequestCollection pullRequests,
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
-        GitHubRepositoryContributorCollection contributors,
+        GitHubRepositoryContributorCollection? contributors,
         GitHubCommitReference? contentReference)
     {
         List<string> warnings =
@@ -455,14 +497,22 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             .. pullRequests.CollectionWarnings,
             .. releases.CollectionWarnings,
             .. tags.CollectionWarnings,
-            .. contributors.CollectionWarnings
+            .. contributors?.CollectionWarnings ?? []
         ];
 
         if (contents.HeadCommitSha is not null)
         {
+            // The live-state list names only what this composition actually
+            // collected. A composition that omits contributors must not claim
+            // they were read from live state, and the omission itself is never
+            // described — it stays neutral, with no warning of its own.
+            string liveSections = contributors is null
+                ? "Metadata, languages, commits, issues, pull requests, releases, and tags"
+                : "Metadata, languages, commits, issues, pull requests, releases, tags, and contributors";
+
             warnings.Add(contentReference is null
                 ? SnapshotConsistencyWarning
-                : $"Repository file tree, project files, workflows, documentation Markdown, README, and license evidence were collected from requested commit SHA '{contentReference.CommitSha}'. Metadata, languages, commits, issues, pull requests, releases, tags, and contributors were collected from live GitHub state and may not be atomic with that commit.");
+                : $"Repository file tree, project files, workflows, documentation Markdown, README, and license evidence were collected from requested commit SHA '{contentReference.CommitSha}'. {liveSections} were collected from live GitHub state and may not be atomic with that commit.");
         }
 
         return warnings;

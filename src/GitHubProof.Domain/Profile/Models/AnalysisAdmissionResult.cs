@@ -44,14 +44,21 @@ public sealed record AnalysisAdmissionResult
                 nameof(reason));
         }
 
-        // Stage A owns only these two canonical reason identities; the
-        // remaining identities belong to contribution evaluation.
+        // Stage A owns only these canonical reason identities; the remaining
+        // identities belong to contribution evaluation.
+        //
+        // ForkDetected joined them with the Session 098 amendment (eligibility
+        // contract §6.3): known fork lineage is a manifest-only fact that now
+        // resolves admission itself, exactly as EmptyRepository already did. No
+        // new reason identity was introduced — ForkDetected is already canonical
+        // under §15.2.
         if (reason is not null
             and not EligibilityReason.EmptyRepository
+            and not EligibilityReason.ForkDetected
             and not EligibilityReason.RequiredInputUnavailable)
         {
             throw new ArgumentException(
-                "Analysis admission can only report EmptyRepository or RequiredInputUnavailable.",
+                "Analysis admission can only report EmptyRepository, ForkDetected or RequiredInputUnavailable.",
                 nameof(reason));
         }
 
