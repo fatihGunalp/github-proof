@@ -2,17 +2,23 @@ using GitHubProof.Application.Analysis;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Profile.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
 
 // P10-I1: proves the composition-root registration Program.cs adds for
-// IGitHubProfileSnapshotCollector follows the exact pattern already used for
-// IGitHubRepositorySnapshotCollector (same "GitHubProof.GitHub" HttpClient,
-// same reused TimeProvider, GitHubProfileSnapshotOrchestrator.CreateDefault),
-// resolves the real production Infrastructure type, and neither replaces nor
-// duplicates the pre-existing repository collector registration.
+// IGitHubProfileSnapshotCollector resolves the real production Infrastructure
+// type and neither replaces nor duplicates the pre-existing repository
+// collector registration.
+//
+// Session 097 amends one part of that P10-I1 shape: the profile collector no
+// longer shares the "GitHubProof.GitHub" client. It runs on the profile-specific
+// instrumented client registered by AddProfilePipeline, which carries the same
+// transport contract plus the request-counting handler. Repository Proof's
+// registration, client and construction path are unchanged, and these tests
+// assert that separation explicitly.
 public sealed class ProfileCompositionRootTests
 {
     [Fact]
@@ -60,8 +66,14 @@ public sealed class ProfileCompositionRootTests
         Assert.NotNull(service);
     }
 
+    // Session 097 supersedes the P10-I1 shared-client decision for the profile
+    // path only: Profile Proof now runs on its own instrumented named client
+    // (docs/architecture/public-profile-runtime-collection.md §9 and the
+    // Session 097 request-counting boundary), so profile telemetry can never mix
+    // in Repository Proof traffic. Repository Proof's own registration, named
+    // client and construction path are unchanged.
     [Fact]
-    public void ProgramSource_RegistersTheProfileCollectorFollowingTheRepositoryCollectorPattern()
+    public void ProgramSource_KeepsRepositoryProofOnItsOwnUnchangedNamedClient()
     {
         string content = ReadWebFile("Program.cs");
 
@@ -70,11 +82,22 @@ public sealed class ProfileCompositionRootTests
             content,
             StringComparison.Ordinal);
         Assert.Contains(
-            "AddScoped<IGitHubProfileSnapshotCollector>",
+            "GitHubRepositorySnapshotOrchestrator.CreateDefault",
             content,
             StringComparison.Ordinal);
+
+        // The repository client is still registered once and still looked up
+        // once, by the Repository Proof collector.
+        Assert.Equal(2, CountOccurrences(content, "\"GitHubProof.GitHub\""));
+    }
+
+    [Fact]
+    public void ProgramSource_RegistersTheProfileCollectorOnTheProfileGitHubClient()
+    {
+        string content = ReadWebFile("Program.cs");
+
         Assert.Contains(
-            "GitHubRepositorySnapshotOrchestrator.CreateDefault",
+            "AddScoped<IGitHubProfileSnapshotCollector>",
             content,
             StringComparison.Ordinal);
         Assert.Contains(
@@ -86,17 +109,64 @@ public sealed class ProfileCompositionRootTests
             content,
             StringComparison.Ordinal);
 
-        int namedClientReferences = CountOccurrences(
+        // The profile collector resolves its client through the single profile
+        // client factory helper, never through the repository client name.
+        Assert.Contains(
+            "ProfilePipelineServiceCollectionExtensions.CreateGitHubClient",
             content,
-            "\"GitHubProof.GitHub\"");
+            StringComparison.Ordinal);
+    }
 
-        // One AddHttpClient registration plus one CreateClient lookup per
-        // collector (repository, profile) = at least three references to the
-        // same named client.
-        Assert.True(
-            namedClientReferences >= 3,
-            "Both collector registrations must reuse the same named "
-            + "\"GitHubProof.GitHub\" HttpClient.");
+    // The Repository Proof client must not carry the profile telemetry handler,
+    // and the profile client must.
+    [Fact]
+    public void ProfileTelemetryHandler_IsRegisteredOnlyOnTheProfileClient()
+    {
+        string programContent = ReadWebFile("Program.cs");
+        string profileWiring = ReadWebFile(
+            "Profile",
+            "ProfilePipelineServiceCollectionExtensions.cs");
+
+        Assert.DoesNotContain(
+            nameof(ProfileGitHubRequestTelemetryHandler),
+            programContent,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            $"AddHttpMessageHandler<{nameof(ProfileGitHubRequestTelemetryHandler)}>",
+            profileWiring,
+            StringComparison.Ordinal);
+    }
+
+    // The wiring must build the profile path from the omitting composition, and
+    // Repository Proof must keep the full one
+    // (docs/architecture/public-profile-runtime-collection.md §3.1, §3.2, §14.1,
+    // §14.2). The zero-request behavior of that composition is proven in
+    // GitHubProof.Infrastructure.Tests against a real GitHub fixture.
+    [Fact]
+    public void ProfileWiring_BuildsTheOmittingCompositionAndLeavesRepositoryProofOnTheFullOne()
+    {
+        string programContent = ReadWebFile("Program.cs");
+        string profileWiring = ReadWebFile(
+            "Profile",
+            "ProfilePipelineServiceCollectionExtensions.cs");
+
+        Assert.Contains(
+            "GitHubRepositorySnapshotOrchestrator.CreateProfileComposition",
+            profileWiring,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "GitHubRepositorySnapshotOrchestrator.CreateDefault",
+            profileWiring,
+            StringComparison.Ordinal);
+
+        Assert.Contains(
+            "GitHubRepositorySnapshotOrchestrator.CreateDefault",
+            programContent,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "GitHubRepositorySnapshotOrchestrator.CreateProfileComposition",
+            programContent,
+            StringComparison.Ordinal);
     }
 
     private static int CountOccurrences(string content, string value)
@@ -144,7 +214,8 @@ public sealed class ProfileCompositionRootTests
                     provider.GetRequiredService<IHttpClientFactory>();
 
                 return GitHubProfileSnapshotOrchestrator.CreateDefault(
-                    httpClientFactory.CreateClient("GitHubProof.GitHub"),
+                    httpClientFactory.CreateClient(
+                        ProfilePipelineServiceCollectionExtensions.GitHubHttpClientName),
                     provider.GetRequiredService<TimeProvider>());
             });
 

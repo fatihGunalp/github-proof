@@ -3,6 +3,7 @@ using GitHubProof.Application.Profile;
 using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Profile.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -67,6 +68,11 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
             provider.GetRequiredService<ProfileAnalyzerVersion>());
     }
 
+    // Session 097: the profile snapshot source is now wrapped by an
+    // observation-only telemetry recorder. The invariant this test protects is
+    // unchanged — Web still contributes no analysis decision — so it asserts
+    // that the wrapper does nothing but delegate to the exact production
+    // Infrastructure adapter.
     [Fact]
     public void AddProfilePipeline_ResolvesTheProductionSnapshotSourceAdapter()
     {
@@ -76,9 +82,58 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
         IProfileRepositorySnapshotSource source =
             scope.ServiceProvider.GetRequiredService<IProfileRepositorySnapshotSource>();
 
+        TelemetryProfileRepositorySnapshotSource recorder =
+            Assert.IsType<TelemetryProfileRepositorySnapshotSource>(source);
+
         Assert.Equal(
             "GitHubProof.Infrastructure.GitHub.Profile.GitHubProfileRepositorySnapshotSource",
-            source.GetType().FullName);
+            recorder.Inner.GetType().FullName);
+    }
+
+    [Fact]
+    public void AddProfilePipeline_ResolvesTheProductionAnalysisRunner()
+    {
+        using ServiceProvider provider = BuildProvider();
+        using IServiceScope scope = provider.CreateScope();
+
+        IRepositoryAnalysisRunner runner =
+            scope.ServiceProvider.GetRequiredService<IRepositoryAnalysisRunner>();
+
+        TelemetryRepositoryAnalysisRunner recorder =
+            Assert.IsType<TelemetryRepositoryAnalysisRunner>(runner);
+
+        Assert.Equal(typeof(RepositoryAnalysisRunner), recorder.Inner.GetType());
+    }
+
+    // The profile path owns its own collection composition, so it must not
+    // resolve the Repository Proof collector registration at all
+    // (docs/architecture/public-profile-runtime-collection.md §3.1, §3.2).
+    [Fact]
+    public void AddProfilePipeline_DoesNotReuseTheRepositoryProofSnapshotCollector()
+    {
+        using ServiceProvider provider = BuildProvider();
+        using IServiceScope scope = provider.CreateScope();
+
+        // The placeholder is still the registered Repository Proof collector and
+        // still resolvable, yet resolving the whole profile pipeline never
+        // invokes it, which the placeholder itself enforces by throwing.
+        Assert.IsType<NeverCalledSnapshotCollector>(
+            scope.ServiceProvider.GetRequiredService<IGitHubRepositorySnapshotCollector>());
+        Assert.NotNull(scope.ServiceProvider.GetRequiredService<ProfilePipeline>());
+    }
+
+    [Fact]
+    public void AddProfilePipeline_RegistersAProfileSpecificGitHubClient()
+    {
+        using ServiceProvider provider = BuildProvider();
+
+        HttpClient httpClient = provider
+            .GetRequiredService<IHttpClientFactory>()
+            .CreateClient(
+                ProfilePipelineServiceCollectionExtensions.GitHubHttpClientName);
+
+        Assert.Equal(new Uri("https://api.github.com/"), httpClient.BaseAddress);
+        Assert.Equal(TimeSpan.FromMinutes(2), httpClient.Timeout);
     }
 
     private static ServiceProvider BuildProvider()

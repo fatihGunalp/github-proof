@@ -1,6 +1,6 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-20 (Session 096)
+**Last Updated:** 2026-08-21 (Session 097 — live smoke failure finalization)
 **Source of Truth:** docs/
 
 ## Development
@@ -231,7 +231,16 @@ P10-I3..I6:
 NOT STARTED
 
 Profile runtime collection contract (Session 096):
-CONTRACT LOCKED — implementation NOT STARTED
+CONTRACT LOCKED
+
+Profile runtime collection implementation (Session 097):
+PASS WITH FINDINGS — automated proofs PASS, controlled live smoke FAILED
+
+Profile runtime readiness:
+BLOCKED — unbounded required-surface pagination
+
+Profile execution guard:
+NOT IMPLEMENTED — no numeric value selected
 ~~~
 
 Session 096 (docs-only) added a new canonical architecture owner,
@@ -336,9 +345,105 @@ BLOCKED
 ## Active Session
 
 Session:
-096 — Profile Runtime Cost Contract
+097 — Profile Runtime Collection Implementation
 
 Active Branch:
+session/097-profile-runtime-collection-implementation
+
+Session Base:
+715c55a (Session 096 — profile runtime collection contract)
+
+Goal:
+Implement the Session 096 contract: a Profile V1 collection composition that
+issues zero GitHub requests for `SourceFiles` and `DependencyDeclarations`,
+preserves the exact Profile V1 semantic result, leaves Repository Proof
+unchanged, and adds bounded per-profile runtime telemetry. The execution guard
+is deliberately not implemented.
+
+Session File:
+worklog/sessions/2026-08-21-097-profile-runtime-collection-implementation.md
+
+Status:
+**PASS WITH FINDINGS — automated validation PASS (1491/1491, 0 warning /
+0 error), controlled live smoke FAILED, Profile runtime readiness BLOCKED.**
+
+The user ran the controlled live smoke on `fatihGunalp`. It exceeded 3 minutes
+without producing a Profile Proof result; at least 842 outbound GitHub GET send
+events were observed before abort, dominated by repeated commit pagination for
+repository id 1079771485 (`fatihGunalp/fatih-azure-sdk-for-net`). No
+`ProfileExecutionTelemetry` completion line was produced because the process was
+terminated before `LiveProfileReportService`'s `finally` block ran. The later
+`core: used=47, remaining=4953, reset=1787271349` reading was taken **after the
+reset boundary**, so it belongs to the new primary-rate-limit window and must not
+be compared with those 842 send events — request amplification and primary-quota
+consumption are separate facts, and nothing here indicates a telemetry counting
+defect.
+
+**Blocking reason: unbounded required-surface pagination**, discovered during the
+real profile run and confirmed by a read-only audit of the six paginated
+surfaces. commits paginate without bound and both `CommitHistorySignalEvaluator`
+and `CommitDistributionSignalEvaluator` require `IsComplete` **before** their
+ordinary decision paths, so no early stop exists under current semantics. issues
+become irreversible at >= 2 qualifying issues, pull requests at >= 2 merged PRs,
+releases at the first published release with notes, and tags can be decided from
+one page; contributors has no current production consumer. commits remain the
+dominant blocker because an exact non-Strong `CommitDistribution` can require the
+full history under the current contract.
+
+The Session 097 implementation facts below all still hold; the blocker is a
+pre-existing surface the optimization did not touch.
+`GitHubRepositorySnapshotOrchestrator` gained a Profile-specific factory
+(`CreateProfileComposition`) and a nine-collector construction path, and the
+shared assembly was refactored so the two enrichment collectors can be absent —
+the collector fields became nullable and `CollectAsync`/`CollectAvailability`
+changed accordingly, so the source change is **not** purely additive. What is
+preserved exactly is the Repository Proof contract: the eleven-collector
+constructor keeps its non-null parameter contract, `CreateDefault` still builds
+the full composition, and on that path both collectors are non-null so every new
+branch takes the route it took before. Repository Proof's observable semantics
+are unchanged and proven by test. When a surface
+is omitted the collector is never reached, `RepositorySnapshot` normalizes null
+to the isolation-test baseline's empty collection, and **no availability entry
+is contributed at all** (absent, never `NotRequested`/`Unavailable`/`Failed`).
+`AddProfilePipeline` now owns the whole profile runtime boundary: its own
+`"GitHubProof.GitHub.Profile"` named client (identical transport contract plus
+the counting handler), its own composition via `CreateProfileComposition`, and
+it no longer resolves the caller's `IGitHubRepositorySnapshotCollector` at all.
+Telemetry (`src/GitHubProof.Web/Profile/Runtime/`) is per-execution and ambient
+via `AsyncLocal` — the deliberate answer to `IHttpClientFactory` handler
+pooling — with a closed 17-value request-category vocabulary, a closed
+repository-outcome vocabulary (canonical `DataAvailabilityStatus` names +
+`AnalysisFailed`), and hard prohibitions proven by test (no token, no
+Authorization header, no source/README/manifest content, no identifier as a
+key). Repository counters come from two observation-only wrappers, so
+`ProfileRepositoryAnalysisOrchestrator` is unchanged and admission is never
+recomputed in Web. Removed request ceiling: up to 66 per admitted repository;
+measured on the deterministic fixture as exactly 4 requests removed with the
+profile request set a strict subset of the full one. Cancellation semantics are unchanged
+— every exception propagates exactly as before, nothing fabricated; only the
+telemetry *label* distinguishes caller cancellation (`cancelled`) from an
+`OperationCanceledException` raised while the caller's token was not cancelled,
+such as `HttpClient`'s transport timeout (`Faulted`). **Execution guard NOT
+implemented; no numeric value chosen.** Final: **1491/1491**, 0 warning /
+0 error.
+
+Two independent review passes. Round 1 (`github-proof-review`): **PASS WITH
+FINDINGS** (0 BLOCKER, 0 HIGH, 2 MEDIUM, 3 LOW) — both MEDIUMs closed in-session
+(F1 worklog sync, F2 per-repository rate-limit/forbidden/failed
+distinguishability). Round 2 (ChatGPT): 3 further MEDIUMs, all closed — F1
+transport timeout must not be labelled caller cancellation (this also closed
+round 1's LOW F5), F2 a *thrown* repository collection now records the closed
+`Failed` outcome and still rethrows unchanged so the orchestrator's semantics are
+untouched, F3 the worklog's "two additive members only" claim corrected to match
+the diff. Two LOWs remain open and deliberately unfixed: the public
+nine-collector constructor could in principle build an omitting Repository Proof
+composition, and `repository-contents` merges enrichment with project-file
+traffic in the category split. Commit/push NOT performed (user-owned).
+
+Previously Active Session:
+096 — Profile Runtime Cost Contract
+
+Branch:
 session/096-profile-runtime-cost-contract
 
 Session Base:
@@ -405,7 +510,7 @@ so §13.4 is not read as requiring full-composition reuse. No `.cs`, `.csproj`,
 `.cshtml` or test file changed; no test suite run (documentation-only).
 Commit/push NOT performed (user-owned).
 
-Previously Active Session:
+Earlier Session:
 095 — P10-I2 Profile Entry + Routing
 
 Branch:
@@ -875,10 +980,10 @@ in the session files, not here):
 ## Git
 
 Session Branch:
-session/095-p10-i2-profile-entry-routing
+session/097-profile-runtime-collection-implementation
 
 Session Base:
-f2ebd3c (feat(profile): add live profile request boundary)
+715c55a (Session 096 — profile runtime collection contract)
 
 Operational Git State:
 Not tracked in CURRENT.md.
@@ -1084,45 +1189,42 @@ P10-I2 Profile Entry + Routing:       COMPLETE
 P10-I3..I6:                           NOT STARTED
 
 Profile runtime collection contract:  CONTRACT LOCKED (Session 096)
-Profile runtime implementation:       NOT STARTED
+Profile runtime implementation:       PASS WITH FINDINGS (Session 097)
+Controlled live smoke:                FAILED
+Profile runtime readiness:            BLOCKED
+Profile execution guard:              NOT IMPLEMENTED
 ~~~
 
-Exact next action — one ordering decision is open and belongs to the user /
-ChatGPT, because Session 096 locked a contract that was not in the original
-P10 slice order:
+Exact next action:
 
 ~~~text
-Option A (recommended)
-Session 097 — Profile runtime collection implementation
-              (docs/architecture/public-profile-runtime-collection.md §14)
-
-Option B
-P10-I3 — Meaning / Direction / Starting Point
+Session 098 — Profile Decision-Sufficient Pagination Contract
+(bounded CONTRACT AMENDMENT / DECISION session — NOT implementation)
 ~~~
 
-Both are unblocked. Option A is recommended because the two production
-guardrails already recorded below (concurrency guard, GitHub request /
-rate-limit telemetry) now have a locked contract, because a live Profile Proof
-run still pays up to 66 unnecessary GitHub requests per admitted repository
-until it is implemented, and because §10 requires the guard numeric values to
-be chosen from measurement taken *after* the unnecessary requests are removed.
-Option A does not change any P10 slice scope; P10-I3 remains the next P10
-slice either way.
+Session 098 must decide how Profile Proof may stop required-surface pagination
+**only** when the existing V1 semantic decision has already become
+mathematically irreversible, without pretending the underlying collection is
+complete.
 
-Session 097 scope if Option A is taken (from the contract's §14 acceptance
-criteria):
+Locked constraints for that session:
 
 ~~~text
-1. Profile-specific snapshot composition behind the existing
-   IProfileRepositorySnapshotSource registration; zero requests for the two
-   omitted surfaces; GitHubRepositorySnapshotOrchestrator and the Repository
-   Proof registration untouched.
-2. Semantic-equivalence test (§6) + no-warning/no-limitation/no-status-change
-   test (§5.2).
-3. Runtime telemetry counters (§9) + the §9.1 prohibition test.
-4. Measure the resulting per-profile request count, then propose the §10
-   guard numeric values from that measurement.
+- no fake IsComplete = true
+- no arbitrary hard page cap
+- no sampling and no approximation
+- no concurrency-as-cost-fix
+- Repository Proof unchanged
+- fork semantics are a separate product decision and are NOT changed by 097
+- contributors omission requires an explicit amendment of Session 096 §5.4
+- commits need a contract change before any implementation
 ~~~
+
+Still true and unchanged by the live failure: the §10 execution guard has no
+numeric value, and P10-I3 (Meaning / Direction / Starting Point) remains the next
+P10 slice. Neither can proceed usefully before Session 098, because no §9
+measurement exists yet — the live run aborted before any telemetry line was
+produced.
 
 Carried into later P10 slices (recorded in the Session 095 file, not
 blocking P10-I3):
@@ -1141,11 +1243,13 @@ production gate, unchanged by Session 095: a concurrency guard for profile
 analysis (it fans out across the account's admitted repositories), and GitHub
 request / rate-limit telemetry. P10-I2's POST-only `/profile` reduces
 accidental analysis triggering (GET, refresh-to-GET, prefetch, crawler, link
-preview) but replaces neither guardrail. Session 096 did not implement either
-guardrail, but both now have a locked canonical contract:
-`docs/architecture/public-profile-runtime-collection.md` §9 (telemetry) and
-§10 (bounded end-to-end execution guard, plus §10.1 bounded
-concurrent-profile-execution policy as a production-beta requirement).
+preview) but replaces neither guardrail. Session 096 locked the canonical
+contract for both (`docs/architecture/public-profile-runtime-collection.md` §9
+telemetry, §10 bounded end-to-end execution guard, §10.1 bounded
+concurrent-profile-execution policy). Session 097 implemented the §9 telemetry
+and removed the unnecessary request amplification; the §10 execution guard and
+the §10.1 concurrency policy remain **NOT IMPLEMENTED**, and their numeric
+values are deliberately deferred until the controlled live measurement.
 
 P9 — Public Profile Evidence Validation (Validation Profile Set) is
 **COMPLETE**:
@@ -1168,12 +1272,14 @@ traceability satisfied for every meaningful claim across all 11 scenarios,
 invariance). No production contract violation was found at any point across
 P9; `src/` was never changed across P9-I1 through P9-I4.
 
-P10 implementation is **not started**. Session 093 (docs-only) made it
-READY by locking the six implementation slices and their decisions (see
-"P10 Phase State" above); it did not authorize starting any slice's code.
-Milestone B's production gate additionally requires `P10 — Profile Web Flow
-COMPLETE` (`docs/roadmap/deployment-milestones.md`) — Milestone B therefore
-remains BLOCKED pending P10 implementation, unaffected by P9's or P10
+P10 implementation is **in progress**: P10-I1 and P10-I2 are COMPLETE, and
+P10-I3 through P10-I6 are NOT STARTED (see "P10 Phase State" above — this
+sentence restates that state, it does not change any slice). Session 093
+(docs-only) made implementation READY by locking the six slices and their
+decisions; Sessions 094 and 095 then delivered the first two. Milestone B's
+production gate additionally requires `P10 — Profile Web Flow COMPLETE`
+(`docs/roadmap/deployment-milestones.md`) — Milestone B therefore remains
+BLOCKED pending the remaining P10 slices, unaffected by P9's or P10
 contract-closure's completion.
 
 Known remaining work, none of it started: `RoleEvidenceAlignment` taxonomy

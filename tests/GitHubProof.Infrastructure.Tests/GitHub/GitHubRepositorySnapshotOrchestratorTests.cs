@@ -452,11 +452,71 @@ public sealed class GitHubRepositorySnapshotOrchestratorTests
             snapshot.FindAvailability("source-files")!.Status);
     }
 
+    // Session 097 / public-profile-runtime-collection.md §5, §14.3: the Profile
+    // V1 composition never reaches the two enrichment collectors at all, so no
+    // request attributable to them can be issued, and it leaves the collection
+    // order of every required surface unchanged.
+    [Fact]
+    public async Task ProfileComposition_NeverInvokesTheTwoEnrichmentCollectors()
+    {
+        StubCollectors collectors = new();
+        GitHubRepositorySnapshotOrchestrator orchestrator =
+            CreateProfileOrchestrator(collectors);
+
+        GitHubRepositorySnapshotResult result = await orchestrator.CollectAsync(
+            "https://github.com/octocat/hello-world");
+
+        Assert.True(result.IsSuccessful);
+        Assert.Equal(
+            [
+                "metadata",
+                "contents",
+                "descriptive",
+                "commits",
+                "issues",
+                "pull-requests",
+                "releases",
+                "tags",
+                "contributors"
+            ],
+            collectors.Calls);
+    }
+
+    [Fact]
+    public async Task ProfileComposition_LeavesBothOmittedSurfacesAbsent()
+    {
+        StubCollectors collectors = new();
+        GitHubRepositorySnapshotResult result =
+            await CreateProfileOrchestrator(collectors).CollectAsync(
+                "https://github.com/octocat/hello-world");
+
+        RepositorySnapshot snapshot = result.Snapshot!;
+
+        Assert.Empty(snapshot.SourceFiles.Items);
+        Assert.Empty(snapshot.DependencyDeclarations.Items);
+        Assert.Null(snapshot.FindAvailability("source-files"));
+        Assert.Null(snapshot.FindAvailability("dependency-manifests"));
+    }
+
     private static GitHubRepositorySnapshotOrchestrator CreateOrchestrator(
         StubCollectors collectors) =>
         new(
             collectors,
             collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            collectors,
+            new FixedTimeProvider(CapturedAt));
+
+    private static GitHubRepositorySnapshotOrchestrator CreateProfileOrchestrator(
+        StubCollectors collectors) =>
+        new(
             collectors,
             collectors,
             collectors,

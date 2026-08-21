@@ -30,6 +30,37 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             timeProvider);
     }
 
+    // The Profile V1 composition contracted by
+    // docs/architecture/public-profile-runtime-collection.md §3.2 and §5: the
+    // same repository snapshot assembly with the two non-scoring enrichment
+    // collectors omitted, so a Profile Proof run issues no source-tree,
+    // source-content or dependency-manifest request at all.
+    //
+    // Nothing else about the collected result differs. Every surface the
+    // canonical 15 signals, the eligibility contract and
+    // CrossRepositoryEvidenceComposer actually read is still collected by the
+    // same collector, in the same order, from the same HttpClient.
+    // CreateDefault stays the Repository Proof composition and still builds the
+    // full collector set.
+    public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
+        HttpClient httpClient,
+        TimeProvider? timeProvider = null)
+    {
+        ArgumentNullException.ThrowIfNull(httpClient);
+
+        return new GitHubRepositorySnapshotOrchestrator(
+            new GitHubRepositoryMetadataCollector(httpClient),
+            new GitHubRepositoryContentsCollector(httpClient),
+            new GitHubRepositoryDescriptiveDataCollector(httpClient),
+            new GitHubRepositoryCommitCollector(httpClient),
+            new GitHubRepositoryIssueCollector(httpClient),
+            new GitHubRepositoryPullRequestCollector(httpClient),
+            new GitHubRepositoryReleaseCollector(httpClient),
+            new GitHubRepositoryTagCollector(httpClient),
+            new GitHubRepositoryContributorCollector(httpClient),
+            timeProvider);
+    }
+
     private readonly IGitHubRepositoryMetadataCollector metadataCollector;
     private readonly IGitHubRepositoryContentsCollector contentsCollector;
     private readonly IGitHubRepositoryDescriptiveDataCollector descriptiveDataCollector;
@@ -39,9 +70,54 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     private readonly IGitHubRepositoryReleaseCollector releaseCollector;
     private readonly IGitHubRepositoryTagCollector tagCollector;
     private readonly IGitHubRepositoryContributorCollector contributorCollector;
-    private readonly IGitHubRepositoryDependencyManifestCollector dependencyManifestCollector;
-    private readonly IGitHubRepositorySourceFileCollector sourceFileCollector;
+    // Null exactly when this composition omits the surface entirely (the
+    // Profile V1 composition). Null never means "collection failed": the
+    // omitted surface contributes no availability entry, no declaration, no
+    // source file and no warning, which is the absent-surface state the
+    // existing Application isolation tests already prove is analysis-neutral.
+    private readonly IGitHubRepositoryDependencyManifestCollector? dependencyManifestCollector;
+    private readonly IGitHubRepositorySourceFileCollector? sourceFileCollector;
     private readonly TimeProvider timeProvider;
+
+    // The Profile V1 composition constructor: the same nine required
+    // collectors, with the two non-scoring enrichment surfaces omitted. It is
+    // deliberately a separate overload rather than a nullable parameter on the
+    // full constructor, so the Repository Proof constructor below keeps its
+    // existing non-null contract exactly.
+    public GitHubRepositorySnapshotOrchestrator(
+        IGitHubRepositoryMetadataCollector metadataCollector,
+        IGitHubRepositoryContentsCollector contentsCollector,
+        IGitHubRepositoryDescriptiveDataCollector descriptiveDataCollector,
+        IGitHubRepositoryCommitCollector commitCollector,
+        IGitHubRepositoryIssueCollector issueCollector,
+        IGitHubRepositoryPullRequestCollector pullRequestCollector,
+        IGitHubRepositoryReleaseCollector releaseCollector,
+        IGitHubRepositoryTagCollector tagCollector,
+        IGitHubRepositoryContributorCollector contributorCollector,
+        TimeProvider? timeProvider = null)
+    {
+        this.metadataCollector = metadataCollector
+            ?? throw new ArgumentNullException(nameof(metadataCollector));
+        this.contentsCollector = contentsCollector
+            ?? throw new ArgumentNullException(nameof(contentsCollector));
+        this.descriptiveDataCollector = descriptiveDataCollector
+            ?? throw new ArgumentNullException(nameof(descriptiveDataCollector));
+        this.commitCollector = commitCollector
+            ?? throw new ArgumentNullException(nameof(commitCollector));
+        this.issueCollector = issueCollector
+            ?? throw new ArgumentNullException(nameof(issueCollector));
+        this.pullRequestCollector = pullRequestCollector
+            ?? throw new ArgumentNullException(nameof(pullRequestCollector));
+        this.releaseCollector = releaseCollector
+            ?? throw new ArgumentNullException(nameof(releaseCollector));
+        this.tagCollector = tagCollector
+            ?? throw new ArgumentNullException(nameof(tagCollector));
+        this.contributorCollector = contributorCollector
+            ?? throw new ArgumentNullException(nameof(contributorCollector));
+        dependencyManifestCollector = null;
+        sourceFileCollector = null;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
+    }
 
     public GitHubRepositorySnapshotOrchestrator(
         IGitHubRepositoryMetadataCollector metadataCollector,
@@ -171,19 +247,27 @@ public sealed class GitHubRepositorySnapshotOrchestrator
                 repository,
                 metadata,
                 cancellationToken);
-        GitHubRepositoryDependencyManifestCollection dependencyManifests =
-            await dependencyManifestCollector.CollectAsync(
-                repository,
-                contents,
-                cancellationToken);
+        // Omitted compositions never reach the collector, so no dependency
+        // manifest request is issued at all.
+        GitHubRepositoryDependencyManifestCollection? dependencyManifests =
+            dependencyManifestCollector is null
+                ? null
+                : await dependencyManifestCollector.CollectAsync(
+                    repository,
+                    contents,
+                    cancellationToken);
 
         // Raw source collection is an independent surface. It is never gated by
-        // dependency declarations or dependency-manifest availability.
-        GitHubRepositorySourceFileCollection sourceFiles =
-            await sourceFileCollector.CollectAsync(
-                repository,
-                contents,
-                cancellationToken);
+        // dependency declarations or dependency-manifest availability, and an
+        // omitted composition never reaches the collector, so neither the two
+        // tree-resolution requests nor any source-content request is issued.
+        GitHubRepositorySourceFileCollection? sourceFiles =
+            sourceFileCollector is null
+                ? null
+                : await sourceFileCollector.CollectAsync(
+                    repository,
+                    contents,
+                    cancellationToken);
 
         RepositorySnapshot snapshot = new(
             metadata.Repository,
@@ -225,8 +309,11 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             MapTags(tags.Tags),
             descriptive.LicenseFile,
             contents.DocumentationMarkdownFiles,
-            dependencyManifests.Declarations,
-            sourceFiles.SourceFiles);
+
+            // Null on an omitted composition. RepositorySnapshot normalizes it
+            // to the same empty collection the absent-surface baseline uses.
+            dependencyManifests?.Declarations,
+            sourceFiles?.SourceFiles);
 
         return new GitHubRepositorySnapshotResult(snapshot, metadata.Availability);
     }
@@ -316,8 +403,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         GitHubRepositoryReleaseCollection releases,
         GitHubRepositoryTagCollection tags,
         GitHubRepositoryContributorCollection contributors,
-        GitHubRepositoryDependencyManifestCollection dependencyManifests,
-        GitHubRepositorySourceFileCollection sourceFiles) =>
+        GitHubRepositoryDependencyManifestCollection? dependencyManifests,
+        GitHubRepositorySourceFileCollection? sourceFiles) =>
         [
             metadata.Availability,
             contents.FileTreeAvailability,
@@ -335,11 +422,19 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             // The dependency evidence surface contributes availability only.
             // Its warnings are deliberately not merged into the snapshot
             // collection warnings, which would change RepositoryAnalysis.Status.
-            dependencyManifests.Availability,
+            //
+            // An omitted composition contributes no entry at all: an omission is
+            // not an availability outcome, so it must never surface as
+            // NotRequested, Unavailable or Failed.
+            .. dependencyManifests is null
+                ? Array.Empty<DataAvailability>()
+                : new[] { dependencyManifests.Availability },
 
             // The bounded raw source surface contributes availability only, for
-            // the same isolation reason.
-            sourceFiles.Availability
+            // the same isolation reason, and is omitted the same way.
+            .. sourceFiles is null
+                ? Array.Empty<DataAvailability>()
+                : new[] { sourceFiles.Availability }
         ];
 
     private static IReadOnlyList<string> CollectWarnings(
