@@ -70,6 +70,13 @@ Limitations sequencing note (§13.19). No slice identity, route, entry,
 section label, canonical ordering, evidence, pattern or prohibition clause
 changed, and no Domain, Application or `ProfileReportProjector` behavior
 changed
+**Amended:** 2026-08-22 / Session 107 — P10-I5 and §13.12 now consume the
+canonical production-guardrail runtime outcomes from
+`public-profile-runtime-collection.md` §10.2-§10.5/§11. The minimum future Web
+HTTP mapping is locked without final EN/TR copy and without adding any Domain,
+evidence, profile-analysis or Repository Proof status. Architecture-owner
+re-review corrected the boundary to nullable `ProfileAvailability?` because the
+deadline starts before the first live metadata operation
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -656,17 +663,35 @@ mevcut JavaScript, yeni design token ve P10-I5 yüzeyleri.
 
 Amaç:
 
-Gerçek profile collection/pipeline contract'larının desteklediği bounded
-durumları kapsamak — yeni bir durum icat etmeden.
+Gerçek profile collection/pipeline ve canonical runtime guard contract'larının
+desteklediği bounded durumları kapsamak — yeni bir Domain/evidence durumu icat
+etmeden.
 
-İki katman (§13.12'de kilitli):
+Üç katman (§13.12'de kilitli):
 
-- **Entry-boundary** (pipeline çalışmadan önce):
-  `GitHubProfileSnapshotResult.ProfileAvailability`
-  (`DataAvailabilityStatus`: `NotApplicable`, `RateLimited`, `Forbidden`,
-  `Failed`, `Unavailable`) — Repository Proof'un zaten kullandığı
-  (`IndexModel.CreateRepositoryFailureMessage`) aynı switch şeklini,
-  profile'a özgü kopya ile tekrar kullanır.
+- **Admission-boundary** (live result oluşmadan önce): geçerli Profile POST
+  visitor limiter tarafından reddedilirse `429`, aynı normalized profile zaten
+  çalışıyorsa `409`, global Profile kapasitesi doluysa `503`. Bu yollar queue,
+  analiz veya result reuse üretmez.
+- **Live runtime boundary** (pipeline sonucu oluşmadan önce): canonical
+  `ProfileAvailability? + ExecutionAvailability + ProfilePipelineResult?`
+  şeklini taşır. Deadline profile availability çözülmeden önce dolarsa
+  `ProfileAvailability=null`, execution
+  `Failed`/`execution-deadline-expired`, HTTP `504` ve pipeline null'dır.
+  Profile availability non-success olarak çözülürse mevcut truthful typed
+  provider sonucu (`DataAvailabilityStatus`: `NotApplicable`, `RateLimited`,
+  `Forbidden`, `Failed`, `Unavailable`) korunur; execution
+  `NotRequested`/`profile-unavailable` ve pipeline null olur. Availability
+  `Available` olduktan sonraki deadline aynı execution reason/HTTP ile
+  availability'yi korur. Proactive internal GitHub-budget rejection yalnız
+  availability bilinen `Available` iken
+  `Unavailable`/`github-budget-protection-rejected`, HTTP `503` ve pipeline
+  null üretir.
+  Every `ExecutionAvailability.DataKey` exactly `profile-execution` olur.
+  Successful execution'da `Status=Available`, `Reason=null`; `RetrievedAt` live
+  execution'ın terminal non-null `ProfilePipelineResult`'a ulaştığı UTC
+  instant'tır. Bütün non-success execution outcome'larında `RetrievedAt=null`
+  kalır.
 - **Composed-profile** (pipeline başarıyla çalıştıktan sonra):
   `ProfilePipelineResult` (`Failed` | `Composed`); `Composed` içinde
   `AnalysisStatus` (`Complete`/`Partial`), `Limitations[]`
@@ -677,6 +702,14 @@ durumları kapsamak — yeni bir durum icat etmeden.
 
 Sparse profile (product contract §16) yeni bir UI durumu değildir; mevcut
 `Partial` / `LimitedIndependentEvidenceSurface` yolunun bir örneğidir.
+
+`504` internal execution deadline'ının Web operasyon sonucudur; bir GitHub
+provider timeout/rate-limit kanıtı değildir. Internal budget `503` de GitHub'ın
+gerçek `RateLimited` yanıtını iddia etmez. `Retry-After` visitor `429` için ve
+budget `503` için yalnız güvenilir bounded reset/retry bilgisi varsa yazılabilir.
+Caller/request cancellation mevcut contract'a göre propagate eder; bu HTTP
+mapping tablosuna veya fabricated result'a çevrilmez. Final EN/TR metin ve
+layout bu contract-decision session'ında kilitlenmez.
 
 Hiçbir eksik/erişilemeyen veri negatif geliştirici hükmüne dönüştürülmez
 (product contract §16/§18, report contract §6.4).
@@ -1159,12 +1192,35 @@ indirgemez.
 
 ## 13.12 Partial / Sparse / Unavailable / Rate-Limited / Forbidden / Failed
 
-İki katman, ikisi de mevcut ve olduğu gibi reuse edilir:
+Canonical failure/operational sunum girdileri üç katmandır:
 
-- **Entry-boundary:** `GitHubProfileSnapshotResult.ProfileAvailability`
-  (`DataAvailabilityStatus`: `NotApplicable`, `RateLimited`, `Forbidden`,
-  `Failed`, `Unavailable`) — Repository Proof'un
-  `IndexModel.CreateRepositoryFailureMessage`'ıyla aynı switch şekli.
+- **Admission-boundary:** valid Profile POST için visitor limiter `429`,
+  same-profile duplicate `409`, global capacity busy `503`. Bunlar fail-fast
+  Web operasyon sonuçlarıdır; queue, analysis veya result reuse yoktur.
+- **Live runtime boundary:** `ProfileAvailability? + ExecutionAvailability +
+  ProfilePipelineResult?` şekli runtime collection contract §10.2'nin exhaustive
+  invariant ve vocabulary'sini birebir tüketir. Deadline availability
+  çözülmeden önce dolarsa profile availability null, execution
+  `Failed`/`execution-deadline-expired`, pipeline null ve HTTP `504` olur. Null
+  yalnız availability'nin execution-level terminal event'ten önce hiç
+  çözülemediği outer-runtime gerçeğidir; presentation bunu provider/evidence
+  durumu olarak yorumlayamaz. Profile entry availability non-success çözülürse
+  mevcut truthful typed provider sonucu (`DataAvailabilityStatus`:
+  `NotApplicable`, `RateLimited`, `Forbidden`, `Failed`, `Unavailable`) korunur
+  ve execution `NotRequested`/`profile-unavailable` olur. Availability
+  `Available` iken deadline aynı execution failure ile availability'yi korur;
+  proactive internal budget rejection
+  `Unavailable`/`github-budget-protection-rejected` + HTTP `503` üretir. Her iki
+  operational non-success'ta pipeline result null'dır; bunlar
+  profile/repository availability, warning, limitation veya evidence değildir.
+  `ExecutionAvailability.DataKey` her durumda exact `profile-execution`'dır.
+  Yalnız successful execution `Reason=null` ve terminal non-null pipeline
+  result'ın oluştuğu UTC instant olarak `RetrievedAt` taşır; bütün non-success
+  execution outcome'larında `RetrievedAt=null` olur. Bu timestamp yalnız
+  operational runtime metadata'dır; evidence, profile observation time,
+  repository retrieval time, analysis provenance veya report truth değildir ve
+  Domain/Application evaluator/composer/projector'ları ya da presentation
+  tarafından developer evidence olarak tüketilemez.
 - **Composed-profile:** `ProfilePipelineResult` (`Failed`/`Composed`);
   `Composed` içinde `AnalysisStatus` (`Complete`/`Partial`),
   `Limitations[]` (`LimitedIndependentEvidenceSurface`,
@@ -1175,6 +1231,30 @@ indirgemez.
 Sparse profile (product contract §16) yeni bir durum değildir; mevcut
 `Partial`/`LimitedIndependentEvidenceSurface` yolunun bir örneğidir. Hiçbiri
 negatif geliştirici hükmüne dönüştürülmez.
+
+HTTP mapping özeti:
+
+| Operational outcome | HTTP | Result/evidence invariant |
+|---|---:|---|
+| Visitor limiter rejection | `429` | no analysis/result |
+| Same-profile duplicate | `409` | no queue, reuse or analysis/result |
+| Global Profile capacity busy | `503` | no analysis/result |
+| Internal execution deadline expired | `504` | execution non-success; no pipeline/Partial |
+| Proactive internal GitHub-budget rejection | `503` | execution non-success; no pipeline/Partial |
+
+Bu status'lar final kullanıcı metnini kilitlemez. `Retry-After` yalnız visitor
+limiter veya budget protection için güvenilir bounded retry/reset bilgisi varsa
+sunulur. Caller/request cancellation ayrı kalır ve propagate eder; per-request
+transport timeout internal deadline olarak sunulmaz. Provider'ın gerçek
+rate-limit/forbidden/failure sonucu kendi mevcut typed availability yolunda
+kalır.
+
+Deadline valid Profile request Web admission'dan geçtikten sonra, ilk live
+GitHub metadata operasyonundan **önce** başlar ve live terminal sonuca kadar
+aktif kalır. Runtime contract §10.3 uyarınca `ResponseHeadersRead` kullanılırken
+`HttpClient.Timeout` response-content tüketimini tek başına sınırlamaz; content
+read'leri internal deadline veya ayrı sahipliği/kimliği kanıtlanmış bounded token
+ile sınırlandırılmadan bu Web sonucu production-ready sayılamaz.
 
 ## 13.13 Warnings ve Limitations Sunumu
 

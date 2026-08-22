@@ -12,6 +12,15 @@ smoke failed on unbounded required-surface pagination: added §15
 from the §4 required surface list into the §5 omission list with its
 zero-consumer proof, and added §17 acceptance criteria. §14 remains Session
 096's criteria, unchanged
+**Amended:** 2026-08-22 / Session 107 — locked the minimum production-guardrail
+runtime contract in §10.2-§10.5 and reconciled §11.2-§11.3: the nullable-profile
+three-part live result boundary, execution status/reason vocabulary, deadline
+ownership and transport/content-read relationship, Profile-only initial
+provider protection, authentication boundary and trusted-proxy production
+dependency. Architecture-owner re-review corrected the deadline start to occur
+before the first live metadata operation and recorded `ResponseHeadersRead`
+semantics. No evidence, scoring, eligibility, composition, report or Repository
+Proof behavior changed
 **Production Code:** NOT IN SCOPE (contract only)
 
 ## 1. Purpose
@@ -499,6 +508,174 @@ This contract records the requirement only. It does not implement, design or
 authorize queueing, distributed coordination, background job infrastructure or
 any other such mechanism.
 
+### 10.2 Live runtime result boundary (Session 107)
+
+The future live Web/runtime result has exactly this semantic shape:
+
+```text
+ProfileAvailability?
++ ExecutionAvailability
++ ProfilePipelineResult?
+```
+
+Both availability values reuse the existing `DataAvailability` /
+`DataAvailabilityStatus` vocabulary. `ExecutionAvailability` is operational
+runtime truth only: its `DataKey` is exactly `profile-execution`, it is not
+repository availability or Domain evidence, and it may never be read by an
+evaluator, policy, composer, projector or report section.
+
+The allowed combinations and stable reason identities are exhaustive for the
+initial Milestone B implementation:
+
+| Profile availability | Execution status | Exact execution reason | Execution `RetrievedAt` | Pipeline result |
+|---|---|---|---|---|
+| unresolved (`null`) | `Failed` | `execution-deadline-expired` | `null` | `null` |
+| non-`Available` | `NotRequested` | `profile-unavailable` | `null` | `null` |
+| `Available` | `Available` | `null` | UTC terminal-result instant | non-null |
+| `Available` | `Failed` | `execution-deadline-expired` | `null` | `null` |
+| `Available` | `Unavailable` | `github-budget-protection-rejected` | `null` | `null` |
+
+Every `ExecutionAvailability` has `DataKey = "profile-execution"`. For successful
+execution, `Status = Available`, `Reason = null`, and `RetrievedAt` is the UTC
+instant at which the live Profile execution successfully reaches its terminal
+non-null `ProfilePipelineResult`. Every non-success execution outcome has
+`RetrievedAt = null`, preserving the existing `DataAvailability` invariant.
+
+This execution `RetrievedAt` is operational runtime metadata only. It is not
+evidence, profile observation time, repository retrieval time, analysis
+provenance or report truth. Domain/Application evaluators, policies, composers
+and projectors must not consume it, and presentation must not expose or interpret
+it as developer evidence.
+
+For `ExecutionAvailability`, the only allowed statuses are therefore
+`Available`, `NotRequested`, `Failed` and `Unavailable`. `RateLimited`,
+`Forbidden` and `NotApplicable` are prohibited: an internal execution guard
+cannot claim that GitHub rate-limited or forbade evidence, and execution is not
+an applicability decision. No additional execution reason identity is
+authorized by this contract.
+
+`ExecutionAvailability = Available` means a `ProfilePipelineResult` exists; it
+does not mean that composition succeeded. A truthful
+`ProfilePipelineResult.Failed` therefore remains non-null beside available
+execution. Ordinary thrown faults and per-request transport timeouts retain
+their existing propagation behavior and do not authorize another typed
+execution reason. Caller cancellation remains governed by §11.1.
+
+A null `ProfileAvailability` has exactly one meaning: profile availability never
+resolved before an execution-level terminal event. In the initial exhaustive
+vocabulary, internal deadline expiration is the only event authorized to
+produce that state. It is outer runtime truth only, never a synthetic
+`Unavailable`/`Failed` provider result. It may not enter Domain/Application
+evidence, profile warnings, limitations, scoring, composition or projection.
+Once profile availability has resolved, a later execution terminal event
+preserves that truthful value; it never resets it to null or rewrites its
+status/reason.
+
+Internal deadline expiration and proactive budget rejection terminate at this
+outer boundary. Neither may fabricate a `ProfilePipelineResult`, reuse
+completed-so-far repositories, compose a `Partial` profile, alter profile or
+repository availability, or become a warning, limitation, score or developer
+claim.
+
+### 10.3 Deadline ownership, start and transport relationship (Session 107)
+
+The internal deadline begins after a valid Profile POST has passed the
+visitor/same-profile/global Web admission guards, but **before the first live
+GitHub profile-metadata operation**. It remains active through profile metadata
+collection and content consumption, the proactive GitHub-budget decision,
+public-repository manifest collection, every admitted-repository
+collection/analysis step, profile composition, report projection and
+construction of the outer live terminal result. Razor rendering and
+response-body transmission are outside it.
+
+If the deadline expires before profile availability resolves, the outer result
+uses the null-profile row in §10.2. If profile availability resolves
+non-successfully first, its truthful provider result is preserved and execution
+is `NotRequested`. If availability has resolved as `Available`, a later deadline
+preserves it beside the `Failed` execution outcome. At no point may deadline
+expiration be rewritten as profile/provider availability.
+
+The deadline is owned by a dedicated internal cancellation source. It must not
+mutate `HttpContext.RequestAborted` and must not be implemented by treating
+ASP.NET request-timeout middleware as the internal guard.
+
+The configuration invariant is:
+
+```text
+0 < per-request Profile GitHub transport timeout
+  < end-to-end Profile execution deadline
+```
+
+The current Profile `HttpClient` timeout is two minutes; this is an observed
+implementation value, not a newly canonicalized production number. An outer
+deadline equal to that timeout is invalid. Exact transport and execution values
+remain external configuration/measurement decisions, but startup validation
+must enforce the strict relationship.
+
+The current GitHub collectors use `HttpCompletionOption.ResponseHeadersRead`.
+Under that transport mode, `HttpClient.Timeout` bounds the operation only until
+the response headers are obtained; it does **not** by itself bound subsequent
+response-content consumption. Therefore `HttpClient.Timeout` alone cannot prove
+the bounded end-to-end lifetime or even bound the whole metadata phase. Every
+live GitHub response-content read must observe the internal execution deadline
+token, or another explicitly owned bounded token whose identity remains
+distinguishable from caller cancellation, transport timeout and the execution
+deadline. No content read may become an unbounded gap between those guards.
+
+Attribution must be based on independently owned cancellation sources and a
+recorded terminal cause, never exception text. Caller cancellation remains the
+caller path and propagates; if caller cancellation overlaps another source it
+wins. With no caller cancellation, an expiration caused by the internal source
+maps to `execution-deadline-expired`. A per-request timeout for which the
+internal deadline was not the terminal cause remains a transport fault and
+retains the existing propagation behavior. The implementation must prove all
+three paths and their overlap boundary deterministically.
+
+### 10.4 Initial provider-protection and authentication scope (Session 107)
+
+Initial Milestone B provider-budget/header protection is **Profile-only**. It
+may observe sanitized GitHub response headers and reject further Profile work at
+the §10.3 boundary, but it must not wrap, block or otherwise change Repository
+Proof requests. A shared Repository/Profile operational circuit requires a
+separate canonical decision and proof that Repository Proof collection,
+availability and evidence semantics remain unchanged.
+
+A proactive internal budget rejection is GitHub Proof's own operational
+protection decision, not proof of a GitHub `RateLimited`, `Forbidden` or
+repository failure response. Its only typed result is the §10.2
+`Unavailable`/`github-budget-protection-rejected` combination. It never enters
+collector availability or completed-so-far profile composition. The reserve
+value remains externally configured and measurement-selected; `500` is not
+canonicalized.
+
+Unauthenticated production Profile beta is not acceptable for the measured
+request surface. A dedicated machine-user fine-grained PAT may be supplied
+through external secret configuration as an interim beta credential only after
+every used endpoint is verified compatible and secret storage, least privilege,
+expiry and rotation are handled. This authorizes no private-repository access
+and no write/admin permission. GitHub App remains a valid longer-term
+production candidate and is not rejected. Credentials and credential values
+never enter telemetry, availability reasons, evidence or reports.
+
+### 10.5 Deployment dependency and numeric boundary (Session 107)
+
+IP-based visitor limiting cannot receive production PASS until the deployment
+owner supplies the actual trusted proxy/network and hop topology. The
+implementation must configure only those supplied trusted proxies/networks;
+forwarded headers are not trusted generically and application code must not
+parse raw `X-Forwarded-For`.
+
+Visitor `2 / 10 minutes`, GitHub reserve `500` and the exact execution deadline
+remain configuration/measurement candidates, not canonical policy. Initial
+global Profile concurrency `1`, same-profile concurrency `1` and queue `0`
+remain provisional implementation recommendations. If the same-profile guard
+rejects a duplicate, its Web mapping is canonically `409` (§10.2's downstream
+P10 contract); global-capacity rejection is `503` and visitor-limiter rejection
+is `429`. These HTTP semantics do not canonicalize the numeric permit/window
+configuration. Production concurrency remains bounded, admission outcomes are
+operational rather than evidence, and no rejected or expired execution
+fabricates an analysis result.
+
 ## 11. Failure and Cancellation Behavior
 
 Collection and analysis failure semantics are unchanged, and restated here so
@@ -544,7 +721,7 @@ Locked rules:
 
 ### 11.2 Internal profile execution guard / deadline
 
-This is the §10 guard: an internal operational deadline owned outside domain
+This is the §10.3 guard: an internal operational deadline owned outside domain
 evidence semantics, and it does not exist yet.
 
 Locked rules:
@@ -553,15 +730,36 @@ Locked rules:
   never be conflated in either direction.
 - Guard expiration may never yield `Complete`, and may never present the
   repositories completed so far as a whole profile.
-- The outer runtime/Web boundary must expose a typed non-success outcome using
-  the existing status/availability vocabulary, where that vocabulary can
-  represent the outcome truthfully.
+- The outer runtime/Web boundary exposes the exact §10.2
+  `Failed`/`execution-deadline-expired` outcome with no pipeline result.
+  `ProfileAvailability` is null if expiration won before availability resolved;
+  otherwise its already-resolved truthful value is preserved.
 - No new domain evidence status may be invented for it.
-- If the existing runtime result types cannot truthfully represent internal guard
-  expiration without semantic abuse, the implementation session must stop and
-  report a typed-boundary gap before implementing the guard (§10 principle 3).
 - Guard expiration is operational truth about one execution, never developer
   evidence.
+- Deadline ownership, start/end boundary, transport relationship and
+  deterministic attribution are exactly §10.3.
+
+### 11.3 Proactive internal GitHub-budget rejection
+
+This is GitHub Proof's Profile-only §10.4 protection circuit, not a provider
+response and not collection evidence.
+
+Locked rules:
+
+- Rejection after profile metadata becomes available produces the exact §10.2
+  `Unavailable`/`github-budget-protection-rejected` execution outcome and no
+  pipeline result.
+- It must terminate before repository-manifest and per-repository execution
+  begins.
+- It must not be caught or normalized by a repository collector, and must not
+  produce repository `RateLimited`, `Forbidden`, `Failed` or `Unavailable`
+  availability.
+- It must not compose repositories completed earlier into a `Partial` profile,
+  fabricate a failure profile, or become a warning/limitation/evidence item.
+- A real GitHub primary/secondary rate-limit response remains the existing
+  provider-failure path on the surface where it occurred; the internal reserve
+  decision must never impersonate it.
 
 ## 12. Future Feature Re-Activation Rule
 
