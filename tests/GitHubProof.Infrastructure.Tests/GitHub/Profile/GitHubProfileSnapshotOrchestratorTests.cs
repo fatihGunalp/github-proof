@@ -1,5 +1,6 @@
 using System.Net;
 using GitHubProof.Domain.Analysis.Enums;
+using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using Xunit;
@@ -128,6 +129,107 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
         Assert.Empty(handler.RequestUris);
     }
 
+    [Fact]
+    public async Task CollectAsync_PublishesAvailableMetadataBeforeManifestContentCompletes()
+    {
+        CancellationObservingStream manifestContent = new();
+        using CancellationTokenSource execution = new();
+        using GitHubProfileSnapshotProgress progress = new(execution.Token);
+        GitHubProfileSnapshotOrchestrator orchestrator = CreateOrchestrator(
+            JsonResponse(ProfileJson),
+            BlockingJsonResponse(manifestContent));
+
+        Task<GitHubProfileSnapshotResult> collection = orchestrator.CollectAsync(
+            "octocat",
+            execution.Token,
+            progress);
+
+        await manifestContent.TokenObserved.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.True(progress.ProfileAvailability!.IsAvailable);
+
+        await execution.CancelAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => collection);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CollectAsync_WhenExecutionCancellationWins_DoesNotPublishLateMetadata(
+        bool metadataIsAvailable)
+    {
+        using CancellationTokenSource execution = new();
+        using GitHubProfileSnapshotProgress progress = new(execution.Token);
+        GitHubProfileMetadataCollection metadata = metadataIsAvailable
+            ? AvailableProfileMetadata(publicRepositoryCount: 0)
+            : UnavailableProfileMetadata();
+        GitHubProfileSnapshotOrchestrator orchestrator = new(
+            new CallbackMetadataCollector((_, _) =>
+            {
+                execution.Cancel();
+                return Task.FromResult(metadata);
+            }),
+            new CallbackRepositoryCollector((_, _, _) =>
+                Task.FromResult(EmptyRepositoryCollection())));
+
+        GitHubProfileSnapshotResult result = await orchestrator.CollectAsync(
+            "octocat",
+            execution.Token,
+            progress);
+
+        Assert.True(progress.ExecutionCancellationWonBeforeResolution);
+        Assert.Null(progress.ProfileAvailability);
+        Assert.Equal(metadata.Availability, result.ProfileAvailability);
+    }
+
+    [Fact]
+    public async Task CollectAsync_WhenAvailableMetadataWins_PreservesItAfterImmediateCancellation()
+    {
+        using CancellationTokenSource execution = new();
+        using GitHubProfileSnapshotProgress progress = new(execution.Token);
+        GitHubProfileMetadataCollection metadata =
+            AvailableProfileMetadata(publicRepositoryCount: 0);
+        GitHubProfileSnapshotOrchestrator orchestrator = new(
+            new CallbackMetadataCollector((_, _) => Task.FromResult(metadata)),
+            new CallbackRepositoryCollector((_, _, _) =>
+            {
+                execution.Cancel();
+                return Task.FromResult(EmptyRepositoryCollection());
+            }));
+
+        GitHubProfileSnapshotResult result = await orchestrator.CollectAsync(
+            "octocat",
+            execution.Token,
+            progress);
+
+        Assert.True(result.IsSuccessful);
+        Assert.False(progress.ExecutionCancellationWonBeforeResolution);
+        Assert.Same(metadata.Availability, progress.ProfileAvailability);
+    }
+
+    [Fact]
+    public async Task CollectAsync_WhenUnavailableMetadataWins_LaterCancellationCannotEraseIt()
+    {
+        using CancellationTokenSource execution = new();
+        using GitHubProfileSnapshotProgress progress = new(execution.Token);
+        GitHubProfileMetadataCollection metadata = UnavailableProfileMetadata();
+        GitHubProfileSnapshotOrchestrator orchestrator = new(
+            new CallbackMetadataCollector((_, _) => Task.FromResult(metadata)),
+            new CallbackRepositoryCollector((_, _, _) =>
+                throw new InvalidOperationException(
+                    "Repository collection must not run for unavailable metadata.")));
+
+        GitHubProfileSnapshotResult result = await orchestrator.CollectAsync(
+            "octocat",
+            execution.Token,
+            progress);
+        execution.Cancel();
+
+        Assert.False(result.IsSuccessful);
+        Assert.False(progress.ExecutionCancellationWonBeforeResolution);
+        Assert.Same(metadata.Availability, progress.ProfileAvailability);
+    }
+
     private static GitHubProfileSnapshotOrchestrator CreateOrchestrator(
         params HttpResponseMessage[] responses) =>
         GitHubProfileSnapshotOrchestrator.CreateDefault(
@@ -153,4 +255,35 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
             string.Join(",", snapshot.Availability.Select(
                 availability => $"{availability.DataKey}={availability.Status}")),
             string.Join(",", snapshot.CollectionWarnings));
+
+    private static GitHubProfileRepositoryCollection EmptyRepositoryCollection() =>
+        new(
+            new ProfileRepositoryManifest(),
+            DataAvailability.Available(
+                "profile-repositories",
+                DateTimeOffset.Parse("2026-08-15T09:30:00Z")),
+            Array.Empty<string>());
+
+    private sealed class CallbackMetadataCollector(
+        Func<GitHubProfileHandle, CancellationToken,
+            Task<GitHubProfileMetadataCollection>> callback)
+        : IGitHubProfileMetadataCollector
+    {
+        public Task<GitHubProfileMetadataCollection> CollectAsync(
+            GitHubProfileHandle profile,
+            CancellationToken cancellationToken = default) =>
+            callback(profile, cancellationToken);
+    }
+
+    private sealed class CallbackRepositoryCollector(
+        Func<GitHubProfileHandle, GitHubProfileMetadataCollection,
+            CancellationToken, Task<GitHubProfileRepositoryCollection>> callback)
+        : IGitHubProfileRepositoryCollector
+    {
+        public Task<GitHubProfileRepositoryCollection> CollectAsync(
+            GitHubProfileHandle profile,
+            GitHubProfileMetadataCollection metadata,
+            CancellationToken cancellationToken = default) =>
+            callback(profile, metadata, cancellationToken);
+    }
 }

@@ -4,7 +4,9 @@ using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -138,15 +140,74 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
         Assert.Equal(TimeSpan.FromMinutes(2), httpClient.Timeout);
     }
 
-    private static ServiceProvider BuildProvider()
+    [Fact]
+    public void AddProfilePipeline_LeavesExecutionDeadlineExplicitlyUnconfiguredByDefault()
+    {
+        using ServiceProvider provider = BuildProvider();
+
+        ProfileExecutionDeadlineOptions options = provider
+            .GetRequiredService<IOptions<ProfileExecutionDeadlineOptions>>()
+            .Value;
+
+        Assert.Null(options.Timeout);
+        Assert.NotNull(provider.GetRequiredService<IProfileExecutionDeadlineFactory>());
+    }
+
+    [Fact]
+    public void AddProfilePipeline_RejectsDeadlineThatDoesNotExceedTransportTimeout()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{ProfileExecutionDeadlineOptions.ConfigurationSectionName}:Timeout"] =
+                    ProfilePipelineServiceCollectionExtensions.GitHubTransportTimeout
+                        .ToString()
+            })
+            .Build();
+        using ServiceProvider provider = BuildProvider(configuration);
+
+        Assert.Throws<OptionsValidationException>(() => provider
+            .GetRequiredService<IOptions<ProfileExecutionDeadlineOptions>>()
+            .Value);
+    }
+
+    [Fact]
+    public void ConfiguredDeadlineFactory_UsesTheOwnedTimerAndCancelsItsExecutionToken()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{ProfileExecutionDeadlineOptions.ConfigurationSectionName}:Timeout"] =
+                    "00:03:00"
+            })
+            .Build();
+        ManualTimeProvider timeProvider = new();
+        using ServiceProvider provider = BuildProvider(configuration, timeProvider);
+        IProfileExecutionDeadlineFactory factory =
+            provider.GetRequiredService<IProfileExecutionDeadlineFactory>();
+        using IProfileExecutionDeadline deadline = factory.Create(
+            CancellationToken.None);
+
+        Assert.False(deadline.IsExpired);
+        Assert.False(deadline.ExecutionToken.IsCancellationRequested);
+
+        timeProvider.FireDeadline();
+
+        Assert.True(deadline.IsExpired);
+        Assert.True(deadline.ExecutionToken.IsCancellationRequested);
+    }
+
+    private static ServiceProvider BuildProvider(
+        IConfiguration? configuration = null,
+        TimeProvider? timeProvider = null)
     {
         ServiceCollection services = new();
 
-        services.AddSingleton<TimeProvider>(TimeProvider.System);
+        services.AddSingleton(timeProvider ?? TimeProvider.System);
         services.AddScoped<RepositoryAnalysisRunner>();
         services.AddScoped<IGitHubRepositorySnapshotCollector, NeverCalledSnapshotCollector>();
 
-        services.AddProfilePipeline();
+        services.AddProfilePipeline(configuration);
 
         return services.BuildServiceProvider(validateScopes: true);
     }
@@ -160,5 +221,64 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
             CancellationToken cancellationToken = default) =>
             throw new InvalidOperationException(
                 "This collector is a DI-resolution placeholder and must never be invoked.");
+    }
+
+    private sealed class ManualTimeProvider : TimeProvider
+    {
+        private ManualTimer? timer;
+
+        public override ITimer CreateTimer(
+            TimerCallback callback,
+            object? state,
+            TimeSpan dueTime,
+            TimeSpan period)
+        {
+            timer = new ManualTimer(callback, state, dueTime, period);
+            return timer;
+        }
+
+        public void FireDeadline() =>
+            (timer ?? throw new InvalidOperationException("No timer was created."))
+                .Fire();
+    }
+
+    private sealed class ManualTimer(
+        TimerCallback callback,
+        object? state,
+        TimeSpan dueTime,
+        TimeSpan period) : ITimer
+    {
+        private bool enabled = dueTime != Timeout.InfiniteTimeSpan;
+        private bool disposed;
+
+        public bool Change(TimeSpan dueTime, TimeSpan period)
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+            enabled = dueTime != Timeout.InfiniteTimeSpan;
+            return true;
+        }
+
+        public void Fire()
+        {
+            ObjectDisposedException.ThrowIf(disposed, this);
+
+            if (enabled)
+            {
+                callback(state);
+                enabled = period != Timeout.InfiniteTimeSpan;
+            }
+        }
+
+        public void Dispose()
+        {
+            disposed = true;
+            enabled = false;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return ValueTask.CompletedTask;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
@@ -41,6 +42,18 @@ internal static class GitHubCollectionTestSupport
             Content = new StringContent(content, Encoding.UTF8, "application/json")
         };
 
+    public static HttpResponseMessage BlockingJsonResponse(
+        CancellationObservingStream stream)
+    {
+        StreamContent content = new(stream);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = content
+        };
+    }
+
     internal sealed class QueueHttpMessageHandler(params HttpResponseMessage[] responses) : HttpMessageHandler
     {
         private readonly Queue<HttpResponseMessage> responses = new(responses);
@@ -62,6 +75,64 @@ internal static class GitHubCollectionTestSupport
             HttpRequestMessage request,
             CancellationToken cancellationToken) =>
             Task.FromException<HttpResponseMessage>(exception);
+    }
+
+    internal sealed class CancellationObservingStream : Stream
+    {
+        private readonly TaskCompletionSource<CancellationToken> tokenObserved =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public Task<CancellationToken> TokenObserved => tokenObserved.Task;
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException("Only asynchronous reads are supported.");
+
+        public override Task<int> ReadAsync(
+            byte[] buffer,
+            int offset,
+            int count,
+            CancellationToken cancellationToken) =>
+            ObserveAndWaitAsync(cancellationToken);
+
+        public override ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default) =>
+            new(ObserveAndWaitAsync(cancellationToken));
+
+        private async Task<int> ObserveAndWaitAsync(
+            CancellationToken cancellationToken)
+        {
+            tokenObserved.TrySetResult(cancellationToken);
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            return 0;
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) =>
+            throw new NotSupportedException();
+
+        public override void SetLength(long value) =>
+            throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException();
     }
 
     private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider

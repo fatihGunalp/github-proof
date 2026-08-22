@@ -15,7 +15,7 @@ namespace GitHubProof.Web.Tests;
 
 // P10-I1: the profile counterpart of LiveRepositoryReportServiceTests. These
 // tests prove the typed request boundary from a raw profile identity string,
-// through the real (pre-existing, unmodified) IGitHubProfileSnapshotCollector
+// through the real IGitHubProfileSnapshotCollector
 // contract and ProfilePipeline, to a ProfileReport or a typed failure —
 // without the Web layer parsing profile identity or inventing any new
 // profile-analysis truth.
@@ -44,7 +44,10 @@ public sealed class LiveProfileReportServiceTests
                 Version);
 
         Assert.True(result.IsSuccessful);
-        Assert.True(result.ProfileAvailability.IsAvailable);
+        Assert.True(result.ProfileAvailability!.IsAvailable);
+        Assert.Equal(
+            DataAvailabilityStatus.Available,
+            result.ExecutionAvailability.Status);
         Assert.Equal(1, collector.CallCount);
         Assert.Equal(ProfileIdentity, collector.LastProfileIdentity);
 
@@ -85,6 +88,12 @@ public sealed class LiveProfileReportServiceTests
         Assert.False(result.IsSuccessful);
         Assert.Null(result.PipelineResult);
         Assert.Same(unavailable, result.ProfileAvailability);
+        Assert.Equal(
+            DataAvailabilityStatus.NotRequested,
+            result.ExecutionAvailability.Status);
+        Assert.Equal(
+            LiveProfileAnalysisResult.ProfileUnavailableReason,
+            result.ExecutionAvailability.Reason);
         Assert.Equal(1, collector.CallCount);
     }
 
@@ -114,7 +123,7 @@ public sealed class LiveProfileReportServiceTests
         Assert.Null(result.PipelineResult);
         Assert.Equal(
             DataAvailabilityStatus.RateLimited,
-            result.ProfileAvailability.Status);
+            result.ProfileAvailability!.Status);
     }
 
     [Fact]
@@ -152,11 +161,13 @@ public sealed class LiveProfileReportServiceTests
             ProfilePipelineResult.Failed(ProfileCompositionResult.Failed());
 
         LiveProfileAnalysisResult result =
-            new(
+            LiveProfileAnalysisResult.Completed(
+                DataAvailability.Available("profile", CapturedAt),
                 failed,
-                DataAvailability.Available("profile", CapturedAt));
+                CapturedAt);
 
         Assert.True(result.IsSuccessful);
+        Assert.True(result.ExecutionAvailability.IsAvailable);
         Assert.Same(failed, result.PipelineResult);
         Assert.False(result.PipelineResult!.HasProfile);
         Assert.Null(result.PipelineResult.Report);
@@ -170,11 +181,14 @@ public sealed class LiveProfileReportServiceTests
 
         Assert.Throws<ArgumentException>(() =>
             new LiveProfileAnalysisResult(
-                composed,
                 DataAvailability.Unavailable(
                     "profile",
                     DataAvailabilityStatus.Unavailable,
-                    "unused")));
+                    "unused"),
+                DataAvailability.Available(
+                    LiveProfileAnalysisResult.ExecutionDataKey,
+                    CapturedAt),
+                composed));
     }
 
     [Fact]
@@ -182,8 +196,11 @@ public sealed class LiveProfileReportServiceTests
     {
         Assert.Throws<ArgumentException>(() =>
             new LiveProfileAnalysisResult(
-                pipelineResult: null,
-                DataAvailability.Available("profile", CapturedAt)));
+                DataAvailability.Available("profile", CapturedAt),
+                DataAvailability.Available(
+                    LiveProfileAnalysisResult.ExecutionDataKey,
+                    CapturedAt),
+                pipelineResult: null));
     }
 
     private static LiveProfileReportService CreateService(
@@ -233,12 +250,15 @@ public sealed class LiveProfileReportServiceTests
 
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             CallCount++;
             LastProfileIdentity = profile;
+
+            progress?.ResolveProfileAvailability(result.ProfileAvailability);
 
             return Task.FromResult(result);
         }
@@ -251,7 +271,8 @@ public sealed class LiveProfileReportServiceTests
     {
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
         {
             GitHubProfileHandle.Parse(profile);
 

@@ -153,5 +153,6 @@ public static class ProfileExecutionOutcome
     public const string CompositionFailed = "composition-failed";
     public const string CollectionUnavailable = "collection-unavailable";
     public const string Cancelled = "cancelled";
+    public const string DeadlineExpired = "deadline-expired";
     public const string Faulted = "faulted";
 }

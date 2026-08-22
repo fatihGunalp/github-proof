@@ -7,6 +7,7 @@ using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using Microsoft.Extensions.Options;
 
 namespace GitHubProof.Web.Profile;
 
@@ -32,9 +33,37 @@ public static class ProfilePipelineServiceCollectionExtensions
     // profile telemetry (§9, §E of the Session 097 task).
     public const string GitHubHttpClientName = "GitHubProof.GitHub.Profile";
 
+    // Existing transport timeout, not a newly selected execution deadline.
+    // Any configured end-to-end deadline must be deliberately greater so the
+    // two cancellation sources remain attributable.
+    public static readonly TimeSpan GitHubTransportTimeout = TimeSpan.FromMinutes(2);
+
     public static IServiceCollection AddProfilePipeline(
-        this IServiceCollection services)
+        this IServiceCollection services,
+        IConfiguration? configuration = null)
     {
+        OptionsBuilder<ProfileExecutionDeadlineOptions> deadlineOptions =
+            services.AddOptions<ProfileExecutionDeadlineOptions>();
+
+        if (configuration is not null)
+        {
+            deadlineOptions.Bind(
+                configuration.GetSection(
+                    ProfileExecutionDeadlineOptions.ConfigurationSectionName));
+        }
+
+        deadlineOptions
+            .Validate(
+                options => options.Timeout is null
+                    || options.Timeout > GitHubTransportTimeout,
+                "A configured Profile execution deadline must be greater than "
+                + "the Profile GitHub transport timeout.")
+            .ValidateOnStart();
+
+        services.AddSingleton<
+            IProfileExecutionDeadlineFactory,
+            ProfileExecutionDeadlineFactory>();
+
         services.AddTransient<ProfileGitHubRequestTelemetryHandler>();
 
         services
@@ -141,7 +170,7 @@ public static class ProfilePipelineServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(httpClient);
 
         httpClient.BaseAddress = new Uri("https://api.github.com/");
-        httpClient.Timeout = TimeSpan.FromMinutes(2);
+        httpClient.Timeout = GitHubTransportTimeout;
 
         string? token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
 

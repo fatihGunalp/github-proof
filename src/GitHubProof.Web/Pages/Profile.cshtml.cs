@@ -84,8 +84,24 @@ public sealed class ProfileModel : PageModel
 
         if (!result.IsSuccessful)
         {
-            ErrorMessage = CreateProfileFailureMessage(
-                result.ProfileAvailability);
+            if (IsExecutionDeadline(result.ExecutionAvailability))
+            {
+                // Session 108 supplies the already-canonical HTTP mapping but
+                // intentionally reuses the existing generic failure copy. The
+                // final P10-I5 guardrail presentation remains out of scope.
+                Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+                ErrorMessage = text.Get(
+                    WebTextKey.ProfileFailed,
+                    PageContext?.HttpContext);
+            }
+            else
+            {
+                DataAvailability availability = result.ProfileAvailability
+                    ?? throw new InvalidOperationException(
+                        "A non-deadline Profile failure must preserve profile availability.");
+
+                ErrorMessage = CreateProfileFailureMessage(availability);
+            }
 
             return Page();
         }
@@ -137,4 +153,11 @@ public sealed class ProfileModel : PageModel
             _ =>
                 text.Get(WebTextKey.ProfileUnavailable, PageContext?.HttpContext)
         };
+
+    private static bool IsExecutionDeadline(DataAvailability availability) =>
+        availability.Status == DataAvailabilityStatus.Failed
+        && string.Equals(
+            availability.Reason,
+            LiveProfileAnalysisResult.DeadlineExpiredReason,
+            StringComparison.Ordinal);
 }

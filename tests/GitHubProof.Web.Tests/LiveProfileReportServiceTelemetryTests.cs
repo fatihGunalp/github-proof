@@ -364,7 +364,8 @@ public sealed class LiveProfileReportServiceTelemetryTests
     {
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default) =>
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null) =>
             Task.FromException<GitHubProfileSnapshotResult>(exception);
     }
 
@@ -382,9 +383,12 @@ public sealed class LiveProfileReportServiceTelemetryTests
     {
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            progress?.ResolveProfileAvailability(result.ProfileAvailability);
 
             return Task.FromResult(result);
         }

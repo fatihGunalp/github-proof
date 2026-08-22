@@ -249,6 +249,27 @@ public sealed class GitHubProfileRepositoryCollectorTests
             maxPageCount: 0));
     }
 
+    [Fact]
+    public async Task CollectAsync_ResponseHeadersRead_ContentReadReceivesExecutionToken()
+    {
+        CancellationObservingStream contentStream = new();
+        using CancellationTokenSource execution = new();
+        Task<GitHubProfileRepositoryCollection> collection =
+            CreateCollector(new QueueHttpMessageHandler(
+                    BlockingJsonResponse(contentStream)))
+                .CollectAsync(
+                    ProfileHandle,
+                    AvailableProfileMetadata(),
+                    execution.Token);
+
+        CancellationToken observed = await contentStream.TokenObserved.WaitAsync(
+            TimeSpan.FromSeconds(5));
+        await execution.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => collection);
+        Assert.Equal(execution.Token, observed);
+    }
+
     private static ProfileRepository Find(
         GitHubProfileRepositoryCollection result,
         string name) =>

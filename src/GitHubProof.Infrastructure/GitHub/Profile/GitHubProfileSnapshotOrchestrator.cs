@@ -34,12 +34,20 @@ public sealed class GitHubProfileSnapshotOrchestrator : IGitHubProfileSnapshotCo
 
     public async Task<GitHubProfileSnapshotResult> CollectAsync(
         string profile,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        GitHubProfileSnapshotProgress? progress = null)
     {
         GitHubProfileHandle handle = GitHubProfileHandle.Parse(profile);
         GitHubProfileMetadataCollection metadata = await metadataCollector.CollectAsync(
             handle,
             cancellationToken);
+
+        // Metadata is the authoritative point at which ProfileAvailability is
+        // resolved. The progress carrier atomically arbitrates this publication
+        // against execution cancellation: a late typed collector return cannot
+        // overwrite cancellation that already won, while a winning publication
+        // remains visible through any later cancellation.
+        progress?.ResolveProfileAvailability(metadata.Availability);
 
         if (!metadata.IsAvailable)
         {

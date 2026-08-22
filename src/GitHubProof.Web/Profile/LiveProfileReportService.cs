@@ -24,17 +24,24 @@ public sealed class LiveProfileReportService
     private readonly IGitHubProfileSnapshotCollector snapshotCollector;
     private readonly ProfilePipeline profilePipeline;
     private readonly ILogger<LiveProfileReportService> logger;
+    private readonly IProfileExecutionDeadlineFactory deadlineFactory;
+    private readonly TimeProvider timeProvider;
 
     public LiveProfileReportService(
         IGitHubProfileSnapshotCollector snapshotCollector,
         ProfilePipeline profilePipeline,
-        ILogger<LiveProfileReportService>? logger = null)
+        ILogger<LiveProfileReportService>? logger = null,
+        IProfileExecutionDeadlineFactory? deadlineFactory = null,
+        TimeProvider? timeProvider = null)
     {
         this.snapshotCollector = snapshotCollector
             ?? throw new ArgumentNullException(nameof(snapshotCollector));
         this.profilePipeline = profilePipeline
             ?? throw new ArgumentNullException(nameof(profilePipeline));
         this.logger = logger ?? NullLogger<LiveProfileReportService>.Instance;
+        this.deadlineFactory = deadlineFactory
+            ?? DisabledProfileExecutionDeadlineFactory.Instance;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     // Exposed so a controlled measurement run can read the last execution's
@@ -59,33 +66,82 @@ public sealed class LiveProfileReportService
         // The ambient scope is what lets the pooled HTTP telemetry handler and
         // the observation-only wrappers find THIS execution's counters.
         using IDisposable scope = ProfileExecutionTelemetryScope.Begin(telemetry);
+        using IProfileExecutionDeadline deadline =
+            deadlineFactory.Create(cancellationToken);
+        using GitHubProfileSnapshotProgress progress =
+            new(deadline.ExecutionToken);
 
         try
         {
             GitHubProfileSnapshotResult snapshotResult =
                 await snapshotCollector.CollectAsync(
                     profileIdentity,
-                    cancellationToken);
+                    deadline.ExecutionToken,
+                    progress);
+
+            // The progress carrier, not a late collector return, owns the
+            // availability-vs-cancellation ordering. Caller cancellation is
+            // still checked first and wins every overlap.
+            cancellationToken.ThrowIfCancellationRequested();
+            if (deadline.IsExpired
+                && progress.ExecutionCancellationWonBeforeResolution)
+            {
+                outcome = ProfileExecutionOutcome.DeadlineExpired;
+                status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+                return CreateDeadlineResult(
+                    profileAvailability: null,
+                    callerCancellationToken: cancellationToken);
+            }
+
+            DataAvailability resolvedProfileAvailability =
+                progress.ProfileAvailability
+                ?? throw new InvalidOperationException(
+                    "A completed Profile collector call must resolve profile availability.");
+
+            if (resolvedProfileAvailability != snapshotResult.ProfileAvailability)
+            {
+                throw new InvalidOperationException(
+                    "The Profile collector result must match the availability "
+                    + "published at the operational progress boundary.");
+            }
 
             if (!snapshotResult.IsSuccessful)
             {
-                if (snapshotResult.ProfileAvailability.IsAvailable)
+                // Caller cancellation owns every overlap race, even if a lower
+                // layer returned a typed provider result instead of observing
+                // the linked token.
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (resolvedProfileAvailability.IsAvailable)
                 {
                     throw new InvalidOperationException(
                         "Available profile metadata must produce a profile snapshot.");
                 }
 
                 outcome = ProfileExecutionOutcome.CollectionUnavailable;
-                status = snapshotResult.ProfileAvailability.Status.ToString();
+                status = resolvedProfileAvailability.Status.ToString();
 
-                return new LiveProfileAnalysisResult(
-                    pipelineResult: null,
-                    snapshotResult.ProfileAvailability);
+                LiveProfileAnalysisResult unavailable =
+                    LiveProfileAnalysisResult.ProfileUnavailable(
+                        resolvedProfileAvailability);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                return unavailable;
             }
 
             GitHubProfileSnapshot snapshot = snapshotResult.Snapshot
                 ?? throw new InvalidOperationException(
                     "A successful profile snapshot result must contain a snapshot.");
+
+            cancellationToken.ThrowIfCancellationRequested();
+            if (deadline.IsExpired)
+            {
+                outcome = ProfileExecutionOutcome.DeadlineExpired;
+                status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+                return CreateDeadlineResult(
+                    progress.ProfileAvailability,
+                    cancellationToken);
+            }
 
             telemetry.RecordRepositoriesDiscovered(
                 snapshot.Repositories.Repositories.Count);
@@ -93,7 +149,20 @@ public sealed class LiveProfileReportService
             ProfilePipelineResult pipelineResult = await profilePipeline.RunAsync(
                 snapshot,
                 version,
-                cancellationToken);
+                deadline.ExecutionToken);
+
+            // The internal deadline remains active through creation of the
+            // terminal outer result. Caller cancellation is checked first so
+            // it deterministically wins an overlap with deadline expiry.
+            cancellationToken.ThrowIfCancellationRequested();
+            if (deadline.IsExpired)
+            {
+                outcome = ProfileExecutionOutcome.DeadlineExpired;
+                status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+                return CreateDeadlineResult(
+                    progress.ProfileAvailability,
+                    cancellationToken);
+            }
 
             outcome = pipelineResult.HasProfile
                 ? ProfileExecutionOutcome.Composed
@@ -102,9 +171,23 @@ public sealed class LiveProfileReportService
                 ? pipelineResult.Profile!.AnalysisStatus.ToString()
                 : pipelineResult.Status.ToString();
 
-            return new LiveProfileAnalysisResult(
+            LiveProfileAnalysisResult completed = LiveProfileAnalysisResult.Completed(
+                resolvedProfileAvailability,
                 pipelineResult,
-                snapshotResult.ProfileAvailability);
+                timeProvider.GetUtcNow());
+
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!deadline.TryComplete())
+            {
+                outcome = ProfileExecutionOutcome.DeadlineExpired;
+                status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+                return CreateDeadlineResult(
+                    progress.ProfileAvailability,
+                    cancellationToken);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return completed;
         }
         catch (OperationCanceledException)
             when (cancellationToken.IsCancellationRequested)
@@ -116,6 +199,17 @@ public sealed class LiveProfileReportService
             outcome = ProfileExecutionOutcome.Cancelled;
             status = ProfileExecutionOutcome.Cancelled;
             throw;
+        }
+        catch (OperationCanceledException) when (deadline.IsExpired)
+        {
+            // This source is owned by the Profile execution boundary. No
+            // completed-so-far pipeline result or Partial profile is returned.
+            outcome = ProfileExecutionOutcome.DeadlineExpired;
+            status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+
+            return CreateDeadlineResult(
+                progress.ProfileAvailability,
+                cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -139,5 +233,19 @@ public sealed class LiveProfileReportService
 
             logger.LogInformation("{ProfileExecutionTelemetry}", telemetry.ToLogMessage());
         }
+    }
+
+    private static LiveProfileAnalysisResult CreateDeadlineResult(
+        DataAvailability? profileAvailability,
+        CancellationToken callerCancellationToken)
+    {
+        LiveProfileAnalysisResult result =
+            LiveProfileAnalysisResult.DeadlineExpired(profileAvailability);
+
+        // The final check is deliberately after result construction: caller
+        // cancellation wins every overlap that exists before this execution
+        // outcome reaches its terminal return point.
+        callerCancellationToken.ThrowIfCancellationRequested();
+        return result;
     }
 }

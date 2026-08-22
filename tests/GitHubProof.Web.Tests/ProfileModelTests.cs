@@ -11,6 +11,7 @@ using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Localization;
 using GitHubProof.Web.Pages;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Profile.Runtime;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
@@ -296,6 +297,35 @@ public sealed class ProfileModelTests
             StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task OnPostAsync_WhenExecutionDeadlineExpires_ReturnsGatewayTimeoutWithoutEvidence()
+    {
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+        ProfileModel model = new(
+            new LiveProfileReportService(
+                collector,
+                CreateRealPipeline(),
+                deadlineFactory: new ExpiredDeadlineFactory()),
+            Version,
+            new WebPresentationLocalizer())
+        {
+            PageContext = new PageContext
+            {
+                HttpContext = new DefaultHttpContext()
+            },
+            GitHubTarget = Identity
+        };
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(action);
+        Assert.Equal(StatusCodes.Status504GatewayTimeout, model.Response.StatusCode);
+        Assert.False(model.HasComposedProfile);
+        Assert.Null(model.Report);
+        Assert.NotNull(model.ErrorMessage);
+    }
+
     private static ProfileModel CreateModel(
         IGitHubProfileSnapshotCollector collector) =>
         new(
@@ -346,12 +376,15 @@ public sealed class ProfileModelTests
 
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             CallCount++;
             LastProfileIdentity = profile;
+
+            progress?.ResolveProfileAvailability(result.ProfileAvailability);
 
             return Task.FromResult(result);
         }
@@ -364,9 +397,43 @@ public sealed class ProfileModelTests
 
         public Task<GitHubProfileSnapshotResult> CollectAsync(
             string profile,
-            CancellationToken cancellationToken = default) =>
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null) =>
             throw new InvalidOperationException(
                 "Live profile collection must not be reachable from this path.");
+    }
+
+    private sealed class ExpiredDeadlineFactory : IProfileExecutionDeadlineFactory
+    {
+        public IProfileExecutionDeadline Create(
+            CancellationToken callerCancellationToken) =>
+            new ExpiredDeadline(callerCancellationToken);
+    }
+
+    private sealed class ExpiredDeadline : IProfileExecutionDeadline
+    {
+        private readonly CancellationTokenSource deadline = new();
+        private readonly CancellationTokenSource execution;
+
+        public ExpiredDeadline(CancellationToken callerCancellationToken)
+        {
+            execution = CancellationTokenSource.CreateLinkedTokenSource(
+                callerCancellationToken,
+                deadline.Token);
+            deadline.Cancel();
+        }
+
+        public CancellationToken ExecutionToken => execution.Token;
+
+        public bool IsExpired => true;
+
+        public bool TryComplete() => false;
+
+        public void Dispose()
+        {
+            execution.Dispose();
+            deadline.Dispose();
+        }
     }
 
     private sealed class NeverCalledSnapshotSource : IProfileRepositorySnapshotSource

@@ -107,6 +107,24 @@ public sealed class GitHubProfileMetadataCollectorTests
         Assert.Equal(DataAvailabilityStatus.Failed, result.Availability.Status);
     }
 
+    [Fact]
+    public async Task CollectAsync_ResponseHeadersRead_ContentReadReceivesExecutionToken()
+    {
+        CancellationObservingStream contentStream = new();
+        using CancellationTokenSource execution = new();
+        Task<GitHubProfileMetadataCollection> collection =
+            CreateCollector(new QueueHttpMessageHandler(
+                    BlockingJsonResponse(contentStream)))
+                .CollectAsync(ProfileHandle, execution.Token);
+
+        CancellationToken observed = await contentStream.TokenObserved.WaitAsync(
+            TimeSpan.FromSeconds(5));
+        await execution.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => collection);
+        Assert.Equal(execution.Token, observed);
+    }
+
     private static GitHubProfileMetadataCollector CreateCollector(
         HttpMessageHandler handler) =>
         new(CreateClient(handler), CreateFixedTimeProvider());

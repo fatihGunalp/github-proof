@@ -73,7 +73,7 @@ builder.Services.AddScoped<IGitHubRepositorySnapshotCollector>(
 
 builder.Services.AddScoped<LiveRepositoryReportService>();
 
-builder.Services.AddProfilePipeline();
+builder.Services.AddProfilePipeline(builder.Configuration);
 
 // Profile Proof runs on its own named GitHub client, registered by
 // AddProfilePipeline. It carries the same transport contract as the Repository
