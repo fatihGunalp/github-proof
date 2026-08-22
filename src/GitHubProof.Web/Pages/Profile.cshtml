@@ -6,15 +6,15 @@
 }
 
 @*
-    P10-I3/P10-I4 result boundary, rendered from the POST handler. Renders the
+    P10-I3/P10-I4/P10-I5 result boundary, rendered from the POST handler. Renders the
     already-projected typed ProfileReport in canonical experience order:
     Meaning -> Visible technical direction -> Recurring engineering practices
-    -> Starting point (first read), then Why this view -> Repository evidence
+    -> Starting point (first read), then Why this view -> Limitations -> Repository evidence
     (progressively disclosed evidence layer, P10-I4). Selecting a repository
     POSTs its Repository.Url as GitHubTarget to the existing "/" Index entry
     and runs a fresh Repository Proof analysis there; nothing is embedded here.
-    Limitations and final Warnings/Partial/Failure UX remain P10-I5 and are
-    not rendered here.
+    P10-I5 adds only typed Partial/warning/limitation and failure states. It
+    does not begin the P10-I6 visual redesign.
 *@
 <section
     class="profile-result"
@@ -32,17 +32,47 @@
 
     @if (Model.ErrorMessage is not null)
     {
-        <p
-            class="field__message field__message--error"
+        <section
+            class="profile-result__notice profile-result__notice--failure"
             role="alert">
-            @Model.ErrorMessage
-        </p>
+            <p class="profile-result__notice-title">@Model.ErrorTitle</p>
+            <p class="profile-result__notice-text">@Model.ErrorMessage</p>
+        </section>
     }
     else if (Model.Report is { } report)
     {
+        @if (Model.IsPartialProfile)
+        {
+            <section
+                class="profile-result__notice profile-result__notice--partial"
+                role="status">
+                <p class="profile-result__notice-title">
+                    @Text.Get(WebTextKey.ProfilePartialTitle)
+                </p>
+                <p class="profile-result__notice-text">
+                    @Text.Get(WebTextKey.ProfilePartialMessage)
+                </p>
+            </section>
+        }
+
         @await Html.PartialAsync(
             "_ProfileMeaning",
             report.PublicProfileSummary.Items)
+
+        @if (report.Warnings.Count > 0)
+        {
+            <aside class="profile-result__notice profile-result__notice--warning">
+                <p class="profile-result__notice-title">
+                    @Text.Get(WebTextKey.ProfileObservationNotesTitle)
+                </p>
+                <ul class="profile-result__notice-list">
+                    @foreach (ProfileWarning warning in report.Warnings)
+                    {
+                        <li>@ProfileText.GetWarningLabel(warning.Code, Text.Culture)</li>
+                    }
+                </ul>
+            </aside>
+        }
 
         @await Html.PartialAsync(
             "_ProfilePatternSection",
@@ -59,6 +89,43 @@
         @await Html.PartialAsync(
             "_ProfileWhyThisView",
             report.WhyThisConclusion)
+
+        @if (report.Limitations.SectionKey != ProfileReportSectionKey.Limitations
+            || report.Limitations.Availability != ProfileReportSectionAvailability.Supported)
+        {
+            throw new InvalidOperationException(
+                "The Profile limitations presentation requires the canonical Supported Limitations section.");
+        }
+
+        <section class="profile-result__section profile-result__limitations">
+            <h2 class="profile-result__section-title">
+                @ProfileText.GetSectionLabel(
+                    ProfileReportSectionKey.Limitations,
+                    Text.Culture)
+            </h2>
+
+            @if (report.Limitations.Items.Count > 0)
+            {
+                <ul class="profile-result__limitation-list">
+                    @foreach (ProfileLimitation limitation in report.Limitations.Items)
+                    {
+                        <li>
+                            @ProfileText.GetLimitationLabel(
+                                limitation.Code,
+                                Text.Culture)
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="profile-result__section-empty">
+                    @ProfileText.GetEmptySectionMessage(
+                        ProfileReportSectionKey.Limitations,
+                        Text.Culture)
+                </p>
+            }
+        </section>
 
         @await Html.PartialAsync(
             "_ProfileRepositoryEvidence",

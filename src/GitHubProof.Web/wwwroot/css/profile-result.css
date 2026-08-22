@@ -1,8 +1,8 @@
 /* P10-I2 identity boundary + P10-I3 Meaning/Direction/Starting Point result.
    One readable narrative, not a card/icon grid: quiet typographic hierarchy,
    the Meaning sentence carries the strongest visual priority and each
-   following section reads progressively quieter. P10-I4/P10-I5 sections
-   bring their own styles later. */
+   following section reads progressively quieter. P10-I5 adds only bounded
+   state/limitation treatments; P10-I6 owns the final visual system. */
 .profile-result {
     width: min(100%, 52rem);
     margin-inline: auto;
@@ -23,6 +23,60 @@
     color: var(--fg-secondary);
     font-size: var(--font-size-body-large);
     line-height: var(--line-height-body-large);
+}
+
+.profile-result__notice {
+    margin-top: var(--space-6);
+    padding: var(--space-4);
+    border: 1px solid var(--border-default);
+    border-left: 2px solid var(--accent-primary);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle);
+    text-align: left;
+}
+
+.profile-result__notice--failure {
+    border-color: var(--status-unavailable-border);
+    border-left-color: var(--status-unavailable-fg);
+    background: var(--status-unavailable-bg);
+}
+
+.profile-result__notice--partial,
+.profile-result__notice--warning {
+    border-color: var(--status-partial-border);
+    border-left-color: var(--status-partial-fg);
+    background: var(--status-partial-bg);
+}
+
+.profile-result__notice-title {
+    margin: 0;
+    color: var(--fg-primary);
+    font-size: var(--font-size-title);
+    font-weight: var(--font-weight-title);
+    line-height: var(--line-height-title);
+}
+
+.profile-result__notice-text {
+    margin: var(--space-2) 0 0;
+    color: var(--fg-secondary);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+}
+
+.profile-result__notice-list,
+.profile-result__limitation-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding-inline-start: var(--space-5);
+    color: var(--fg-secondary);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+}
+
+.profile-result__limitation-list {
+    margin-top: 0;
 }
 
 .profile-result__back {

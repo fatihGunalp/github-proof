@@ -6,6 +6,7 @@ using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Domain.Profile;
+using GitHubProof.Domain.Profile.Enums;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub.Profile;
@@ -94,6 +95,8 @@ public sealed class ProfileModelTests
         Assert.Equal(Identity, collector.LastProfileIdentity);
         Assert.Equal(Identity, model.Identity);
         Assert.True(model.HasComposedProfile);
+        Assert.False(model.IsPartialProfile);
+        Assert.Null(model.ErrorTitle);
         Assert.Null(model.ErrorMessage);
         Assert.NotNull(model.Report);
     }
@@ -242,10 +245,11 @@ public sealed class ProfileModelTests
         await model.OnPostAsync(CancellationToken.None);
 
         Assert.False(model.HasComposedProfile);
-        Assert.Contains(
-            "GITHUB_TOKEN",
-            model.ErrorMessage!,
-            StringComparison.Ordinal);
+        Assert.Equal(
+            "Profile evidence is unavailable",
+            model.ErrorTitle);
+        Assert.Contains("temporarily limited", model.ErrorMessage!, StringComparison.Ordinal);
+        Assert.DoesNotContain("GITHUB_TOKEN", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -269,7 +273,8 @@ public sealed class ProfileModelTests
 
         await model.OnPostAsync(CancellationToken.None);
 
-        Assert.Contains("hız sınırına", model.ErrorMessage!, StringComparison.Ordinal);
+        Assert.Equal("Profil kanıtına erişilemiyor", model.ErrorTitle);
+        Assert.Contains("geçici olarak sınırladı", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -292,6 +297,7 @@ public sealed class ProfileModelTests
         await model.OnPostAsync(CancellationToken.None);
 
         Assert.False(model.HasComposedProfile);
+        Assert.Equal("Profile evidence is unavailable", model.ErrorTitle);
         Assert.NotNull(model.ErrorMessage);
         Assert.DoesNotContain(
             unavailable.Reason!,
@@ -325,8 +331,39 @@ public sealed class ProfileModelTests
         Assert.IsType<PageResult>(action);
         Assert.Equal(StatusCodes.Status504GatewayTimeout, model.Response.StatusCode);
         Assert.False(model.HasComposedProfile);
+        Assert.Equal("Profile analysis took too long", model.ErrorTitle);
         Assert.Null(model.Report);
         Assert.NotNull(model.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenDeadlineExpiresAfterAvailability_DoesNotRenderPartialOrAReport()
+    {
+        DeadlineAfterAvailabilityFactory deadlineFactory = new();
+        DataAvailability profileAvailability =
+            DataAvailability.Available("profile", CapturedAt);
+        ProfileModel model = new(
+            new LiveProfileReportService(
+                new AvailabilityThenDeadlineCollector(
+                    profileAvailability,
+                    deadlineFactory),
+                CreateRealPipeline(),
+                deadlineFactory: deadlineFactory),
+            Version,
+            new WebPresentationLocalizer(),
+            DisabledProfileExecutionAdmissionGuard.Instance)
+        {
+            PageContext = CreatePageContext(),
+            GitHubTarget = Identity
+        };
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(StatusCodes.Status504GatewayTimeout, model.Response.StatusCode);
+        Assert.False(model.HasComposedProfile);
+        Assert.False(model.IsPartialProfile);
+        Assert.Null(model.Report);
+        Assert.Equal("Profile analysis took too long", model.ErrorTitle);
     }
 
     [Fact]
@@ -351,6 +388,8 @@ public sealed class ProfileModelTests
         Assert.Equal(0, collector.CallCount);
         Assert.False(model.HasComposedProfile);
         Assert.Null(model.Report);
+        Assert.Equal("This profile is already being analyzed", model.ErrorTitle);
+        Assert.Contains("still in progress", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -375,6 +414,8 @@ public sealed class ProfileModelTests
         Assert.Equal(0, collector.CallCount);
         Assert.False(model.HasComposedProfile);
         Assert.Null(model.Report);
+        Assert.Equal("Profile analysis is temporarily busy", model.ErrorTitle);
+        Assert.Contains("cannot start another", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -407,6 +448,8 @@ public sealed class ProfileModelTests
         Assert.Equal(0, collector.CallCount);
         Assert.False(model.HasComposedProfile);
         Assert.Null(model.Report);
+        Assert.Equal("Profile requests are temporarily limited", model.ErrorTitle);
+        Assert.Contains("could not start", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -432,7 +475,85 @@ public sealed class ProfileModelTests
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, model.Response.StatusCode);
         Assert.False(model.HasComposedProfile);
         Assert.Null(model.Report);
+        Assert.Equal("Profile analysis is temporarily unavailable", model.ErrorTitle);
         Assert.NotNull(model.ErrorMessage);
+        Assert.DoesNotContain("remaining", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("floor", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("header", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("token", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithRealPartialProfile_KeepsReportAndCanonicalLimitationsVisibleToPresentation()
+    {
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult(isRepositoryManifestComplete: false));
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.True(model.IsPartialProfile);
+        Assert.NotNull(model.Report);
+        Assert.Contains(
+            model.Report.Limitations.Items,
+            limitation => limitation.Code == ProfileLimitationCode.PartialEvidenceSurface);
+        Assert.Null(model.ErrorTitle);
+        Assert.Null(model.ErrorMessage);
+    }
+
+    [Theory]
+    [InlineData(DataAvailabilityStatus.NotApplicable, "This profile is not supported")]
+    [InlineData(DataAvailabilityStatus.Forbidden, "Profile evidence is unavailable")]
+    [InlineData(DataAvailabilityStatus.Unavailable, "Profile evidence is unavailable")]
+    [InlineData(DataAvailabilityStatus.Failed, "Profile evidence is unavailable")]
+    [InlineData(DataAvailabilityStatus.NotRequested, "Profile evidence is unavailable")]
+    public async Task OnPostAsync_WithTypedProfileAvailability_UsesBoundedCopyWithoutRawReason(
+        DataAvailabilityStatus status,
+        string expectedTitle)
+    {
+        const string rawReason = "provider-secret-diagnostic";
+        FakeProfileSnapshotCollector collector = new(
+            new GitHubProfileSnapshotResult(
+                snapshot: null,
+                DataAvailability.Unavailable("profile", status, rawReason)));
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.False(model.HasComposedProfile);
+        Assert.False(model.IsPartialProfile);
+        Assert.Null(model.Report);
+        Assert.Equal(expectedTitle, model.ErrorTitle);
+        Assert.DoesNotContain(rawReason, model.ErrorMessage!, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TerminalPipelineFailure_UsesCompositionFailurePresentation_NotOperationalGuardCopy()
+    {
+        ProfileModel model = CreateModel(new ThrowingProfileSnapshotCollector());
+        ProfilePipelineResult failed = ProfilePipelineResult.Failed(
+            ProfileCompositionResult.Failed());
+
+        System.Reflection.MethodInfo applyPipelineResult = typeof(ProfileModel)
+            .GetMethod(
+                "ApplyPipelineResult",
+                System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Instance)
+            ?? throw new InvalidOperationException(
+                "ProfileModel.ApplyPipelineResult was not found.");
+
+        applyPipelineResult.Invoke(model, [failed]);
+
+        Assert.False(model.HasComposedProfile);
+        Assert.False(model.IsPartialProfile);
+        Assert.Null(model.Report);
+        Assert.Equal("The profile view could not be completed", model.ErrorTitle);
+        Assert.Contains("compose a profile", model.ErrorMessage!, StringComparison.Ordinal);
+        Assert.DoesNotContain("too long", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("temporarily busy", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }
 
     private static ProfileModel CreateModel(
@@ -471,7 +592,8 @@ public sealed class ProfileModelTests
             ObservationRuleVersion.V1,
             ProfileAnalyzerVersion.V1);
 
-    private static GitHubProfileSnapshotResult CreateSuccessfulSnapshotResult()
+    private static GitHubProfileSnapshotResult CreateSuccessfulSnapshotResult(
+        bool isRepositoryManifestComplete = true)
     {
         GitHubProfileSnapshot snapshot = new(
             new GitHubProfileIdentity(
@@ -479,7 +601,8 @@ public sealed class ProfileModelTests
                 new Uri($"https://github.com/{Identity}")),
             CapturedAt,
             metadata: null,
-            repositories: null,
+            repositories: new ProfileRepositoryManifest(
+                isComplete: isRepositoryManifestComplete),
             availability: null,
             collectionWarnings: null);
 
@@ -536,6 +659,78 @@ public sealed class ProfileModelTests
         {
             progress?.ResolveProfileAvailability(profileAvailability);
             throw new GitHubProfileBudgetProtectionRejectedException();
+        }
+    }
+
+    private sealed class AvailabilityThenDeadlineCollector(
+        DataAvailability profileAvailability,
+        DeadlineAfterAvailabilityFactory deadlineFactory)
+        : IGitHubProfileSnapshotCollector
+    {
+        public Task<GitHubProfileSnapshotResult> CollectAsync(
+            string profile,
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
+        {
+            bool published = progress?.ResolveProfileAvailability(profileAvailability)
+                ?? false;
+            Assert.True(published);
+
+            deadlineFactory.CancelCurrent();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            throw new InvalidOperationException(
+                "The execution token should have been cancelled.");
+        }
+    }
+
+    private sealed class DeadlineAfterAvailabilityFactory
+        : IProfileExecutionDeadlineFactory
+    {
+        private TriggerableDeadline? current;
+
+        public IProfileExecutionDeadline Create(
+            CancellationToken callerCancellationToken)
+        {
+            current = new TriggerableDeadline(callerCancellationToken);
+            return current;
+        }
+
+        public void CancelCurrent() =>
+            (current ?? throw new InvalidOperationException(
+                "The execution deadline has not been created."))
+            .Cancel();
+    }
+
+    private sealed class TriggerableDeadline : IProfileExecutionDeadline
+    {
+        private readonly CancellationTokenSource deadline = new();
+        private readonly CancellationTokenSource execution;
+        private bool expired;
+
+        public TriggerableDeadline(CancellationToken callerCancellationToken)
+        {
+            execution = CancellationTokenSource.CreateLinkedTokenSource(
+                callerCancellationToken,
+                deadline.Token);
+        }
+
+        public CancellationToken ExecutionToken => execution.Token;
+
+        public bool IsExpired => expired;
+
+        public bool TryComplete() => !expired;
+
+        public void Cancel()
+        {
+            expired = true;
+            deadline.Cancel();
+        }
+
+        public void Dispose()
+        {
+            execution.Dispose();
+            deadline.Dispose();
         }
     }
 

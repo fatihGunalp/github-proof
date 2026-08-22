@@ -1,18 +1,26 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-22 (Session 109)
+**Last Updated:** 2026-08-23 (Session 110)
 **Source of Truth:** `docs/`
 
 ## Current Session State
 
 - Active Session: **NONE**.
+- Session 110 — P10-I5 Limitations + Partial / Failure UX:
+  **PASS WITH FINDINGS**; implementation and validation complete,
+  architecture-owner review required; production configuration inputs remain
+  separate/open.
+- Branch: `session/110-p10-i5-limitations-partial-failure-ux`
+- Base HEAD: `959069d383a3179f063520621831f74f044bedd9`
+- Pre-existing `?? artifacts/` is user-owned, read-only and out of scope.
+- Session 110 implemented only the localized Profile limitations, canonical
+  Partial and typed failure/operational recovery presentation.
+- Domain/Application/Infrastructure semantics, Repository Proof behavior,
+  configuration and P10-I6 visual restructuring remain unchanged.
 - Session 109 — Admission / Concurrency + Provider Protection Guardrails:
   **PASS WITH FINDINGS**; implementation complete, architecture-owner re-review
   pending, production enablement inputs remain external.
-- Branch: `session/109-admission-concurrency-provider-protection`
-- Base HEAD: `9dc70b4cb739e3bcc4dd63f6f84eecd329b31c9c`
-- Pre-existing `?? artifacts/` is user-owned, out of scope and untouched.
-- Last remote-verified main: `9dc70b4` (2026-08-22).
+- Last remote-verified main: `959069d` (2026-08-23).
 
 ## Current Product State
 
@@ -72,12 +80,16 @@
 - Visitor `2/10 min`, reserve `500` and exact deadline remain unselected
   measurement candidates. Global/same-profile concurrency `1/1` and queue `0`
   are implemented as provisional, externally configurable defaults.
-- P10-I5 and P10-I6-A/B/C remain ahead. P10 and Milestone B are not complete.
+- Real canonical Partial now keeps the complete typed report visible with an
+  early localized observation notice. Canonical Warnings are a status notice;
+  Limitations render in position 7. Admission/provider/deadline/pipeline
+  failures remain reportless localized operational states.
+- P10-I5 is implemented and awaiting architecture-owner review. P10-I6-A/B/C
+  remain ahead; P10 and Milestone B are not complete.
 
 ## Exact Next Action
 
-Architecture-owner re-review of Session 109. If approved, production enablement
-still requires deployment-owned trusted proxy topology, measured visitor/budget/
-deadline values and endpoint-compatible secure authentication lifecycle. Keep
-Repository Proof circuiting separate. P10-I5 final guardrail presentation and
-P10-I6 remain downstream.
+Architecture-owner review of Session 110. If approved and integrated, the next
+slice is P10-I6-A — Profile shell + first-read hierarchy. Production enablement
+still separately requires trusted-proxy topology, measured visitor/budget/
+deadline values and an endpoint-compatible secure authentication lifecycle.

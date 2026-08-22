@@ -15,6 +15,7 @@ public sealed class ProfileWebPresentationLocalizerTests
     [InlineData(ProfileReportSectionKey.EngineeringPracticePatterns, "Recurring engineering practices", "Tekrar eden üretim pratikleri")]
     [InlineData(ProfileReportSectionKey.RepresentativeRepositories, "Starting point", "Başlangıç noktası")]
     [InlineData(ProfileReportSectionKey.WhyThisConclusion, "Why this view", "Bu görünümü neden görüyoruz?")]
+    [InlineData(ProfileReportSectionKey.Limitations, "Limits of this view", "Bu görünümün sınırları")]
     public void Required_profile_section_labels_are_keyed_by_canonical_identity(
         ProfileReportSectionKey section,
         string english,
@@ -237,6 +238,10 @@ public sealed class ProfileWebPresentationLocalizerTests
         ProfileReportSectionKey.RepresentativeRepositories,
         "No starting-point repository was selected from the current visible public evidence.",
         "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.")]
+    [InlineData(
+        ProfileReportSectionKey.Limitations,
+        "No limits were recorded for this profile view.",
+        "Bu profil görünümü için bir sınır kaydedilmedi.")]
     public void Supported_empty_section_copy_is_locked_EN_TR(
         ProfileReportSectionKey section,
         string english,

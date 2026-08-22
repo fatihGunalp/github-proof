@@ -2,6 +2,7 @@ using GitHubProof.Application.Profile;
 using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
+using GitHubProof.Domain.Profile.Enums;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Entry;
 using GitHubProof.Web.Localization;
@@ -17,9 +18,10 @@ namespace GitHubProof.Web.Pages;
 // existing P10-I1 LiveProfileReportService and a minimal typed result
 // boundary. P10-I3 exposes the already-projected typed ProfileReport for
 // Meaning / Direction / Starting Point presentation; WhyThisConclusion +
-// evidence drill-down is P10-I4, and the final failure/partial presentation
-// UX is P10-I5. It makes no eligibility, composition or report decision of
-// its own, and never re-projects or reinterprets report truth.
+// evidence drill-down is P10-I4. P10-I5 consumes only the resulting typed
+// Partial/failure/operational states. It makes no eligibility, composition or
+// report decision of its own, and never re-projects or reinterprets report
+// truth.
 //
 // Live profile analysis is POST-only. GET carries no analysis at all, so a
 // refresh, a browser back/forward, a prefetch, a crawler or a link-preview
@@ -62,6 +64,10 @@ public sealed class ProfileModel : PageModel
     // the pipeline run that produced HasComposedProfile == true. Never
     // re-projected, re-derived from Profile, or computed from raw evidence.
     public ProfileReport? Report { get; private set; }
+
+    public bool IsPartialProfile { get; private set; }
+
+    public string? ErrorTitle { get; private set; }
 
     public string? ErrorMessage { get; private set; }
 
@@ -108,19 +114,16 @@ public sealed class ProfileModel : PageModel
             if (IsBudgetProtectionRejection(result.ExecutionAvailability))
             {
                 Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                ErrorMessage = text.Get(
-                    WebTextKey.ProfileFailed,
-                    PageContext?.HttpContext);
+                ApplyFailure(
+                    WebTextKey.ProfileProviderInterruptedTitle,
+                    WebTextKey.ProfileProviderInterrupted);
             }
             else if (IsExecutionDeadline(result.ExecutionAvailability))
             {
-                // Session 108 supplies the already-canonical HTTP mapping but
-                // intentionally reuses the existing generic failure copy. The
-                // final P10-I5 guardrail presentation remains out of scope.
                 Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                ErrorMessage = text.Get(
-                    WebTextKey.ProfileFailed,
-                    PageContext?.HttpContext);
+                ApplyFailure(
+                    WebTextKey.ProfileDeadlineTitle,
+                    WebTextKey.ProfileDeadline);
             }
             else
             {
@@ -128,7 +131,7 @@ public sealed class ProfileModel : PageModel
                     ?? throw new InvalidOperationException(
                         "A non-deadline Profile failure must preserve profile availability.");
 
-                ErrorMessage = CreateProfileFailureMessage(availability);
+                ApplyProfileFailure(availability);
             }
 
             return Page();
@@ -138,12 +141,22 @@ public sealed class ProfileModel : PageModel
             ?? throw new InvalidOperationException(
                 "A successful live profile result must contain a pipeline result.");
 
+        ApplyPipelineResult(pipelineResult);
+
+        return Page();
+    }
+
+    private void ApplyPipelineResult(ProfilePipelineResult pipelineResult)
+    {
+        ArgumentNullException.ThrowIfNull(pipelineResult);
+
         if (!pipelineResult.HasProfile)
         {
-            ErrorMessage =
-                text.Get(WebTextKey.ProfileCouldNotCompose, PageContext?.HttpContext);
+            ApplyFailure(
+                WebTextKey.ProfileCompositionFailedTitle,
+                WebTextKey.ProfileCouldNotCompose);
 
-            return Page();
+            return;
         }
 
         // A composed (HasProfile == true) pipeline result always carries its
@@ -156,31 +169,37 @@ public sealed class ProfileModel : PageModel
                 + "projected report.");
 
         HasComposedProfile = true;
-
-        return Page();
+        IsPartialProfile = pipelineResult.Status == ProfileCompositionStatus.Partial;
     }
 
     // Mirrors the Repository Proof failure vocabulary so a rate limit stays a
     // rate limit and never collapses into a negative claim about the profile.
-    private string CreateProfileFailureMessage(
-        DataAvailability availability) =>
-        availability.Status switch
+    private void ApplyProfileFailure(DataAvailability availability)
+    {
+        WebTextKey message = availability.Status switch
         {
             DataAvailabilityStatus.NotApplicable =>
-                text.Get(WebTextKey.ProfilePublicOnly, PageContext?.HttpContext),
+                WebTextKey.ProfilePublicOnly,
 
             DataAvailabilityStatus.RateLimited =>
-                text.Get(WebTextKey.ProfileRateLimited, PageContext?.HttpContext),
+                WebTextKey.ProfileRateLimited,
 
             DataAvailabilityStatus.Forbidden =>
-                text.Get(WebTextKey.ProfileForbidden, PageContext?.HttpContext),
+                WebTextKey.ProfileForbidden,
 
             DataAvailabilityStatus.Failed =>
-                text.Get(WebTextKey.ProfileFailed, PageContext?.HttpContext),
+                WebTextKey.ProfileFailed,
 
             _ =>
-                text.Get(WebTextKey.ProfileUnavailable, PageContext?.HttpContext)
+                WebTextKey.ProfileUnavailable
         };
+
+        WebTextKey title = availability.Status == DataAvailabilityStatus.NotApplicable
+            ? WebTextKey.ProfileUnsupportedTitle
+            : WebTextKey.ProfileUnavailableTitle;
+
+        ApplyFailure(title, message);
+    }
 
     private static bool IsExecutionDeadline(DataAvailability availability) =>
         availability.Status == DataAvailabilityStatus.Failed
@@ -221,10 +240,27 @@ public sealed class ProfileModel : PageModel
                 .ToString(CultureInfo.InvariantCulture);
         }
 
-        // Final localized guardrail copy remains P10-I5. Until then, reuse the
-        // bounded generic operational-failure copy without inventing evidence.
-        ErrorMessage = text.Get(
-            WebTextKey.ProfileFailed,
-            PageContext?.HttpContext);
+        (WebTextKey title, WebTextKey message) = admission.Rejection switch
+        {
+            ProfileAdmissionRejection.VisitorRateLimited =>
+                (WebTextKey.ProfileRequestLimitedTitle,
+                    WebTextKey.ProfileRequestLimited),
+            ProfileAdmissionRejection.SameProfileBusy =>
+                (WebTextKey.ProfileAnalysisInProgressTitle,
+                    WebTextKey.ProfileAnalysisInProgress),
+            ProfileAdmissionRejection.GlobalCapacityBusy =>
+                (WebTextKey.ProfileServiceBusyTitle,
+                    WebTextKey.ProfileServiceBusy),
+            _ => throw new InvalidOperationException(
+                "An admission rejection must carry a known reason.")
+        };
+
+        ApplyFailure(title, message);
+    }
+
+    private void ApplyFailure(WebTextKey title, WebTextKey message)
+    {
+        ErrorTitle = text.Get(title, PageContext?.HttpContext);
+        ErrorMessage = text.Get(message, PageContext?.HttpContext);
     }
 }

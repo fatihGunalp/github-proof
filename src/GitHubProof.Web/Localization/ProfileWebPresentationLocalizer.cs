@@ -112,6 +112,10 @@ public sealed class ProfileWebPresentationLocalizer
                 "The visible public evidence contains no public repository to inspect.",
             (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.Turkish) =>
                 "Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor.",
+            (ProfileReportSectionKey.Limitations, WebCulture.English) =>
+                "No limits were recorded for this profile view.",
+            (ProfileReportSectionKey.Limitations, WebCulture.Turkish) =>
+                "Bu profil görünümü için bir sınır kaydedilmedi.",
             _ => throw new InvalidOperationException(
                 $"Profile section '{section}' has no active Supported+empty presentation mapping.")
         };

@@ -12,7 +12,7 @@ namespace GitHubProof.Web.Tests;
 public sealed class ProfileResultPresentationTests
 {
     [Fact]
-    public void Profile_page_renders_the_six_P10I3_and_P10I4_sections_in_canonical_experience_order()
+    public void Profile_page_renders_Profile_sections_in_canonical_experience_order_with_limitations_at_position_seven()
     {
         string content = ReadWebFile("Pages", "Profile.cshtml");
 
@@ -30,6 +30,9 @@ public sealed class ProfileResultPresentationTests
             content,
             "_ProfileWhyThisView",
             "report.WhyThisConclusion");
+        int limitations = content.IndexOf(
+            "report.Limitations.SectionKey",
+            StringComparison.Ordinal);
         int repositoryEvidence = RequireSingleCall(
             content,
             "_ProfileRepositoryEvidence",
@@ -39,11 +42,12 @@ public sealed class ProfileResultPresentationTests
         Assert.True(technicalFocus < engineeringPractice, "Visible technical direction must precede Recurring engineering practices.");
         Assert.True(engineeringPractice < startingPoint, "Recurring engineering practices must precede Starting point.");
         Assert.True(startingPoint < why, "Starting point must precede Why this view.");
-        Assert.True(why < repositoryEvidence, "Why this view must precede Repository evidence.");
+        Assert.True(why < limitations, "Why this view must precede Limitations.");
+        Assert.True(limitations < repositoryEvidence, "Limitations must precede Repository evidence.");
     }
 
     [Fact]
-    public void Profile_page_still_introduces_no_P10I5_section()
+    public void Profile_page_omits_only_the_unsupported_and_deferred_Profile_sections()
     {
         // Razor comments legitimately name deferred concepts to explain why
         // they are absent; only the executable markup/code must never
@@ -54,8 +58,6 @@ public sealed class ProfileResultPresentationTests
 
         string[] forbidden =
         [
-            "Limitations",
-            "Warnings",
             "ProblemAreaPatterns",
             "RoleEvidenceAlignment"
         ];
@@ -64,6 +66,67 @@ public sealed class ProfileResultPresentationTests
         {
             Assert.DoesNotContain(term, content, StringComparison.Ordinal);
         }
+    }
+
+    [Fact]
+    public void Partial_notice_is_early_but_does_not_replace_the_report()
+    {
+        string content = StripRazorComments(ReadWebFile("Pages", "Profile.cshtml"));
+
+        int partial = content.IndexOf("Model.IsPartialProfile", StringComparison.Ordinal);
+        int meaning = RequireSingleCall(content, "_ProfileMeaning");
+        int repositoryEvidence = RequireSingleCall(content, "_ProfileRepositoryEvidence");
+
+        Assert.True(partial >= 0 && partial < meaning);
+        Assert.True(meaning < repositoryEvidence);
+        Assert.Contains("WebTextKey.ProfilePartialTitle", content, StringComparison.Ordinal);
+        Assert.Contains("WebTextKey.ProfilePartialMessage", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Canonical_warnings_are_a_notice_near_Meaning_not_a_numbered_report_section()
+    {
+        string content = StripRazorComments(ReadWebFile("Pages", "Profile.cshtml"));
+
+        int meaning = RequireSingleCall(content, "_ProfileMeaning");
+        int warnings = content.IndexOf("report.Warnings.Count", StringComparison.Ordinal);
+        int technicalFocus = RequireSingleCall(
+            content,
+            "_ProfilePatternSection",
+            "report.TechnicalFocusAreas");
+
+        Assert.True(meaning < warnings && warnings < technicalFocus);
+        Assert.Contains("<aside", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("<h2 class=\"profile-result__notice-title\">", content, StringComparison.Ordinal);
+        Assert.Contains("GetWarningLabel", content, StringComparison.Ordinal);
+        Assert.Contains("foreach (ProfileWarning warning in report.Warnings)", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Limitations_render_only_canonical_items_and_preserve_supported_empty_truth()
+    {
+        string content = StripRazorComments(ReadWebFile("Pages", "Profile.cshtml"));
+
+        Assert.Contains("ProfileReportSectionKey.Limitations", content, StringComparison.Ordinal);
+        Assert.Contains("ProfileReportSectionAvailability.Supported", content, StringComparison.Ordinal);
+        Assert.Contains("foreach (ProfileLimitation limitation in report.Limitations.Items)", content, StringComparison.Ordinal);
+        Assert.Contains("GetLimitationLabel", content, StringComparison.Ordinal);
+        Assert.Contains("GetEmptySectionMessage", content, StringComparison.Ordinal);
+
+        Assert.DoesNotContain("ExecutionAvailability", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Admission", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("github-budget", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("execution-deadline", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Failure_state_never_renders_a_Profile_report_branch()
+    {
+        string content = StripRazorComments(ReadWebFile("Pages", "Profile.cshtml"));
+
+        Assert.Contains("@if (Model.ErrorMessage is not null)", content, StringComparison.Ordinal);
+        Assert.Contains("else if (Model.Report is { } report)", content, StringComparison.Ordinal);
+        Assert.Contains("role=\"alert\"", content, StringComparison.Ordinal);
     }
 
     [Fact]
