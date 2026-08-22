@@ -57,6 +57,7 @@ public sealed class LiveProfileReportService
         ArgumentNullException.ThrowIfNull(version);
 
         ProfileExecutionTelemetry telemetry = new();
+        ProfileGitHubBudgetState budgetState = new();
         LastExecutionTelemetry = telemetry;
 
         long startedAt = Stopwatch.GetTimestamp();
@@ -66,6 +67,7 @@ public sealed class LiveProfileReportService
         // The ambient scope is what lets the pooled HTTP telemetry handler and
         // the observation-only wrappers find THIS execution's counters.
         using IDisposable scope = ProfileExecutionTelemetryScope.Begin(telemetry);
+        using IDisposable budgetScope = ProfileGitHubBudgetScope.Begin(budgetState);
         using IProfileExecutionDeadline deadline =
             deadlineFactory.Create(cancellationToken);
         using GitHubProfileSnapshotProgress progress =
@@ -199,6 +201,46 @@ public sealed class LiveProfileReportService
             outcome = ProfileExecutionOutcome.Cancelled;
             status = ProfileExecutionOutcome.Cancelled;
             throw;
+        }
+        catch (GitHubProfileBudgetProtectionRejectedException)
+        {
+            // Caller cancellation and the internal deadline retain precedence
+            // over a budget decision that races immediately after metadata.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            DataAvailability profileAvailability = progress.ProfileAvailability
+                ?? throw new InvalidOperationException(
+                    "Budget protection can reject only after profile availability resolves.");
+
+            if (!profileAvailability.IsAvailable)
+            {
+                throw new InvalidOperationException(
+                    "Budget protection can reject only Available profile metadata.");
+            }
+
+            outcome = ProfileExecutionOutcome.BudgetProtectionRejected;
+            status = LiveProfileAnalysisResult.BudgetProtectionRejectedReason;
+
+            LiveProfileAnalysisResult rejected =
+                LiveProfileAnalysisResult.BudgetProtectionRejected(
+                    profileAvailability);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Budget rejection is a terminal live-execution result too. Race it
+            // through the same owned completion boundary as successful
+            // execution, so a deadline that wins here discards the candidate.
+            if (!deadline.TryComplete())
+            {
+                outcome = ProfileExecutionOutcome.DeadlineExpired;
+                status = LiveProfileAnalysisResult.DeadlineExpiredReason;
+                return CreateDeadlineResult(
+                    progress.ProfileAvailability,
+                    cancellationToken);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            return rejected;
         }
         catch (OperationCanceledException) when (deadline.IsExpired)
         {

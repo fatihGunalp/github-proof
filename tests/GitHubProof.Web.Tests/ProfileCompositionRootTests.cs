@@ -16,7 +16,7 @@ namespace GitHubProof.Web.Tests;
 // Session 097 amends one part of that P10-I1 shape: the profile collector no
 // longer shares the "GitHubProof.GitHub" client. It runs on the profile-specific
 // instrumented client registered by AddProfilePipeline, which carries the same
-// transport contract plus the request-counting handler. Repository Proof's
+// transport contract plus Profile-only request/budget observation. Repository Proof's
 // registration, client and construction path are unchanged, and these tests
 // assert that separation explicitly.
 public sealed class ProfileCompositionRootTests

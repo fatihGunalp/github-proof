@@ -6,30 +6,36 @@ public sealed class GitHubProfileSnapshotOrchestrator : IGitHubProfileSnapshotCo
 {
     public static GitHubProfileSnapshotOrchestrator CreateDefault(
         HttpClient httpClient,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IGitHubProfileBudgetProtection? budgetProtection = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
 
         return new GitHubProfileSnapshotOrchestrator(
             new GitHubProfileMetadataCollector(httpClient, timeProvider),
             new GitHubProfileRepositoryCollector(httpClient, timeProvider),
-            timeProvider);
+            timeProvider,
+            budgetProtection);
     }
 
     private readonly IGitHubProfileMetadataCollector metadataCollector;
     private readonly IGitHubProfileRepositoryCollector repositoryCollector;
     private readonly TimeProvider timeProvider;
+    private readonly IGitHubProfileBudgetProtection budgetProtection;
 
     public GitHubProfileSnapshotOrchestrator(
         IGitHubProfileMetadataCollector metadataCollector,
         IGitHubProfileRepositoryCollector repositoryCollector,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IGitHubProfileBudgetProtection? budgetProtection = null)
     {
         this.metadataCollector = metadataCollector
             ?? throw new ArgumentNullException(nameof(metadataCollector));
         this.repositoryCollector = repositoryCollector
             ?? throw new ArgumentNullException(nameof(repositoryCollector));
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.budgetProtection = budgetProtection
+            ?? DisabledGitHubProfileBudgetProtection.Instance;
     }
 
     public async Task<GitHubProfileSnapshotResult> CollectAsync(
@@ -61,6 +67,12 @@ public sealed class GitHubProfileSnapshotOrchestrator : IGitHubProfileSnapshotCo
             throw new InvalidOperationException(
                 "Available profile metadata must include profile identity and metadata.");
         }
+
+        // This decision is deliberately after Available metadata publication
+        // and before captured-at/manifest work. A rejection escapes as a typed
+        // operational signal; no snapshot, collector availability, warning or
+        // completed-so-far profile can be fabricated here.
+        budgetProtection.EnsureCanContinueAfterAvailableMetadata();
 
         DateTimeOffset capturedAt = timeProvider.GetUtcNow();
         GitHubProfileRepositoryCollection repositories =

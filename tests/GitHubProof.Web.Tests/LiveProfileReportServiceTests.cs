@@ -9,6 +9,7 @@ using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Profile.Runtime;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -203,6 +204,72 @@ public sealed class LiveProfileReportServiceTests
                 pipelineResult: null));
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_WhenBudgetProtectionRejects_ReturnsOnlyOuterOperationalFailure()
+    {
+        DataAvailability profileAvailability =
+            DataAvailability.Available("profile", CapturedAt);
+        LiveProfileReportService service = CreateService(
+            new BudgetRejectingProfileSnapshotCollector(profileAvailability));
+
+        LiveProfileAnalysisResult result = await service.AnalyzeAsync(
+            ProfileIdentity,
+            Version);
+
+        Assert.Same(profileAvailability, result.ProfileAvailability);
+        Assert.Equal(
+            LiveProfileAnalysisResult.ExecutionDataKey,
+            result.ExecutionAvailability.DataKey);
+        Assert.Equal(
+            DataAvailabilityStatus.Unavailable,
+            result.ExecutionAvailability.Status);
+        Assert.Equal(
+            LiveProfileAnalysisResult.BudgetProtectionRejectedReason,
+            result.ExecutionAvailability.Reason);
+        Assert.Null(result.ExecutionAvailability.RetrievedAt);
+        Assert.Null(result.PipelineResult);
+        Assert.Equal(
+            ProfileExecutionOutcome.BudgetProtectionRejected,
+            service.LastExecutionTelemetry!.Outcome);
+    }
+
+    [Fact]
+    public void LiveProfileAnalysisResult_RejectsBudgetOutcomeWithoutAvailableProfileMetadata()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new LiveProfileAnalysisResult(
+                DataAvailability.Unavailable(
+                    "profile",
+                    DataAvailabilityStatus.Unavailable,
+                    "unused"),
+                DataAvailability.Unavailable(
+                    LiveProfileAnalysisResult.ExecutionDataKey,
+                    DataAvailabilityStatus.Unavailable,
+                    LiveProfileAnalysisResult.BudgetProtectionRejectedReason),
+                pipelineResult: null));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_WhenDeadlineWinsBudgetTerminalCompletion_ReturnsDeadline()
+    {
+        DataAvailability profileAvailability =
+            DataAvailability.Available("profile", CapturedAt);
+        LiveProfileReportService service = new(
+            new BudgetRejectingProfileSnapshotCollector(profileAvailability),
+            CreateRealPipeline(),
+            deadlineFactory: new CompletionLosingDeadlineFactory());
+
+        LiveProfileAnalysisResult result = await service.AnalyzeAsync(
+            ProfileIdentity,
+            Version);
+
+        Assert.Same(profileAvailability, result.ProfileAvailability);
+        Assert.Equal(
+            LiveProfileAnalysisResult.DeadlineExpiredReason,
+            result.ExecutionAvailability.Reason);
+        Assert.Null(result.PipelineResult);
+    }
+
     private static LiveProfileReportService CreateService(
         IGitHubProfileSnapshotCollector collector) =>
         new(collector, CreateRealPipeline());
@@ -261,6 +328,48 @@ public sealed class LiveProfileReportServiceTests
             progress?.ResolveProfileAvailability(result.ProfileAvailability);
 
             return Task.FromResult(result);
+        }
+    }
+
+    private sealed class BudgetRejectingProfileSnapshotCollector(
+        DataAvailability profileAvailability)
+        : IGitHubProfileSnapshotCollector
+    {
+        public Task<GitHubProfileSnapshotResult> CollectAsync(
+            string profile,
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.ResolveProfileAvailability(profileAvailability);
+            throw new GitHubProfileBudgetProtectionRejectedException();
+        }
+    }
+
+    private sealed class CompletionLosingDeadlineFactory
+        : IProfileExecutionDeadlineFactory
+    {
+        public IProfileExecutionDeadline Create(
+            CancellationToken callerCancellationToken) =>
+            new CompletionLosingDeadline(callerCancellationToken);
+    }
+
+    private sealed class CompletionLosingDeadline(
+        CancellationToken callerCancellationToken)
+        : IProfileExecutionDeadline
+    {
+        public CancellationToken ExecutionToken => callerCancellationToken;
+
+        public bool IsExpired { get; private set; }
+
+        public bool TryComplete()
+        {
+            IsExpired = true;
+            return false;
+        }
+
+        public void Dispose()
+        {
         }
     }
 

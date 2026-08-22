@@ -12,6 +12,8 @@ public sealed record LiveProfileAnalysisResult
     public const string ExecutionDataKey = "profile-execution";
     public const string DeadlineExpiredReason = "execution-deadline-expired";
     public const string ProfileUnavailableReason = "profile-unavailable";
+    public const string BudgetProtectionRejectedReason =
+        "github-budget-protection-rejected";
 
     public LiveProfileAnalysisResult(
         DataAvailability? profileAvailability,
@@ -52,6 +54,16 @@ public sealed record LiveProfileAnalysisResult
                 ExecutionDataKey,
                 DataAvailabilityStatus.NotRequested,
                 ProfileUnavailableReason),
+            pipelineResult: null);
+
+    public static LiveProfileAnalysisResult BudgetProtectionRejected(
+        DataAvailability profileAvailability) =>
+        new(
+            profileAvailability,
+            DataAvailability.Unavailable(
+                ExecutionDataKey,
+                DataAvailabilityStatus.Unavailable,
+                BudgetProtectionRejectedReason),
             pipelineResult: null);
 
     public static LiveProfileAnalysisResult Completed(
@@ -103,7 +115,20 @@ public sealed record LiveProfileAnalysisResult
             && ExecutionAvailability.RetrievedAt is not null
             && PipelineResult is not null;
 
-        if (!isDeadline && !isProfileUnavailable && !isCompleted)
+        bool isBudgetProtectionRejected =
+            ProfileAvailability?.IsAvailable == true
+            && ExecutionAvailability.Status == DataAvailabilityStatus.Unavailable
+            && string.Equals(
+                ExecutionAvailability.Reason,
+                BudgetProtectionRejectedReason,
+                StringComparison.Ordinal)
+            && ExecutionAvailability.RetrievedAt is null
+            && PipelineResult is null;
+
+        if (!isDeadline
+            && !isProfileUnavailable
+            && !isCompleted
+            && !isBudgetProtectionRejected)
         {
             throw new ArgumentException(
                 "The live Profile result does not match an authorized runtime outcome.");

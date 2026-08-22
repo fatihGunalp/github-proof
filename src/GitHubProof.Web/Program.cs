@@ -78,9 +78,9 @@ builder.Services.AddProfilePipeline(builder.Configuration);
 // Profile Proof runs on its own named GitHub client, registered by
 // AddProfilePipeline. It carries the same transport contract as the Repository
 // Proof client above (same base address, timeout and optional bearer token) plus
-// the profile request-counting handler, so profile telemetry can never mix in
-// Repository Proof traffic
-// (docs/architecture/public-profile-runtime-collection.md §9).
+// the Profile-only request/budget observation handler, so Profile operational
+// state can never mix in or protect Repository Proof traffic
+// (docs/architecture/public-profile-runtime-collection.md §§9-10).
 builder.Services.AddScoped<IGitHubProfileSnapshotCollector>(
     services =>
     {
@@ -93,7 +93,8 @@ builder.Services.AddScoped<IGitHubProfileSnapshotCollector>(
 
         return GitHubProfileSnapshotOrchestrator.CreateDefault(
             httpClient,
-            timeProvider);
+            timeProvider,
+            services.GetRequiredService<IGitHubProfileBudgetProtection>());
     });
 
 builder.Services.AddScoped<LiveProfileReportService>();

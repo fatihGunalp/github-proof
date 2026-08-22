@@ -2,11 +2,14 @@ using GitHubProof.Application.Profile;
 using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
+using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Entry;
 using GitHubProof.Web.Localization;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Profile.Runtime;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Globalization;
 
 namespace GitHubProof.Web.Pages;
 
@@ -28,11 +31,13 @@ public sealed class ProfileModel : PageModel
     private readonly LiveProfileReportService profileReportService;
     private readonly AnalysisVersion analysisVersion;
     private readonly WebPresentationLocalizer text;
+    private readonly IProfileExecutionAdmissionGuard admissionGuard;
 
     public ProfileModel(
         LiveProfileReportService profileReportService,
         AnalysisVersion analysisVersion,
-        WebPresentationLocalizer text)
+        WebPresentationLocalizer text,
+        IProfileExecutionAdmissionGuard admissionGuard)
     {
         this.profileReportService = profileReportService
             ?? throw new ArgumentNullException(nameof(profileReportService));
@@ -40,6 +45,8 @@ public sealed class ProfileModel : PageModel
             ?? throw new ArgumentNullException(nameof(analysisVersion));
         this.text = text
             ?? throw new ArgumentNullException(nameof(text));
+        this.admissionGuard = admissionGuard
+            ?? throw new ArgumentNullException(nameof(admissionGuard));
     }
 
     // Re-posted by the landing's preserve-method redirect, under the same
@@ -77,6 +84,20 @@ public sealed class ProfileModel : PageModel
 
         Identity = route.Value;
 
+        // The canonical parser owns normalization. Its login is used only as
+        // the operational same-profile key; the raw accepted identity still
+        // travels to the collector as before.
+        string normalizedProfileLogin = GitHubProfileHandle.Parse(route.Value).Login;
+        using ProfileAdmissionLease admission = admissionGuard.TryAcquire(
+            normalizedProfileLogin,
+            PageContext?.HttpContext?.Connection.RemoteIpAddress);
+
+        if (!admission.IsAdmitted)
+        {
+            ApplyAdmissionRejection(admission);
+            return Page();
+        }
+
         LiveProfileAnalysisResult result = await profileReportService.AnalyzeAsync(
             Identity,
             analysisVersion,
@@ -84,7 +105,14 @@ public sealed class ProfileModel : PageModel
 
         if (!result.IsSuccessful)
         {
-            if (IsExecutionDeadline(result.ExecutionAvailability))
+            if (IsBudgetProtectionRejection(result.ExecutionAvailability))
+            {
+                Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                ErrorMessage = text.Get(
+                    WebTextKey.ProfileFailed,
+                    PageContext?.HttpContext);
+            }
+            else if (IsExecutionDeadline(result.ExecutionAvailability))
             {
                 // Session 108 supplies the already-canonical HTTP mapping but
                 // intentionally reuses the existing generic failure copy. The
@@ -160,4 +188,43 @@ public sealed class ProfileModel : PageModel
             availability.Reason,
             LiveProfileAnalysisResult.DeadlineExpiredReason,
             StringComparison.Ordinal);
+
+    private static bool IsBudgetProtectionRejection(
+        DataAvailability availability) =>
+        availability.Status == DataAvailabilityStatus.Unavailable
+        && string.Equals(
+            availability.Reason,
+            LiveProfileAnalysisResult.BudgetProtectionRejectedReason,
+            StringComparison.Ordinal);
+
+    private void ApplyAdmissionRejection(ProfileAdmissionLease admission)
+    {
+        Response.StatusCode = admission.Rejection switch
+        {
+            ProfileAdmissionRejection.VisitorRateLimited =>
+                StatusCodes.Status429TooManyRequests,
+            ProfileAdmissionRejection.SameProfileBusy =>
+                StatusCodes.Status409Conflict,
+            ProfileAdmissionRejection.GlobalCapacityBusy =>
+                StatusCodes.Status503ServiceUnavailable,
+            _ => throw new InvalidOperationException(
+                "An admission rejection must carry a known reason.")
+        };
+
+        if (admission.RetryAfter is TimeSpan retryAfter)
+        {
+            double boundedSeconds = Math.Min(
+                int.MaxValue,
+                Math.Max(1, Math.Ceiling(retryAfter.TotalSeconds)));
+
+            Response.Headers.RetryAfter = ((int)boundedSeconds)
+                .ToString(CultureInfo.InvariantCulture);
+        }
+
+        // Final localized guardrail copy remains P10-I5. Until then, reuse the
+        // bounded generic operational-failure copy without inventing evidence.
+        ErrorMessage = text.Get(
+            WebTextKey.ProfileFailed,
+            PageContext?.HttpContext);
+    }
 }

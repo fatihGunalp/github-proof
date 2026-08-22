@@ -28,9 +28,9 @@ public static class ProfilePipelineServiceCollectionExtensions
 {
     // A profile-specific named client with the same GitHub transport contract as
     // the Repository Proof client (same BaseAddress, same authentication
-    // behavior, same timeout) plus the request-counting handler. Keeping it
-    // separate is what guarantees Repository Proof traffic is never counted into
-    // profile telemetry (§9, §E of the Session 097 task).
+    // behavior, same timeout) plus the Profile-only request/budget observation
+    // handler. Keeping it separate guarantees Repository Proof traffic never
+    // enters Profile telemetry or provider protection (§9-§10).
     public const string GitHubHttpClientName = "GitHubProof.GitHub.Profile";
 
     // Existing transport timeout, not a newly selected execution deadline.
@@ -60,9 +60,60 @@ public static class ProfilePipelineServiceCollectionExtensions
                 + "the Profile GitHub transport timeout.")
             .ValidateOnStart();
 
+        OptionsBuilder<ProfileAdmissionOptions> admissionOptions =
+            services.AddOptions<ProfileAdmissionOptions>();
+
+        if (configuration is not null)
+        {
+            admissionOptions.Bind(
+                configuration.GetSection(
+                    ProfileAdmissionOptions.ConfigurationSectionName));
+        }
+
+        admissionOptions
+            .Validate(
+                options => options.GlobalConcurrency > 0,
+                "Profile global concurrency must be greater than zero.")
+            .Validate(
+                options => options.SameProfileConcurrency > 0,
+                "Profile same-profile concurrency must be greater than zero.")
+            .Validate(
+                options => (options.VisitorPermitLimit is null
+                        && options.VisitorWindow is null)
+                    || (options.VisitorPermitLimit > 0
+                        && options.VisitorWindow > TimeSpan.Zero),
+                "Profile visitor permit limit and window must either both be "
+                + "unset or both be greater than zero.")
+            .ValidateOnStart();
+
+        OptionsBuilder<ProfileGitHubBudgetProtectionOptions> budgetOptions =
+            services.AddOptions<ProfileGitHubBudgetProtectionOptions>();
+
+        if (configuration is not null)
+        {
+            budgetOptions.Bind(
+                configuration.GetSection(
+                    ProfileGitHubBudgetProtectionOptions.ConfigurationSectionName));
+        }
+
+        budgetOptions
+            .Validate(
+                options => options.ProfileAdmissionRemainingFloor is null
+                    || options.ProfileAdmissionRemainingFloor >= 0,
+                "The Profile GitHub remaining floor must be non-negative.")
+            .ValidateOnStart();
+
         services.AddSingleton<
             IProfileExecutionDeadlineFactory,
             ProfileExecutionDeadlineFactory>();
+
+        services.AddSingleton<
+            IProfileExecutionAdmissionGuard,
+            ProfileExecutionAdmissionGuard>();
+
+        services.AddSingleton<
+            IGitHubProfileBudgetProtection,
+            ProfileGitHubBudgetProtection>();
 
         services.AddTransient<ProfileGitHubRequestTelemetryHandler>();
 
@@ -155,7 +206,8 @@ public static class ProfilePipelineServiceCollectionExtensions
 
     // The one place the profile GitHub client is created, so every profile
     // request — profile metadata, repository manifest and per-repository
-    // collection alike — passes the counting handler exactly once.
+    // collection alike — passes the Profile-only observation handler exactly
+    // once.
     public static HttpClient CreateGitHubClient(IServiceProvider provider) =>
         provider
             .GetRequiredService<IHttpClientFactory>()

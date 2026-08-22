@@ -230,6 +230,54 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
         Assert.Same(metadata.Availability, progress.ProfileAvailability);
     }
 
+    [Fact]
+    public async Task CollectAsync_WhenBudgetProtectionRejects_StopsBeforeManifestAndPreservesAvailability()
+    {
+        using GitHubProfileSnapshotProgress progress =
+            new(CancellationToken.None);
+        GitHubProfileMetadataCollection metadata =
+            AvailableProfileMetadata(publicRepositoryCount: 1);
+        ThrowingBudgetProtection budgetProtection = new();
+        bool repositoryCollectionStarted = false;
+        GitHubProfileSnapshotOrchestrator orchestrator = new(
+            new CallbackMetadataCollector((_, _) => Task.FromResult(metadata)),
+            new CallbackRepositoryCollector((_, _, _) =>
+            {
+                repositoryCollectionStarted = true;
+                return Task.FromResult(EmptyRepositoryCollection());
+            }),
+            budgetProtection: budgetProtection);
+
+        await Assert.ThrowsAsync<GitHubProfileBudgetProtectionRejectedException>(
+            () => orchestrator.CollectAsync(
+                "octocat",
+                CancellationToken.None,
+                progress));
+
+        Assert.Equal(1, budgetProtection.CallCount);
+        Assert.False(repositoryCollectionStarted);
+        Assert.Same(metadata.Availability, progress.ProfileAvailability);
+    }
+
+    [Fact]
+    public async Task CollectAsync_WhenMetadataIsUnavailable_DoesNotConsultBudgetProtection()
+    {
+        GitHubProfileMetadataCollection metadata = UnavailableProfileMetadata();
+        ThrowingBudgetProtection budgetProtection = new();
+        GitHubProfileSnapshotOrchestrator orchestrator = new(
+            new CallbackMetadataCollector((_, _) => Task.FromResult(metadata)),
+            new CallbackRepositoryCollector((_, _, _) =>
+                throw new InvalidOperationException(
+                    "Repository collection must not run for unavailable metadata.")),
+            budgetProtection: budgetProtection);
+
+        GitHubProfileSnapshotResult result = await orchestrator.CollectAsync("octocat");
+
+        Assert.False(result.IsSuccessful);
+        Assert.Equal(0, budgetProtection.CallCount);
+        Assert.Same(metadata.Availability, result.ProfileAvailability);
+    }
+
     private static GitHubProfileSnapshotOrchestrator CreateOrchestrator(
         params HttpResponseMessage[] responses) =>
         GitHubProfileSnapshotOrchestrator.CreateDefault(
@@ -285,5 +333,16 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
             GitHubProfileMetadataCollection metadata,
             CancellationToken cancellationToken = default) =>
             callback(profile, metadata, cancellationToken);
+    }
+
+    private sealed class ThrowingBudgetProtection : IGitHubProfileBudgetProtection
+    {
+        public int CallCount { get; private set; }
+
+        public void EnsureCanContinueAfterAvailableMetadata()
+        {
+            CallCount++;
+            throw new GitHubProfileBudgetProtectionRejectedException();
+        }
     }
 }

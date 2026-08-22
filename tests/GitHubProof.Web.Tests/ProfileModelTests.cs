@@ -1,3 +1,4 @@
+using System.Net;
 using GitHubProof.Application.Analysis;
 using GitHubProof.Application.Profile;
 using GitHubProof.Application.Profile.Report;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -308,7 +310,8 @@ public sealed class ProfileModelTests
                 CreateRealPipeline(),
                 deadlineFactory: new ExpiredDeadlineFactory()),
             Version,
-            new WebPresentationLocalizer())
+            new WebPresentationLocalizer(),
+            DisabledProfileExecutionAdmissionGuard.Instance)
         {
             PageContext = new PageContext
             {
@@ -326,12 +329,131 @@ public sealed class ProfileModelTests
         Assert.NotNull(model.ErrorMessage);
     }
 
+    [Fact]
+    public async Task OnPostAsync_WhenSameNormalizedProfileIsActive_ReturnsConflictWithoutAnalysis()
+    {
+        ProfileExecutionAdmissionGuard guard = CreateAdmissionGuard(
+            new ProfileAdmissionOptions
+            {
+                GlobalConcurrency = 1,
+                SameProfileConcurrency = 1
+            });
+        using ProfileAdmissionLease active = guard.TryAcquire("octocat", null);
+        ThrowingProfileSnapshotCollector collector = new();
+        ProfileModel model = CreateModel(collector, guard);
+        model.PageContext = CreatePageContext();
+        model.GitHubTarget = "https://github.com/OCTOCAT";
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(action);
+        Assert.Equal(StatusCodes.Status409Conflict, model.Response.StatusCode);
+        Assert.Equal(0, collector.CallCount);
+        Assert.False(model.HasComposedProfile);
+        Assert.Null(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenGlobalProfileCapacityIsFull_ReturnsServiceUnavailableWithoutAnalysis()
+    {
+        ProfileExecutionAdmissionGuard guard = CreateAdmissionGuard(
+            new ProfileAdmissionOptions
+            {
+                GlobalConcurrency = 1,
+                SameProfileConcurrency = 1
+            });
+        using ProfileAdmissionLease active = guard.TryAcquire("hubot", null);
+        ThrowingProfileSnapshotCollector collector = new();
+        ProfileModel model = CreateModel(collector, guard);
+        model.PageContext = CreatePageContext();
+        model.GitHubTarget = Identity;
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(action);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, model.Response.StatusCode);
+        Assert.Equal(0, collector.CallCount);
+        Assert.False(model.HasComposedProfile);
+        Assert.Null(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenVisitorLimitRejects_ReturnsTooManyRequestsWithBoundedRetry()
+    {
+        ProfileExecutionAdmissionGuard guard = CreateAdmissionGuard(
+            new ProfileAdmissionOptions
+            {
+                GlobalConcurrency = 1,
+                SameProfileConcurrency = 1,
+                VisitorPermitLimit = 1,
+                VisitorWindow = TimeSpan.FromMinutes(1)
+            });
+        IPAddress visitor = IPAddress.Parse("192.0.2.44");
+        using (ProfileAdmissionLease first = guard.TryAcquire("hubot", visitor))
+        {
+            Assert.True(first.IsAdmitted);
+        }
+
+        ThrowingProfileSnapshotCollector collector = new();
+        ProfileModel model = CreateModel(collector, guard);
+        model.PageContext = CreatePageContext(visitor);
+        model.GitHubTarget = Identity;
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(action);
+        Assert.Equal(StatusCodes.Status429TooManyRequests, model.Response.StatusCode);
+        Assert.Equal("60", model.Response.Headers.RetryAfter);
+        Assert.Equal(0, collector.CallCount);
+        Assert.False(model.HasComposedProfile);
+        Assert.Null(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenBudgetProtectionRejects_ReturnsServiceUnavailableWithoutPipeline()
+    {
+        DataAvailability profileAvailability =
+            DataAvailability.Available("profile", CapturedAt);
+        ProfileModel model = new(
+            new LiveProfileReportService(
+                new BudgetRejectingProfileSnapshotCollector(profileAvailability),
+                CreateRealPipeline()),
+            Version,
+            new WebPresentationLocalizer(),
+            DisabledProfileExecutionAdmissionGuard.Instance)
+        {
+            PageContext = CreatePageContext(),
+            GitHubTarget = Identity
+        };
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<PageResult>(action);
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, model.Response.StatusCode);
+        Assert.False(model.HasComposedProfile);
+        Assert.Null(model.Report);
+        Assert.NotNull(model.ErrorMessage);
+    }
+
     private static ProfileModel CreateModel(
-        IGitHubProfileSnapshotCollector collector) =>
+        IGitHubProfileSnapshotCollector collector,
+        IProfileExecutionAdmissionGuard? admissionGuard = null) =>
         new(
             new LiveProfileReportService(collector, CreateRealPipeline()),
             Version,
-            new WebPresentationLocalizer());
+            new WebPresentationLocalizer(),
+            admissionGuard ?? DisabledProfileExecutionAdmissionGuard.Instance);
+
+    private static ProfileExecutionAdmissionGuard CreateAdmissionGuard(
+        ProfileAdmissionOptions options) =>
+        new(Options.Create(options), TimeProvider.System);
+
+    private static PageContext CreatePageContext(IPAddress? visitor = null)
+    {
+        DefaultHttpContext context = new();
+        context.Connection.RemoteIpAddress = visitor;
+        return new PageContext { HttpContext = context };
+    }
 
     private static ProfilePipeline CreateRealPipeline() =>
         new(
@@ -401,6 +523,20 @@ public sealed class ProfileModelTests
             GitHubProfileSnapshotProgress? progress = null) =>
             throw new InvalidOperationException(
                 "Live profile collection must not be reachable from this path.");
+    }
+
+    private sealed class BudgetRejectingProfileSnapshotCollector(
+        DataAvailability profileAvailability)
+        : IGitHubProfileSnapshotCollector
+    {
+        public Task<GitHubProfileSnapshotResult> CollectAsync(
+            string profile,
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
+        {
+            progress?.ResolveProfileAvailability(profileAvailability);
+            throw new GitHubProfileBudgetProtectionRejectedException();
+        }
     }
 
     private sealed class ExpiredDeadlineFactory : IProfileExecutionDeadlineFactory

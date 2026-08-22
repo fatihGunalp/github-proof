@@ -2,6 +2,7 @@ using GitHubProof.Application.Analysis;
 using GitHubProof.Application.Profile;
 using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub;
+using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile;
 using GitHubProof.Web.Profile.Runtime;
 using Microsoft.Extensions.Configuration;
@@ -151,6 +152,64 @@ public sealed class ProfilePipelineServiceCollectionExtensionsTests
 
         Assert.Null(options.Timeout);
         Assert.NotNull(provider.GetRequiredService<IProfileExecutionDeadlineFactory>());
+    }
+
+    [Fact]
+    public void AddProfilePipeline_UsesOnlyProvisionalConcurrencyDefaults()
+    {
+        using ServiceProvider provider = BuildProvider();
+
+        ProfileAdmissionOptions admission = provider
+            .GetRequiredService<IOptions<ProfileAdmissionOptions>>()
+            .Value;
+        ProfileGitHubBudgetProtectionOptions budget = provider
+            .GetRequiredService<IOptions<ProfileGitHubBudgetProtectionOptions>>()
+            .Value;
+
+        Assert.Equal(1, admission.GlobalConcurrency);
+        Assert.Equal(1, admission.SameProfileConcurrency);
+        Assert.Null(admission.VisitorPermitLimit);
+        Assert.Null(admission.VisitorWindow);
+        Assert.Null(budget.ProfileAdmissionRemainingFloor);
+        Assert.IsType<ProfileExecutionAdmissionGuard>(
+            provider.GetRequiredService<IProfileExecutionAdmissionGuard>());
+        Assert.IsType<ProfileGitHubBudgetProtection>(
+            provider.GetRequiredService<IGitHubProfileBudgetProtection>());
+    }
+
+    [Fact]
+    public void AddProfilePipeline_RejectsHalfConfiguredVisitorLimit()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{ProfileAdmissionOptions.ConfigurationSectionName}:VisitorPermitLimit"] =
+                    "2"
+            })
+            .Build();
+        using ServiceProvider provider = BuildProvider(configuration);
+
+        Assert.Throws<OptionsValidationException>(() => provider
+            .GetRequiredService<IOptions<ProfileAdmissionOptions>>()
+            .Value);
+    }
+
+    [Fact]
+    public void AddProfilePipeline_RejectsNegativeGitHubRemainingFloor()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{ProfileGitHubBudgetProtectionOptions.ConfigurationSectionName}:"
+                    + nameof(ProfileGitHubBudgetProtectionOptions
+                        .ProfileAdmissionRemainingFloor)] = "-1"
+            })
+            .Build();
+        using ServiceProvider provider = BuildProvider(configuration);
+
+        Assert.Throws<OptionsValidationException>(() => provider
+            .GetRequiredService<IOptions<ProfileGitHubBudgetProtectionOptions>>()
+            .Value);
     }
 
     [Fact]
