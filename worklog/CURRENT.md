@@ -1,42 +1,27 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-22 (Session 104)
+**Last Updated:** 2026-08-22 (Session 105)
 **Source of Truth:** `docs/`
 
 ## Current Session State
 
 - Active Session: **NONE**.
-- Session 104 — P10-I4 Why + Evidence Drill-Down:
-  **COMPLETE / PASS**. Implementation: **COMPLETE**. Visual + Interaction
-  Gate: **COMPLETE / PASS**. Contract reconciliation
-  (`presentation-language-contract.md` §8.6, widened §8.5) and
-  implementation are present in the current working tree (nothing committed
-  or merged yet); full solution 1631/1631, Release build clean, `git diff
-  --check` clean. `WhyThisConclusion` and `RepositoryDrillDown` render as a
-  progressively disclosed evidence layer after the existing P10-I3 first
-  read; a repository row's "Analyze this repository" action POSTs
-  `Repository.Url` as `GitHubTarget` to the existing `/Index` Repository
-  Proof entry (never an `href`, never GET-triggered, `AnalysisReference`
-  never read by presentation). Two separate review events occurred: an
-  implementation code review (0 BLOCKER/0 HIGH/0 MEDIUM/1 LOW — potential
-  mobile overflow with a very long repository FullName), then a later,
-  separate real pixel review of the rendered `torvalds` surface (0 HIGH/1
-  MEDIUM/0 LOW — the native disclosure marker rendered on its own line above
-  its H2). The MEDIUM finding did not originate in the code review; it was
-  corrected with one narrowly scoped CSS rule, and the earlier LOW overflow
-  risk was separately closed by the same pixel review's TR mobile pass. The
-  POST mechanism (target, `GitHubTarget` value, no github.com navigation,
-  anti-forgery, duplicate-submit block) was established by this session's own
-  `octocat` DOM/server-log run; the subsequent `torvalds`/`fatihGunalp`
-  pixel evidence separately confirms the rendered result, disclosure
-  alignment and responsive layout for TR desktop/mobile dark. EN was not
-  captured as a live visual state this session. A transient same-session
-  GitHub API rate-limit exhaustion, and one separate transient HTTP
-  499/cancelled live attempt (superseded by a successful retry), are both
-  recorded as environment/test observations only, not product defects. See
-  `worklog/sessions/2026-08-22-104-p10-i4-why-evidence-drilldown.md`.
-- Branch: `session/104-p10-i4-why-evidence-drilldown`
-- Base HEAD: `f0fc165745e888321c270d59ac206bb93041c430`
+- Session 105 — Design → Contract Reconciliation:
+  **COMPLETE / PASS WITH FINDINGS**. The final design handoff was reconciled
+  against canonical Profile/Repository contracts, typed report truth,
+  production Razor/CSS/localization and presentation tests. Findings:
+  0 BLOCKER / 10 HIGH / 3 MEDIUM / 1 LOW. The safe implementation model is
+  KEEP / ADAPT / PROHIBITED / CONTRACT DECISION REQUIRED; unsupported
+  metrics and inference, invented repository states/actions, export behavior,
+  entry/classifier drift and primitive violet consumer overrides do not enter
+  production. Independent architecture-owner review confirmed that
+  Repository Proof visual alignment is a separate post-P10 session and that
+  profile identity as the single `h1` is only a possible P10-I6
+  presentation/accessibility refinement, not locked canonical semantics. No
+  production semantics changed and no Domain/Application change is required.
+  See `worklog/sessions/2026-08-22-105-design-contract-reconciliation.md`.
+- Branch: `session/105-design-contract-reconciliation`
+- Base HEAD: `6a3eb45a8961879fd6d69696bb0984d0be3085db`
 - Pre-existing `?? artifacts/` is user-owned, out of scope and untouched.
 
 ## Current Product State
@@ -89,9 +74,15 @@
   work; numeric values are still unselected.
 - P10 overall is **NOT complete** (P10-I5, P10-I6 remain); Milestone B is
   **NOT complete**.
+- Session 105 design reconciliation is **COMPLETE / PASS WITH FINDINGS**.
+  Correct remaining sequence:
+  Production Guardrails → P10-I5 → P10-I6-A/B/C → P10 COMPLETE → separate
+  Repository Proof Visual Alignment session → final Milestone B production
+  gate. Repository Proof visual alignment is not a P10 completion
+  requirement. P10-I5 and P10-I6 have not begun.
 
 ## Exact Next Action
 
 Production Guardrails (execution guard, concurrent-profile guard numeric
-values). P10-I5 — Limitations + Partial/Failure UX — and P10-I6 remain ahead
-after that.
+values). P10-I5 — Limitations + Partial/Failure UX — and P10-I6-A/B/C remain
+ahead after that; neither has begun.
