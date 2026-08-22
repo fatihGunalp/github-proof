@@ -60,6 +60,29 @@ upstream semantic changed with that reconciliation. The
 communicate?" / "Bu GitHub ne anlatıyor?". `ProfileReportProjector` remains
 locale-neutral and no Domain or Application semantics changed.
 
+**Amended:** 2026-08-22 / Session 104 --- added §8.6 only, plus two rows and
+one clause in §8.5. This locks the P10-I4 Why + Repository-evidence
+presentation contract: the progressive-disclosure shape of
+`WhyThisConclusion` and `RepositoryDrillDown`, exactly what one Why entry
+shows, the prohibition on rendering `ProfileEvidenceReference.EvidenceKey` /
+`EvidenceKeys` anywhere in the Profile Web surface, the full-coverage rule
+for `RepositoryDrillDown`, the deterministic POST interaction that reaches
+the existing Repository Proof entry, the exhaustive
+`RepositoryEligibilityStatus` row-status mapping (presentation never reads
+`AnalysisReference`), and the exact EN/TR copy for all of it. §8.5 gains the
+`Supported`-but-empty rows for those two sections plus the rule that an empty
+section renders as an ordinary H2 section rather than an empty disclosure
+control. No upstream structured semantic truth changed: no concept, section,
+availability state, canonical ordering, evidence rule, pattern rule or
+inference prohibition was added, removed or altered, and no Domain,
+Application or `ProfileReportProjector` behavior changed.
+`ProfileReportProjector` remains locale-neutral. §8's User Language
+Dictionary was NOT edited, §8.4's Meaning contract was NOT edited, and §11's
+reading sequence was NOT edited. The existing section labels stay exactly as
+they are, including `WhyThisConclusion` ("Why this view" / "Bu görünümü neden
+görüyoruz?") and `RepositoryDrillDown` ("Repository evidence" / "Repository
+kanıtı").
+
 ------------------------------------------------------------------------
 
 # 1. Purpose
@@ -561,16 +584,22 @@ The Meaning layer must never:
 - read raw GitHub data, snapshots, signals, evidence, eligibility results or
   scores.
 
-## 8.5 Supported + Empty Presentation Copy (P10-I3 Sections)
+## 8.5 Supported + Empty Presentation Copy (P10-I3 / P10-I4 Sections)
 
-Locked neutral EN/TR copy for the `Supported`-but-empty case of the three
-P10-I3 sections:
+Locked neutral EN/TR copy for the `Supported`-but-empty case of the five
+report sections whose `Supported`-but-empty Profile Web presentation is locked
+across P10-I3 and P10-I4 --- the three first-read sections locked by P10-I3
+(`TechnicalFocusAreas`, `EngineeringPracticePatterns`,
+`RepresentativeRepositories`) and the two evidence-layer sections locked by
+P10-I4 (`WhyThisConclusion`, `RepositoryDrillDown`, §8.6):
 
 | Section | English (`en`) | Turkish (`tr`) |
 |---|---|---|
 | `TechnicalFocusAreas` | The visible public evidence did not establish a repeated technical direction under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı. |
 | `EngineeringPracticePatterns` | The visible public evidence did not establish recurring engineering practices under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden üretim pratikleri ortaya koymadı. |
 | `RepresentativeRepositories` | No starting-point repository was selected from the current visible public evidence. | Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi. |
+| `WhyThisConclusion` | The visible public evidence did not establish a repeated pattern to explain under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında açıklanacak tekrar eden bir örüntü ortaya koymadı. |
+| `RepositoryDrillDown` | The visible public evidence contains no public repository to inspect. | Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor. |
 
 Rules:
 
@@ -592,6 +621,272 @@ Rules:
   (`Unsupported`) or `RoleEvidenceAlignment` (`Deferred`). Those sections are
   omitted entirely, per
   `docs/architecture/public-profile-evidence-report-contract.md` §6.5.
+- For the two sections whose non-empty presentation is a progressive
+  disclosure (`WhyThisConclusion` and `RepositoryDrillDown`, §8.6), the
+  `Supported`-but-empty case renders as an ordinary semantic section with its
+  locked `H2` label and the neutral paragraph above --- never as an empty
+  `details` / `summary` control. There is nothing to disclose, so no
+  disclosure affordance is offered.
+
+## 8.6 P10-I4 Why + Repository Evidence Presentation Contract
+
+This section is the normative owner of the P10-I4 presentation shape,
+interaction mechanism and user-facing copy. It adds no analysis semantics: it
+fixes how already-projected typed truth is rendered and how the existing
+Repository Proof entry is reached.
+
+### 8.6.1 Experience Position
+
+`WhyThisConclusion` and `RepositoryDrillDown` are the evidence layer. They sit
+after the first-read layer locked in §8.4/§8.5 and must never dilute it:
+
+```text
+Meaning
+    → Visible technical direction
+    → Recurring engineering practices
+    → Starting point          (first read — quiet, text only)
+    → Why this view           (evidence layer — collapsed by default)
+    → Repository evidence     (evidence layer — collapsed by default)
+```
+
+`RepresentativeRepositories` / Starting point stays **text only** in P10-I4.
+No Repository Proof action, link or button is added to it. Repository Proof
+actions exist only inside the progressively disclosed `RepositoryDrillDown`
+surface (§8.6.5), so the product never presents two competing repository
+drill-down action surfaces. The first-read layer stays quiet and evidence
+inspection begins only when the reader explicitly enters the evidence layer.
+A later slice (P10-I6) may revisit this only if user testing proves it
+necessary.
+
+### 8.6.2 Progressive Disclosure Shape
+
+When `Supported` and non-empty, both sections render as a **collapsed native
+`details` / `summary` disclosure**, closed by default, with the section's
+existing locked label as an `h2` inside the `summary` (the convention already
+used by the Repository Proof signal section). No custom disclosure widget, no
+ARIA expansion state of its own, and no JavaScript.
+
+When `Supported` and empty, neither section renders a disclosure control:
+§8.5 governs, and the section renders as an ordinary `h2` section with its
+locked neutral paragraph.
+
+### 8.6.3 What One Why Entry Shows
+
+`WhyThisConclusion` items are, by projection, exactly the same promoted
+patterns already rendered by `TechnicalFocusAreas` and
+`EngineeringPracticePatterns`, in the same canonical order. The Why layer adds
+the evidence trace beneath them, never a new claim.
+
+One Why entry shows exactly two things:
+
+1. the localized pattern label, resolved by the existing pattern-label
+   mapping (no new copy, no new identity);
+2. the pattern's supporting public repositories, rendered as literal
+   repository full names in the canonical order the pattern already provides,
+   under the locked lead-in line of §8.6.7.
+
+The supporting set rendered is the pattern's **supporting repositories** ---
+the set named by
+`docs/architecture/public-profile-evidence-report-contract.md` §11's own
+trace (`Repeated pattern → Supporting repositories → ...`). Rendering only
+the independent subset would silently hide repositories in which the evidence
+was genuinely observed.
+
+A Why entry must never render: any count (including the independent
+supporting repository count), rule or observation versions, observation keys,
+analysis identifiers, selection or promotion mechanics, score, ranking, or
+any capability/seniority/role/employability language.
+
+### 8.6.4 Evidence Key Boundary
+
+`ProfileEvidenceReference.EvidenceKey` and
+`ProfileEvidenceReference.EvidenceKeys` are **never rendered anywhere in the
+Profile Web surface**.
+
+The division of responsibility is:
+
+```text
+Why this view        : pattern → supporting repository identities
+Repository evidence  : repository → a fresh existing Repository Proof run
+Repository Proof     : signal / concrete evidence inspection
+```
+
+Report contract §11 requires the evidence **chain** to be visible, not the
+implementation; report contract §12 closes the chain with references
+sufficient to *navigate* to repository-level truth, which §8.6.5 provides. No
+raw analyzer vocabulary --- canonical signal keys, normalized snapshot data
+keys or any other evidence identity --- is introduced into the Profile
+surface, and no EN/TR mapping for such keys exists or may be invented here.
+
+### 8.6.5 Repository Evidence Coverage and Interaction
+
+**Coverage.** Every `RepositoryDrillDownReportItem` is rendered, in canonical
+projector order. The list is never filtered to `WhyThisConclusion`
+participants: `RepositoryDrillDown` is a `Supported` section (report contract
+§6.5 permits omitting only `Unsupported` / `Deferred` sections), and the
+locked fork decision requires a known fork to remain visible in
+`RepositoryDrillDown` even though it contributes no evidence. P10-I4
+introduces no sorting, ranking, grouping, search, count or pagination over
+this list.
+
+**Interaction.** Each row carries exactly one explicit user action, which
+submits the repository to the existing unified entry:
+
+```text
+<form method="post" asp-page="/Index" data-analysis-form>
+    hidden input name="GitHubTarget" value = Repository.Url
+    submit button
+</form>
+```
+
+Binding rules:
+
+- `Repository.Url` is the **posted `GitHubTarget` value**. It is NEVER used as
+  the drill-down `href`. An anchor to `Repository.Url` would navigate to
+  github.com instead of Repository Proof and is prohibited.
+- Exactly one explicit user action starts the analysis. There is no
+  GET-triggered analysis, no query-string analysis trigger, no prefill
+  navigation and no JavaScript auto-analysis.
+- Normal Razor Pages anti-forgery applies: the form is authored with the page
+  tag helper so the request-verification token is emitted and validated by the
+  framework's own POST protection.
+- The existing `IndexModel` repository POST semantics are reused unchanged ---
+  classification, canonical parsing, live analysis, failure vocabulary and the
+  Repository Proof micro-view are not modified.
+- Because the product holds no result cache or persistence, the action always
+  performs a **fresh** Repository Proof analysis. The locked lead-in line of
+  §8.6.7 states this truthfully to the reader.
+- `RepositoryAnalysisReference` never controls the action's target, label or
+  existence (§8.6.6).
+- The existing analysis-progress script may be reused through the existing
+  `data-analysis-form` / `data-analysis-submit` hooks for duplicate-submit
+  prevention. That script is not modified, and no per-row visible processing
+  region is introduced by P10-I4.
+
+### 8.6.6 Row Status Mapping
+
+Presentation reads `RepositoryEligibilityStatus` **only**. It never reads
+`RepositoryAnalysisReference`.
+
+This is not a stylistic preference. `Contributing` and `Restricted` both
+require at least one allowed evidence-bearing contribution, and every allowed
+evidence-bearing contribution requires an analysis reference, so for those two
+statuses the reference is always present and can distinguish nothing. For the
+remaining two statuses the reference would expose only whether a repository
+analysis happened to run --- internal execution mechanics, which report
+contract §11 does not require presentation to surface.
+
+The mapping is exhaustive over the enum; there is no fifth state:
+
+| `RepositoryEligibilityStatus` | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| `Contributing` | Contributed evidence to this view | Bu görünüme kanıt sağladı |
+| `Restricted` | Contributed evidence to this view with restrictions | Bu görünüme kısıtlamalarla kanıt sağladı |
+| `NonContributing` | Did not contribute evidence to this view | Bu görünüme kanıt sağlamadı |
+| `Undetermined` | Its contribution to this view could not be determined | Bu görünüme katkısı belirlenemedi |
+
+`Restricted` is **not** an evidence-quantity statement. It means at least one
+evidence-bearing purpose is allowed and at least one applicable
+evidence-bearing purpose is not allowed, with no undetermined purpose. Copy
+implying "less evidence" is therefore prohibited for this status.
+
+Every line above describes only that repository's contribution to **this
+analysis**. None of them is a statement about repository quality, developer
+capability, seniority, employability or ranking, and none may be rewritten
+into one. The `Warnings` / `Limitations` / partial / failure presentation
+remains owned by P10-I5 and is not surfaced through these labels.
+
+### 8.6.7 Locked EN/TR Copy
+
+Existing section labels are unchanged and are not restated as new copy:
+`WhyThisConclusion` stays "Why this view" / "Bu görünümü neden görüyoruz?" and
+`RepositoryDrillDown` stays "Repository evidence" / "Repository kanıtı".
+
+| Identity | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| Why --- supporting repositories lead-in | Observed across these public repositories | Şu herkese açık repository'lerde gözlemlendi |
+| Repository evidence --- fresh-analysis lead-in | Selecting a repository runs a fresh Repository Proof analysis. | Bir repository seçmek yeni bir Repository Proof analizi başlatır. |
+| Repository action --- visible label | Analyze this repository | Bu repository'yi analiz et |
+| Repository action --- accessible name (`{0}` = repository full name) | Analyze repository {0} | {0} repository'sini analiz et |
+
+Row status copy is locked in §8.6.6. `Supported`-but-empty copy for both
+sections is locked in §8.5.
+
+The Why lead-in says "observed across", never "repeated in": a repeated
+profile pattern is evidence that repeats **across** independent repositories,
+which does not assert that the evidence repeats inside any single repository.
+
+Literal identities are never translated: repository full names, GitHub
+usernames, URLs, and programming/GitHub language identities.
+
+All of this copy is resolved by the Web-owned Profile presentation mapping in
+`ProfileWebPresentationLocalizer`, which remains its sole owner. The keying
+rule is precise per kind of string, because one section can own more than one
+fixed presentation slot:
+
+- **Section-dependent copy** --- section labels and the `Supported`-but-empty
+  paragraphs of §8.5 --- is keyed by `ProfileReportSectionKey` plus the
+  selected request culture.
+- **Row-status copy** (§8.6.6) is keyed by `RepositoryEligibilityStatus` plus
+  the selected request culture.
+- **Pattern labels** keep their existing canonical mapping by pattern family
+  and pattern key; nothing about that mapping changes here.
+- **Fixed P10-I4 presentation-slot copy** --- the Why supporting-repositories
+  lead-in, the Repository-evidence fresh-analysis lead-in, the visible action
+  label and the accessible-name format --- has no canonical identity of its
+  own, because these are fixed slots of one section rather than one string per
+  canonical value. Each therefore lives in its own narrow, explicitly named
+  `ProfileWebPresentationLocalizer` method and varies only by the selected
+  request culture.
+
+Two rules bind all four cases: presentation text is never used as a lookup
+key, and no new analysis, Domain or Application semantic identity, enum or
+value is created merely to key a fixed presentation string. This keeps §8.2
+and §8.4.5 satisfied without inventing taxonomy that canonical truth does not
+own.
+
+### 8.6.8 Accessibility and Information Architecture
+
+- The page keeps exactly one `h1`. Each report section contributes one `h2`,
+  including the two disclosure sections (their `h2` lives inside `summary`).
+- A Why entry's pattern label is an `h3` above its supporting-repository list.
+- Item collections render as `ul` / `li`. Empty results render as a paragraph.
+  No empty list container is rendered.
+- Disclosure is native `details` / `summary`; no ARIA is added where native
+  semantics already suffice.
+- Each repository row exposes its identity and status as text plus exactly one
+  native submit button. Because many rows share the same visible action label,
+  the button carries the locked accessible-name format of §8.6.7 with the
+  repository full name substituted.
+- Keyboard behavior is entirely native: `summary` toggles, buttons submit, the
+  existing focus-visible treatment applies. No focus management, roving
+  tabindex or scroll hijacking is introduced.
+- Rows stack vertically and must not introduce horizontal overflow at mobile
+  widths.
+- P10-I6 owns visual refinement; P10-I4 introduces no new design token and no
+  new component system.
+
+### 8.6.9 Prohibitions
+
+The P10-I4 surface must never:
+
+- render `EvidenceKey`, `EvidenceKeys` or any other raw analyzer/evidence
+  identity (§8.6.4);
+- use `Repository.Url` as an `href`, or reach analysis through GET, a query
+  string or JavaScript (§8.6.5);
+- read `RepositoryAnalysisReference` for any presentation decision (§8.6.6);
+- render any count, percentage, ratio, badge, counter or progress figure;
+- sort, rank, group, filter, search or paginate the repository list;
+- embed, duplicate or summarize `RepositoryAnalysis` content on the Profile
+  page (report contract §12);
+- render `ProblemAreaPatterns` or `RoleEvidenceAlignment`;
+- surface `Warnings`, `Limitations`, partial or failure presentation ---
+  P10-I5 owns those;
+- express repository quality, developer capability, confidence, seniority,
+  role, employability or ranking;
+- present `Supported + empty` as a negative developer finding;
+- introduce free-form or runtime-composed prose, or use an LLM for any part of
+  this surface.
 
 ------------------------------------------------------------------------
 

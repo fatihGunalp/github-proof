@@ -1,0 +1,92 @@
+@model ProfileReportSection<RepositoryDrillDownReportItem>
+
+@*
+    P10-I4 Repository evidence layer. Renders every RepositoryDrillDownReportItem
+    in canonical projector order — never filtered to Why participants, never
+    sorted/ranked/grouped/searched/paginated/counted (§8.6.5). Row status text
+    comes only from EligibilityStatus; AnalysisReference is never read (§8.6.6).
+    Selecting a repository POSTs its Repository.Url as the GitHubTarget value
+    to the existing "/" Index entry and runs a fresh Repository Proof analysis
+    there; Repository.Url is never an href (§8.6.5).
+*@
+@{
+    if (Model.SectionKey != ProfileReportSectionKey.RepositoryDrillDown
+        || Model.Availability != ProfileReportSectionAvailability.Supported)
+    {
+        throw new InvalidOperationException(
+            "Repository evidence partial requires a Supported RepositoryDrillDown "
+            + $"section, but received '{Model.SectionKey}' / '{Model.Availability}'.");
+    }
+}
+
+@if (Model.Items.Count > 0)
+{
+    <details class="profile-result__section">
+        <summary class="profile-result__disclosure-summary">
+            <h2 class="profile-result__section-title">
+                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+            </h2>
+        </summary>
+
+        <div class="profile-result__disclosure-body">
+            <p class="profile-result__lead-in">
+                @ProfileText.GetRepositoryFreshAnalysisLeadIn(Text.Culture)
+            </p>
+
+            <ul class="profile-result__repository-list">
+                @foreach (RepositoryDrillDownReportItem item in Model.Items)
+                {
+                    <li class="profile-result__evidence-row">
+                        <span class="profile-result__evidence-identity">
+                            @item.Repository.FullName
+                        </span>
+
+                        <span class="profile-result__evidence-status">
+                            @ProfileText.GetRepositoryStatusLabel(
+                                item.EligibilityStatus,
+                                Text.Culture)
+                        </span>
+
+                        <form
+                            method="post"
+                            asp-page="/Index"
+                            data-analysis-form>
+
+                            <input
+                                type="hidden"
+                                name="GitHubTarget"
+                                value="@item.Repository.Url" />
+
+                            <button
+                                class="button button--secondary"
+                                type="submit"
+                                data-analysis-submit
+                                aria-label="@ProfileText.GetRepositoryActionAccessibleName(
+                                    item.Repository.FullName,
+                                    Text.Culture)">
+                                @ProfileText.GetRepositoryActionLabel(Text.Culture)
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </details>
+}
+else
+{
+    <section
+        class="profile-result__section"
+        aria-labelledby="profile-repository-evidence-title">
+
+        <h2
+            class="profile-result__section-title"
+            id="profile-repository-evidence-title">
+            @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+        </h2>
+
+        <p class="profile-result__section-empty">
+            @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+        </p>
+    </section>
+}

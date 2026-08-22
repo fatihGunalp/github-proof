@@ -249,10 +249,12 @@ public sealed class ProfileWebPresentationLocalizerTests
     [Theory]
     [InlineData(ProfileReportSectionKey.ProblemAreaPatterns)]
     [InlineData(ProfileReportSectionKey.RoleEvidenceAlignment)]
-    [InlineData(ProfileReportSectionKey.WhyThisConclusion)]
-    public void Supported_empty_section_copy_has_no_mapping_outside_the_three_locked_sections(
+    public void Supported_empty_section_copy_has_no_mapping_for_unsupported_or_deferred_sections(
         ProfileReportSectionKey section)
     {
+        // WhyThisConclusion and RepositoryDrillDown are Supported and gained
+        // their own locked empty copy in P10-I4 (§8.5); only genuinely
+        // Unsupported/Deferred sections must still have no mapping.
         Assert.Throws<InvalidOperationException>(() =>
             localizer.GetEmptySectionMessage(section, WebCulture.English));
     }
@@ -271,5 +273,134 @@ public sealed class ProfileWebPresentationLocalizerTests
             Assert.NotEmpty(localizer.GetWarningLabel(code, WebCulture.English));
             Assert.NotEmpty(localizer.GetWarningLabel(code, WebCulture.Turkish));
         }
+    }
+
+    // --- P10-I4 Why + Repository evidence (presentation-language-contract.md §8.5/§8.6) ---
+
+    [Theory]
+    [InlineData(
+        ProfileReportSectionKey.WhyThisConclusion,
+        "The visible public evidence did not establish a repeated pattern to explain under the current analysis rules.",
+        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında açıklanacak tekrar eden bir örüntü ortaya koymadı.")]
+    [InlineData(
+        ProfileReportSectionKey.RepositoryDrillDown,
+        "The visible public evidence contains no public repository to inspect.",
+        "Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor.")]
+    public void Supported_empty_copy_is_locked_for_the_two_P10I4_sections(
+        ProfileReportSectionKey section,
+        string english,
+        string turkish)
+    {
+        Assert.Equal(english, localizer.GetEmptySectionMessage(section, WebCulture.English));
+        Assert.Equal(turkish, localizer.GetEmptySectionMessage(section, WebCulture.Turkish));
+    }
+
+    [Theory]
+    [InlineData(
+        RepositoryEligibilityStatus.Contributing,
+        "Contributed evidence to this view",
+        "Bu görünüme kanıt sağladı")]
+    [InlineData(
+        RepositoryEligibilityStatus.Restricted,
+        "Contributed evidence to this view with restrictions",
+        "Bu görünüme kısıtlamalarla kanıt sağladı")]
+    [InlineData(
+        RepositoryEligibilityStatus.NonContributing,
+        "Did not contribute evidence to this view",
+        "Bu görünüme kanıt sağlamadı")]
+    [InlineData(
+        RepositoryEligibilityStatus.Undetermined,
+        "Its contribution to this view could not be determined",
+        "Bu görünüme katkısı belirlenemedi")]
+    public void Repository_status_copy_is_locked_and_exhaustive(
+        RepositoryEligibilityStatus status,
+        string english,
+        string turkish)
+    {
+        Assert.Equal(english, localizer.GetRepositoryStatusLabel(status, WebCulture.English));
+        Assert.Equal(turkish, localizer.GetRepositoryStatusLabel(status, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Repository_status_fails_loudly_for_an_undefined_status()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            localizer.GetRepositoryStatusLabel((RepositoryEligibilityStatus)99, WebCulture.English));
+    }
+
+    [Fact]
+    public void Why_supporting_repositories_lead_in_is_locked_EN_TR()
+    {
+        Assert.Equal(
+            "Observed across these public repositories",
+            localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.English));
+        Assert.Equal(
+            "Şu herkese açık repository'lerde gözlemlendi",
+            localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Repository_fresh_analysis_lead_in_is_locked_EN_TR()
+    {
+        Assert.Equal(
+            "Selecting a repository runs a fresh Repository Proof analysis.",
+            localizer.GetRepositoryFreshAnalysisLeadIn(WebCulture.English));
+        Assert.Equal(
+            "Bir repository seçmek yeni bir Repository Proof analizi başlatır.",
+            localizer.GetRepositoryFreshAnalysisLeadIn(WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Repository_action_visible_label_is_locked_EN_TR()
+    {
+        Assert.Equal(
+            "Analyze this repository",
+            localizer.GetRepositoryActionLabel(WebCulture.English));
+        Assert.Equal(
+            "Bu repository'yi analiz et",
+            localizer.GetRepositoryActionLabel(WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Repository_action_accessible_name_substitutes_the_literal_full_name()
+    {
+        Assert.Equal(
+            "Analyze repository octocat/Hello-World",
+            localizer.GetRepositoryActionAccessibleName("octocat/Hello-World", WebCulture.English));
+        Assert.Equal(
+            "octocat/Hello-World repository'sini analiz et",
+            localizer.GetRepositoryActionAccessibleName("octocat/Hello-World", WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Repository_action_accessible_name_rejects_a_blank_full_name()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            localizer.GetRepositoryActionAccessibleName(" ", WebCulture.English));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("fr")]
+    [InlineData("de-DE")]
+    public void P10I4_fixed_slot_and_status_copy_falls_back_to_English_for_unsupported_culture(
+        string? culture)
+    {
+        Assert.Equal(
+            "Contributed evidence to this view",
+            localizer.GetRepositoryStatusLabel(RepositoryEligibilityStatus.Contributing, culture));
+        Assert.Equal(
+            "Observed across these public repositories",
+            localizer.GetWhySupportingRepositoriesLeadIn(culture));
+        Assert.Equal(
+            "Selecting a repository runs a fresh Repository Proof analysis.",
+            localizer.GetRepositoryFreshAnalysisLeadIn(culture));
+        Assert.Equal(
+            "Analyze this repository",
+            localizer.GetRepositoryActionLabel(culture));
+        Assert.Equal(
+            "Analyze repository octocat",
+            localizer.GetRepositoryActionAccessibleName("octocat", culture));
     }
 }

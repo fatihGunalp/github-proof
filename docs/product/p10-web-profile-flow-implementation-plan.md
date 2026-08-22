@@ -52,6 +52,24 @@ partial'ları" restriction contradicted the actual Web boundary --- today
 the successful `ProfilePipelineResult.Report` --- and is replaced by a
 minimum-change responsibility description. No slice identity, route, entry,
 section label, ordering, evidence, pattern or prohibition clause changed
+**Amended:** 2026-08-22 / Session 104 — P10-I4 reconciliation. The normative
+owner of the P10-I4 presentation shape, interaction and copy is now
+`docs/product/p10-presentation-language-contract.md` §8.6 (with §8.5 for the
+`Supported`-but-empty cases); this document defines no P10-I4 presentation
+semantics of its own. Two ambiguous clauses were corrected rather than
+extended: §13.6/§13.14's "drill-down linki ... `Repository.Url` üzerinden
+kurulur" wording was literally implementable as an anchor to
+`Repository.Url`, which would navigate to github.com instead of Repository
+Proof, and is replaced by the exact POST mechanism; and the permission for
+`AnalysisReference` to influence a row's status label is withdrawn, because
+`Contributing`/`Restricted` always carry a reference (so it distinguishes
+nothing) while for the other two statuses it would expose only internal
+execution mechanics. §7/P10-I4 additionally gains a minimum Web
+implementation responsibility, the Starting-point text-only record and the
+Limitations sequencing note (§13.19). No slice identity, route, entry,
+section label, canonical ordering, evidence, pattern or prohibition clause
+changed, and no Domain, Application or `ProfileReportProjector` behavior
+changed
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -581,21 +599,56 @@ hiçbir zaman saklanmış bir `RepositoryAnalysis`. Uygulamada persistence/cache
 bulunmadığı için `AnalysisReference` zaten bir "stored report" kaynağı
 değildir — link hedefi olarak hiçbir zaman kullanılmaz.
 
-Buna göre: drill-down linki her zaman `Repository.Url` üzerinden kurulur
-(nullable değildir, `AnalysisReference`'ın doluluğundan bağımsızdır) ve
-mevcut `/` Repository Proof girişini (POST/input/analiz semantics'i
-değişmeden, §13.5) bu URL ile önceden
-doldurup gönderir; bu, doğrudan bir ziyaretçinin tetiklediğiyle aynı canlı
-analizi tetikler. `EligibilityStatus` ve (doluysa) `AnalysisReference`
-yalnız o satırın kendi durum etiketini belirlemek için kullanılır (ör.
-"henüz analiz edilmedi" / eligibility-based bir not) — linkin var olup
-olmadığını veya hedefini etkilemez; her satır her zaman tıklanabilir bir
-`/` girişine sahiptir.
+Buna göre (Session 104'te düzeltildi — önceki "drill-down linki ...
+`Repository.Url` üzerinden kurulur" ifadesi literal olarak bir
+`<a href="Repository.Url">` biçiminde uygulanabiliyordu ve bu kullanıcıyı
+Repository Proof'a değil github.com'a götürürdü; o okunuş geçersizdir):
+`Repository.Url` **POST edilen `GitHubTarget` değeridir**, hiçbir zaman
+drill-down `href`'i değildir. Her satır, mevcut `/` Repository Proof girişine
+(POST/input/analiz semantics'i değişmeden, §13.5) gönderim yapan tek bir
+explicit aksiyon taşır; bu, doğrudan bir ziyaretçinin tetiklediğiyle aynı
+canlı analizi tetikler. Persistence/cache olmadığı için aksiyon her zaman
+**taze** bir Repository Proof analizi çalıştırır. Tam mekanizma, anti-forgery
+ve GET/query-string/JavaScript yasakları
+`p10-presentation-language-contract.md` §8.6.5'te kilitlidir.
+
+Satır durum etiketi **yalnız** `EligibilityStatus` okunarak belirlenir
+(Session 104 düzeltmesi): `AnalysisReference` presentation tarafından hiç
+okunmaz — ne etiket, ne aksiyonun hedefi, ne de aksiyonun varlığı için.
+`Contributing` ve `Restricted` her zaman bir `AnalysisReference` taşır (izin
+verilen her evidence-bearing katkı bir analiz referansı gerektirir), dolayısıyla
+o iki durumda referans hiçbir ayrım üretmez; kalan iki durumda ise yalnız bir
+repository analizinin çalışıp çalışmadığını, yani internal execution
+mekaniğini sızdırır. Tükenmiş dört satırlık EN/TR durum mapping'i
+`p10-presentation-language-contract.md` §8.6.6'dadır.
 
 Profile sayfası kendi içinde `RepositoryAnalysis` şekilli içerik (signal,
 score, uncertainty kartı) render etmez — bu tamamen
 `_RepositoryReport*.cshtml`'in sorumluluğunda kalır. Repository analizi
 profile raporu içinde tekrar üretilmez veya çoğaltılmaz.
+
+`ProfileEvidenceReference.EvidenceKey` ve `EvidenceKeys` Profile Web
+yüzeyinde hiçbir yerde render edilmez (§8.6.4): Why yalnız
+pattern → supporting repository kimliklerini gösterir, signal/concrete
+evidence incelemesi Repository Proof'un sorumluluğunda kalır.
+
+`RepresentativeRepositories` / Başlangıç noktası P10-I4'te **text-only**
+kalır; ona hiçbir Repository Proof aksiyonu, linki veya butonu eklenmez.
+Repository Proof aksiyonları yalnız progressively disclosed
+`RepositoryDrillDown` yüzeyinde bulunur, böylece iki rakip drill-down aksiyon
+yüzeyi oluşmaz (§8.6.1). İlk okuma katmanı sessiz kalır; kanıt incelemesi
+ancak kullanıcı açıkça kanıt katmanına girdiğinde başlar.
+
+Kapsam: yalnız `Profile.cshtml`'e bounded composition eklemesi (canonical
+sırada iki yeni partial çağrısı); iki yeni dar `_Profile*.cshtml` partial'ı
+(`WhyThisConclusion` ve `RepositoryDrillDown` bölümleri, her biri kendi typed
+`ProfileReportSection<...>` modeliyle); `ProfileWebPresentationLocalizer`'a
+yalnız §8.6/§8.5'te kilitlenmiş deterministic copy/status mapping'leri; yapısal
+olarak gerekiyorsa mevcut token'larla bounded `profile-result.css` eklemesi;
+ve targeted Web testleri. Değişmez: Domain, Application,
+`ProfileReportProjector`, `Index.cshtml`/`Index.cshtml.cs`,
+`_GitHubInput.cshtml`, tüm `_Repository*.cshtml`, `LiveRepositoryReportService`,
+mevcut JavaScript, yeni design token ve P10-I5 yüzeyleri.
 
 ---
 
@@ -953,16 +1006,40 @@ vardır (§13.0) ve iki analiz semantic boundary'si ayrı kalır.
 ## 13.6 Profile = Macro View / Repository = Micro View
 
 `docs/roadmap/mvp-phases.md` "Profile P10" bölümünde zaten kilitli
-ilişkinin mekanik karşılığı: `RepositoryDrillDown`, kimliği
-(`RepositoryDrillDownReportItem.Repository.Url` —
-`ProfileRepositoryReference`, her satırda her zaman dolu; tam detay
-§13.14) mevcut `/` girişine (POST/input/analiz semantics'i değişmeden,
-§13.5) önceden doldurulmuş biçimde yönlendirir ve bir canlı analiz
-tetikler — hiçbir `RepositoryAnalysis` persist edilmediği için başka türlü
-bir "lookup" mümkün değildir (uygulamada persistence/database katmanı
-yoktur). `AnalysisReference` (`RepositoryAnalysisReference?`, nullable)
-linkin kaynağı veya ön koşulu **değildir**; yalnız §13.14'te açıklandığı
-gibi opsiyonel kimlik/durum context'i sağlar.
+ilişkinin mekanik karşılığı, tam olarak şudur:
+
+- Her `RepositoryDrillDownReportItem`'ın kimliği
+  (`RepositoryDrillDownReportItem.Repository.Url` —
+  `ProfileRepositoryReference`, her satırda her zaman dolu; tam detay §13.14)
+  `GitHubTarget` alan adıyla **gönderilen değerdir**.
+- Satırdaki tek explicit kullanıcı aksiyonu bu değeri mevcut `/` (Index)
+  repository girişine **POST eder** (POST/input/analiz semantics'i değişmeden,
+  §13.5).
+- Bu POST, mevcut canlı Repository Proof yolunu çalıştırır — doğrudan bir
+  ziyaretçinin aynı hedefi göndermesiyle birebir aynı analiz.
+- **Prefill navigation yoktur**: kullanıcı önceden doldurulmuş bir giriş
+  ekranına götürülmez.
+- **Redirect drill-down mekanizmasının parçası değildir.**
+- **GET ile tetiklenen analiz yoktur**; `Repository.Url` hiçbir zaman bir
+  `href` değildir.
+- `AnalysisReference` (`RepositoryAnalysisReference?`, nullable) presentation
+  tarafından **kullanılmaz** — ne aksiyonun kaynağı, ne hedefi, ne ön koşulu,
+  ne de satır durum etiketi için (§13.14).
+
+Hiçbir `RepositoryAnalysis` persist edilmediği için başka türlü bir "lookup"
+zaten mümkün değildir (uygulamada persistence/database katmanı yoktur); aksiyon
+her zaman taze bir analiz çalıştırır. Tam mekanizma, anti-forgery ve
+GET/query-string/JavaScript yasakları
+`p10-presentation-language-contract.md` §8.6.5'te kilitlidir.
+
+**Session 104 düzeltme kaydı (tarihsel).** Bu bölümün önceki hâli
+`RepositoryDrillDown`'ın `/` girişine "önceden doldurulmuş biçimde
+yönlendirir" dediği ve mekanizmayı "link" olarak adlandırdığı için iki yanlış
+okuma üretiyordu: `Repository.Url`'i bir `href` sanmak (kullanıcıyı Repository
+Proof'a değil github.com'a götürürdü) ve drill-down'ı bir prefill/redirect
+akışı sanmak. Her iki okuma da geçersizdir; yukarıdaki gövde mevcut tek
+mekanizmadır. Aynı session'da `AnalysisReference`'ın satır durum etiketini
+etkileme izni de geri alınmıştır (§13.14).
 
 ## 13.7 Web EN/TR Locale Boundary (Session 101)
 
@@ -1021,6 +1098,32 @@ Technical-focus identities such as C#, JavaScript and Python are GitHub/literal
 language values and are never translated. `ProblemAreaPatterns` remains
 Unsupported and unrendered; `RoleEvidenceAlignment` remains Deferred and
 unrendered.
+
+**Session 104 daraltması.** Yukarıdaki kural **semantic/value-dependent**
+mapping'ler için aynen geçerlidir ve hiçbir mevcut identity mapping'i veya
+inference yasağı değişmemiştir. Session 104, bu kuralın kapsamadığı bir sınıfı
+açıkça tanımlar: **canonical semantic identity taşımayan sabit Web
+presentation slot'ları**. Bunlar bir canonical değer başına bir string
+değildir; tek bir bölümün sabit slot'larıdır. P10-I4'teki dört örneği:
+
+- Why supporting-repositories lead-in,
+- Repository-evidence fresh-analysis lead-in,
+- repository görünür aksiyon etiketi,
+- repository accessible-name formatı.
+
+Bu sınıf için kural:
+
+- semantic/value-dependent presentation mapping mevcut canonical
+  locale-independent kimliklerle anahtarlanmaya devam eder;
+- presentation text hiçbir zaman lookup key değildir;
+- canonical semantic identity taşımayan sabit Web presentation slot'ları, dar
+  ve açıkça adlandırılmış Web localizer metotlarında yaşayabilir ve yalnız
+  selected culture'a göre değişir;
+- böyle sabit slot'lar yeni analysis/domain/application identity veya truth
+  **yaratmaz**; bu yüzden onları anahtarlamak için Domain/Application enum'ı
+  veya semantic identity icat edilmez;
+- `p10-presentation-language-contract.md` §8.6.7 bu kuralın somut P10-I4
+  uygulamasıdır.
 
 ## 13.9 TechnicalFocusAreas vs EngineeringPracticePatterns Ayrı Dil
 
@@ -1082,13 +1185,21 @@ kendi canonical §5/§7 bölümü (pozisyon 7) olarak kalır.
 
 ## 13.14 Profile → Repository Evidence Drill-Down
 
-§13.6'da kilitli, tam mekanik §7/P10-I4'te yazılıdır: her
+§13.6'da kilitli, tam mekanik §7/P10-I4 ile
+`p10-presentation-language-contract.md` §8.6.5'te yazılıdır: her
 `RepositoryDrillDownReportItem`'ın `Repository`
-(`ProfileRepositoryReference.Url`) alanı her zaman doludur ve drill-down
-linki her zaman bu URL üzerinden `/` girişini önceden doldurup gönderir —
-`AnalysisReference` (`RepositoryAnalysisReference?`) nullable'dır ve yalnız
-o satırın durum etiketi için okunur, linkin varlığını veya hedefini
-etkilemez. Profile raporu içinde repository analizi çoğaltılmaz.
+(`ProfileRepositoryReference.Url`) alanı her zaman doludur ve bu URL, mevcut
+`/` girişine POST edilen `GitHubTarget` değeridir — asla bir `href` değildir
+(Session 104 düzeltmesi).
+
+`AnalysisReference` (`RepositoryAnalysisReference?`) presentation tarafından
+**hiç okunmaz** (Session 104 düzeltmesi; önceki hâli onu satır durum etiketi
+için okumaya izin veriyordu). Satır durum etiketi yalnız `EligibilityStatus`
+üzerinden, §8.6.6'daki tükenmiş dört satırlık mapping ile belirlenir.
+Gerekçe: `Contributing` ve `Restricted` her zaman bir `AnalysisReference`
+taşıdığı için referans o iki durumda hiçbir ayrım üretmez, kalan ikisinde ise
+yalnız internal execution mekaniğini sızdırır. Profile raporu içinde
+repository analizi çoğaltılmaz.
 
 ## 13.15 Presentation Invariant
 
@@ -1197,3 +1308,49 @@ presentation-language contract kazanır.
 - P10-I3 kapsam clause'u (§7/P10-I3) Session 103'te düzeltildi: slice, typed
   `ProfilePipelineResult.Report`'u presentation'a taşımak için gereken minimum
   Web değişikliklerini kapsar; "yalnız yeni partial'lar" kısıtı geçersizdir.
+
+## 13.19 P10-I4 Presentation Cross-Reference and Limitations Sequencing (Session 104)
+
+Canonical owner:
+`docs/product/p10-presentation-language-contract.md` §8.6 (P10-I4 Why +
+Repository-evidence presentation, interaction and copy) ve §8.5
+(`Supported`-but-empty copy). Bu bölüm normatif metin taşımaz; yalnız işaret
+eder. Çelişki bulunursa presentation-language contract kazanır.
+
+- P10-I4 copy'sinin anahtarlanması §8.6.7'de kilitlidir ve tek bir kurala
+  indirgenemez (§13.8 Session 104 daraltması):
+  - bölüm copy'si ve `Supported`+empty paragrafları →
+    `ProfileReportSectionKey` + selected request culture;
+  - durum copy'si → `RepositoryEligibilityStatus` + selected request culture;
+  - pattern label'ları → mevcut pattern family/key mapping'i (değişmez);
+  - sabit P10-I4 presentation slot'ları (Why lead-in, fresh-analysis lead-in,
+    görünür aksiyon etiketi, accessible-name formatı) → dar ve açıkça
+    adlandırılmış Web localizer metodu, yalnız culture'a göre değişir;
+  - presentation text hiçbir zaman lookup key değildir;
+  - hiçbir yeni semantic identity tanıtılmaz.
+- `RepositoryDrillDown` **her** girdiyi canonical projector sırasında render
+  eder; `WhyThisConclusion` katılımcılarına filtrelenmez. P10-I4 bu liste
+  üzerinde sorting, ranking, grouping, search, count veya pagination
+  tanıtmaz (§8.6.5).
+- `RepresentativeRepositories` P10-I4'te text-only kalır (§8.6.1).
+- §13.15 Presentation Invariant aynen geçerlidir: P10 yeni analysis truth
+  üretemez.
+
+**Limitations sequencing note.** P10-I4 tamamlandığında kullanıcıya görünen
+sıra geçici olarak şudur:
+
+```text
+1  PublicProfileSummary
+2  TechnicalFocusAreas
+3  EngineeringPracticePatterns
+5  RepresentativeRepositories
+6  WhyThisConclusion
+8  RepositoryDrillDown
+```
+
+Canonical pozisyon 7 `Limitations` typed truth'tan **çıkarılmamıştır ve
+yeniden sıralanmamıştır**; `ProfileReport` onu her zamanki gibi canonical
+sırada taşımaya devam eder. Yalnız kullanıcıya görünen sunumu henüz
+eklenmemiştir ve P10-I5'in sorumluluğundadır; o slice geldiğinde 6 ile 8
+arasına girer. Bu bir slice sequencing durumudur, canonical report
+reordering değildir (report contract §7).

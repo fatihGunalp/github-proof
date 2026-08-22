@@ -1,0 +1,75 @@
+@model ProfileReportSection<ConclusionEvidenceReportItem>
+
+@*
+    P10-I4 Why layer. Items are exactly the same promoted patterns already
+    rendered by TechnicalFocusAreas/EngineeringPracticePatterns; this adds
+    only their supporting public repository identities beneath them — the
+    evidence trace, never a new claim (presentation-language-contract.md
+    §8.6.3). No count, no rule/observation version, no observation key, no
+    analysis identifier, no SupportingEvidence/EvidenceKey/EvidenceKeys, no
+    score/ranking/capability language (§8.6.3/§8.6.4).
+*@
+@{
+    if (Model.SectionKey != ProfileReportSectionKey.WhyThisConclusion
+        || Model.Availability != ProfileReportSectionAvailability.Supported)
+    {
+        throw new InvalidOperationException(
+            "Why partial requires a Supported WhyThisConclusion section, but "
+            + $"received '{Model.SectionKey}' / '{Model.Availability}'.");
+    }
+}
+
+@if (Model.Items.Count > 0)
+{
+    <details class="profile-result__section">
+        <summary class="profile-result__disclosure-summary">
+            <h2 class="profile-result__section-title">
+                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+            </h2>
+        </summary>
+
+        <div class="profile-result__disclosure-body">
+            @foreach (ConclusionEvidenceReportItem item in Model.Items)
+            {
+                <div class="profile-result__why-entry">
+                    <h3 class="profile-result__why-entry-title">
+                        @ProfileText.GetPatternLabel(
+                            item.Pattern.Family,
+                            item.Pattern.PatternKey,
+                            Text.Culture)
+                    </h3>
+
+                    <p class="profile-result__lead-in">
+                        @ProfileText.GetWhySupportingRepositoriesLeadIn(Text.Culture)
+                    </p>
+
+                    <ul class="profile-result__repository-list">
+                        @foreach (var repository in item.Pattern.SupportingRepositories)
+                        {
+                            <li class="profile-result__repository-item">
+                                @repository.FullName
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </details>
+}
+else
+{
+    <section
+        class="profile-result__section"
+        aria-labelledby="profile-why-title">
+
+        <h2
+            class="profile-result__section-title"
+            id="profile-why-title">
+            @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+        </h2>
+
+        <p class="profile-result__section-empty">
+            @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+        </p>
+    </section>
+}

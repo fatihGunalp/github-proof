@@ -6,12 +6,15 @@
 }
 
 @*
-    P10-I3 result boundary, rendered from the POST handler. Renders the
+    P10-I3/P10-I4 result boundary, rendered from the POST handler. Renders the
     already-projected typed ProfileReport in canonical experience order:
     Meaning -> Visible technical direction -> Recurring engineering practices
-    -> Starting point. WhyThisConclusion + evidence drill-down is P10-I4;
-    final Limitations/Warnings/Partial/Failure UX is P10-I5 — neither is
-    rendered here.
+    -> Starting point (first read), then Why this view -> Repository evidence
+    (progressively disclosed evidence layer, P10-I4). Selecting a repository
+    POSTs its Repository.Url as GitHubTarget to the existing "/" Index entry
+    and runs a fresh Repository Proof analysis there; nothing is embedded here.
+    Limitations and final Warnings/Partial/Failure UX remain P10-I5 and are
+    not rendered here.
 *@
 <section
     class="profile-result"
@@ -52,6 +55,14 @@
         @await Html.PartialAsync(
             "_ProfileStartingPoint",
             report.RepresentativeRepositories)
+
+        @await Html.PartialAsync(
+            "_ProfileWhyThisView",
+            report.WhyThisConclusion)
+
+        @await Html.PartialAsync(
+            "_ProfileRepositoryEvidence",
+            report.RepositoryDrillDown)
     }
 
     <a

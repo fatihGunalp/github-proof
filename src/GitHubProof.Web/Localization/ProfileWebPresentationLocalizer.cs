@@ -104,9 +104,77 @@ public sealed class ProfileWebPresentationLocalizer
                 "No starting-point repository was selected from the current visible public evidence.",
             (ProfileReportSectionKey.RepresentativeRepositories, WebCulture.Turkish) =>
                 "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.",
+            (ProfileReportSectionKey.WhyThisConclusion, WebCulture.English) =>
+                "The visible public evidence did not establish a repeated pattern to explain under the current analysis rules.",
+            (ProfileReportSectionKey.WhyThisConclusion, WebCulture.Turkish) =>
+                "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında açıklanacak tekrar eden bir örüntü ortaya koymadı.",
+            (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.English) =>
+                "The visible public evidence contains no public repository to inspect.",
+            (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.Turkish) =>
+                "Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor.",
             _ => throw new InvalidOperationException(
                 $"Profile section '{section}' has no active Supported+empty presentation mapping.")
         };
+
+    // P10-I4 row status (presentation-language-contract.md §8.6.6). Reads only
+    // RepositoryEligibilityStatus; RepositoryAnalysisReference is never read
+    // by presentation. Exhaustive over the enum — no fifth state.
+    public string GetRepositoryStatusLabel(
+        RepositoryEligibilityStatus status,
+        string? culture) =>
+        (status, WebCulture.NormalizeOrEnglish(culture)) switch
+        {
+            (RepositoryEligibilityStatus.Contributing, WebCulture.English) =>
+                "Contributed evidence to this view",
+            (RepositoryEligibilityStatus.Contributing, WebCulture.Turkish) =>
+                "Bu görünüme kanıt sağladı",
+            (RepositoryEligibilityStatus.Restricted, WebCulture.English) =>
+                "Contributed evidence to this view with restrictions",
+            (RepositoryEligibilityStatus.Restricted, WebCulture.Turkish) =>
+                "Bu görünüme kısıtlamalarla kanıt sağladı",
+            (RepositoryEligibilityStatus.NonContributing, WebCulture.English) =>
+                "Did not contribute evidence to this view",
+            (RepositoryEligibilityStatus.NonContributing, WebCulture.Turkish) =>
+                "Bu görünüme kanıt sağlamadı",
+            (RepositoryEligibilityStatus.Undetermined, WebCulture.English) =>
+                "Its contribution to this view could not be determined",
+            (RepositoryEligibilityStatus.Undetermined, WebCulture.Turkish) =>
+                "Bu görünüme katkısı belirlenemedi",
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+        };
+
+    // Fixed P10-I4 presentation slots (presentation-language-contract.md
+    // §8.6.7/§13.8 Session 104 daraltması): none of these carries a canonical
+    // semantic identity of its own, so each lives in its own narrow method
+    // keyed only by the selected request culture — never by presentation text,
+    // and no new analysis/Domain/Application identity is created to key them.
+    public string GetWhySupportingRepositoriesLeadIn(string? culture) =>
+        WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
+            ? "Şu herkese açık repository'lerde gözlemlendi"
+            : "Observed across these public repositories";
+
+    public string GetRepositoryFreshAnalysisLeadIn(string? culture) =>
+        WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
+            ? "Bir repository seçmek yeni bir Repository Proof analizi başlatır."
+            : "Selecting a repository runs a fresh Repository Proof analysis.";
+
+    public string GetRepositoryActionLabel(string? culture) =>
+        WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
+            ? "Bu repository'yi analiz et"
+            : "Analyze this repository";
+
+    // Repository FullName is data, substituted into the locked format; it is
+    // never translated.
+    public string GetRepositoryActionAccessibleName(
+        string repositoryFullName,
+        string? culture)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(repositoryFullName);
+
+        return WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
+            ? $"{repositoryFullName} repository'sini analiz et"
+            : $"Analyze repository {repositoryFullName}";
+    }
 
     // Fails loudly (missing, duplicated or non-Supported) rather than inventing
     // an empty Meaning state: presentation-language-contract.md §8.4.1.
