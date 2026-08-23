@@ -246,7 +246,7 @@
 }
 
 .profile-result__report > .profile-result__section--repository-evidence {
-    padding: var(--space-5) var(--space-5) var(--space-4);
+    padding: var(--space-5) var(--space-5) var(--space-6);
 }
 
 .profile-result__card-heading {
@@ -497,6 +497,21 @@
     word-break: normal;
 }
 
+/* P10-I6-B: a supporting repository named under "What is this based on?" and
+   the same repository listed under Repository evidence are the two visible
+   stages of one canonical trace (contract 8.6.3 -> 8.6.5). They are rendered
+   with the same identity typography so the reader recognises the second stage
+   as the same literal name, never as a different kind of thing. Scoped to the
+   Why surface only: Starting Point shares .profile-result__repository-item and
+   keeps its own card treatment. Typography only -- no emphasis, ordering,
+   status or importance is expressed here. */
+.profile-result__section--why .profile-result__repository-item {
+    color: var(--fg-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-mono);
+    line-height: var(--line-height-mono);
+}
+
 .profile-result__disclosure-summary {
     display: flex;
     align-items: center;
@@ -572,19 +587,33 @@
     line-height: var(--line-height-small);
 }
 
+/* P10-I6-B: the row was a wrapping flex line, so at intermediate widths the
+   status could detach onto a line of its own or the action could wrap under
+   the identity while the status stayed beside it. Each cell now has an
+   explicit column, so identity, status and the single existing POST action
+   hold the same reading positions at every width; the identity column absorbs
+   the free space and every cell wraps internally instead of overflowing. DOM,
+   content, order and semantics are unchanged. */
 .profile-result__evidence-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-4);
-    padding-top: var(--space-3);
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border-subtle);
+}
+
+/* The first row follows the fresh-analysis lead-in, so its separator drew a
+   rule against that paragraph rather than between two rows. */
+.profile-result__evidence-row:first-child {
+    padding-top: 0;
+    border-top: 0;
 }
 
 .profile-result__evidence-identity {
     min-width: 0;
-    flex: 1 1 16rem;
+    grid-column: 1;
     color: var(--fg-secondary);
     font-family: var(--font-mono);
     font-size: var(--font-size-mono);
@@ -594,9 +623,22 @@
 }
 
 .profile-result__evidence-status {
+    min-width: 0;
+    grid-column: 2;
     color: var(--fg-tertiary);
     font-size: var(--font-size-small);
     line-height: var(--line-height-small);
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* The row's single existing Repository Proof POST form. Selected through the
+   markup's existing data-analysis-form hook so no element, class or attribute
+   is added to the partial. */
+.profile-result__evidence-row [data-analysis-form] {
+    grid-column: 3;
+    align-self: center;
+    justify-self: end;
 }
 
 @media (max-width: 60rem) {
@@ -663,5 +705,21 @@
     .profile-result__report > .profile-result__limitations,
     .profile-result__report > .profile-result__section--repository-evidence {
         padding: var(--space-4);
+    }
+
+    /* P10-I6-B: at this width a long repository full name plus its status plus
+       the action cannot share a line without squeezing the action. The row
+       becomes a single column and the existing action moves below its own
+       repository, left-aligned so it stays a quiet secondary step rather than
+       a full-width call to action. */
+    .profile-result__evidence-row {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: var(--space-2);
+    }
+
+    .profile-result__evidence-row .profile-result__evidence-status,
+    .profile-result__evidence-row [data-analysis-form] {
+        grid-column: 1;
+        justify-self: start;
     }
 }

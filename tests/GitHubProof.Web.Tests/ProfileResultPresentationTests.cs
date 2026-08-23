@@ -856,6 +856,321 @@ public sealed class ProfileResultPresentationTests
         }
     }
 
+    // ------------------------------------------------------------------
+    // P10-I6-B - Profile trace + repository inspection.
+    //
+    // Architecture-owner decision: a direct action from a Why entry is
+    // deliberately NOT introduced. The canonical trace stays two-stage
+    // (contract 8.6.3 -> 8.6.5): "What is this based on?" names supporting
+    // repository identities, and Repository evidence owns the single existing
+    // Repository Proof POST per repository. I6-B improves only the VISUAL
+    // continuity and inspection usability between those two stages, so these
+    // guards are deliberately CSS-shaped and assert no new markup, copy or
+    // interaction.
+    // ------------------------------------------------------------------
+
+    [Fact]
+    public void Why_supporting_repository_identities_share_the_repository_evidence_identity_typography()
+    {
+        string css = ReadWebCssFile("profile-result.css");
+
+        string whyIdentityRule = RequireCssRule(
+            css,
+            ".profile-result__section--why .profile-result__repository-item {");
+        string evidenceIdentityRule = RequireCssRule(
+            css,
+            ".profile-result__evidence-identity {");
+
+        // The same literal repository name must read as the same kind of thing
+        // at both stages of the trace.
+        foreach (string declaration in new[]
+        {
+            "font-family: var(--font-mono)",
+            "font-size: var(--font-size-mono)",
+            "line-height: var(--line-height-mono)"
+        })
+        {
+            Assert.Contains(declaration, whyIdentityRule, StringComparison.Ordinal);
+            Assert.Contains(declaration, evidenceIdentityRule, StringComparison.Ordinal);
+        }
+
+        // Typography only: the Why identity must not acquire emphasis that
+        // would read as importance, quality or ordering.
+        foreach (string forbidden in new[]
+        {
+            "var(--accent-primary)",
+            "var(--accent-soft)",
+            "font-weight"
+        })
+        {
+            Assert.DoesNotContain(forbidden, whyIdentityRule, StringComparison.Ordinal);
+        }
+
+        // Anchored: a plain substring check for "order:"/"content:" would also
+        // match "border:" and "justify-content:".
+        foreach (string property in new[] { "order", "content" })
+        {
+            Assert.DoesNotMatch(
+                new Regex(
+                    $@"(?m)^\s*{property}\s*:",
+                    RegexOptions.CultureInvariant),
+                whyIdentityRule);
+        }
+    }
+
+    [Fact]
+    public void Why_identity_typography_is_scoped_so_starting_point_keeps_its_own_treatment()
+    {
+        // Regression guard for a real coupling: Why's supporting list and the
+        // Starting Point cards share .profile-result__repository-list /
+        // .profile-result__repository-item. Restyling the shared base class
+        // would silently restyle the first-read Starting Point rail.
+        string css = ReadWebCssFile("profile-result.css");
+
+        // The shared base rule is the grouped
+        // ".profile-result__pattern-item, .profile-result__repository-item"
+        // declaration. It must be located by its FIRST selector: searching for
+        // ".profile-result__repository-item {" alone finds the earlier
+        // Starting-Point-scoped rule instead, which would make this guard
+        // vacuous.
+        string sharedItemBlock = RequireCssRule(css, ".profile-result__pattern-item,");
+
+        Assert.Contains(
+            ".profile-result__repository-item {",
+            sharedItemBlock,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("font-family", sharedItemBlock, StringComparison.Ordinal);
+
+        Assert.Contains(
+            ".profile-result__section--why .profile-result__repository-item {",
+            css,
+            StringComparison.Ordinal);
+
+        string startingPointItemRule = RequireCssRule(
+            css,
+            ".profile-result__section--starting-point .profile-result__repository-item {");
+
+        Assert.DoesNotContain(
+            "var(--font-mono)",
+            startingPointItemRule,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Repository_evidence_rows_keep_identity_and_status_together_beside_one_action()
+    {
+        // The row previously wrapped as a flex line, so at intermediate widths
+        // the status could detach onto its own line or the action could wrap
+        // under the identity while the status stayed beside it.
+        string css = ReadWebCssFile("profile-result.css");
+
+        int narrowBreakpoint = css.IndexOf(
+            "@media (max-width: 45rem)",
+            StringComparison.Ordinal);
+        int rowRuleStart = css.IndexOf(
+            ".profile-result__evidence-row {",
+            StringComparison.Ordinal);
+
+        Assert.True(narrowBreakpoint >= 0);
+        Assert.True(rowRuleStart >= 0);
+        Assert.True(
+            rowRuleStart < narrowBreakpoint,
+            "The base row rule must precede its narrow override.");
+
+        string rowRule = css[rowRuleStart..css.IndexOf('}', rowRuleStart)];
+        string identityRule = RequireCssRule(css, ".profile-result__evidence-identity {");
+        string statusRule = RequireCssRule(css, ".profile-result__evidence-status {");
+        string actionRule = RequireCssRule(
+            css,
+            ".profile-result__evidence-row [data-analysis-form] {");
+
+        Assert.Contains("display: grid", rowRule, StringComparison.Ordinal);
+        Assert.Contains(
+            "grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto",
+            rowRule,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("flex-wrap", rowRule, StringComparison.Ordinal);
+
+        // Every cell is explicitly placed, so identity, status and the single
+        // existing action can never reorder or detach at any width.
+        Assert.Contains("grid-column: 1", identityRule, StringComparison.Ordinal);
+        Assert.Contains("grid-column: 2", statusRule, StringComparison.Ordinal);
+        Assert.Contains("grid-column: 3", actionRule, StringComparison.Ordinal);
+
+        // The action is selected through the markup's existing hook, so the
+        // partial gains no element, class or attribute.
+        Assert.Contains("data-analysis-form", actionRule, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Repository_evidence_row_markup_still_carries_the_hook_the_I6B_layout_selects_on()
+    {
+        // The I6-B row layout places the single existing POST action through
+        // .profile-result__evidence-row [data-analysis-form] rather than a new
+        // class, so no element or attribute had to be added to the partial.
+        // That leaves one real coupling: the CSS depends on an attribute the
+        // markup carries for the analysis-progress script. If the attribute
+        // were ever dropped from the partial, the action would silently lose
+        // its column placement while every CSS-only guard stayed green. This
+        // test closes that gap from the markup side.
+        string css = ReadWebCssFile("profile-result.css");
+        string partial = StripRazorComments(
+            ReadWebFile("Pages", "Shared", "_ProfileRepositoryEvidence.cshtml"));
+
+        Assert.Contains(
+            ".profile-result__evidence-row [data-analysis-form] {",
+            css,
+            StringComparison.Ordinal);
+
+        int rowStart = partial.IndexOf(
+            "profile-result__evidence-row",
+            StringComparison.Ordinal);
+
+        Assert.True(rowStart >= 0, "The Repository evidence row class was not found in the partial.");
+
+        int rowEnd = partial.IndexOf("</li>", rowStart, StringComparison.Ordinal);
+
+        Assert.True(rowEnd > rowStart, "The Repository evidence row element was not closed.");
+
+        string row = partial[rowStart..rowEnd];
+
+        // The hook must live on the row's own form, not merely somewhere else
+        // in the file.
+        Assert.Contains("<form", row, StringComparison.Ordinal);
+        Assert.Contains(
+            "data-analysis-form",
+            row,
+            StringComparison.Ordinal);
+
+        // The row still carries exactly the three cells the layout places.
+        Assert.Contains("profile-result__evidence-identity", row, StringComparison.Ordinal);
+        Assert.Contains("profile-result__evidence-status", row, StringComparison.Ordinal);
+        Assert.Single(Regex.Matches(row, "<form", RegexOptions.CultureInvariant).Cast<Match>());
+    }
+
+    [Fact]
+    public void Repository_evidence_identity_and_status_survive_a_long_repository_full_name()
+    {
+        string css = ReadWebCssFile("profile-result.css");
+
+        foreach (string selector in new[]
+        {
+            ".profile-result__evidence-identity {",
+            ".profile-result__evidence-status {"
+        })
+        {
+            string rule = RequireCssRule(css, selector);
+
+            Assert.Contains("min-width: 0", rule, StringComparison.Ordinal);
+            Assert.Contains("overflow-wrap: anywhere", rule, StringComparison.Ordinal);
+            Assert.Contains("word-break: normal", rule, StringComparison.Ordinal);
+        }
+
+        string rowRule = RequireCssRule(css, ".profile-result__evidence-row {");
+
+        // A fixed reading column would reintroduce horizontal overflow.
+        Assert.Contains("minmax(0, 1fr)", rowRule, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Repository_evidence_row_separator_does_not_rule_against_the_lead_in_paragraph()
+    {
+        string css = ReadWebCssFile("profile-result.css");
+
+        string firstRowRule = RequireCssRule(
+            css,
+            ".profile-result__evidence-row:first-child {");
+
+        Assert.Contains("border-top: 0", firstRowRule, StringComparison.Ordinal);
+        Assert.Contains("padding-top: 0", firstRowRule, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Repository_evidence_rows_stack_with_a_quiet_action_on_narrow_viewports()
+    {
+        string css = ReadWebCssFile("profile-result.css");
+
+        int narrowBreakpoint = css.IndexOf(
+            "@media (max-width: 45rem)",
+            StringComparison.Ordinal);
+        int narrowRowRule = css.IndexOf(
+            ".profile-result__evidence-row {",
+            narrowBreakpoint,
+            StringComparison.Ordinal);
+        int narrowActionRule = css.IndexOf(
+            ".profile-result__evidence-row .profile-result__evidence-status,",
+            narrowBreakpoint,
+            StringComparison.Ordinal);
+
+        Assert.True(narrowBreakpoint >= 0);
+        Assert.True(narrowRowRule > narrowBreakpoint);
+        Assert.True(narrowActionRule > narrowBreakpoint);
+
+        string narrowRowBlock = css[narrowRowRule..css.IndexOf('}', narrowRowRule)];
+        string narrowActionBlock = css[narrowActionRule..css.IndexOf('}', narrowActionRule)];
+
+        Assert.Contains("grid-template-columns: minmax(0, 1fr)", narrowRowBlock, StringComparison.Ordinal);
+        // Status and the existing action both fall into the single column, in
+        // DOM order, beneath their own repository identity.
+        Assert.Contains("grid-column: 1", narrowActionBlock, StringComparison.Ordinal);
+        Assert.Contains("[data-analysis-form]", narrowActionBlock, StringComparison.Ordinal);
+
+        // The action stays a quiet secondary step, not a full-width call to
+        // action competing with the first-read layer.
+        Assert.Contains("justify-self: start", narrowActionBlock, StringComparison.Ordinal);
+        Assert.DoesNotContain("width: 100%", narrowActionBlock, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Profile_result_css_generates_no_text_counter_or_ordering_behaviour()
+    {
+        // The inspection surface must not acquire anything that reads as a
+        // count, rank, ordering or quality signal - including through CSS,
+        // which the Razor-source guards cannot see.
+        string css = ReadWebCssFile("profile-result.css");
+
+        foreach (string forbidden in new[]
+        {
+            "counter-reset",
+            "counter-increment",
+            "counters(",
+            "counter(",
+            "attr("
+        })
+        {
+            Assert.DoesNotContain(forbidden, css, StringComparison.Ordinal);
+        }
+
+        // Decorative shapes may use an empty content value; generated text may
+        // never be introduced.
+        foreach (Match match in GeneratedContentPattern.Matches(css))
+        {
+            const string EmptyDoubleQuoted = "\"\"";
+            const string EmptySingleQuoted = "''";
+
+            string value = match.Groups[1].Value.Trim();
+
+            Assert.True(
+                value == EmptyDoubleQuoted
+                    || value == EmptySingleQuoted
+                    || value == "none",
+                $"profile-result.css must not generate content, but found: content: {value};");
+        }
+    }
+
+    private static string RequireCssRule(string css, string selector)
+    {
+        int start = css.IndexOf(selector, StringComparison.Ordinal);
+
+        Assert.True(start >= 0, $"Expected CSS rule was not found: {selector}");
+
+        return css[start..css.IndexOf('}', start)];
+    }
+
+    private static readonly Regex GeneratedContentPattern = new(
+        @"(?<![\w-])content:\s*([^;]+);",
+        RegexOptions.CultureInvariant);
+
     private static readonly Regex RazorCommentPattern = new(
         @"@\*.*?\*@",
         RegexOptions.CultureInvariant | RegexOptions.Singleline);
