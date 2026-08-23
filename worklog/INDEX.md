@@ -123,7 +123,8 @@ This file is the concise catalog of meaningful GitHub Proof development sessions
 | 2026-08-23 | P10-I6-A Profile Shell + First-Read Hierarchy | PASS — dark-mockup first-read shell implemented; 1772/1772 tests | Terra / high | [111](./sessions/2026-08-23-111-p10-i6-a-profile-shell-first-read-hierarchy.md) | 2001e14 | 6158789 |
 | 2026-08-23 | Agent Bootstrap & Context Alignment | PASS — AGENTS.md/CLAUDE.md converged to progressive disclosure; combined 4,792 chars (from 5,275) | Sonnet / high | [112](./sessions/2026-08-23-112-agent-bootstrap-context-alignment.md) | 6158789 | 8ec3023 |
 | 2026-08-23 | Worklog Navigation & Compaction | PASS — CURRENT/INDEX/README ownership split; default worklog navigation cost materially reduced | Opus / high | [113](./sessions/2026-08-23-113-worklog-navigation-compaction.md) | 8ec3023 | efe0a76 |
-| 2026-08-23 | P10-I6-B Profile Trace + Repository Inspection | PASS / COMPLETE — Why/Repository-evidence identity continuity and deterministic evidence rows; CSS-only; visual gate PASS at 1280/880/390; 1779/1779 tests | Opus / high | [114](./sessions/2026-08-23-114-p10-i6-b-profile-trace-repository-inspection.md) | efe0a76 | — |
+| 2026-08-23 | P10-I6-B Profile Trace + Repository Inspection | PASS / COMPLETE — Why/Repository-evidence identity continuity and deterministic evidence rows; CSS-only; visual gate PASS at 1280/880/390; 1779/1779 tests | Opus / high | [114](./sessions/2026-08-23-114-p10-i6-b-profile-trace-repository-inspection.md) | efe0a76 | 8ecf782 |
+| 2026-08-24 | P10-I6-C Responsive + Theme + EN/TR Closure | PASS — validation-only; 6-state rendered matrix over 9 surfaces, no defect, no production change; light --fg-tertiary contrast escalated | Opus / high | [115](./sessions/2026-08-24-115-p10-i6-c-responsive-theme-localization-closure.md) | 8ecf782 | — |
 
 ## Legend
 
