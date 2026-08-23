@@ -18,33 +18,12 @@ Kalıcı kararların source of truth'u `docs/` altındadır.
 
 ## Bilgi Katmanları
 
-Çelişki durumunda öncelik:
+Authority sırası (`docs/` > `AGENTS.md` > `agents/` > `worklog/` > koddan
+çıkarım) `AGENTS.md` §1'in sorumluluğudur; burada tekrar tanımlanmaz.
+
+`worklog/` bu sıranın en altındadır:
 
 ~~~text
-1. Kullanıcının mevcut açık talimatı
-2. docs/
-3. AGENTS.md
-4. agents/
-5. worklog/
-6. mevcut koddan yapılan çıkarım
-~~~
-
-Katmanların amacı:
-
-~~~text
-docs/
-= ne doğru?
-= ürün/domain/mimari sözleşmesi
-
-AGENTS.md
-= Codex repository giriş kuralları
-= model gate ve üst seviye çalışma disiplini
-
-agents/
-= görev tipine göre nasıl çalışılmalı?
-= routing / context / development / review playbook'ları
-
-worklog/
 = en son ne yapıldı?
 = şu anda aktif iş var mı?
 = nerede kalındı?
@@ -93,19 +72,23 @@ worklog/
 
 # Temel Hafıza Modeli
 
+Üç katman, üç ayrı soru:
+
 ~~~text
 CURRENT.md
-= güncel snapshot
-
-Active Session
-= şu anda yürüyen meaningful işin canlı handoff kaydı
-
-sessions/
-= tamamlanan veya yarım kalan meaningful development geçmişi
+= NOW
+= şu an aktif iş, branch/base, pozisyon, blocker, exact next action
 
 INDEX.md
-= session kataloğu
+= NAVIGATION
+= hangi session dosyasını açmam gerekiyor?
+
+sessions/
+= HISTORY
+= o session'da tam olarak ne oldu, ne doğrulandı, ne karar verildi
 ~~~
+
+Active Session, `CURRENT.md` içinden işaret edilen canlı handoff kaydıdır.
 
 Kritik kural:
 
@@ -115,103 +98,48 @@ Session log iş bittikten sonra geriye dönük uydurulmaz.
 Meaningful development işi gerçekten başlarken oluşturulur.
 ~~~
 
----
-
 # Model Gate ile Worklog İlişkisi
 
-Model routing'in source of truth'u:
+Model gate protokolü (STOP, `devam et` semantiği, escalation) ve tool-specific
+tier tabloları `AGENTS.md` §2 / `agents/01-model-routing.md` / `CLAUDE.md`'nin
+sorumluluğudur; burada tekrar tanımlanmaz.
 
-~~~text
-AGENTS.md
-agents/01-model-routing.md
-~~~
-
-Yeni bağımsız görevde sıra:
-
-~~~text
-Kullanıcı görevi verir
-        ↓
-Codex görevi uygulatmadan zorluk/risk analizi yapar
-        ↓
-Model + reasoning önerir
-        ↓
-"Modeli <MODEL> / <EFFORT> olarak ayarla.
- Devam etmek için: devam et"
-        ↓
-DUR
-        ↓
-Kullanıcı modeli değiştirir
-        ↓
-Kullanıcı: devam et
-        ↓
-Execution başlar
-        ↓
-Git baseline
-        ↓
-CURRENT
-        ↓
-Active Session kontrolü
-        ↓
-Meaningful işse session oluştur
-        ↓
-İlgili agents/ + gerekli docs/
-        ↓
-code / test / review
-~~~
-
-Model gate beklenirken worklog session açılmaz ve repository değiştirilmez.
-
-`devam et` semantiği:
-
-~~~text
-Pending model gate varsa:
-devam et = model seçimi onaylandı, görevi uygula
-
-Pending model gate yok + Active Session varsa:
-devam et = mevcut session'a devam et
-
-İkisi de yoksa:
-yeni meaningful görev için model gate gerekir
-~~~
+Worklog'a özgü tek kural: model gate beklenirken worklog session açılmaz ve
+repository değiştirilmez; session yalnız gate onayından sonra oluşturulur.
 
 ---
 
 # CURRENT.md
 
-`CURRENT.md`, GitHub Proof'un güncel geliştirme snapshot'ıdır.
+`CURRENT.md`, GitHub Proof'un güncel geliştirme snapshot'ıdır (NOW — aktif
+session, branch/base, phase, blocker/open decision, exact next action).
 
 Execution başladıktan sonra ilk okunacak operasyonel dosyadır.
 
-Beklenen alanlar:
+Tam alan listesi ve compaction kuralları
+`agents/07-worklog-integration.md` "CURRENT Compaction" bölümünün
+sorumluluğudur; burada ikinci bir şema tanımlanmaz.
+
+Yazım kuralı: her alan tek ve somut olmalıdır.
+
+Tercih:
 
 ~~~text
-Current Phase
-Active Session
-Model Gate State
-Current Task
-In Progress
-Current Problem
-Next Immediate Action
-Working Set
-Repository State
-Last Completed Work
-Last Validation
-Stable Decisions
-Critical Invariants
-Known Problems
-Open Issues
-Do Not Reinvestigate
+Current Task:
+Implement SignalResult invariants and unit tests.
+
+Exact Next Action:
+RequiresHumanReview için Score=null invariant testini düzelt ve targeted
+test'i tekrar çalıştır.
 ~~~
 
-Aktif çalışma varsa en az:
+Kaçın:
 
 ~~~text
-Active Session
-Current Task
-Next Immediate Action
+projeye devam et
+backend geliştir
+birkaç şey düzelt
 ~~~
-
-güncel tutulmalıdır.
 
 ---
 
@@ -236,103 +164,36 @@ kullanılır.
 
 `IN_PROGRESS` session varken aynı iş için yeni session açılmaz.
 
----
-
-## Model Gate State
-
-Worklog model seçiminin source of truth'u değildir.
-
-Ancak handoff için operasyonel state tutulabilir:
-
-~~~text
-Model Gate State:
-NONE
-~~~
-
-veya active session sırasında:
-
-~~~text
-Model Gate State:
-APPROVED — Terra / medium
-~~~
-
-Model escalation olursa session dosyasında ayrıca kaydedilir.
+Değişen dosya listesi, diff, terminal geçmişi ve validation transcript'i
+`CURRENT.md` içine yazılmaz; gerçek repository state her zaman Git'ten okunur,
+ayrıntı ise session dosyasında kalır.
 
 ---
 
-## Current Task
+# INDEX.md
 
-Tek ana işi söyler.
+`INDEX.md` NAVIGATION katmanıdır: hangi session dosyasının açılacağına karar
+verdirir, o dosyayı okuma ihtiyacını ortadan kaldırmaz.
 
-Tercih:
-
-~~~text
-Implement SignalResult invariants and unit tests.
-~~~
-
-Kaçın:
+Session başına tek satır:
 
 ~~~text
-projeye devam et
-backend geliştir
-birkaç şey düzelt
+Date | Topic | Result | Route | Session | Base | Commit
 ~~~
 
----
-
-## In Progress
-
-Yalnız meaningful ilerleme.
-
-Örnek:
+Kurallar:
 
 ~~~text
-- SignalStatus enum oluşturuldu.
-- SignalResult constructor invariant'ları eklendi.
-- Null score testlerinden biri henüz fail.
+Result = status + tek satır outcome
+paragraf boyutunda result cell yazılmaz
+narrative, review round'ları ve validation kanıtı session dosyasında kalır
+mevcut satır IN_PROGRESS'ten final result'a güncellenir; ikinci satır açılmaz
+Base ve Commit provenance'ı silinmez
+INDEX ikinci bir CURRENT değildir; live state taşımaz
 ~~~
 
-Terminal geçmişi veya full diff koyma.
-
----
-
-## Current Problem
-
-Aktif işi etkileyen gerçek problem varsa yaz.
-
-Yoksa:
-
-~~~text
-None.
-~~~
-
----
-
-## Next Immediate Action
-
-Bir sonraki somut adım.
-
-Örnek:
-
-~~~text
-RequiresHumanReview için Score=null invariant testini düzelt ve targeted test'i tekrar çalıştır.
-~~~
-
----
-
-## Working Set
-
-Hızlı orientation için kısa özet.
-
-Örnek:
-
-~~~text
-Modified:
-- src/GitHubProof.Domain/Signals/SignalResult.cs
-- tests/GitHubProof.UnitTests/Signals/SignalResultTests.cs
-~~~
-
-Gerçek repository state için her zaman Git kullanılır.
+Geçmiş session dosyaları compaction amacıyla toplu olarak yeniden yazılmaz,
+kısaltılmaz, taşınmaz veya silinmez.
 
 ---
 
@@ -351,10 +212,12 @@ Model gate onaylandıktan sonra:
 6. Result = IN_PROGRESS
 7. Model Route alanını yaz
 8. Base HEAD'i yaz
-9. INDEX'e tek satır ekle
-10. CURRENT.Active Session güncelle
-11. gerekli context'i yükle
-12. implement et
+9. doğrulanan base bir önceki session'ın integration commit'iyse, o satırın
+   boş `Commit` alanını doldur
+10. INDEX'e tek satır ekle
+11. CURRENT.Active Session güncelle
+12. gerekli context'i yükle
+13. implement et
 ~~~
 
 Session numarası o gün için artar:
@@ -375,9 +238,10 @@ targeted validation
 → git diff/status review
 → invariant/contract review
 → session finalize
-→ INDEX result güncelle
+→ INDEX result güncelle (`Commit` boş kalır; integration user-owned
+  olduğu için bir sonraki session başında doldurulur)
 → CURRENT.Active Session = NONE
-→ CURRENT.Next Immediate Action güncelle
+→ CURRENT.Exact Next Action güncelle
 → kullanıcıya rapor
 ~~~
 
@@ -395,70 +259,26 @@ Result: IN_PROGRESS
 
 olarak kalır.
 
-`CURRENT.md`:
+`CURRENT.md` handoff için şunları güncel tutar:
 
 ~~~text
 Active Session
-Current Problem
-Next Immediate Action
-Working Set
+blocker / open decision
+exact next action
 ~~~
-
-alanlarını handoff için güncel tutar.
 
 Yeni AI önce aynı session'dan devam eder.
 
 ---
 
-# Pre-existing Working Tree Guard
+# Pre-existing Working Tree Guard / Git Ownership
 
-Meaningful session başında:
+Destructive-command yasağı ve edit/test/commit/push ownership split'i
+`AGENTS.md` §5'in sorumluluğudur; burada tekrar tanımlanmaz.
 
-~~~text
-git status --short
-~~~
-
-snapshot'ı alınır.
-
-Session öncesi unrelated kullanıcı değişikliklerini:
-
-~~~text
-sahiplenme
-overwrite etme
-revert etme
-silme
-stage etme
-~~~
-
-Açık talimat olmadan destructive cleanup yok:
-
-~~~text
-git reset --hard
-git clean -fd
-git restore <file>
-git checkout -- <file>
-~~~
-
----
-
-# Git Ownership
-
-Varsayılan:
-
-~~~text
-Codex:
-- edit
-- test
-- diff/status review
-- worklog update
-- suggested commit message
-
-Kullanıcı:
-- commit
-- push
-~~~
-
-Açık kullanıcı talimatı olmadan Codex commit/push yapmaz.
+Worklog'a özgü tek kural: meaningful session başında `git status --short`
+snapshot'ı alınır; session öncesi unrelated kullanıcı değişiklikleri
+sahiplenilmez, overwrite/revert/stage edilmez.
 
 ---
 

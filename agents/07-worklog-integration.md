@@ -114,14 +114,4 @@ session base → branch HEAD diff.
 Session kapatılırken obsolete current state'i replace et; ikinci bir historical
 layer append etme. Detailed history session dosyasına taşınır.
 
-CURRENT yalnız yeni bir agent'ın sonraki kararı için gerekenleri taşır:
-
-- current / next stage,
-- active session,
-- active branch + base,
-- current goal/scope,
-- live blocker/risk,
-- exact next action,
-- operationally useful ise last remote-verified main.
-
 Amaç ucuz ve güvenilir first operational read'dir.
