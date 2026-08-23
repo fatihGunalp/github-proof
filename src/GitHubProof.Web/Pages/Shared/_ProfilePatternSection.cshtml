@@ -20,28 +20,69 @@
         _ => throw new InvalidOperationException(
             $"Pattern section partial does not support '{Model.SectionKey}'.")
     };
+
+    string sectionClass = Model.SectionKey switch
+    {
+        ProfileReportSectionKey.TechnicalFocusAreas =>
+            "profile-result__section--technical-focus",
+        ProfileReportSectionKey.EngineeringPracticePatterns =>
+            "profile-result__section--engineering-practices",
+        _ => throw new InvalidOperationException(
+            $"Pattern section partial does not support '{Model.SectionKey}'.")
+    };
+
+    UiIcon sectionIcon = Model.SectionKey switch
+    {
+        ProfileReportSectionKey.TechnicalFocusAreas => UiIcon.Layers3,
+        ProfileReportSectionKey.EngineeringPracticePatterns => UiIcon.GitBranch,
+        _ => throw new InvalidOperationException(
+            $"Pattern section partial does not support '{Model.SectionKey}'.")
+    };
 }
 
 <section
-    class="profile-result__section"
+    class="profile-result__section @sectionClass"
     aria-labelledby="@sectionTitleId">
 
-    <h2
-        class="profile-result__section-title"
-        id="@sectionTitleId">
-        @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-    </h2>
+    <div class="profile-result__card-heading">
+        <span class="profile-result__icon-tile" aria-hidden="true">
+            @await Html.PartialAsync("_UiIcon", sectionIcon)
+        </span>
+
+        <h2
+            class="profile-result__section-title"
+            id="@sectionTitleId">
+            @(Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas
+                ? ProfileText.GetWorkTypeCardHeading(Text.Culture)
+                : ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture))
+        </h2>
+    </div>
 
     @if (Model.Items.Count > 0)
     {
         <ul class="profile-result__pattern-list">
             @foreach (PatternReportItem item in Model.Items)
             {
+                string patternLabel = Model.SectionKey switch
+                {
+                    ProfileReportSectionKey.TechnicalFocusAreas =>
+                        ProfileText.GetPatternLabel(
+                            item.Pattern.Family,
+                            item.Pattern.PatternKey,
+                            Text.Culture),
+                    ProfileReportSectionKey.EngineeringPracticePatterns
+                        when item.Pattern.Family == ProfilePatternFamily.EngineeringPractice =>
+                        ProfileText.GetWorkingStyleLabel(
+                            item.Pattern.PatternKey,
+                            Text.Culture),
+                    ProfileReportSectionKey.EngineeringPracticePatterns => throw new InvalidOperationException(
+                        "Working Style contains a pattern from another family."),
+                    _ => throw new InvalidOperationException(
+                        $"Pattern section partial does not support '{Model.SectionKey}'.")
+                };
+
                 <li class="profile-result__pattern-item">
-                    @ProfileText.GetPatternLabel(
-                        item.Pattern.Family,
-                        item.Pattern.PatternKey,
-                        Text.Culture)
+                    @patternLabel
                 </li>
             }
         </ul>
@@ -50,6 +91,15 @@
     {
         <p class="profile-result__section-empty">
             @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+        </p>
+    }
+
+    @if (Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas
+        && Model.Items.Count > 0)
+    {
+        <p class="profile-result__technical-focus-footer">
+            @ProfileText.GetRecurringTechnologiesLeadIn(Text.Culture):
+            @string.Join(", ", Model.Items.Select(item => item.Pattern.PatternKey))
         </p>
     }
 </section>

@@ -2,33 +2,95 @@
 @model ProfileModel
 
 @{
-    ViewData["Title"] = Text.Get(WebTextKey.ProfileView);
+    ViewData["Title"] = Model.Identity;
 }
 
 @*
     P10-I3/P10-I4/P10-I5 result boundary, rendered from the POST handler. Renders the
     already-projected typed ProfileReport in canonical experience order:
-    Meaning -> Visible technical direction -> Recurring engineering practices
-    -> Starting point (first read), then Why this view -> Limitations -> Repository evidence
+    Meaning -> Visible technical direction -> Working style
+    -> Starting point (first read), then What is this based on? -> Limitations -> Repository evidence
     (progressively disclosed evidence layer, P10-I4). Selecting a repository
     POSTs its Repository.Url as GitHubTarget to the existing "/" Index entry
     and runs a fresh Repository Proof analysis there; nothing is embedded here.
-    P10-I5 adds only typed Partial/warning/limitation and failure states. It
-    does not begin the P10-I6 visual redesign.
+    P10-I5 adds only typed Partial/warning/limitation and failure states.
+    P10-I6-A refines only the profile shell and first-read hierarchy. Why and
+    Repository Evidence retain their native disclosure and action semantics;
+    only their outer card placement participates in the shell.
 *@
 <section
     class="profile-result"
     aria-labelledby="profile-result-title">
 
-    <h1
-        class="profile-result__title"
-        id="profile-result-title">
-        @Text.Get(WebTextKey.ProfileView)
-    </h1>
+    <a
+        class="profile-result__back"
+        href="/">
+        <span aria-hidden="true">←</span> @Text.Get(WebTextKey.AnalyzeSomethingElse)
+    </a>
 
-    <p class="profile-result__identity">
-        @Model.Identity
-    </p>
+    <header class="profile-result__header">
+        <div class="profile-result__identity-group">
+            @if (Model.AvatarUrl is not null && Model.Identity is not null)
+            {
+                @* The provider-returned canonical GitHub avatar. Never a
+                   username-derived or generated fallback. *@
+                <img
+                    class="profile-result__identity-mark profile-result__identity-avatar"
+                    src="@Model.AvatarUrl"
+                    alt="@ProfileText.GetAvatarAccessibleName(Model.Identity, Text.Culture)"
+                    width="116"
+                    height="116" />
+            }
+            else
+            {
+                @* No canonical avatar is available for this result. This is an
+                   explicitly decorative GitHub mark, not an image or a
+                   generated profile avatar. *@
+                <span class="profile-result__identity-mark" aria-hidden="true">
+                    @await Html.PartialAsync("_UiIcon", UiIcon.Github)
+                </span>
+            }
+
+            <div class="profile-result__identity-copy">
+                <h1
+                    class="profile-result__identity"
+                    id="profile-result-title">
+                    @Model.Identity
+                </h1>
+
+                @if (Model.ProfileUrl is not null
+                    && Model.ProfileUrlDisplay is not null)
+                {
+                    <p class="profile-result__profile-url">
+                        @Model.ProfileUrlDisplay
+                    </p>
+                    <p class="profile-result__identity-context">
+                        @ProfileText.GetProfileIdentityContext(Text.Culture)
+                    </p>
+                }
+            </div>
+        </div>
+
+        @if (Model.ProfileUrl is not null
+            && Model.Identity is not null)
+        {
+            <div class="profile-result__header-actions">
+                <a
+                    class="profile-result__github-action button button--ghost"
+                    href="@Model.ProfileUrl"
+                    target="_blank"
+                    rel="noopener noreferrer external"
+                    aria-label="@ProfileText.GetOpenProfileOnGitHubAccessibleName(
+                        Model.Identity,
+                        Text.Culture)">
+                    @ProfileText.GetOpenProfileOnGitHubLabel(Text.Culture)
+                    <span aria-hidden="true">
+                        @await Html.PartialAsync("_UiIcon", UiIcon.ExternalLink)
+                    </span>
+                </a>
+            </div>
+        }
+    </header>
 
     @if (Model.ErrorMessage is not null)
     {
@@ -55,86 +117,106 @@
             </section>
         }
 
-        @await Html.PartialAsync(
-            "_ProfileMeaning",
-            report.PublicProfileSummary.Items)
-
-        @if (report.Warnings.Count > 0)
-        {
-            <aside class="profile-result__notice profile-result__notice--warning">
-                <p class="profile-result__notice-title">
-                    @Text.Get(WebTextKey.ProfileObservationNotesTitle)
-                </p>
-                <ul class="profile-result__notice-list">
-                    @foreach (ProfileWarning warning in report.Warnings)
-                    {
-                        <li>@ProfileText.GetWarningLabel(warning.Code, Text.Culture)</li>
+        <div class="profile-result__report">
+            <div class="profile-first-read">
+                <div class="profile-first-read__primary">
+                    @{
+                        ProfileMeaningPresentation meaning =
+                            ProfileText.GetMeaningPresentation(
+                                Model.Identity ?? throw new InvalidOperationException(
+                                    "A rendered Profile report must retain its accepted identity."),
+                                report.TechnicalFocusAreas,
+                                report.EngineeringPracticePatterns,
+                                Text.Culture);
                     }
-                </ul>
-            </aside>
-        }
 
-        @await Html.PartialAsync(
-            "_ProfilePatternSection",
-            report.TechnicalFocusAreas)
+                    @await Html.PartialAsync(
+                        "_ProfileMeaning",
+                        meaning)
 
-        @await Html.PartialAsync(
-            "_ProfilePatternSection",
-            report.EngineeringPracticePatterns)
-
-        @await Html.PartialAsync(
-            "_ProfileStartingPoint",
-            report.RepresentativeRepositories)
-
-        @await Html.PartialAsync(
-            "_ProfileWhyThisView",
-            report.WhyThisConclusion)
-
-        @if (report.Limitations.SectionKey != ProfileReportSectionKey.Limitations
-            || report.Limitations.Availability != ProfileReportSectionAvailability.Supported)
-        {
-            throw new InvalidOperationException(
-                "The Profile limitations presentation requires the canonical Supported Limitations section.");
-        }
-
-        <section class="profile-result__section profile-result__limitations">
-            <h2 class="profile-result__section-title">
-                @ProfileText.GetSectionLabel(
-                    ProfileReportSectionKey.Limitations,
-                    Text.Culture)
-            </h2>
-
-            @if (report.Limitations.Items.Count > 0)
-            {
-                <ul class="profile-result__limitation-list">
-                    @foreach (ProfileLimitation limitation in report.Limitations.Items)
+                    @if (report.Warnings.Count > 0)
                     {
-                        <li>
-                            @ProfileText.GetLimitationLabel(
-                                limitation.Code,
-                                Text.Culture)
-                        </li>
+                        <aside class="profile-result__notice profile-result__notice--warning">
+                            <p class="profile-result__notice-title">
+                                @Text.Get(WebTextKey.ProfileObservationNotesTitle)
+                            </p>
+                            <ul class="profile-result__notice-list">
+                                @foreach (ProfileWarning warning in report.Warnings)
+                                {
+                                    <li>@ProfileText.GetWarningLabel(warning.Code, Text.Culture)</li>
+                                }
+                            </ul>
+                        </aside>
                     }
-                </ul>
-            }
-            else
-            {
-                <p class="profile-result__section-empty">
-                    @ProfileText.GetEmptySectionMessage(
-                        ProfileReportSectionKey.Limitations,
-                        Text.Culture)
-                </p>
-            }
-        </section>
 
-        @await Html.PartialAsync(
-            "_ProfileRepositoryEvidence",
-            report.RepositoryDrillDown)
+                    <div class="profile-first-read__patterns">
+                        @await Html.PartialAsync(
+                            "_ProfilePatternSection",
+                            report.TechnicalFocusAreas)
+
+                        @await Html.PartialAsync(
+                            "_ProfilePatternSection",
+                            report.EngineeringPracticePatterns)
+                    </div>
+                </div>
+
+                @await Html.PartialAsync(
+                    "_ProfileStartingPoint",
+                    new StartingPointSectionModel(
+                        report.RepresentativeRepositories,
+                        Model.RepositoryPresentationMetadata))
+            </div>
+
+            @await Html.PartialAsync(
+                "_ProfileWhyThisView",
+                report.WhyThisConclusion)
+
+            @if (report.Limitations.SectionKey != ProfileReportSectionKey.Limitations
+                || report.Limitations.Availability != ProfileReportSectionAvailability.Supported)
+            {
+                throw new InvalidOperationException(
+                    "The Profile limitations presentation requires the canonical Supported Limitations section.");
+            }
+
+            <section class="profile-result__section profile-result__limitations">
+                <div class="profile-result__card-heading">
+                    <span class="profile-result__icon-tile" aria-hidden="true">
+                        @await Html.PartialAsync("_UiIcon", UiIcon.Info)
+                    </span>
+
+                    <h2 class="profile-result__section-title">
+                        @ProfileText.GetSectionLabel(
+                            ProfileReportSectionKey.Limitations,
+                            Text.Culture)
+                    </h2>
+                </div>
+
+                @if (report.Limitations.Items.Count > 0)
+                {
+                    <ul class="profile-result__limitation-list">
+                        @foreach (ProfileLimitation limitation in report.Limitations.Items)
+                        {
+                            <li>
+                                @ProfileText.GetLimitationLabel(
+                                    limitation.Code,
+                                    Text.Culture)
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="profile-result__section-empty">
+                        @ProfileText.GetEmptySectionMessage(
+                            ProfileReportSectionKey.Limitations,
+                            Text.Culture)
+                    </p>
+                }
+            </section>
+
+            @await Html.PartialAsync(
+                "_ProfileRepositoryEvidence",
+                report.RepositoryDrillDown)
+        </div>
     }
-
-    <a
-        class="profile-result__back"
-        href="/">
-        <span aria-hidden="true">←</span> @Text.Get(WebTextKey.AnalyzeSomethingElse)
-    </a>
 </section>

@@ -23,7 +23,11 @@ public sealed class GitHubProfileSnapshotTests
         GitHubProfileSnapshot snapshot = new(
             CreateIdentity(),
             localTime,
-            new GitHubProfileMetadata(" The Octocat ", localTime, publicRepositoryCount: 8),
+            new GitHubProfileMetadata(
+                " The Octocat ",
+                localTime,
+                publicRepositoryCount: 8,
+                avatarUrl: new Uri("https://avatars.githubusercontent.com/u/1")),
             repositories: null,
             availability:
             [
@@ -33,6 +37,9 @@ public sealed class GitHubProfileSnapshotTests
 
         Assert.Equal(DateTimeOffset.Parse("2026-08-15T09:30:00Z"), snapshot.CapturedAt);
         Assert.Equal("The Octocat", snapshot.Metadata!.DisplayName);
+        Assert.Equal(
+            new Uri("https://avatars.githubusercontent.com/u/1"),
+            snapshot.Metadata.AvatarUrl);
         Assert.Equal(["partial manifest"], snapshot.CollectionWarnings);
         Assert.Empty(snapshot.Repositories.Repositories);
     }

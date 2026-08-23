@@ -2,6 +2,7 @@ using System.Net;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Profile.Enums;
 using GitHubProof.Domain.Profile.Models;
+using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using Xunit;
 using static GitHubProof.Infrastructure.Tests.GitHub.GitHubCollectionTestSupport;
@@ -238,6 +239,151 @@ public sealed class GitHubProfileRepositoryCollectorTests
         Assert.Equal("/users/octocat/repos", handler.RequestUris[0].AbsolutePath);
         Assert.Equal(DataAvailabilityStatus.Available, result.Availability.Status);
         Assert.Single(result.Repositories.Repositories);
+    }
+
+    [Fact]
+    public async Task CollectAsync_ParsesAPopulatedRepositoryDescriptionFromTheExistingResponse()
+    {
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson(
+                    "hello-world",
+                    includeDescription: true,
+                    description: "A small starter project.")}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepositoryReference reference = Find(result, "hello-world").Reference;
+
+        Assert.Equal(
+            "A small starter project.",
+            result.RepositoryPresentationMetadata.FindDescription(reference));
+        Assert.Equal(DataAvailabilityStatus.Available, result.Availability.Status);
+    }
+
+    [Fact]
+    public async Task CollectAsync_TreatsANullRepositoryDescriptionAsAValidAbsence()
+    {
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson("hello-world", includeDescription: true, description: null)}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepositoryReference reference = Find(result, "hello-world").Reference;
+
+        Assert.Null(result.RepositoryPresentationMetadata.FindDescription(reference));
+        // A missing Description is not a collection failure: the repository
+        // metadata request itself still succeeds.
+        Assert.Equal(DataAvailabilityStatus.Available, result.Availability.Status);
+        Assert.True(result.IsComplete);
+    }
+
+    [Fact]
+    public async Task CollectAsync_TreatsAWhitespaceOnlyRepositoryDescriptionAsAbsent()
+    {
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson("hello-world", includeDescription: true, description: "   ")}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepositoryReference reference = Find(result, "hello-world").Reference;
+
+        Assert.Null(result.RepositoryPresentationMetadata.FindDescription(reference));
+    }
+
+    [Fact]
+    public async Task CollectAsync_WhenRepositoryHasNoDescriptionField_DoesNotFailCollection()
+    {
+        // No "description" key at all in the response, matching a repository
+        // response shape that never included it. Absence is a valid state,
+        // never a collection failure.
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson("hello-world")}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepositoryReference reference = Find(result, "hello-world").Reference;
+
+        Assert.Null(result.RepositoryPresentationMetadata.FindDescription(reference));
+        Assert.Equal(DataAvailabilityStatus.Available, result.Availability.Status);
+    }
+
+    [Fact]
+    public async Task CollectAsync_PreservesTheProviderDescriptionTextVerbatimAndTrimsOnlySurroundingWhitespace()
+    {
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson(
+                    "hello-world",
+                    includeDescription: true,
+                    description: "  FastAPI tutorial and example service.  ")}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepositoryReference reference = Find(result, "hello-world").Reference;
+
+        Assert.Equal(
+            "FastAPI tutorial and example service.",
+            result.RepositoryPresentationMetadata.FindDescription(reference));
+    }
+
+    [Fact]
+    public async Task CollectAsync_DescriptionCollectionAddsNoAdditionalGitHubRequest()
+    {
+        QueueHttpMessageHandler handler = new(JsonResponse($"""
+            [{RepositoryJson(
+                "hello-world",
+                includeDescription: true,
+                description: "Some description.")}]
+            """));
+
+        await CreateCollector(handler).CollectAsync(ProfileHandle, AvailableProfileMetadata());
+
+        Assert.Single(handler.RequestUris);
+    }
+
+    [Fact]
+    public async Task CollectAsync_DescriptionDoesNotChangeExistingRepositoryMetadataFields()
+    {
+        GitHubProfileRepositoryCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse($"""
+                [{RepositoryJson(
+                    "hello-world",
+                    fork: true,
+                    archived: true,
+                    includeDescription: true,
+                    description: "Some description.")}]
+                """)));
+
+        GitHubProfileRepositoryCollection result = await collector.CollectAsync(
+            ProfileHandle,
+            AvailableProfileMetadata());
+
+        ProfileRepository repository = Find(result, "hello-world");
+
+        Assert.Equal(RepositoryConditionState.Present, repository.Fork);
+        Assert.Equal(RepositoryConditionState.Present, repository.Archived);
+        Assert.Equal(
+            DateTimeOffset.Parse("2026-08-01T00:00:00Z"),
+            repository.LastPushedAt);
     }
 
     [Fact]

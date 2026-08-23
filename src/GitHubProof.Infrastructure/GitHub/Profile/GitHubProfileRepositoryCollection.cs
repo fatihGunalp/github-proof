@@ -6,7 +6,8 @@ namespace GitHubProof.Infrastructure.GitHub.Profile;
 public sealed record GitHubProfileRepositoryCollection(
     ProfileRepositoryManifest Repositories,
     DataAvailability Availability,
-    IReadOnlyList<string> CollectionWarnings)
+    IReadOnlyList<string> CollectionWarnings,
+    RepositoryPresentationMetadata RepositoryPresentationMetadata)
 {
     public bool IsComplete => Repositories.IsComplete;
 }

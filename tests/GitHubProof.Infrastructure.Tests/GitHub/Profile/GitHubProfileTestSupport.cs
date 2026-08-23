@@ -18,7 +18,8 @@ internal static class GitHubProfileTestSupport
             new GitHubProfileMetadata(
                 "The Octocat",
                 DateTimeOffset.Parse("2020-01-01T00:00:00Z"),
-                publicRepositoryCount),
+                publicRepositoryCount,
+                avatarUrl: new Uri("https://avatars.githubusercontent.com/u/1")),
             DataAvailability.Available(
                 "profile",
                 DateTimeOffset.Parse("2026-08-15T09:30:00Z")));
@@ -41,7 +42,9 @@ internal static class GitHubProfileTestSupport
         long? size = 120,
         string? pushedAt = "2026-08-01T00:00:00Z",
         string? language = "C#",
-        bool isPrivate = false)
+        bool isPrivate = false,
+        bool includeDescription = false,
+        string? description = null)
     {
         List<string> fields =
         [
@@ -84,6 +87,13 @@ internal static class GitHubProfileTestSupport
         fields.Add(pushedAt is null
             ? "\"pushed_at\": null"
             : $"\"pushed_at\": \"{pushedAt}\"");
+
+        if (includeDescription)
+        {
+            fields.Add(description is null
+                ? "\"description\": null"
+                : $"\"description\": \"{description}\"");
+        }
 
         return $"{{ {string.Join(", ", fields)} }}";
     }

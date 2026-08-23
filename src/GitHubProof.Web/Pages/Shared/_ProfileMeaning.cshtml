@@ -1,26 +1,39 @@
-@model IReadOnlyList<ProfileSummaryFact>
+@model ProfileMeaningPresentation
 
 @*
-    P10-I3 Meaning layer. Input boundary is exactly the summary facts
-    (presentation-language-contract.md §8.4) — never the whole ProfileReport,
-    a pattern item, a representative repository, a snapshot or raw evidence.
-    ProfileText.GetMeaningSummary reads only the Supported TechnicalFocusAreas
-    and EngineeringPracticePatterns facts and renders exactly one of the four
-    locked M1-M4 variants; RepresentativeRepositories never participates.
+    P10-I3 Meaning layer. This Web-owned presentation object already contains
+    the deterministic username-led narrative built from exactly the Supported
+    TechnicalFocusAreas and EngineeringPracticePatterns items. No report,
+    representative repository, why/evidence, warning, limitation, snapshot
+    or raw evidence reaches this rendering boundary.
 *@
 <section
     class="profile-result__section profile-result__meaning"
     aria-labelledby="profile-meaning-title">
 
-    <h2
-        class="profile-result__section-title profile-result__meaning-title"
-        id="profile-meaning-title">
-        @ProfileText.GetSectionLabel(
-            ProfileReportSectionKey.PublicProfileSummary,
-            Text.Culture)
-    </h2>
+    <div class="profile-result__card-heading">
+        <span class="profile-result__icon-tile profile-result__icon-tile--meaning" aria-hidden="true">
+            @await Html.PartialAsync("_UiIcon", UiIcon.Sparkles)
+        </span>
+
+        <h2
+            class="profile-result__section-title profile-result__meaning-title"
+            id="profile-meaning-title">
+            @ProfileText.GetSectionLabel(
+                ProfileReportSectionKey.PublicProfileSummary,
+                Text.Culture)
+        </h2>
+    </div>
 
     <p class="profile-result__meaning-text">
-        @ProfileText.GetMeaningSummary(Model, Text.Culture)
+        @Model.TechnicalNarrative
+    </p>
+
+    <p class="profile-result__meaning-text profile-result__meaning-text--practices">
+        @Model.PracticeNarrative
+    </p>
+
+    <p class="profile-result__meaning-provenance">
+        @Model.Provenance
     </p>
 </section>

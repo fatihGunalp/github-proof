@@ -76,7 +76,55 @@ canonical production-guardrail runtime outcomes from
 HTTP mapping is locked without final EN/TR copy and without adding any Domain,
 evidence, profile-analysis or Repository Proof status. Architecture-owner
 re-review corrected the boundary to nullable `ProfileAvailability?` because the
-deadline starts before the first live metadata operation
+deadline starts before the first live metadata operation.
+**Amended:** 2026-08-23 / Session 111 — P10-I3/§13.18 now point to the
+superseding item-aware Meaning presentation contract. The old two-bit/four-copy
+summary based on `PublicProfileSummary` is no longer active: the Web-owned
+Meaning presentation reads only the existing ordered `TechnicalFocusAreas` and
+`EngineeringPracticePatterns` report items, with no new analysis or inference.
+`RepresentativeRepositories` remains excluded and `ProfileReportProjector`
+remains locale-neutral. No slice identity, route, canonical order, evidence,
+pattern or prohibition clause changed.
+**Amended:** 2026-08-23 / Session 111 narrative refinement — the active
+Meaning presentation is a username-led, HR/recruiter-readable deterministic
+four-state relationship narrative. It explains repeated technical directions,
+visible recurring production-practice use and evidence visibility without
+creating developer capability, role, seniority or quality semantics.
+**Amended:** 2026-08-23 / Session 111 human-narrative refinement — Meaning is
+now explicitly a human explanation of visible GitHub traces for both
+non-technical and technical readers. Its Web-owned localizer renders typed
+plain-language practice explanations and an evidence-bounded visible
+working-method synthesis in canonical order; it does not create new analysis
+truth or person-level inference.
+**Amended:** 2026-08-23 / Session 111 width + Starting Point usability
+refinement — the P10-I4 text-only Starting Point restriction is superseded.
+The existing representative items remain in canonical order and now reuse the
+established Repository Proof POST flow. Current typed Profile report data has
+no authoritative representative-repository Description, so Web renders no
+description rather than inventing, fetching or deriving one.
+**Amended:** 2026-08-23 / Session 111 Working Style card simplification — the
+active `EngineeringPracticePatterns` first-read heading is `Working style` /
+`Çalışma biçimi`. The card uses the concise, deterministic, canonical-order
+EngineeringPractice label mapping locked in the presentation contract §8.4.8;
+its empty copy is §8.5. Meaning retains the shorter relationship synthesis. No
+Domain, Application, pattern, evidence or analysis semantics changed.
+**Amended:** 2026-08-23 / Session 111 Profile identity header + shareability
+refinement — the bounded successful-result header now consumes the composed
+profile's canonical `ProfileIdentity.Login` and `ProfileIdentity.Url`, removes
+the visible `Profile view` eyebrow and provides the safe GitHub external action.
+Current typed truth has no avatar or profile-level recency. The POST-only,
+non-persisted result has no third-party-openable URL or profile-specific social
+metadata, so Share/LinkedIn/copy-link are deliberately not implemented; §13.20
+points to the normative §8.7 contract and records the gaps.
+**Amended:** 2026-08-23 / Session 111 first-read clarity correction — Meaning
+is no longer a per-practice explanation surface: §13.18 now points to the
+active concise synthesis in presentation contract §8.4.9. Why uses the new
+visitor trust question and translates only the existing canonical trace into a
+bounded reason plus unchanged supporting repositories. Starting Point remains
+uncapped because no canonical global priority exists; Description remains
+unavailable. Empty Limitations remains visible because its `Supported` section
+cannot be omitted solely for emptiness. Project-type presentation remains
+pending a separate canonical semantic contract.
 **Production Code:** NOT IN SCOPE (this document; implementation begins only
 once a slice is separately authorized)
 
@@ -216,7 +264,7 @@ Kullanıcı dili:
 
 Kullanıcı dili:
 
-"Tekrar eden üretim pratikleri"
+"Çalışma biçimi"
 
 ### RepresentativeRepositories
 
@@ -523,8 +571,8 @@ PublicProfileSummary        (localized meaning summary)
 TechnicalFocusAreas          "Visible technical direction" /
                              "Görünen teknik yön"
         ↓
-EngineeringPracticePatterns  "Recurring engineering practices" /
-                             "Tekrar eden üretim pratikleri"
+EngineeringPracticePatterns  "Working style" /
+                             "Çalışma biçimi"
         ↓
 RepresentativeRepositories   "Starting point" /
                              "Başlangıç noktası"
@@ -538,8 +586,11 @@ ortak/birleşik tek bir etikete indirgenmez.
 `ProblemAreaPatterns` (pozisyon 4) §13.10 gereği render edilmez; sıralama bu
 atlamayla bozulmaz (report contract §7).
 
-Meaning katmanının exact deterministic sentezi, kapalı state matrisi ve EN/TR
-copy'si `p10-presentation-language-contract.md` §8.4'te; üç bölümün
+Meaning katmanının kullanıcı adıyla başlayan, hem HR/recruiter hem teknik
+ziyaretçi için human-first deterministic anlatısı;
+gözlem → yalın-dil practice açıklaması → repository'ler arası tekrar →
+evidence-bounded working-method synthesis sırası ve locale-aware joining'i
+`p10-presentation-language-contract.md` §8.4'te; üç bölümün detail-surface
 `Supported`-but-empty EN/TR copy'si §8.5'te kilitlidir (bkz. §13.18).
 
 Yasak: dashboard, score, ranking, seniority, employability, role inference
@@ -639,12 +690,13 @@ yüzeyinde hiçbir yerde render edilmez (§8.6.4): Why yalnız
 pattern → supporting repository kimliklerini gösterir, signal/concrete
 evidence incelemesi Repository Proof'un sorumluluğunda kalır.
 
-`RepresentativeRepositories` / Başlangıç noktası P10-I4'te **text-only**
-kalır; ona hiçbir Repository Proof aksiyonu, linki veya butonu eklenmez.
-Repository Proof aksiyonları yalnız progressively disclosed
-`RepositoryDrillDown` yüzeyinde bulunur, böylece iki rakip drill-down aksiyon
-yüzeyi oluşmaz (§8.6.1). İlk okuma katmanı sessiz kalır; kanıt incelemesi
-ancak kullanıcı açıkça kanıt katmanına girdiğinde başlar.
+`RepresentativeRepositories` / Başlangıç noktası önceki P10-I4 text-only
+kısıtını aşan bounded P10-I6-A refinement'idir (§8.6.1). Her canonical item
+literal repository kimliği ve ikincil Repository Proof aksiyonu taşır; mevcut
+`Repository.Url`, `GitHubTarget` olarak `/Index` POST formuna verilir. Bu bir
+GitHub outbound linki, yeni endpoint veya ayrı analysis flow değildir. Typed
+Profile report Description taşımadığı için açıklama gösterilmez, türetilmez
+veya fetch edilmez; bu açık **Starting Point Description Contract Gap**'idir.
 
 Kapsam: yalnız `Profile.cshtml`'e bounded composition eklemesi (canonical
 sırada iki yeni partial çağrısı); iki yeni dar `_Profile*.cshtml` partial'ı
@@ -1122,9 +1174,9 @@ Required labels:
 | Canonical identity | EN | TR |
 |---|---|---|
 | `TechnicalFocusAreas` | Visible technical direction | Görünen teknik yön |
-| `EngineeringPracticePatterns` | Recurring engineering practices | Tekrar eden üretim pratikleri |
+| `EngineeringPracticePatterns` | Working style | Çalışma biçimi |
 | `RepresentativeRepositories` | Starting point | Başlangıç noktası |
-| `WhyThisConclusion` | Why this view | Bu görünümü neden görüyoruz? |
+| `WhyThisConclusion` | What is this based on? | Bunu neye dayanarak söylüyoruz? |
 | Profile Report | Profile view | Profil görünümü |
 
 Technical-focus identities such as C#, JavaScript and Python are GitHub/literal
@@ -1163,10 +1215,11 @@ Bu sınıf için kural:
 - `TechnicalFocusAreas` → EN **"Visible technical direction"** / TR
   **"Görünen teknik yön"**
   (tekrar eden technical-focus evidence — hangi tür sistemler tekrarlanıyor).
-- `EngineeringPracticePatterns` → EN **"Recurring engineering practices"** /
-  TR **"Tekrar eden üretim pratikleri"**
+- `EngineeringPracticePatterns` → EN **"Working style"** / TR
+  **"Çalışma biçimi"**
   (tekrar eden practice evidence — test/CI/docs vb. — asla "direction"
-  olarak yeniden ifade edilmez).
+  olarak yeniden ifade edilmez; kısa evidence-bounded item labels §8.4.8'de
+  kilitlidir).
 
 İki bölüm görsel/metinsel olarak ayrı kalır; tek bir "skills" listesine
 birleştirilmez (bağımsız promote edilen, farklı kapsamlı iki pattern family
@@ -1361,7 +1414,7 @@ kararlarla güncellendi: omission listesi artık üç yüzeydir, `DecisionBounde
 sayfalama durdurma ve fork admission kuralı eklendi. P10 slice sorumlulukları,
 route'ları, presentation dili ve inference yasakları değişmedi.
 
-## 13.18 P10-I3 Meaning Layer Synthesis Cross-Reference (Session 103)
+## 13.18 P10-I3 Meaning Layer Synthesis Cross-Reference (Session 111)
 
 Canonical owner:
 `docs/product/p10-presentation-language-contract.md` §8.4 (Meaning layer
@@ -1371,18 +1424,28 @@ Bu bölüm normatif metin taşımaz; yalnız işaret eder. Çelişki bulunursa
 presentation-language contract kazanır.
 
 - §13.8'in "yalnız canonical/locale-independent kimliklerle anahtarlanır"
-  kuralı Meaning katmanını da kapsar: sentez copy'si iki presence bit'i
-  (`TechnicalFocusAreas`, `EngineeringPracticePatterns`) artı selected request
-  culture ile anahtarlanır, hiçbir zaman presentation text'iyle.
-- `RepresentativeRepositories` Meaning state derivation'ına **katılmaz**. O,
+  kuralı Meaning katmanını da kapsar: Web-localizer yalnız mevcut sıralı
+  `TechnicalFocusAreas.Items`, `EngineeringPracticePatterns.Items`, accepted
+  Profile identity ve selected request culture'dan deterministic human
+  narrative üretir. EngineeringPractice öğeleri §8.4.8'in kısa canonical-key
+  label mapping'iyle tek synthesis içinde temsil edilir; per-practice glossary
+  veya `PublicProfileSummary` count/presence bit'iyle anahtarlama yoktur.
+- `RepresentativeRepositories` Meaning synthesis'ine **katılmaz**. O,
   canonical pozisyon 5'te kendi kilitli etiketiyle (EN "Starting point" / TR
   "Başlangıç noktası") ayrıca render edilir ve kendi `Supported`-but-empty
   copy'sini taşır.
+- Meaning, Why/drill-down, warnings ve limitations'tan da truth almaz;
+  raw evidence yeniden analiz edilmez. Bölüm içi item sırası korunur; cap,
+  sıralama, ranking, sayı/yüzde/score veya developer inference'ı yoktur.
+  Teknik/pratik anlatısı evidence visibility'yi ve public trace'lerin görünür
+  kıldığı working methods'i kısa biçimde tanımlar; developer role, seniority, capability,
+  experience veya quality tanımlamaz ve kişinin her zaman nasıl çalıştığını
+  iddia etmez.
 - §13.9'daki iki ayrı etiket kararı değişmedi; §13.10 (`ProblemAreaPatterns`
   Unsupported/unrendered) ve §13.11 (`RoleEvidenceAlignment`
   Deferred/unrendered) değişmedi.
 - §13.15 Presentation Invariant aynen geçerlidir: P10 yeni analysis truth
-  üretemez.
+  üretemez; `ProfileReportProjector` locale-neutral kalır.
 - `WhyThisConclusion` + drill-down P10-I4'ün, final Limitations/Partial/
   Failure UX ve `Warnings` bildirimi P10-I5'in sorumluluğunda kalır.
 - P10-I3 kapsam clause'u (§7/P10-I3) Session 103'te düzeltildi: slice, typed
@@ -1403,8 +1466,8 @@ eder. Çelişki bulunursa presentation-language contract kazanır.
     `ProfileReportSectionKey` + selected request culture;
   - durum copy'si → `RepositoryEligibilityStatus` + selected request culture;
   - pattern label'ları → mevcut pattern family/key mapping'i (değişmez);
-  - sabit P10-I4 presentation slot'ları (Why lead-in, fresh-analysis lead-in,
-    görünür aksiyon etiketi, accessible-name formatı) → dar ve açıkça
+  - sabit P10-I4 presentation slot'ları (Why question/reason/lead-in,
+    fresh-analysis lead-in, görünür aksiyon etiketi, accessible-name formatı) → dar ve açıkça
     adlandırılmış Web localizer metodu, yalnız culture'a göre değişir;
   - presentation text hiçbir zaman lookup key değildir;
   - hiçbir yeni semantic identity tanıtılmaz.
@@ -1412,7 +1475,10 @@ eder. Çelişki bulunursa presentation-language contract kazanır.
   eder; `WhyThisConclusion` katılımcılarına filtrelenmez. P10-I4 bu liste
   üzerinde sorting, ranking, grouping, search, count veya pagination
   tanıtmaz (§8.6.5).
-- `RepresentativeRepositories` P10-I4'te text-only kalır (§8.6.1).
+- `RepresentativeRepositories`, §8.6.1'deki bounded Session 111 action
+  refinement'i dışında P10-I4 evidence semantics'inden ayrıdır: canonical
+  sırası korunur, Description/raw data türetilmez ve Repository Proof POST
+  hedefi yalnız literal `Repository.Url` olur.
 - §13.15 Presentation Invariant aynen geçerlidir: P10 yeni analysis truth
   üretemez.
 
@@ -1434,3 +1500,241 @@ sırada taşımaya devam eder. Yalnız kullanıcıya görünen sunumu henüz
 eklenmemiştir ve P10-I5'in sorumluluğundadır; o slice geldiğinde 6 ile 8
 arasına girer. Bu bir slice sequencing durumudur, canonical report
 reordering değildir (report contract §7).
+
+## 13.20 P10-I6-A Profile Identity Header + Shareability (Session 111)
+
+Canonical owner:
+`docs/product/p10-presentation-language-contract.md` §8.7. This section is an
+implementation cross-reference; it defines no second presentation contract.
+
+- A composed `ProfilePipelineResult.Profile` already carries canonical
+  `GitHubProfileIdentity.Login` and `Url`. `ProfileModel` exposes those exact
+  values for the successful header; Web does not reconstruct the external URL
+  from the posted `GitHubTarget`.
+- Current typed Profile truth carries no avatar URL and no authoritative
+  profile-level last-observable-public-change fact. No new GitHub request,
+  repository/commit scan or timestamp aggregation is authorized. The avatar and
+  recency rows remain absent (Profile Avatar Contract Gap; Recency Contract Gap).
+- The Profile result is transient: `POST /profile` produces it, while
+  `GET /profile` redirects to `/Index`; no cache/persistence lookup exists.
+  Therefore no current URL is copied/shared and no Share control is rendered
+  (Shareable Profile URL Contract Gap).
+- `_Layout.cshtml` has no profile-specific Open Graph/canonical URL pipeline,
+  and a crawler cannot obtain the POST result. No generic or fabricated social
+  metadata is added (Social Preview Contract Gap).
+- The only newly active action is `Open on GitHub` / `GitHub'da aç`, using the
+  exact typed canonical Profile URL with safe external-link behavior.
+- Domain, Application, Infrastructure, Profile collection/report semantics,
+  Repository Proof, routes, persistence and external dependencies remain
+  unchanged.
+
+## 13.21 P10-I6-A First-Read Clarity Boundary (Session 111)
+
+Canonical owner:
+`docs/product/p10-presentation-language-contract.md` §8.4.9 and §8.6. This
+section records implementation consequences and open semantic boundaries; it
+does not create a second presentation contract.
+
+- Meaning renders two short deterministic paragraphs plus the existing quiet
+  evidence-boundary sentence. Every ordered technical and practice item remains
+  represented with no hidden cap, but practice definitions/glossary prose is
+  removed.
+- The Profile identity and its canonical GitHub action share one compact visual
+  header. Avatar and recency remain omitted under the existing contract gaps.
+- Why's heading is `What is this based on?` / `Bunu neye dayanarak söylüyoruz?`.
+  Each item uses only its canonical family/key and existing supporting
+  repositories to render a visitor question, one family-bounded reason and the
+  unchanged repository identities. Evidence keys, internal terminology, raw
+  analysis and repository evidence duplication remain prohibited.
+- `RepresentativeRepositories` is intentionally the complete grouped output of
+  one independent representative selection per repeated pattern. The canonical
+  contract explicitly defines no global top-N/top-K and orders the grouped
+  repositories by `ProfileRepositoryReference`, not by a first/recommended
+  priority. Web therefore cannot turn this set into a genuine bounded Starting
+  Point without a new canonical presentation/priority contract:
+  **Starting Point Prioritization Contract Gap**.
+- The current representative report item still carries no authoritative
+  Description: **Starting Point Description Contract Gap**.
+- `Limitations` is a canonical `Supported` section. Report contract §6.5 does
+  not permit omitting a Supported section solely because its item collection is
+  empty. The existing neutral empty card therefore remains until a separately
+  approved presentation rule changes that boundary:
+  **Empty Limitations Presentation Contract Gap**.
+- Project/application type is not part of current typed Profile truth and is
+  never inferred from repository names, languages or Web heuristics:
+  **Project-Type Presentation Pending Canonical Contract**.
+
+## 13.22 P10-I6-A Approved Mockup Visual Target (Session 111)
+
+Canonical owner:
+`docs/product/p10-presentation-language-contract.md` §8.7.6. This section is
+an implementation cross-reference; it creates no Profile semantics.
+
+- The approved dark mockup is the visual target for the existing successful
+  Profile route: back link, public identity header, dominant Meaning card,
+  paired technical/working-style cards, Starting Point rail, then full-width
+  native Why and Repository Evidence disclosures.
+- The avatar-shaped header space is an `aria-hidden` decorative GitHub mark
+  only. It does not consume or invent avatar truth; a canonical image remains
+  unavailable. Recency and Share remain absent under their existing gaps.
+- The visitor-facing work-type heading is backed only by existing ordered
+  literal technical-focus language labels plus a recurring-technologies lead-
+  in. It neither projects nor infers application/project type.
+- Starting Point retains all canonical representative repositories and their
+  existing Repository Proof POST action. No Web top-N, prioritization, cap,
+  repository description, direct GitHub navigation or extra GitHub fetch is
+  added.
+- Why and Repository Evidence keep native `details`/`summary`, are closed by
+  default and may add only fixed localized closed-summary descriptions plus a
+  decorative chevron. Their bodies, evidence boundary and actions do not
+  change.
+- The canonical Supported Limitations section remains in report order even
+  though the mockup does not depict it. Domain, Application, Infrastructure,
+  collection/report semantics, configuration, external packages and
+  Repository Proof remain unchanged.
+
+## 13.23 P10-I6-A STEP 2 — Bounded Starting Point + Canonical Avatar (Session 111)
+
+Canonical owner: `docs/product/p10-presentation-language-contract.md` §8.6.1,
+§8.7.2 and §8.7.6. This section is an implementation cross-reference; it
+creates no second presentation contract.
+
+Live review of real executions (up to 62 discovered / 57 admitted
+repositories) proved that an unbounded Starting Point rail grows the right
+column until it dominates and breaks the two-column first-read grid. Two
+bounded changes close that gap and the prior Profile Avatar Contract Gap for
+collection:
+
+- **Starting Point presentation bound.** `GitHubProof.Web.Presentation.
+  StartingPointPresentation.Select` takes the first 3 items of the existing
+  canonical `RepresentativeRepositories` order (`ProfileReportSectionKey.
+  RepresentativeRepositories`, Owner-then-Name ordinal tie-break). It is a
+  Web-only presentation bound, not a re-ranking: no pattern-support count,
+  evidence count, activity or name-based sort is introduced, and the
+  canonical collection itself is never capped, reordered or mutated —
+  `_ProfileStartingPoint.cshtml` still receives the complete
+  `ProfileReportSection<RepresentativeRepository>`. This narrows (does not
+  close) the **Starting Point Prioritization Contract Gap**: the 3 presented
+  items are a stable sample of the canonical order, never an asserted "top" or
+  "best" 3. The **Starting Point Description Contract Gap** is unchanged —
+  Step 2 still renders identity plus the existing analysis action only.
+- **Bounded desktop rail.** The left first-read primary column is
+  authoritative for the Starting Point card's desktop height. Pure CSS grid
+  stretching alone is insufficient, because the right rail's own intrinsic
+  content height can itself determine the shared grid row instead of
+  following the left column. `wwwroot/js/starting-point-rail.js` is a
+  page-scoped script that measures the rendered left primary column above the
+  existing `60rem` breakpoint and applies that height to the Starting Point
+  rail; `.profile-result__section--starting-point
+  .profile-result__repository-list` remains the only internal overflow region
+  once the applied height is exceeded, so short lists are vertically balanced
+  within the card rather than stranded above a large dead area, and the
+  scrollbar stays theme-styled. Below `60rem` the inline desktop height is
+  cleared and the mobile layout returns to natural document flow instead of a
+  nested scroll region. The script performs no network request, timer,
+  polling, analysis, ranking or other product-semantic work; the max-3
+  presentation bound and the canonical uncapped report semantics above are
+  unchanged.
+- **Canonical avatar collection.** `GitHubProfileMetadataCollector` now reads
+  `avatar_url` from the same successful `GET /users/{login}` response used for
+  `login`/`name`/`created_at`/`public_repos`, under the same required-field
+  philosophy (a missing or non-parseable value is a Failed collection, not a
+  null). `GitHubProfileMetadata.AvatarUrl` requires an absolute HTTPS URI. No
+  new GitHub request is added.
+- **Avatar propagation without touching evidence truth.** The avatar travels
+  `GitHubProfileSnapshot.Metadata.AvatarUrl` → `ProfilePipeline.RunAsync`
+  (which already receives the full snapshot) → `ProfilePipelineResult.
+  AvatarUrl` → `ProfileModel.AvatarUrl`. It never passes through
+  `DeveloperPublicEvidenceProfile` or `ProfileReport`: `SnapshotReference`
+  already excludes `GitHubProfileMetadata` from the profile/report path (the
+  same reason `DisplayName`/`CreatedAt` never reached Report either), and STEP
+  2 deliberately keeps that boundary rather than widening evidence-report
+  truth to carry presentation metadata.
+- **Header rendering.** The identity header renders the real avatar
+  (`<img>`, fixed dimensions, `object-fit: cover`, circular treatment,
+  accessible alt text naming the profile) whenever `ProfileModel.AvatarUrl` is
+  available, and falls back to the existing decorative `aria-hidden` GitHub
+  mark only when it is legitimately unavailable (for example, a snapshot whose
+  metadata was not carried through). Neither branch derives, generates or
+  guesses an avatar from the username.
+- Share remains unimplemented and unattempted in this step: no stable
+  GET-able Profile route, persistence, Open Graph or copy-link affordance is
+  added. The Shareable Profile URL and Social Preview Contract Gaps are
+  unchanged.
+- Domain evidence semantics, `RepresentativeRepositorySelectionPolicy`,
+  `RepositoryDrillDown` membership, `WhyThisConclusion`, Meaning, Working
+  Style, runtime admission/deadline/budget guardrails and repository-analysis
+  semantics are unchanged.
+
+## 13.24 P10-I6-A STEP 3 — Canonical Starting Point Repository Description (Session 111)
+
+Canonical owner: `docs/product/p10-presentation-language-contract.md` §8.6.1a.
+This section is an implementation cross-reference; it creates no second
+presentation contract.
+
+Starting Point showed repository identity and the Analyze action only; a
+visitor could not tell what a repository was about without leaving the page.
+This step adds one short description line per presented item, sourced only
+from GitHub's own repository Description, following the same non-evidence
+metadata pattern STEP 2 used for the avatar:
+
+- **Collection — same request, zero new calls.** `GitHubProfileRepositoryCollector`
+  already calls `GET /users/{login}/repos`, whose response already carries
+  `description` for every repository (verified before implementation, per the
+  STEP 3 mandate to stop and report a provider gap otherwise — none existed).
+  `GitHubProfileRepositoryResponse` now deserializes `description`; a new
+  private `NormalizedRepository(ProfileRepository, string? Description)` keeps
+  it paired with its repository through pagination and de-duplication without
+  touching `ProfileRepository` itself. The text is trimmed of surrounding
+  whitespace only (`NormalizeDescription`); null/blank is preserved as `null`,
+  never treated as a collection failure.
+- **Typed carrier — new `RepositoryPresentationMetadata`.** A new sealed
+  Domain type (`GitHubProof.Domain.Profile.Models`) wraps an
+  `IReadOnlyDictionary<ProfileRepositoryReference, string?>` behind a single
+  `FindDescription(reference)` lookup. It does **not** implement
+  `ISnapshotSemanticComponent` and is explicitly excluded from
+  `GitHubProfileSnapshot.WriteSemanticContent` (see
+  `SnapshotIdentityTests.IsDerived` and the new
+  `RepositoryPresentationMetadata_DoesNotParticipateInSnapshotIdentity` test):
+  Description carries no evidence/eligibility/determinism meaning, so a
+  Description-only difference must never change the deterministic snapshot
+  identity. `ProfileRepositoryReference` equality/`CompareTo`,
+  `RepresentativeRepository`, `RepresentativeRepositorySelectionPolicy` and
+  pattern selection are all untouched — no test call site for any of them
+  changed.
+- **Propagation — mirrors the avatar path exactly.**
+  `GitHubProfileRepositoryCollection.RepositoryPresentationMetadata` →
+  `GitHubProfileSnapshot.RepositoryPresentationMetadata` (new optional
+  constructor parameter, default `Empty`, so every pre-existing
+  `GitHubProfileSnapshot` call site keeps compiling unchanged) →
+  `ProfilePipeline.RunAsync` (already holds the full snapshot) → new
+  `ProfilePipelineResult.RepositoryPresentationMetadata` → new
+  `ProfileModel.RepositoryPresentationMetadata`. It never passes through
+  `DeveloperPublicEvidenceProfile` or `ProfileReport`, which remain exactly
+  nine sections, unchanged.
+- **Starting Point rendering.** A new small Web-owned
+  `StartingPointSectionModel(Section, Descriptions)` record is now the
+  `_ProfileStartingPoint.cshtml` partial's `@model`, replacing the bare
+  `ProfileReportSection<RepresentativeRepository>` — the smallest typed way to
+  hand the partial both the existing canonical section and the new lookup
+  without threading Description through `ProfileReport` "for Razor's
+  convenience". `StartingPointPresentation.Select` (STEP 2's max-3 bound)
+  still operates on `Model.Section.Items`, unchanged. For each presented item,
+  `Model.Descriptions.FindDescription(item.Repository)` supplies the
+  description line; a null result renders the fixed localized fallback
+  (`GetStartingPointDescriptionFallback`) describing metadata absence only —
+  never a claim about repository quality, activity or documentation. Razor's
+  default `@(...)` encoding renders it as plain text; the source contains no
+  `Html.Raw`, Markdown interpretation or link derivation.
+- **Visual bound.** `.profile-result__starting-point-description` uses
+  `-webkit-line-clamp: 2` with `overflow: hidden` and `overflow-wrap: anywhere`
+  — a visual bound only; the rendered string itself is never truncated or
+  rewritten. STEP 2's bounded desktop rail (`max-height` + `overflow-y: auto`)
+  and mobile natural-flow override are unchanged and now validated with real
+  description content.
+- Repository descriptions do not affect representative-repository selection,
+  order, `ProfileReport`, `WhyThisConclusion`, `RepositoryDrillDown`, Meaning
+  or Working Style; no new ranking, score or inference was introduced.
+  Share, LinkedIn, a stable public Profile URL, Open Graph, recency,
+  project/application type inference, README summarization and LLM-generated
+  descriptions remain unimplemented and unattempted.

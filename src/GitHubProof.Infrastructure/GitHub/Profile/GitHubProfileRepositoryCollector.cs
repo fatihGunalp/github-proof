@@ -63,6 +63,7 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
         // accounts and answers with the canonical login, which may differ from the
         // requested handle.
         List<ProfileRepository> repositories = [];
+        Dictionary<ProfileRepositoryReference, string?> descriptionsByRepository = [];
         HashSet<string> observedRepositories = new(StringComparer.Ordinal);
         Uri? nextPage = CreateInitialPageUri(metadata.Identity.Login);
         int collectedPages = 0;
@@ -71,7 +72,10 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
         {
             if (collectedPages == maxPageCount)
             {
-                return CreateBoundedResult(repositories, timeProvider.GetUtcNow());
+                return CreateBoundedResult(
+                    repositories,
+                    descriptionsByRepository,
+                    timeProvider.GetUtcNow());
             }
 
             PageResult page = await CollectPageAsync(nextPage, cancellationToken);
@@ -79,14 +83,18 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
 
             if (page.Availability is not null)
             {
-                return CreateIncompleteResult(repositories, page.Availability);
+                return CreateIncompleteResult(
+                    repositories,
+                    descriptionsByRepository,
+                    page.Availability);
             }
 
-            foreach (ProfileRepository repository in page.Repositories!)
+            foreach (NormalizedRepository normalized in page.Repositories!)
             {
-                if (observedRepositories.Add(repository.Reference.FullName))
+                if (observedRepositories.Add(normalized.Repository.Reference.FullName))
                 {
-                    repositories.Add(repository);
+                    repositories.Add(normalized.Repository);
+                    descriptionsByRepository[normalized.Repository.Reference] = normalized.Description;
                 }
             }
 
@@ -98,7 +106,8 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
             DataAvailability.Available(
                 ProfileRepositoriesDataKey,
                 timeProvider.GetUtcNow()),
-            Array.Empty<string>());
+            Array.Empty<string>(),
+            new RepositoryPresentationMetadata(descriptionsByRepository));
     }
 
     private async Task<PageResult> CollectPageAsync(
@@ -178,13 +187,13 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
             $"https://api.github.com/users/{Uri.EscapeDataString(login)}/repos?type=owner&sort=full_name&direction=asc&per_page={PageSize}",
             UriKind.Absolute);
 
-    private static ProfileRepository NormalizeRepository(
+    private static NormalizedRepository NormalizeRepository(
         GitHubProfileRepositoryResponse response)
     {
         string owner = RequireValue(response.Owner?.Login, "owner.login");
         string name = RequireValue(response.Name, "name");
 
-        return new ProfileRepository(
+        ProfileRepository repository = new(
             new ProfileRepositoryReference(
                 owner,
                 name,
@@ -197,7 +206,16 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
             DetermineEmptyState(response.Size, response.PushedAt),
             response.PushedAt,
             response.CreatedAt);
+
+        return new NormalizedRepository(repository, NormalizeDescription(response.Description));
     }
+
+    // The provider-returned repository Description: preserved verbatim (no
+    // grammar rewrite, translation, summarization or inference), trimmed of
+    // surrounding whitespace only. Null/whitespace is a legitimate absence,
+    // never a collection failure.
+    private static string? NormalizeDescription(string? description) =>
+        string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
     private static RepositoryConditionState FromFlag(bool? value) =>
         value switch
@@ -232,28 +250,33 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
                 ProfileRepositoriesDataKey,
                 DataAvailabilityStatus.NotRequested,
                 reason),
-            [reason]);
+            [reason],
+            RepositoryPresentationMetadata.Empty);
     }
 
     private static GitHubProfileRepositoryCollection CreateIncompleteResult(
         IEnumerable<ProfileRepository> repositories,
+        IEnumerable<KeyValuePair<ProfileRepositoryReference, string?>> descriptionsByRepository,
         DataAvailability availability) =>
         new(
             new ProfileRepositoryManifest(repositories, isComplete: false),
             availability,
             [
                 "Profile repository collection did not complete; the repository manifest is partial."
-            ]);
+            ],
+            new RepositoryPresentationMetadata(descriptionsByRepository));
 
     private GitHubProfileRepositoryCollection CreateBoundedResult(
         IEnumerable<ProfileRepository> repositories,
+        IEnumerable<KeyValuePair<ProfileRepositoryReference, string?>> descriptionsByRepository,
         DateTimeOffset retrievedAt) =>
         new(
             new ProfileRepositoryManifest(repositories, isComplete: false),
             DataAvailability.Available(ProfileRepositoriesDataKey, retrievedAt),
             [
                 $"Profile repository collection stopped at the configured bound of {maxPageCount} page(s); the repository manifest is partial."
-            ]);
+            ],
+            new RepositoryPresentationMetadata(descriptionsByRepository));
 
     private static DataAvailability CreateFailedAvailability(string reason) =>
         DataAvailability.Unavailable(
@@ -279,13 +302,20 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
             UriKind.Absolute);
 
     private sealed record PageResult(
-        IReadOnlyList<ProfileRepository>? Repositories,
+        IReadOnlyList<NormalizedRepository>? Repositories,
         Uri? NextPage,
         DataAvailability? Availability)
     {
         public static PageResult Failed(DataAvailability availability) =>
             new(Repositories: null, NextPage: null, availability);
     }
+
+    // A normalized repository paired with its provider-returned Description,
+    // kept together only long enough to populate the manifest and the
+    // parallel RepositoryPresentationMetadata lookup in lockstep.
+    private sealed record NormalizedRepository(
+        ProfileRepository Repository,
+        string? Description);
 
     private sealed record GitHubProfileRepositoryResponse(
         [property: JsonPropertyName("name")] string? Name,
@@ -298,7 +328,8 @@ public sealed class GitHubProfileRepositoryCollector : IGitHubProfileRepositoryC
         [property: JsonPropertyName("language")] string? Language,
         [property: JsonPropertyName("default_branch")] string? DefaultBranch,
         [property: JsonPropertyName("pushed_at")] DateTimeOffset? PushedAt,
-        [property: JsonPropertyName("created_at")] DateTimeOffset? CreatedAt);
+        [property: JsonPropertyName("created_at")] DateTimeOffset? CreatedAt,
+        [property: JsonPropertyName("description")] string? Description);
 
     private sealed record GitHubProfileRepositoryOwner(
         [property: JsonPropertyName("login")] string? Login);

@@ -118,7 +118,14 @@ public sealed class ProfilePipeline
         // profile (Complete or Partial); a Failed composition never gets one.
         ProfileReport report = reportProjector.Project(compositionResult.Profile!);
 
-        return ProfilePipelineResult.Composed(compositionResult, report);
+        // Identity/presentation metadata carried straight from this same run's
+        // snapshot — never through DeveloperPublicEvidenceProfile/ProfileReport,
+        // which are evidence-report truth and already exclude it.
+        return ProfilePipelineResult.Composed(
+            compositionResult,
+            report,
+            snapshot.Metadata?.AvatarUrl,
+            snapshot.RepositoryPresentationMetadata);
     }
 
     private IReadOnlyList<RepositoryEligibilityResult> EvaluateEligibility(

@@ -3,6 +3,7 @@ using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Analysis.Enums;
 using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Domain.Profile.Enums;
+using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Entry;
 using GitHubProof.Web.Localization;
@@ -57,6 +58,28 @@ public sealed class ProfileModel : PageModel
     public string GitHubTarget { get; set; } = string.Empty;
 
     public string? Identity { get; private set; }
+
+    // Canonical successful-result identity only. This is copied from the
+    // composed profile's GitHubProfileIdentity and is never reconstructed from
+    // the posted string for presentation.
+    public Uri? ProfileUrl { get; private set; }
+
+    public string? ProfileUrlDisplay { get; private set; }
+
+    // Provider-returned canonical GitHub avatar, carried unchanged from the
+    // successful pipeline result. Identity/presentation metadata only — never
+    // derived, never a username-based fallback, never part of Report.
+    public Uri? AvatarUrl { get; private set; }
+
+    // Session 111 STEP 3: provider-returned repository Description(s), carried
+    // unchanged from the successful pipeline result. Non-evidence repository
+    // presentation metadata only — never part of Report or representative
+    // selection.
+    public RepositoryPresentationMetadata RepositoryPresentationMetadata
+    {
+        get;
+        private set;
+    } = RepositoryPresentationMetadata.Empty;
 
     public bool HasComposedProfile { get; private set; }
 
@@ -167,6 +190,17 @@ public sealed class ProfileModel : PageModel
             ?? throw new InvalidOperationException(
                 "A composed profile pipeline result must always carry a "
                 + "projected report.");
+
+        var profile = pipelineResult.Profile
+            ?? throw new InvalidOperationException(
+                "A composed profile pipeline result must always carry its "
+                + "canonical profile identity.");
+
+        Identity = profile.ProfileIdentity.Login;
+        ProfileUrl = profile.ProfileIdentity.Url;
+        ProfileUrlDisplay = $"{ProfileUrl.Host}{ProfileUrl.AbsolutePath.TrimEnd('/')}";
+        AvatarUrl = pipelineResult.AvatarUrl;
+        RepositoryPresentationMetadata = pipelineResult.RepositoryPresentationMetadata;
 
         HasComposedProfile = true;
         IsPartialProfile = pipelineResult.Status == ProfileCompositionStatus.Partial;

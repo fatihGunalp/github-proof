@@ -228,6 +228,130 @@ public sealed class ProfilePipelineTests
     }
 
     [Fact]
+    public async Task RunAsync_WhenSnapshotCarriesAvatarMetadata_ExposesItOnTheComposedResult()
+    {
+        // Session 111 STEP 2: the avatar travels straight from this same run's
+        // GitHubProfileSnapshot.Metadata to ProfilePipelineResult.AvatarUrl —
+        // never through DeveloperPublicEvidenceProfile or ProfileReport, which
+        // stay evidence-report truth only.
+        Uri avatarUrl = new("https://avatars.githubusercontent.com/u/1");
+        ProfileRepository alpha = CreateRepository("alpha");
+        GitHubProfileSnapshot snapshot = CreateProfileSnapshot(
+            [alpha],
+            metadata: new GitHubProfileMetadata(
+                "The Octocat",
+                CapturedAt.AddYears(-10),
+                publicRepositoryCount: 1,
+                avatarUrl));
+
+        FakeSnapshotSource source = CreateSource(
+            ("octocat/alpha", () => CreateCollected(CreateReadmeEvidenceSnapshot("alpha"))));
+
+        ProfilePipelineResult result = await CreatePipeline(source).RunAsync(
+            snapshot,
+            TestAnalysisVersion);
+
+        Assert.Equal(avatarUrl, result.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenSnapshotCarriesNoMetadata_LeavesAvatarUrlNull()
+    {
+        ProfileRepository alpha = CreateRepository("alpha");
+        GitHubProfileSnapshot snapshot = CreateProfileSnapshot([alpha]);
+
+        FakeSnapshotSource source = CreateSource(
+            ("octocat/alpha", () => CreateCollected(CreateReadmeEvidenceSnapshot("alpha"))));
+
+        ProfilePipelineResult result = await CreatePipeline(source).RunAsync(
+            snapshot,
+            TestAnalysisVersion);
+
+        Assert.Null(result.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenSnapshotCarriesRepositoryDescriptions_ExposesThemKeyedByCanonicalReference()
+    {
+        // Session 111 STEP 3: repository Description travels straight from
+        // this same run's GitHubProfileSnapshot.RepositoryPresentationMetadata
+        // to ProfilePipelineResult.RepositoryPresentationMetadata — never
+        // through DeveloperPublicEvidenceProfile or ProfileReport.
+        ProfileRepository alpha = CreateRepository("alpha");
+        ProfileRepository beta = CreateRepository("beta");
+        RepositoryPresentationMetadata descriptions = new(
+            new Dictionary<ProfileRepositoryReference, string?>
+            {
+                [alpha.Reference] = "Alpha's short description.",
+                [beta.Reference] = null
+            });
+        GitHubProfileSnapshot snapshot = CreateProfileSnapshot(
+            [alpha, beta],
+            repositoryPresentationMetadata: descriptions);
+
+        FakeSnapshotSource source = CreateSource(
+            ("octocat/alpha", () => CreateCollected(
+                CreateLanguageEvidenceSnapshot("alpha", Language("C#")))),
+            ("octocat/beta", () => CreateCollected(
+                CreateLanguageEvidenceSnapshot("beta", Language("C#")))));
+
+        ProfilePipelineResult result = await CreatePipeline(source).RunAsync(
+            snapshot,
+            TestAnalysisVersion);
+
+        Assert.Equal(
+            "Alpha's short description.",
+            result.RepositoryPresentationMetadata.FindDescription(alpha.Reference));
+        Assert.Null(result.RepositoryPresentationMetadata.FindDescription(beta.Reference));
+    }
+
+    [Fact]
+    public async Task RunAsync_WhenSnapshotCarriesNoRepositoryPresentationMetadata_LeavesItEmptyNotFailed()
+    {
+        ProfileRepository alpha = CreateRepository("alpha");
+        GitHubProfileSnapshot snapshot = CreateProfileSnapshot([alpha]);
+
+        FakeSnapshotSource source = CreateSource(
+            ("octocat/alpha", () => CreateCollected(CreateReadmeEvidenceSnapshot("alpha"))));
+
+        ProfilePipelineResult result = await CreatePipeline(source).RunAsync(
+            snapshot,
+            TestAnalysisVersion);
+
+        Assert.Equal(ProfileCompositionStatus.Complete, result.Status);
+        Assert.Null(result.RepositoryPresentationMetadata.FindDescription(alpha.Reference));
+    }
+
+    [Fact]
+    public async Task RunAsync_RepositoryDescriptionsDoNotChangeReportRepresentativeSelectionOrOrder()
+    {
+        // 5/6/7: adding repository Description must not perturb ProfileReport,
+        // RepresentativeRepository or the representative-selection/report
+        // order in any way — it is presentation metadata, never a ranking
+        // input.
+        ProfileRepository alpha = CreateRepository("alpha");
+        ProfileRepository beta = CreateRepository("beta");
+        RepositoryPresentationMetadata descriptions = new(
+            new Dictionary<ProfileRepositoryReference, string?>
+            {
+                [alpha.Reference] = "Alpha's short description.",
+                [beta.Reference] = "Beta's short description."
+            });
+
+        ProfilePipelineResult withoutDescriptions = await CreatePipeline(TwoLanguageSource())
+            .RunAsync(CreateProfileSnapshot([alpha, beta]), TestAnalysisVersion);
+        ProfilePipelineResult withDescriptions = await CreatePipeline(TwoLanguageSource())
+            .RunAsync(
+                CreateProfileSnapshot([alpha, beta], repositoryPresentationMetadata: descriptions),
+                TestAnalysisVersion);
+
+        AssertSemanticallyEquivalent(withoutDescriptions, withDescriptions);
+        Assert.Equal(
+            withoutDescriptions.Profile!.RepresentativeRepositories.Select(r => r.Repository),
+            withDescriptions.Profile!.RepresentativeRepositories.Select(r => r.Repository));
+    }
+
+    [Fact]
     public void PipelineResult_Failed_HasNoProfileAndNoReport()
     {
         // 8: Failed composition -> no Profile, no Report at the integration

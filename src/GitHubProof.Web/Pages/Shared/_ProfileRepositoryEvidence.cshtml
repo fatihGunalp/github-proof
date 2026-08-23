@@ -21,11 +21,24 @@
 
 @if (Model.Items.Count > 0)
 {
-    <details class="profile-result__section">
+    <details class="profile-result__section profile-result__section--repository-evidence">
         <summary class="profile-result__disclosure-summary">
-            <h2 class="profile-result__section-title">
-                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-            </h2>
+            <span class="profile-result__icon-tile" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.FolderGit2)
+            </span>
+
+            <span class="profile-result__disclosure-copy">
+                <h2 class="profile-result__section-title">
+                    @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+                </h2>
+                <span class="profile-result__disclosure-description">
+                    @ProfileText.GetRepositoryEvidenceDisclosureDescription(Text.Culture)
+                </span>
+            </span>
+
+            <span class="profile-result__disclosure-chevron" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.ChevronRight)
+            </span>
         </summary>
 
         <div class="profile-result__disclosure-body">
@@ -76,14 +89,20 @@
 else
 {
     <section
-        class="profile-result__section"
+        class="profile-result__section profile-result__section--repository-evidence"
         aria-labelledby="profile-repository-evidence-title">
 
-        <h2
-            class="profile-result__section-title"
-            id="profile-repository-evidence-title">
-            @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-        </h2>
+        <div class="profile-result__card-heading">
+            <span class="profile-result__icon-tile" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.FolderGit2)
+            </span>
+
+            <h2
+                class="profile-result__section-title"
+                id="profile-repository-evidence-title">
+                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+            </h2>
+        </div>
 
         <p class="profile-result__section-empty">
             @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)

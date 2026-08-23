@@ -1,6 +1,9 @@
 using GitHubProof.Application.Profile.Report;
+using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Domain.Profile;
 using GitHubProof.Domain.Profile.Enums;
+using GitHubProof.Domain.Profile.Models;
+using GitHubProof.Domain.Profile.ValueObjects;
 using GitHubProof.Web.Localization;
 using Xunit;
 
@@ -8,13 +11,104 @@ namespace GitHubProof.Web.Tests;
 
 public sealed class ProfileWebPresentationLocalizerTests
 {
+    private const string MeaningIdentity = "fatihGunalp";
+
     private readonly ProfileWebPresentationLocalizer localizer = new();
+
+    [Fact]
+    public void Profile_identity_header_copy_is_localized_and_deterministic()
+    {
+        Assert.Equal(
+            "View of public GitHub work",
+            localizer.GetProfileIdentityContext(WebCulture.English));
+        Assert.Equal(
+            "Herkese açık GitHub çalışmalarının görünümü",
+            localizer.GetProfileIdentityContext(WebCulture.Turkish));
+        Assert.Equal(
+            "Open on GitHub",
+            localizer.GetOpenProfileOnGitHubLabel(WebCulture.English));
+        Assert.Equal(
+            "GitHub'da aç",
+            localizer.GetOpenProfileOnGitHubLabel(WebCulture.Turkish));
+        Assert.Equal(
+            "Open octocat on GitHub; opens in a new tab",
+            localizer.GetOpenProfileOnGitHubAccessibleName("octocat", WebCulture.English));
+        Assert.Equal(
+            "octocat profilini GitHub'da aç; yeni sekmede açılır",
+            localizer.GetOpenProfileOnGitHubAccessibleName("octocat", WebCulture.Turkish));
+
+        Assert.Equal(
+            localizer.GetProfileIdentityContext(WebCulture.English),
+            localizer.GetProfileIdentityContext(WebCulture.English));
+    }
+
+    [Fact]
+    public void Avatar_accessible_name_is_localized_deterministic_and_carries_the_username()
+    {
+        Assert.Equal(
+            "octocat's GitHub profile photo",
+            localizer.GetAvatarAccessibleName("octocat", WebCulture.English));
+        Assert.Equal(
+            "octocat GitHub profil fotoğrafı",
+            localizer.GetAvatarAccessibleName("octocat", WebCulture.Turkish));
+
+        Assert.Equal(
+            localizer.GetAvatarAccessibleName("octocat", WebCulture.English),
+            localizer.GetAvatarAccessibleName("octocat", WebCulture.English));
+
+        Assert.Throws<ArgumentException>(
+            () => localizer.GetAvatarAccessibleName(string.Empty, WebCulture.English));
+    }
+
+    [Fact]
+    public void Starting_point_description_fallback_is_localized_deterministic_and_neutral()
+    {
+        Assert.Equal(
+            "No short description is provided on GitHub.",
+            localizer.GetStartingPointDescriptionFallback(WebCulture.English));
+        Assert.Equal(
+            "GitHub'da kısa bir açıklama bulunmuyor.",
+            localizer.GetStartingPointDescriptionFallback(WebCulture.Turkish));
+
+        Assert.Equal(
+            localizer.GetStartingPointDescriptionFallback(WebCulture.Turkish),
+            localizer.GetStartingPointDescriptionFallback(WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Mockup_first_read_copy_is_localized_and_deterministic_without_creating_project_type_truth()
+    {
+        Assert.Equal(
+            "What kinds of work are visible?",
+            localizer.GetWorkTypeCardHeading(WebCulture.English));
+        Assert.Equal(
+            "Ne tür çalışmalar görünüyor?",
+            localizer.GetWorkTypeCardHeading(WebCulture.Turkish));
+        Assert.Equal(
+            "Recurring technologies",
+            localizer.GetRecurringTechnologiesLeadIn(WebCulture.English));
+        Assert.Equal(
+            "Tekrar eden teknolojiler",
+            localizer.GetRecurringTechnologiesLeadIn(WebCulture.Turkish));
+        Assert.Equal(
+            "Each observation is explained with the repositories that support it.",
+            localizer.GetWhyDisclosureDescription(WebCulture.English));
+        Assert.Equal(
+            "Gözlemler hangi repository'lere dayandığıyla birlikte açıklanır.",
+            localizer.GetWhyDisclosureDescription(WebCulture.Turkish));
+        Assert.Equal(
+            "The public repositories examined for this view appear here.",
+            localizer.GetRepositoryEvidenceDisclosureDescription(WebCulture.English));
+        Assert.Equal(
+            "İncelenen herkese açık repository'ler burada görülür.",
+            localizer.GetRepositoryEvidenceDisclosureDescription(WebCulture.Turkish));
+    }
 
     [Theory]
     [InlineData(ProfileReportSectionKey.TechnicalFocusAreas, "Visible technical direction", "Görünen teknik yön")]
-    [InlineData(ProfileReportSectionKey.EngineeringPracticePatterns, "Recurring engineering practices", "Tekrar eden üretim pratikleri")]
+    [InlineData(ProfileReportSectionKey.EngineeringPracticePatterns, "Working style", "Çalışma biçimi")]
     [InlineData(ProfileReportSectionKey.RepresentativeRepositories, "Starting point", "Başlangıç noktası")]
-    [InlineData(ProfileReportSectionKey.WhyThisConclusion, "Why this view", "Bu görünümü neden görüyoruz?")]
+    [InlineData(ProfileReportSectionKey.WhyThisConclusion, "What is this based on?", "Bunu neye dayanarak söylüyoruz?")]
     [InlineData(ProfileReportSectionKey.Limitations, "Limits of this view", "Bu görünümün sınırları")]
     public void Required_profile_section_labels_are_keyed_by_canonical_identity(
         ProfileReportSectionKey section,
@@ -79,151 +173,496 @@ public sealed class ProfileWebPresentationLocalizerTests
 
     // --- P10-I3 Meaning layer (presentation-language-contract.md §8.4) ---
 
-    private static ProfileSummaryFact SupportedFact(
+    [Theory]
+    [MemberData(nameof(MeaningCases))]
+    public void Meaning_is_a_human_username_led_narrative_in_both_supported_cultures(
+        string[] technicalPatterns,
+        string[] practicePatterns)
+    {
+        ProfileMeaningPresentation english = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                technicalPatterns),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                practicePatterns),
+            WebCulture.English);
+        ProfileMeaningPresentation turkish = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                technicalPatterns),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                practicePatterns),
+            WebCulture.Turkish);
+
+        Assert.StartsWith(MeaningIdentity, english.TechnicalNarrative, StringComparison.Ordinal);
+        Assert.StartsWith(MeaningIdentity, turkish.TechnicalNarrative, StringComparison.Ordinal);
+        Assert.Equal(
+            "This summary is based only on traces visible in public GitHub work under the current analysis rules.",
+            english.Provenance);
+        Assert.Equal(
+            "Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.",
+            turkish.Provenance);
+
+        foreach (string technicalPattern in technicalPatterns)
+        {
+            Assert.Contains(technicalPattern, english.TechnicalNarrative, StringComparison.Ordinal);
+            Assert.Contains(technicalPattern, turkish.TechnicalNarrative, StringComparison.Ordinal);
+        }
+
+        if (practicePatterns.Length == 0)
+        {
+            if (technicalPatterns.Length > 0)
+            {
+                Assert.Contains("more limited visible traces", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("tekrar eden belirgin bir yöntem görünmüyor", turkish.PracticeNarrative, StringComparison.Ordinal);
+            }
+            else
+            {
+                Assert.Contains("limited traces", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("sınırlı izi", turkish.PracticeNarrative, StringComparison.Ordinal);
+            }
+        }
+        else
+        {
+            Assert.Contains("appears across multiple repositories", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("birden fazla repository'de görülüyor", turkish.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Theory]
+    [InlineData(
+        ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
+        "Automated testing",
+        "Otomatik test kullanımı")]
+    [InlineData(
+        ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey,
+        "Automated integration checks",
+        "Otomatik kontrol süreçleri")]
+    [InlineData(
+        ProfilePatternPromotionPolicy.DocumentationPatternKey,
+        "Documentation",
+        "Dokümantasyon")]
+    [InlineData(
+        ProfilePatternPromotionPolicy.ReleaseUsagePatternKey,
+        "Published releases",
+        "Sürüm yayınları")]
+    [InlineData(
+        ProfilePatternPromotionPolicy.IssueUsagePatternKey,
+        "Issue tracking",
+        "Issue ile takip")]
+    [InlineData(
+        ProfilePatternPromotionPolicy.PullRequestUsagePatternKey,
+        "Pull request workflow",
+        "Pull request ile değişiklik akışı")]
+    public void Working_style_uses_concise_deterministic_EN_TR_labels_for_every_canonical_practice(
+        string patternKey,
+        string english,
+        string turkish)
+    {
+        Assert.Equal(english, localizer.GetWorkingStyleLabel(patternKey, WebCulture.English));
+        Assert.Equal(turkish, localizer.GetWorkingStyleLabel(patternKey, WebCulture.Turkish));
+        Assert.Equal(english, localizer.GetWorkingStyleLabel(patternKey, WebCulture.English));
+        Assert.Equal(turkish, localizer.GetWorkingStyleLabel(patternKey, WebCulture.Turkish));
+
+        string labels = $"{english} {turkish}".ToLowerInvariant();
+
+        foreach (string forbidden in new[]
+                 {
+                     "test ederek ilerliyor", "kodunu sürekli kontrol ediyor",
+                     "profesyonelce", "disiplinli", "senior", "expert",
+                     "skilled", "capable", "quality", "kalite"
+                 })
+        {
+            Assert.DoesNotContain(forbidden, labels, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
+    public void Working_style_rejects_an_unknown_practice_instead_of_deriving_a_label_from_display_text()
+    {
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetWorkingStyleLabel("invented-working-method", WebCulture.English));
+    }
+
+    public static IEnumerable<object[]> MeaningCases()
+    {
+        yield return
+        [
+            new[] { "C#" }, Array.Empty<string>()
+        ];
+        yield return
+        [
+            new[] { "C#", ".NET", "ASP.NET Core" }, Array.Empty<string>()
+        ];
+        yield return
+        [
+            Array.Empty<string>(), new[] { ProfilePatternPromotionPolicy.AutomatedTestingPatternKey }
+        ];
+        yield return
+        [
+            Array.Empty<string>(), new[]
+            {
+                ProfilePatternPromotionPolicy.DocumentationPatternKey,
+                ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey
+            }
+        ];
+        yield return
+        [
+            new[] { "C#", ".NET" }, new[] { ProfilePatternPromotionPolicy.DocumentationPatternKey }
+        ];
+        yield return
+        [
+            Array.Empty<string>(), Array.Empty<string>()
+        ];
+    }
+
+    [Theory]
+    [MemberData(nameof(LiveReviewMeaningCases))]
+    public void Live_review_examples_generate_the_bounded_TR_Meaning(
+        string identity,
+        string[] technicalPatterns,
+        string[] practicePatterns,
+        string expectedTechnicalNarrative,
+        string expectedPracticeNarrative)
+    {
+        ProfileMeaningPresentation meaning = localizer.GetMeaningPresentation(
+            identity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                technicalPatterns),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                practicePatterns),
+            WebCulture.Turkish);
+
+        Assert.Equal(expectedTechnicalNarrative, meaning.TechnicalNarrative);
+        Assert.Equal(expectedPracticeNarrative, meaning.PracticeNarrative);
+        Assert.Equal(
+            "Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.",
+            meaning.Provenance);
+    }
+
+    public static IEnumerable<object[]> LiveReviewMeaningCases()
+    {
+        yield return
+        [
+            "fatihGunalp",
+            new[] { "C#" },
+            Array.Empty<string>(),
+            "fatihGunalp GitHub çalışmalarında C# farklı repository'lerde tekrar karşımıza çıkıyor. Bu nedenle C# profil boyunca görünür olan tekrar eden teknik çalışma alanı.",
+            "Çalışma biçiminde ise repository'ler arasında aynı şekilde tekrar eden belirgin bir yöntem görünmüyor. Yani bu GitHub teknik yön konusunda daha fazla şey gösterirken, çalışmaların nasıl yürütüldüğü konusunda daha sınırlı iz sunuyor."
+        ];
+        yield return
+        [
+            "yusuftalhaklc",
+            new[] { "C#", "Go", "HTML", "Java", "Kotlin", "Python" },
+            new[]
+            {
+                ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
+                ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey,
+                ProfilePatternPromotionPolicy.DocumentationPatternKey
+            },
+            "yusuftalhaklc GitHub çalışmalarında C#, Go, HTML, Java, Kotlin ve Python farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
+            "Çalışma biçiminde de bazı ortak yöntemler tekrar ediyor. Otomatik test kullanımı, otomatik kontrol süreçleri ve dokümantasyon birden fazla repository'de görülüyor. Yani bu GitHub yalnızca hangi teknolojilerle çalışıldığını değil; çalışmaların nasıl yürütüldüğüne ilişkin yöntemlerin de farklı çalışmalarda tekrarlandığını gösteriyor."
+        ];
+        yield return
+        [
+            "irmakcosar",
+            new[] { "C#", "HTML" },
+            Array.Empty<string>(),
+            "irmakcosar GitHub çalışmalarında C# ve HTML farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
+            "Çalışma biçiminde ise repository'ler arasında aynı şekilde tekrar eden belirgin bir yöntem görünmüyor. Yani bu GitHub teknik yön konusunda daha fazla şey gösterirken, çalışmaların nasıl yürütüldüğü konusunda daha sınırlı iz sunuyor."
+        ];
+    }
+
+    [Fact]
+    public void Meaning_preserves_all_canonical_item_labels_in_report_order_without_a_cap()
+    {
+        string[] practices =
+        [
+            ProfilePatternPromotionPolicy.PullRequestUsagePatternKey,
+            ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
+            ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey,
+            ProfilePatternPromotionPolicy.DocumentationPatternKey,
+            ProfilePatternPromotionPolicy.ReleaseUsagePatternKey,
+            ProfilePatternPromotionPolicy.IssueUsagePatternKey
+        ];
+
+        ProfileMeaningPresentation meaning = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                ["C#", ".NET", "ASP.NET Core", "F#"]),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                practices),
+            WebCulture.English);
+
+        Assert.Equal(
+            "fatihGunalp's GitHub work shows C#, .NET, ASP.NET Core, and F# recurring across different repositories. The profile shows technical work spanning more than one technology.",
+            meaning.TechnicalNarrative);
+
+        string[] labels =
+        [
+            "Pull request workflow",
+            "automated testing",
+            "automated integration checks",
+            "documentation",
+            "published releases",
+            "issue tracking"
+        ];
+
+        int previous = -1;
+        foreach (string label in labels)
+        {
+            int current = meaning.PracticeNarrative.IndexOf(label, StringComparison.Ordinal);
+            Assert.True(current > previous, $"Expected '{label}' in canonical practice order.");
+            previous = current;
+        }
+
+        Assert.DoesNotContain("tests that check", meaning.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("in other words", meaning.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(2, meaning.TechnicalNarrative.Split(". ", StringSplitOptions.None).Length);
+        Assert.Equal(3, meaning.PracticeNarrative.Split(". ", StringSplitOptions.None).Length);
+        Assert.True(meaning.TechnicalNarrative.Length < 300);
+        Assert.True(meaning.PracticeNarrative.Length < 700);
+    }
+
+    [Fact]
+    public void Meaning_uses_only_the_two_typed_pattern_sections_and_is_byte_identical_for_the_same_input()
+    {
+        ProfileReportSection<PatternReportItem> technical = MeaningSection(
+            ProfileReportSectionKey.TechnicalFocusAreas,
+            ProfilePatternFamily.TechnicalFocus,
+            ["C#"]);
+        ProfileReportSection<PatternReportItem> practices = MeaningSection(
+            ProfileReportSectionKey.EngineeringPracticePatterns,
+            ProfilePatternFamily.EngineeringPractice,
+            Array.Empty<string>());
+
+        ProfileMeaningPresentation first = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            technical,
+            practices,
+            WebCulture.English);
+        ProfileMeaningPresentation second = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            technical,
+            practices,
+            WebCulture.English);
+
+        Assert.Equal(first.TechnicalNarrative, second.TechnicalNarrative);
+        Assert.Equal(first.PracticeNarrative, second.PracticeNarrative);
+        Assert.Equal(first.Provenance, second.Provenance);
+
+        var method = typeof(ProfileWebPresentationLocalizer).GetMethod(
+            nameof(ProfileWebPresentationLocalizer.GetMeaningPresentation));
+        Assert.NotNull(method);
+        Assert.Collection(
+            method!.GetParameters(),
+            parameter => Assert.Equal(typeof(string), parameter.ParameterType),
+            parameter => Assert.Equal(typeof(ProfileReportSection<PatternReportItem>), parameter.ParameterType),
+            parameter => Assert.Equal(typeof(ProfileReportSection<PatternReportItem>), parameter.ParameterType),
+            parameter => Assert.Equal(typeof(string), parameter.ParameterType));
+    }
+
+    [Fact]
+    public void Meaning_leads_with_the_accepted_username_and_describes_evidence_not_developer_judgment()
+    {
+        ProfileMeaningPresentation meaning = localizer.GetMeaningPresentation(
+            "mrtkhrmn3",
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                ["C#", "Java", "TypeScript"]),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                [
+                    ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
+                    ProfilePatternPromotionPolicy.PullRequestUsagePatternKey
+                ]),
+            WebCulture.Turkish);
+
+        Assert.Equal(
+            "mrtkhrmn3 GitHub çalışmalarında C#, Java ve TypeScript farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
+            meaning.TechnicalNarrative);
+        Assert.Contains("Otomatik test kullanımı", meaning.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains("pull request ile değişiklik akışı", meaning.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains("yöntemlerin de farklı çalışmalarda tekrarlandığını", meaning.PracticeNarrative, StringComparison.Ordinal);
+
+        Assert.StartsWith("mrtkhrmn3", meaning.TechnicalNarrative, StringComparison.Ordinal);
+
+        string rendered = string.Join(
+            " ",
+            [meaning.TechnicalNarrative, meaning.PracticeNarrative, meaning.Provenance])
+            .ToLowerInvariant();
+        string[] prohibited =
+        [
+            "senior", "junior", "expert", "skilled", "capability",
+            "confidence", "score", "quality", "backend developer",
+            "full-stack developer", "%"
+        ];
+
+        foreach (string term in prohibited)
+        {
+            Assert.DoesNotContain(term, rendered, StringComparison.Ordinal);
+        }
+    }
+
+    [Theory]
+    [InlineData(ProfilePatternPromotionPolicy.AutomatedTestingPatternKey, "Automated testing", "Otomatik test kullanımı")]
+    [InlineData(ProfilePatternPromotionPolicy.PullRequestUsagePatternKey, "Pull request workflow", "Pull request ile değişiklik akışı")]
+    [InlineData(ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey, "Automated integration checks", "Otomatik kontrol süreçleri")]
+    [InlineData(ProfilePatternPromotionPolicy.DocumentationPatternKey, "Documentation", "Dokümantasyon")]
+    [InlineData(ProfilePatternPromotionPolicy.ReleaseUsagePatternKey, "Published releases", "Sürüm yayınları")]
+    [InlineData(ProfilePatternPromotionPolicy.IssueUsagePatternKey, "Issue tracking", "Issue ile takip")]
+    public void Meaning_represents_each_canonical_practice_without_glossary_expansion(
+        string practicePattern,
+        string expectedEnglishLabel,
+        string expectedTurkishLabel)
+    {
+        ProfileMeaningPresentation english = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                Array.Empty<string>()),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                [practicePattern]),
+            WebCulture.English);
+        ProfileMeaningPresentation turkish = localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.TechnicalFocus,
+                Array.Empty<string>()),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                [practicePattern]),
+            WebCulture.Turkish);
+
+        Assert.Contains(expectedEnglishLabel, english.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains("across multiple repositories", english.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains(expectedTurkishLabel, turkish.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains("birden fazla repository'de", turkish.PracticeNarrative, StringComparison.Ordinal);
+
+        string combined = english.PracticeNarrative + turkish.PracticeNarrative;
+        Assert.DoesNotContain("tests that check whether code behaves", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("kodun beklenen şekilde davranıp davranmadığını", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("in other words", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("yani projeyi açıklayan", combined, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Meaning_fails_loudly_for_a_noncanonical_section_or_pattern_family()
+    {
+        Assert.Throws<InvalidOperationException>(() => localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.RepresentativeRepositories,
+                ProfilePatternFamily.TechnicalFocus,
+                Array.Empty<string>()),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                Array.Empty<string>()),
+            WebCulture.English));
+
+        Assert.Throws<InvalidOperationException>(() => localizer.GetMeaningPresentation(
+            MeaningIdentity,
+            MeaningSection(
+                ProfileReportSectionKey.TechnicalFocusAreas,
+                ProfilePatternFamily.EngineeringPractice,
+                [ProfilePatternPromotionPolicy.DocumentationPatternKey]),
+            MeaningSection(
+                ProfileReportSectionKey.EngineeringPracticePatterns,
+                ProfilePatternFamily.EngineeringPractice,
+                Array.Empty<string>()),
+            WebCulture.English));
+    }
+
+    [Fact]
+    public void Profile_report_projector_remains_locale_neutral_for_Meaning()
+    {
+        var project = typeof(ProfileReportProjector).GetMethod(
+            nameof(ProfileReportProjector.Project));
+
+        Assert.NotNull(project);
+        Assert.Collection(
+            project!.GetParameters(),
+            parameter => Assert.Equal("DeveloperPublicEvidenceProfile", parameter.ParameterType.Name));
+    }
+
+    private static ProfileReportSection<PatternReportItem> MeaningSection(
         ProfileReportSectionKey section,
-        int itemCount) =>
-        new(section, ProfileReportSectionAvailability.Supported, itemCount);
+        ProfilePatternFamily family,
+        IEnumerable<string> patternKeys) =>
+        new(
+            section,
+            ProfileReportSectionAvailability.Supported,
+            patternKeys.Select(key => new PatternReportItem(CreatePattern(family, key), null)));
 
-    private static IReadOnlyList<ProfileSummaryFact> MeaningFacts(
-        int technicalFocusItemCount,
-        int engineeringPracticeItemCount) =>
-        [
-            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, technicalFocusItemCount),
-            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, engineeringPracticeItemCount)
-        ];
-
-    [Fact]
-    public void Meaning_M1_technical_direction_and_engineering_practice_present()
+    private static RepeatedProfilePattern CreatePattern(
+        ProfilePatternFamily family,
+        string patternKey)
     {
-        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
-            technicalFocusItemCount: 1,
-            engineeringPracticeItemCount: 1);
+        string observationKey = $"meaning-{family}-{patternKey}";
+        ProfileRepositoryReference alpha = CreateRepository("alpha");
+        ProfileRepositoryReference beta = CreateRepository("beta");
+        ObservedProfileEvidence observation = new(
+            observationKey,
+            ObservedProfileEvidenceKind.RepositorySignalEvidence,
+            [
+                new ProfileEvidenceReference(alpha, CreateAnalysisReference(alpha), observationKey, [observationKey]),
+                new ProfileEvidenceReference(beta, CreateAnalysisReference(beta), observationKey, [observationKey])
+            ],
+            independentSupportingRepositoryCount: 2,
+            eligibleRepositoryCount: 2,
+            undeterminedEvidenceRepositoryCount: 0,
+            new ObservationRuleVersion("meaning-observation-rules"));
 
-        Assert.Equal(
-            "The visible public evidence shows recurring technical direction and recurring engineering practices.",
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-        Assert.Equal(
-            "Görünen herkese açık kanıtlar, tekrar eden teknik yön ve tekrar eden üretim pratikleri gösteriyor.",
-            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
+        return new RepeatedProfilePattern(
+            family,
+            patternKey,
+            [observation],
+            [alpha, beta],
+            new PatternRuleVersion("meaning-pattern-rules"));
     }
 
-    [Fact]
-    public void Meaning_M2_technical_direction_present_engineering_practice_empty()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
-            technicalFocusItemCount: 1,
-            engineeringPracticeItemCount: 0);
+    private static ProfileRepositoryReference CreateRepository(string name) =>
+        new("meaning", name, new Uri($"https://github.com/meaning/{name}"));
 
-        Assert.Equal(
-            "The visible public evidence shows recurring technical direction.",
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-        Assert.Equal(
-            "Görünen herkese açık kanıtlar, tekrar eden teknik yön gösteriyor.",
-            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
-    }
-
-    [Fact]
-    public void Meaning_M3_technical_direction_empty_engineering_practice_present()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
-            technicalFocusItemCount: 0,
-            engineeringPracticeItemCount: 1);
-
-        Assert.Equal(
-            "The visible public evidence shows recurring engineering practices.",
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-        Assert.Equal(
-            "Görünen herkese açık kanıtlar, tekrar eden üretim pratikleri gösteriyor.",
-            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
-    }
-
-    [Fact]
-    public void Meaning_M4_technical_direction_and_engineering_practice_empty()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts = MeaningFacts(
-            technicalFocusItemCount: 0,
-            engineeringPracticeItemCount: 0);
-
-        Assert.Equal(
-            "The current analysis did not establish a recurring technical direction or engineering-practice pattern from the visible public evidence.",
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-        Assert.Equal(
-            "Mevcut analiz, görünen herkese açık kanıtlardan tekrar eden bir teknik yön veya üretim pratiği ortaya koymadı.",
-            localizer.GetMeaningSummary(facts, WebCulture.Turkish));
-    }
-
-    [Fact]
-    public void Meaning_ignores_every_fact_other_than_the_two_locked_dimensions()
-    {
-        // RepresentativeRepositories, WhyThisConclusion, Limitations,
-        // RepositoryDrillDown, ProblemAreaPatterns and RoleEvidenceAlignment
-        // facts must not influence the Meaning synthesis at all.
-        IReadOnlyList<ProfileSummaryFact> facts =
-        [
-            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 1),
-            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 0),
-            SupportedFact(ProfileReportSectionKey.RepresentativeRepositories, 5),
-            SupportedFact(ProfileReportSectionKey.WhyThisConclusion, 5),
-            SupportedFact(ProfileReportSectionKey.Limitations, 2),
-            SupportedFact(ProfileReportSectionKey.RepositoryDrillDown, 5),
-            new(ProfileReportSectionKey.ProblemAreaPatterns, ProfileReportSectionAvailability.Unsupported, 0),
-            new(ProfileReportSectionKey.RoleEvidenceAlignment, ProfileReportSectionAvailability.Deferred, 0)
-        ];
-
-        Assert.Equal(
-            "The visible public evidence shows recurring technical direction.",
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-    }
-
-    [Fact]
-    public void Meaning_never_renders_ItemCount_regardless_of_its_magnitude()
-    {
-        IReadOnlyList<ProfileSummaryFact> oneItem = MeaningFacts(1, 1);
-        IReadOnlyList<ProfileSummaryFact> manyItems = MeaningFacts(47, 312);
-
-        Assert.Equal(
-            localizer.GetMeaningSummary(oneItem, WebCulture.English),
-            localizer.GetMeaningSummary(manyItems, WebCulture.English));
-    }
-
-    [Fact]
-    public void Meaning_fails_loudly_when_an_expected_fact_is_missing()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts =
-        [
-            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
-        ];
-
-        Assert.Throws<InvalidOperationException>(() =>
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-    }
-
-    [Fact]
-    public void Meaning_fails_loudly_when_an_expected_fact_is_duplicated()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts =
-        [
-            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 1),
-            SupportedFact(ProfileReportSectionKey.TechnicalFocusAreas, 0),
-            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
-        ];
-
-        Assert.Throws<InvalidOperationException>(() =>
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-    }
-
-    [Fact]
-    public void Meaning_fails_loudly_when_an_expected_fact_is_not_Supported()
-    {
-        IReadOnlyList<ProfileSummaryFact> facts =
-        [
-            new(ProfileReportSectionKey.TechnicalFocusAreas, ProfileReportSectionAvailability.Unsupported, 0),
-            SupportedFact(ProfileReportSectionKey.EngineeringPracticePatterns, 1)
-        ];
-
-        Assert.Throws<InvalidOperationException>(() =>
-            localizer.GetMeaningSummary(facts, WebCulture.English));
-    }
+    private static RepositoryAnalysisReference CreateAnalysisReference(
+        ProfileRepositoryReference repository) =>
+        new(
+            Guid.NewGuid(),
+            new RepositoryIdentity(
+                repository.Owner,
+                repository.Name,
+                repository.Url,
+                "main",
+                isPublic: true,
+                isArchived: false,
+                isFork: false,
+                isTemplate: false,
+                primaryLanguage: "C#"),
+            new AnalysisVersion("meaning-tests", "meaning-tests", 1));
 
     [Theory]
     [InlineData(
@@ -232,8 +671,8 @@ public sealed class ProfileWebPresentationLocalizerTests
         "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı.")]
     [InlineData(
         ProfileReportSectionKey.EngineeringPracticePatterns,
-        "The visible public evidence did not establish recurring engineering practices under the current analysis rules.",
-        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden üretim pratikleri ortaya koymadı.")]
+        "No recurring working method is visible across the current public work.",
+        "Farklı çalışmalarda tekrar eden belirgin bir yöntem görünmüyor.")]
     [InlineData(
         ProfileReportSectionKey.RepresentativeRepositories,
         "No starting-point repository was selected from the current visible public evidence.",
@@ -285,8 +724,8 @@ public sealed class ProfileWebPresentationLocalizerTests
     [Theory]
     [InlineData(
         ProfileReportSectionKey.WhyThisConclusion,
-        "The visible public evidence did not establish a repeated pattern to explain under the current analysis rules.",
-        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında açıklanacak tekrar eden bir örüntü ortaya koymadı.")]
+        "The public GitHub work did not provide a recurring conclusion to explain.",
+        "Herkese açık GitHub çalışmaları, açıklanacak tekrar eden bir sonuç ortaya koymadı.")]
     [InlineData(
         ProfileReportSectionKey.RepositoryDrillDown,
         "The visible public evidence contains no public repository to inspect.",
@@ -337,11 +776,66 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Why_supporting_repositories_lead_in_is_locked_EN_TR()
     {
         Assert.Equal(
-            "Observed across these public repositories",
+            "Supporting repositories",
             localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.English));
         Assert.Equal(
-            "Şu herkese açık repository'lerde gözlemlendi",
+            "Destekleyen repository'ler",
             localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.Turkish));
+    }
+
+    [Theory]
+    [InlineData(
+        ProfilePatternFamily.TechnicalFocus,
+        "C#",
+        "Why is C# here?",
+        "C# neden burada?",
+        "recurring technical directions",
+        "tekrar eden teknik yönlerinden biri")]
+    [InlineData(
+        ProfilePatternFamily.EngineeringPractice,
+        ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
+        "Why is Automated testing here?",
+        "Otomatik test kullanımı neden burada?",
+        "recurring ways of working",
+        "çalışma biçiminde tekrar eden yöntemlerden biri")]
+    public void Why_translates_canonical_trace_into_a_visitor_question_and_bounded_reason(
+        ProfilePatternFamily family,
+        string patternKey,
+        string englishQuestion,
+        string turkishQuestion,
+        string englishReason,
+        string turkishReason)
+    {
+        Assert.Equal(
+            englishQuestion,
+            localizer.GetWhyEntryQuestion(family, patternKey, WebCulture.English));
+        Assert.Equal(
+            turkishQuestion,
+            localizer.GetWhyEntryQuestion(family, patternKey, WebCulture.Turkish));
+        Assert.Contains(
+            englishReason,
+            localizer.GetWhyExplanation(family, patternKey, WebCulture.English),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            turkishReason,
+            localizer.GetWhyExplanation(family, patternKey, WebCulture.Turkish),
+            StringComparison.Ordinal);
+
+        string rendered = string.Join(
+            " ",
+            localizer.GetWhyEntryQuestion(family, patternKey, WebCulture.English),
+            localizer.GetWhyEntryQuestion(family, patternKey, WebCulture.Turkish),
+            localizer.GetWhyExplanation(family, patternKey, WebCulture.English),
+            localizer.GetWhyExplanation(family, patternKey, WebCulture.Turkish));
+
+        foreach (string internalTerm in new[]
+                 {
+                     "signal", "promoted pattern", "evidence key", "supported",
+                     "pattern identity", "projection"
+                 })
+        {
+            Assert.DoesNotContain(internalTerm, rendered, StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     [Fact]
@@ -396,7 +890,7 @@ public sealed class ProfileWebPresentationLocalizerTests
             "Contributed evidence to this view",
             localizer.GetRepositoryStatusLabel(RepositoryEligibilityStatus.Contributing, culture));
         Assert.Equal(
-            "Observed across these public repositories",
+            "Supporting repositories",
             localizer.GetWhySupportingRepositoriesLeadIn(culture));
         Assert.Equal(
             "Selecting a repository runs a fresh Repository Proof analysis.",

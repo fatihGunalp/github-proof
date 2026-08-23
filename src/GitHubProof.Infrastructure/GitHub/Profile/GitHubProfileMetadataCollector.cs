@@ -118,7 +118,8 @@ public sealed class GitHubProfileMetadataCollector : IGitHubProfileMetadataColle
         GitHubProfileMetadata metadata = new(
             response.Name,
             RequireResponseTimestamp(response.CreatedAt, "created_at"),
-            RequireResponseCount(response.PublicRepositoryCount, "public_repos"));
+            RequireResponseCount(response.PublicRepositoryCount, "public_repos"),
+            RequireResponseAbsoluteUri(response.AvatarUrl, "avatar_url"));
 
         return new GitHubProfileMetadataCollection(
             identity,
@@ -180,6 +181,20 @@ public sealed class GitHubProfileMetadataCollector : IGitHubProfileMetadataColle
         return value.Value;
     }
 
+    private static Uri RequireResponseAbsoluteUri(string? value, string name)
+    {
+        string raw = RequireResponseValue(value, name);
+
+        if (!Uri.TryCreate(raw, UriKind.Absolute, out Uri? uri))
+        {
+            throw new ArgumentException(
+                $"GitHub response field '{name}' must be an absolute URI.",
+                name);
+        }
+
+        return uri;
+    }
+
     private static Uri CreateCanonicalProfileUri(string login) =>
         new(
             $"https://github.com/{Uri.EscapeDataString(login)}",
@@ -190,5 +205,6 @@ public sealed class GitHubProfileMetadataCollector : IGitHubProfileMetadataColle
         [property: JsonPropertyName("type")] string? Type,
         [property: JsonPropertyName("name")] string? Name,
         [property: JsonPropertyName("created_at")] DateTimeOffset? CreatedAt,
-        [property: JsonPropertyName("public_repos")] int? PublicRepositoryCount);
+        [property: JsonPropertyName("public_repos")] int? PublicRepositoryCount,
+        [property: JsonPropertyName("avatar_url")] string? AvatarUrl);
 }

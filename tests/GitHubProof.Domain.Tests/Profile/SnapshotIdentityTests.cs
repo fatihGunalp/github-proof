@@ -119,6 +119,31 @@ public sealed class SnapshotIdentityTests
     }
 
     [Fact]
+    public void RepositoryPresentationMetadata_DoesNotParticipateInSnapshotIdentity()
+    {
+        // Session 111 STEP 3: repository Description is presentation metadata,
+        // never evidence, so a Description-only difference must never change
+        // the deterministic snapshot identity.
+        ProfileRepository alpha = Repository("alpha");
+
+        GitHubProfileSnapshot withoutDescription = Snapshot(
+            CapturedAt,
+            repositories: [alpha]);
+        GitHubProfileSnapshot withDescription = Snapshot(
+            CapturedAt,
+            repositories: [alpha],
+            repositoryPresentationMetadata: new RepositoryPresentationMetadata(
+                new Dictionary<ProfileRepositoryReference, string?>
+                {
+                    [alpha.Reference] = "A short description."
+                }));
+
+        Assert.Equal(
+            withoutDescription.CreateReference().SnapshotIdentity,
+            withDescription.CreateReference().SnapshotIdentity);
+    }
+
+    [Fact]
     public void Identity_ChangesWhenRepositoryEvidenceChanges()
     {
         GitHubProfileSnapshot one = Snapshot(
@@ -249,7 +274,13 @@ public sealed class SnapshotIdentityTests
         // Convenience projections over members already written.
         (type == typeof(ProfileRepositoryReference) && property.Name == "FullName")
         || (type == typeof(GitHubProfileSnapshot) && property.Name == "Availability")
-        || (type == typeof(GitHubProfileSnapshot) && property.Name == "CollectionWarnings");
+        || (type == typeof(GitHubProfileSnapshot) && property.Name == "CollectionWarnings")
+        // Session 111 STEP 3: non-evidence repository presentation metadata
+        // (Description). It carries no evidence/eligibility/determinism
+        // meaning, so it deliberately never participates in the semantic
+        // snapshot identity.
+        || (type == typeof(GitHubProfileSnapshot)
+            && property.Name == "RepositoryPresentationMetadata");
 
     private static string ReadSource(Type type)
     {
@@ -297,15 +328,18 @@ public sealed class SnapshotIdentityTests
         DateTimeOffset capturedAt,
         IReadOnlyList<ProfileRepository>? repositories = null,
         IReadOnlyList<DataAvailability>? availability = null,
-        IReadOnlyList<string>? collectionWarnings = null) =>
+        IReadOnlyList<string>? collectionWarnings = null,
+        RepositoryPresentationMetadata? repositoryPresentationMetadata = null) =>
         new(
             new GitHubProfileIdentity("octocat", new Uri("https://github.com/octocat")),
             capturedAt,
             new GitHubProfileMetadata(
                 "The Octocat",
                 new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
-                publicRepositoryCount: 2),
+                publicRepositoryCount: 2,
+                avatarUrl: new Uri("https://avatars.githubusercontent.com/u/1")),
             new ProfileRepositoryManifest(repositories ?? [Repository("alpha")]),
             availability,
-            collectionWarnings);
+            collectionWarnings,
+            repositoryPresentationMetadata);
 }

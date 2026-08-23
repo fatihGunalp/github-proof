@@ -87,7 +87,8 @@ public sealed class GitHubProfileSnapshotOrchestrator : IGitHubProfileSnapshotCo
             metadata.Metadata,
             repositories.Repositories,
             [metadata.Availability, repositories.Availability],
-            CollectWarnings(metadata.Metadata, repositories));
+            CollectWarnings(metadata.Metadata, repositories),
+            repositories.RepositoryPresentationMetadata);
 
         return new GitHubProfileSnapshotResult(snapshot, metadata.Availability);
     }

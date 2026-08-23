@@ -62,16 +62,19 @@ internal static class ProfileAnalysisTestSupport
 
     public static GitHubProfileSnapshot CreateProfileSnapshot(
         IEnumerable<ProfileRepository> repositories,
-        bool isComplete = true) =>
+        bool isComplete = true,
+        GitHubProfileMetadata? metadata = null,
+        RepositoryPresentationMetadata? repositoryPresentationMetadata = null) =>
         new(
             new GitHubProfileIdentity(
                 "octocat",
                 new Uri("https://github.com/octocat")),
             CapturedAt,
-            metadata: null,
+            metadata,
             new ProfileRepositoryManifest(repositories, isComplete: isComplete),
             [DataAvailability.Available("profile-metadata", CapturedAt)],
-            collectionWarnings: null);
+            collectionWarnings: null,
+            repositoryPresentationMetadata);
 
     public static RepositorySnapshot CreateRepositorySnapshot(
         string name,

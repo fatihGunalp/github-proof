@@ -1,13 +1,13 @@
 @model ProfileReportSection<ConclusionEvidenceReportItem>
 
 @*
-    P10-I4 Why layer. Items are exactly the same promoted patterns already
-    rendered by TechnicalFocusAreas/EngineeringPracticePatterns; this adds
-    only their supporting public repository identities beneath them — the
-    evidence trace, never a new claim (presentation-language-contract.md
-    §8.6.3). No count, no rule/observation version, no observation key, no
-    analysis identifier, no SupportingEvidence/EvidenceKey/EvidenceKeys, no
-    score/ranking/capability language (§8.6.3/§8.6.4).
+    P10-I4 Why layer. Items are exactly the same canonical conclusions already
+    rendered by TechnicalFocusAreas/EngineeringPracticePatterns. Web translates
+    each existing trace into a visitor question, a bounded reason and the same
+    supporting public repository identities — never a new claim
+    (presentation-language-contract.md §8.6.3). No count, rule/observation
+    version, observation key, analysis identifier, SupportingEvidence/
+    EvidenceKey/EvidenceKeys, score/ranking/capability language.
 *@
 @{
     if (Model.SectionKey != ProfileReportSectionKey.WhyThisConclusion
@@ -21,11 +21,24 @@
 
 @if (Model.Items.Count > 0)
 {
-    <details class="profile-result__section">
+    <details class="profile-result__section profile-result__section--why">
         <summary class="profile-result__disclosure-summary">
-            <h2 class="profile-result__section-title">
-                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-            </h2>
+            <span class="profile-result__icon-tile" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.Search)
+            </span>
+
+            <span class="profile-result__disclosure-copy">
+                <h2 class="profile-result__section-title">
+                    @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+                </h2>
+                <span class="profile-result__disclosure-description">
+                    @ProfileText.GetWhyDisclosureDescription(Text.Culture)
+                </span>
+            </span>
+
+            <span class="profile-result__disclosure-chevron" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.ChevronRight)
+            </span>
         </summary>
 
         <div class="profile-result__disclosure-body">
@@ -33,11 +46,18 @@
             {
                 <div class="profile-result__why-entry">
                     <h3 class="profile-result__why-entry-title">
-                        @ProfileText.GetPatternLabel(
+                        @ProfileText.GetWhyEntryQuestion(
                             item.Pattern.Family,
                             item.Pattern.PatternKey,
                             Text.Culture)
                     </h3>
+
+                    <p class="profile-result__why-explanation">
+                        @ProfileText.GetWhyExplanation(
+                            item.Pattern.Family,
+                            item.Pattern.PatternKey,
+                            Text.Culture)
+                    </p>
 
                     <p class="profile-result__lead-in">
                         @ProfileText.GetWhySupportingRepositoriesLeadIn(Text.Culture)
@@ -59,14 +79,20 @@
 else
 {
     <section
-        class="profile-result__section"
+        class="profile-result__section profile-result__section--why"
         aria-labelledby="profile-why-title">
 
-        <h2
-            class="profile-result__section-title"
-            id="profile-why-title">
-            @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-        </h2>
+        <div class="profile-result__card-heading">
+            <span class="profile-result__icon-tile" aria-hidden="true">
+                @await Html.PartialAsync("_UiIcon", UiIcon.Search)
+            </span>
+
+            <h2
+                class="profile-result__section-title"
+                id="profile-why-title">
+                @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
+            </h2>
+        </div>
 
         <p class="profile-result__section-empty">
             @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)

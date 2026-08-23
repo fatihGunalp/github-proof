@@ -11,7 +11,8 @@ public sealed record GitHubProfileSnapshot : ISnapshotSemanticComponent
         GitHubProfileMetadata? metadata,
         ProfileRepositoryManifest? repositories,
         IEnumerable<DataAvailability>? availability,
-        IEnumerable<string>? collectionWarnings)
+        IEnumerable<string>? collectionWarnings,
+        RepositoryPresentationMetadata? repositoryPresentationMetadata = null)
     {
         Identity = identity
             ?? throw new ArgumentNullException(nameof(identity));
@@ -20,6 +21,8 @@ public sealed record GitHubProfileSnapshot : ISnapshotSemanticComponent
         Repositories = repositories ?? ProfileRepositoryManifest.Empty;
         Availability = NormalizeAvailability(availability);
         CollectionWarnings = NormalizeWarnings(collectionWarnings);
+        RepositoryPresentationMetadata = repositoryPresentationMetadata
+            ?? RepositoryPresentationMetadata.Empty;
     }
 
     public GitHubProfileIdentity Identity { get; }
@@ -33,6 +36,13 @@ public sealed record GitHubProfileSnapshot : ISnapshotSemanticComponent
     public IReadOnlyList<DataAvailability> Availability { get; }
 
     public IReadOnlyList<string> CollectionWarnings { get; }
+
+    // Session 111 STEP 3: non-evidence repository presentation metadata
+    // (currently Description only), looked up by canonical
+    // ProfileRepositoryReference. Deliberately excluded from
+    // WriteSemanticContent below — see SnapshotIdentityTests' IsDerived
+    // allow-list.
+    public RepositoryPresentationMetadata RepositoryPresentationMetadata { get; }
 
     public DataAvailability? FindAvailability(string dataKey)
     {

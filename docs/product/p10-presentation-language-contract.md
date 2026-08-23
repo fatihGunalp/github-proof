@@ -83,6 +83,122 @@ they are, including `WhyThisConclusion` ("Why this view" / "Bu görünümü nede
 görüyoruz?") and `RepositoryDrillDown` ("Repository evidence" / "Repository
 kanıtı").
 
+**Amended:** 2026-08-23 / Session 111 — §8.4 is fully superseded. The former
+lossy two-presence-bit / four-variant Meaning copy did not answer the product
+question with the actual canonical Profile truth. Meaning now deterministically
+summarizes only the existing ordered items of `TechnicalFocusAreas` and
+`EngineeringPracticePatterns` in a bounded Web-owned presentation object.
+This adds no analysis, evidence, selection, score, ranking or inference
+semantics. `RepresentativeRepositories`, Why, Repository evidence, warnings
+and limitations remain excluded; `ProfileReportProjector` remains
+locale-neutral. §8.5's detail-section empty copy and §11's reading sequence
+are unchanged.
+
+**Amended:** 2026-08-23 / Session 111 narrative refinement — §8.4's
+item-aware copy is refined for HR/recruiter first-read readability. Meaning is
+now a username-led, fluent deterministic relationship narrative rather than
+two adjacent category sentences. It still consumes only the accepted Profile
+identity plus the same two ordered pattern sections; no evidence or developer
+semantics are added. The four allowed technical/practice relationship states,
+their evidence-visibility language and their exact EN/TR templates are now
+locked in §8.4.
+
+**Amended:** 2026-08-23 / Session 111 human-narrative refinement — §8.4 is
+refined again after live review: Meaning is explicitly a human explanation of
+visible GitHub traces for both non-technical and technical readers. The active
+shape is observation → plain-language practice explanation → cross-repository
+repetition → evidence-bounded working-method synthesis. Every current
+EngineeringPractice identity has a deterministic typed presentation mapping;
+no person-level role, seniority, capability or quality semantics are added.
+
+**Amended:** 2026-08-23 / Session 111 width + Starting Point usability
+refinement — the prior P10-I4 text-only Starting Point rule is superseded.
+Starting Point remains secondary to Meaning and preserves the canonical first-
+read position, but every canonical representative repository now renders its
+identity and a compact existing Repository Proof POST action. No authoritative
+Description exists in the current typed `RepresentativeRepository` / Profile
+report path, so no description is rendered, fetched, derived or invented.
+
+**Amended:** 2026-08-23 / Session 111 Working Style card simplification — the
+former analytical `EngineeringPracticePatterns` card heading and its generic
+pattern labels are superseded for that card only. Its active heading is
+`Working style` / `Çalışma biçimi`; each canonical EngineeringPractice item
+renders a concise, deterministic, evidence-bounded noun phrase in canonical
+order. Meaning's distinct job is the shorter cross-item human synthesis locked
+by §8.4.9; the card does not make person-level methodology, capability or
+quality claims.
+
+**Amended:** 2026-08-23 / Session 111 Profile identity header + shareability
+refinement — §8.7 replaces the visible internal-sounding `Profile view` /
+`Profil görünümü` eyebrow with a public-profile identity header led by the
+canonical successful Profile identity. The canonical GitHub profile URL enables
+one safe secondary external action. Avatar and profile-level recency are absent
+from current typed truth. The transient POST-only result has no stable
+third-party-openable URL or dynamic social metadata, so Share, LinkedIn and
+copy-link controls are not rendered; the three contract gaps are explicit.
+
+**Amended:** 2026-08-23 / Session 111 first-read clarity correction — §8.4.9
+supersedes the detailed-practice/glossary requirements in §8.4.2–§8.4.7.
+Meaning remains deterministic and item-complete, but its active form is two
+short synthesis paragraphs plus one quiet evidence-boundary sentence. §8.6 now
+uses the visitor question `What is this based on?` / `Bunu neye dayanarak
+söylüyoruz?` and translates each existing canonical conclusion trace into a
+question, a bounded human reason and its unchanged supporting repositories.
+The identity header is visually grouped without adding data. Starting Point is
+not silently capped: the canonical selection has no global bounded priority.
+Empty Limitations remains rendered because the canonical report contract does
+not permit omitting a `Supported` section solely because it is empty.
+
+**Amended:** 2026-08-23 / Session 111 approved mockup implementation — the
+approved dark first-read mockup is the visual target for §8.7 and the Profile
+first-read cards. This is a visual hierarchy amendment only: it does not add a
+Profile field, alter canonical report order, change a selection rule or
+authorize Web inference. Its explicit truth-preserving deviations are locked
+in §8.7.6: no avatar/recency/share row, no project-type inference, no bounded
+Starting Point subset or description, and no omission of canonical Supported
+Limitations solely because it is empty.
+
+**Amended:** 2026-08-23 / Session 111 STEP 2 — bounded Starting Point rail +
+canonical avatar. Live review of real executions (up to 57 admitted
+repositories) proved that an unbounded Starting Point rail destabilizes the
+two-column first-read layout. §8.6.1 now authorizes a Web-only **presentation
+bound**: at most 3 representative repositories are shown, taken as the first 3
+items of the existing canonical `RepresentativeRepositories` order. This is
+explicitly not a ranking, score, quality or "top" claim — see §8.6.1's order
+caveat — and the canonical report/selection itself is unchanged and uncapped.
+The rendered rail keeps a stable desktop height with an internal vertical
+scroll on the repository list only; the single-column breakpoint removes the
+bound and returns to natural flow. The **Starting Point Prioritization
+Contract Gap** is narrowed to presentation-bound-only: a true importance/
+priority ordering remains unauthorized and undesigned. The **Starting Point
+Description Contract Gap** is unchanged. Separately, §8.7.2's **Profile Avatar
+Contract Gap is now closed for collection and presentation**: the collector
+now reads GitHub's own `avatar_url` from the same profile-metadata response,
+validated as an absolute HTTPS URI, and the header renders it when available;
+the decorative `aria-hidden` GitHub mark remains the fallback only when a
+typed avatar is legitimately unavailable. No avatar is derived, generated or
+guessed from the username. Recency and Share remain open per §8.7.2/§8.7.4.
+
+**Amended:** 2026-08-23 / Session 111 STEP 3 — canonical Starting Point
+repository Description. §8.6.1a closes the **Starting Point Description
+Contract Gap** for the specific case of GitHub's own repository Description:
+each presented Starting Point item now shows one short description line
+sourced only from the provider-returned `description` field of the same
+existing repository-metadata response already used for `fork`/`language`/etc
+(zero additional GitHub requests). It travels via a new non-evidence
+`RepositoryPresentationMetadata` lookup — `GitHubProfileSnapshot.
+RepositoryPresentationMetadata` → `ProfilePipelineResult.
+RepositoryPresentationMetadata` → `ProfileModel.RepositoryPresentationMetadata`
+— mirroring STEP 2's avatar path and never touching `RepresentativeRepository`,
+representative selection, `DeveloperPublicEvidenceProfile` or `ProfileReport`.
+The text is preserved verbatim (trimmed only), never translated, rewritten,
+summarized or inferred; a null/blank Description renders a fixed neutral
+localized fallback describing metadata absence only. Razor's default encoding
+renders it as plain text — never `Html.Raw`, never Markdown, never a link —
+and it is visually bounded to ~2 lines via CSS line-clamp without semantic
+truncation. The max-3 presentation bound, deterministic order and desktop-
+scroll/mobile-natural-flow behavior from STEP 2 are unchanged.
+
 ------------------------------------------------------------------------
 
 # 1. Purpose
@@ -287,8 +403,8 @@ when they want deeper inspection.
 | Pattern | Recurring trace | Tekrar eden iz |
 | Representative Repository | Starting point | Başlangıç noktası |
 | TechnicalFocusAreas | Visible technical direction | Görünen teknik yön |
-| EngineeringPracticePatterns | Recurring engineering practices | Tekrar eden üretim pratikleri |
-| WhyThisConclusion | Why this view | Bu görünümü neden görüyoruz? |
+| EngineeringPracticePatterns | Working style | Çalışma biçimi |
+| WhyThisConclusion | What is this based on? | Bunu neye dayanarak söylüyoruz? |
 | Role Evidence Alignment (Deferred --- not active in V1) | No active V1 user language; future direction only | Aktif V1 kullanıcı dili yok; yalnız gelecek yönü |
 | Profile Report | Profile view | Profil görünümü |
 
@@ -434,155 +550,290 @@ stale state; and motion respects `prefers-reduced-motion`.
 ## 8.4 P10-I3 Meaning Layer Deterministic Synthesis Contract
 
 This section is the normative owner of the P10-I3 Meaning layer's exact
-presentation shape and its exact user-facing copy. It adds no analysis
-semantics: it fixes how already-projected typed truth is rendered.
+presentation shape and user-facing copy. It adds no analysis semantics: it
+fixes how already-projected typed truth is rendered. It fully supersedes the
+Session 103 M1–M4 presence-bit contract and the earlier Session 111
+category-sentence copy. The active Meaning behavior is a deterministic human
+explanation of visible GitHub traces, not an analysis report.
 
 ### 8.4.1 Projection Source
 
-The Meaning layer reads `ProfileReport.PublicProfileSummary` only, and from it
-exactly two `ProfileSummaryFact` entries:
+Meaning reads only these existing canonical values:
 
 ```text
-ReferencedSection == TechnicalFocusAreas
-    && ReferencedSectionAvailability == Supported
-    → tfa := ItemCount > 0
-
-ReferencedSection == EngineeringPracticePatterns
-    && ReferencedSectionAvailability == Supported
-    → epp := ItemCount > 0
+accepted Profile identity / username
+TechnicalFocusAreas.Items
+EngineeringPracticePatterns.Items
 ```
 
 Binding rules:
 
-- `ItemCount` is never rendered. It is reduced to a `> 0` presence bit and
-  nothing else. No count, number, percentage, ratio, badge or counter derived
-  from it may appear in any user-facing surface of this layer.
-- `RepresentativeRepositories` does not participate in Meaning state
-  derivation and its summary fact is not read here (§8.4.6).
-- The `WhyThisConclusion`, `Limitations` and `RepositoryDrillDown` facts are
-  not read by this layer; those surfaces remain owned by P10-I4 and P10-I5.
-- The `ProblemAreaPatterns` (`Unsupported`) and `RoleEvidenceAlignment`
-  (`Deferred`) facts are never read (see
-  `docs/product/p10-web-profile-flow-implementation-plan.md` §13.10/§13.11).
-- If either expected fact is absent from `PublicProfileSummary.Items`, or
-  carries an availability other than `Supported`, that is a contract
-  violation --- not an empty-state fallback. Presentation must fail loudly
-  rather than invent a state.
-- The Meaning presentation surface accepts `IReadOnlyList<ProfileSummaryFact>`
-  only. Repository references, pattern items, snapshots, signals, raw
-  evidence, eligibility results and score types never reach it.
+- The username is the accepted canonical Profile identity already held by the
+  successful Profile Web route. It is literal data, never localized, inferred,
+  normalized again or replaced with an example identity.
+- Each section must carry its canonical section key and `Supported`
+  availability. A wrong key, unsupported availability or an item from the
+  wrong pattern family is a contract violation; presentation fails loudly and
+  never invents an empty state.
+- The input preserves the existing report item order. Meaning may localize the
+  canonical `PatternKey` through the existing Web pattern-label mapping, but
+  must not sort, rank, group, cap, filter or otherwise reinterpret items.
+- `PublicProfileSummary` and `ProfileSummaryFact` do not participate. Their
+  count facts are neither read nor rendered.
+- `RepresentativeRepositories`, `WhyThisConclusion`, `RepositoryDrillDown`,
+  warnings, limitations, `ProblemAreaPatterns` and
+  `RoleEvidenceAlignment` never participate. Raw GitHub data, snapshots,
+  signals, evidence and eligibility results are never re-analyzed in Web.
+- The rendering partial receives only a Web-owned localized
+  `ProfileMeaningPresentation`, not a report, section, item, repository,
+  evidence or analysis object. Narrative construction stays in the Web
+  localizer, never Razor.
 
-### 8.4.2 Closed Shape
+### 8.4.2 HR/Recruiter Readability and Locked Shape
 
-The Meaning body is exactly one deterministic synthesis sentence.
+Meaning serves both a non-technical recruiter/HR reader and a technical visitor
+who wants a fast profile overview. It must sound like a careful person briefly
+explaining what is visibly there, not like a list of detected signals, a
+taxonomy explanation or a developer assessment.
 
-It carries no additional evidence statements, no separate evidence-scope or
-provenance sentence, no list, and no numeric value. Evidence scope is already
-carried inside every synthesis variant's own wording, and evidence-boundary /
-limitation communication remains P10-I5's responsibility.
+Meaning is exactly three concise prose blocks, in this order:
 
-This satisfies `docs/product/product-experience-principles.md` §6 --- one
-short plain-language synthesis plus at most three evidence statements --- at
-its smallest safe size. The permitted maximum is a ceiling, not a requirement:
-a generic evidence statement that merely restates the synthesis communicates
-no additional typed truth and is therefore prohibited here. The concrete
-pattern identities are rendered by the two sections that follow, from their
-own `Items`.
+1. username-led technical-direction observation: what technologies are seen,
+   that they recur across different repositories, and what this makes visible
+   about the profile's technical work;
+2. a human practice explanation: every repeated canonical practice is explained
+   in ordinary language, its repetition across repositories is stated, and a
+   short synthesis says which working methods those public traces make visible;
+3. one short scope/provenance sentence.
 
-### 8.4.3 Closed State Matrix
+The first sentence of the first block must begin with the literal username;
+generic openings such as “This profile” / “Bu profil” are prohibited. The
+dedicated Direction and Practices sections remain the detailed canonical
+surfaces below Meaning.
 
-Exactly two bits, exactly four states. The matrix is a lookup table. No
-variant may be derived, combined, extended or generated at runtime, and no
-fifth state exists.
+The communication sequence is mandatory:
 
-| State | `tfa` | `epp` | Rendered |
-|---|---|---|---|
-| M1 | present | present | Synthesis variant M1 |
-| M2 | present | empty | Synthesis variant M2 |
-| M3 | empty | present | Synthesis variant M3 |
-| M4 | empty | empty | Synthesis variant M4 |
+```text
+visible observation
+→ ordinary-language explanation when a practice term appears
+→ repetition across different repositories
+→ visible working-method synthesis
+```
 
-### 8.4.4 Locked EN/TR Synthesis Copy
+“Visible working method” means only a method made visible by repeated public
+repository traces. It never claims that this is how the person always works in
+reality.
 
-| State | English (`en`) | Turkish (`tr`) |
+### 8.4.3 Typed Practice Explanation Mapping
+
+Practice explanations are deterministic Web presentation mappings keyed only
+by the canonical EngineeringPractice `PatternKey`. They must not inspect or
+infer semantics from arbitrary display text. Every participating item is
+explained in existing canonical report order; no item may be silently omitted.
+
+| Canonical key | Plain-language meaning to communicate |
+|---|---|
+| `automated-testing` | Tests that check whether code behaves as expected; their visible traces recur across repositories. |
+| `continuous-integration` | Visible workflows aimed at automating builds, tests or similar checks as code changes; do not claim a particular run succeeded. |
+| `documentation` | Content that explains a project or how to set it up or use it; do not claim documentation quality or completeness. |
+| `release-usage` | Visible GitHub traces that mark particular version or delivery points; do not infer semantic versioning, stability or active maintenance. |
+| `issue-usage` | Visible records used to track bugs, tasks or development needs; do not infer project-management quality. |
+| `pull-request-usage` | Visible traces of some changes handled through a separate change flow; do not claim that a human review occurred. |
+
+The exact per-item prose clauses are locked below. Selection is keyed only by
+the already-validated canonical identity; this table is not a display-text
+heuristic.
+
+| Canonical key | English (`en`) clause | Turkish (`tr`) clause |
 |---|---|---|
-| M1 | The visible public evidence shows recurring technical direction and recurring engineering practices. | Görünen herkese açık kanıtlar, tekrar eden teknik yön ve tekrar eden üretim pratikleri gösteriyor. |
-| M2 | The visible public evidence shows recurring technical direction. | Görünen herkese açık kanıtlar, tekrar eden teknik yön gösteriyor. |
-| M3 | The visible public evidence shows recurring engineering practices. | Görünen herkese açık kanıtlar, tekrar eden üretim pratikleri gösteriyor. |
-| M4 | The current analysis did not establish a recurring technical direction or engineering-practice pattern from the visible public evidence. | Mevcut analiz, görünen herkese açık kanıtlardan tekrar eden bir teknik yön veya üretim pratiği ortaya koymadı. |
+| `automated-testing` | `Automated testing appears across different repositories; these are tests that check whether code behaves as expected, so their traces are not limited to one project.` | `Otomatik test kullanımı farklı repository'lerde tekrar görülüyor; yani kodun beklenen şekilde davranıp davranmadığını kontrol eden testlere ait izler tek bir projeyle sınırlı değil.` |
+| `continuous-integration` | `Continuous integration appears across different repositories; in other words, there are visible workflow traces aimed at automating builds, tests, or similar checks as code changes.` | `Sürekli entegrasyon da farklı repository'lerde tekrar görülüyor; yani kod değişiklikleriyle birlikte build, test veya benzeri doğrulamaları otomatikleştirmeye yönelik workflow'lara ait izler var.` |
+| `documentation` | `Documentation appears across different repositories; this means traces of content that explains a project or how to set it up or use it are not limited to one project.` | `Dokümantasyon farklı repository'lerde yeniden görülüyor; yani projeyi açıklayan, nasıl kurulacağını veya kullanılacağını anlatan içerik bırakma pratiği tek bir projeyle sınırlı değil.` |
+| `release-usage` | `Release practice appears across different repositories; this means visible GitHub traces that mark particular version or delivery points are not limited to one project.` | `Sürüm yayınlama pratiği farklı repository'lerde tekrar görülüyor; yani belirli sürüm veya teslim noktalarını görünür olarak işaretleyen GitHub izleri tek bir projeyle sınırlı değil.` |
+| `issue-usage` | `Issue usage appears across different repositories; in other words, there are visible traces of records used to track bugs, tasks, or development needs beyond one project.` | `Issue kullanımı farklı repository'lerde tekrar görülüyor; yani hata, görev veya geliştirme ihtiyaçlarını görünür biçimde takip etmeye yarayan kayıtların tek bir projeyle sınırlı olmadığına dair izler var.` |
+| `pull-request-usage` | `Pull request usage appears across different repositories; this means there are GitHub traces of some changes being handled through a separate change flow.` | `Pull request kullanımı da farklı repository'lerde tekrar görülüyor; yani bazı değişikliklerin ayrı bir değişiklik akışı üzerinden ele alındığına dair GitHub izleri var.` |
 
-Why this copy stays inside the existing epistemic boundary:
+### 8.4.4 Four-State Human Narrative
 
-- `shows` / `gösteriyor` is the sanctioned observation verb of §7 (Visible
-  Direction), which already permits "This profile shows recurring traces
-  related to backend systems." while prohibiting "This person is a backend
-  developer."
-- `recurring` / `tekrar eden` is the canonical `RepeatedProfilePattern`
-  semantic --- evidence that repeats across two or more independent public
-  repositories --- which carries no strength, confidence, ranking or
-  capability meaning.
-- M4's `did not establish` / `ortaya koymadı` is the plain-language form of
-  the `Supported + empty` definition owned by
-  `docs/architecture/public-profile-evidence-report-contract.md` §6.1: the
-  capability ran and produced no result under its versioned rules. It is
-  never a negative developer conclusion (§6.4).
-- M1 and M2 carry no indefinite article, so the sentence stays independent of
-  how many items the section holds, consistent with the rule that `ItemCount`
-  is never rendered. M4 keeps its article because negative polarity carries
-  no count implication.
+Let `{technical-labels}` mean every TechnicalFocus label in existing report
+order. For present practices, `{practice-explanations}` means the ordered,
+typed explanation sentence for every current practice item, and
+`{working-methods}` means each corresponding ordinary-language method phrase
+in the same order, joined as §8.4.5 prescribes.
 
-### 8.4.5 Traceability
+The exhaustive state rules are:
 
-Every user-visible string of this layer is authorized by typed report truth
-only:
+| State | Required human explanation |
+|---|---|
+| Technical present; practices present | The username-led first block explains the recurring technologies across different repositories. The second block introduces recurring ways of working, renders every `{practice-explanations}`, then closes: the combined public traces make `{working-methods}` visible across different repositories. |
+| Technical present; practices empty | The username-led first block explains the recurring technologies. The second block says no equally recurring practice is visible, while explicitly saying this is not a claim that any practice is absent. |
+| Technical empty; practices present | The username-led first block says no one recurring technical direction is visible. The second block renders every `{practice-explanations}`, then says the public traces make `{working-methods}` visible rather than one recurring technical direction. |
+| Technical empty; practices empty | The username-led first block says no recurring technical direction or working practice is visible. The second block says this is not an assessment of the person; it only describes what the currently visible public work does not make repeat across repositories. |
+
+The fixed first-block templates are:
+
+| Condition | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| one technical label | `{username}'s GitHub work shows a recurring technical direction around {technical-labels} across different repositories. {technical-labels} appears again across different repositories, making it visible as a recurring area of technical work in the profile.` | `{username} GitHub çalışmalarında ağırlıklı olarak {technical-labels} etrafında tekrar eden bir teknik yön gösteriyor. {technical-labels} farklı repository'lerde yeniden görülüyor; bu da bu teknolojinin profil boyunca tekrar eden bir teknik çalışma alanı olduğunu görünür kılıyor.` |
+| multiple technical labels | `{username}'s GitHub work shows recurring technical traces around {technical-labels} across different repositories. Seeing these technologies recur across different repositories makes them visible as recurring areas of technical work in the profile.` | `{username} GitHub çalışmalarında {technical-labels} etrafında tekrar eden teknik izler gösteriyor. Bu teknolojilerin farklı repository'lerde yeniden görülmesi, bunların profil boyunca tekrar eden teknik çalışma alanları olduğunu görünür kılıyor.` |
+| no technical labels, practices present | `{username}'s GitHub work does not currently make one recurring technical direction visible across public repositories.` | `{username} GitHub çalışmalarında repository'ler arasında tekrar eden tek bir teknik yön şu anda görünür hâle gelmiyor.` |
+| no technical labels, practices empty | `{username}'s GitHub work does not currently make a recurring technical direction or working practice visible across public repositories.` | `{username} için herkese açık GitHub çalışmalarında şu anda repository'ler arasında tekrar eden belirgin bir teknik yön veya üretim pratiği görünmüyor.` |
+
+For present practices, the fixed second-block opener is `Looking at ways of
+working, there are recurring public traces as well.` / `Çalışma biçimine
+baktığımızda da bazı tekrarlar var.` when technical labels are present, and
+`Looking at ways of working, recurring public traces are visible.` / `Çalışma
+biçimine baktığımızda ise bazı tekrarlar görünür hâle geliyor.` otherwise. It
+renders every ordered per-item clause, then the fixed synthesis says that the
+combined traces make `{working-methods}` visible across different repositories.
+
+The Turkish and English templates must be natural prose, remain byte-identical
+for the same input and culture, and preserve the exact semantic constraints
+above. The final, always-present provenance block is exactly:
+
+| English (`en`) | Turkish (`tr`) |
+|---|---|
+| `This summary is based only on traces visible in public GitHub work under the current analysis rules.` | `Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.` |
+
+The empty states are observation outcomes under the current rules, never a
+developer deficit. The provenance sentence communicates scope only: it does
+not expose algorithms, scoring or implementation detail.
+
+### 8.4.5 Locale-Aware Label Joining
+
+Joining is deterministic and preserves the canonical report order:
+
+- one label: unchanged;
+- two labels: `C# ve .NET` in Turkish; `C# and .NET` in English;
+- three or more: `C#, .NET ve ASP.NET Core` in Turkish;
+  `C#, .NET, and ASP.NET Core` in English.
+
+There is no hidden item cap, no alphabetical reorder, no ranking and no
+substitution of a number or count for labels. Programming/GitHub language
+identities remain literal and are not translated.
+
+### 8.4.6 Traceability and Ownership
 
 | Rendered text | Authorizing typed field(s) | Exact condition |
 |---|---|---|
-| Synthesis M1 | `ProfileSummaryFact{TechnicalFocusAreas, Supported}` and `ProfileSummaryFact{EngineeringPracticePatterns, Supported}` | both `ItemCount > 0` |
-| Synthesis M2 | the same two facts | `tfa.ItemCount > 0` and `epp.ItemCount == 0` |
-| Synthesis M3 | the same two facts | `tfa.ItemCount == 0` and `epp.ItemCount > 0` |
-| Synthesis M4 | the same two facts | both `ItemCount == 0` |
+| Username-led technical block | accepted Profile identity + `TechnicalFocusAreas.Items` | all item labels in current order, or its truthful empty relationship state |
+| Practice/explanation/synthesis block | `TechnicalFocusAreas.Items` + `EngineeringPracticePatterns.Items` | the four locked relationship states; every present practice's typed explanation and working-method phrase in current order |
+| Provenance paragraph | selected request culture | always, as the locked presentation scope sentence |
 | Section labels | `ProfileReportSectionKey` | existing §8 dictionary mapping, unchanged |
 
-Keying rule: this copy is resolved inside the Web presentation mapping keyed
-only by canonical, locale-independent identities --- here the two presence
-bits plus the selected request culture --- consistent with §8.2 and with
-`docs/product/p10-web-profile-flow-implementation-plan.md` §13.8. It is not a
-page-chrome string and must never be keyed by presentation text.
+The deterministic localizer is Web-owned. `ProfileReportProjector` remains
+locale-neutral and is not changed for Meaning. Same two ordered sections plus
+the same culture always produce byte-identical presentation text.
 
-The projection is strictly lossy: `(section, availability, int)` collapses to
-one bit per section. No new bit is produced, so compressing existing evidence
-can never upgrade its epistemic strength
-(`docs/architecture/public-profile-evidence-report-contract.md` §8).
-
-### 8.4.6 Prohibitions
+### 8.4.7 Prohibitions
 
 The Meaning layer must never:
 
-- let `RepresentativeRepositories` feed Meaning state derivation, or carry
-  repository identity, `Owner`/`Name`/`Url`, pattern supports or selection
-  detail into the Meaning surface;
+- read `RepresentativeRepositories`, Why, Repository evidence, warnings,
+  limitations, raw evidence, snapshots, signals, eligibility results or
+  scores; or carry repository identity, selection detail or evidence trace
+  into the Meaning surface;
 - render any count, number, percentage, ratio, badge or counter;
 - express comparison, ranking, magnitude, or a strong/weak axis;
 - use `strong`, `weak`, `senior`, `junior`, `experienced`, `skilled`,
   `expert`, `employable`, `suitable`, `best`, `top`, `impressive`,
   `consistent`, or their Turkish equivalents;
 - infer role, seniority, employability, capability, quality, confidence, AI
-  authorship or personality;
+  authorship, personality, years of experience, developer activity state,
+  backend/frontend/full-stack identity or a strength/weakness judgment;
 - introduce a taxonomy mapping such as `C# → backend developer`
   (`docs/product/p10-web-profile-flow-implementation-plan.md` §13.15);
 - collapse `Unsupported` and `Deferred` into one "not found" state;
 - render an empty card, label or empty copy for `ProblemAreaPatterns` or
   `RoleEvidenceAlignment`;
 - present `Supported + empty` as a negative developer finding;
-- translate programming/GitHub language identities;
-- generate, combine, synthesize or modify user-facing prose outside the four
-  locked M1–M4 variants at runtime, or use an LLM for any part of this
-  surface. Deterministically selecting exactly one locked M1–M4 variant from
-  the closed state matrix at runtime IS permitted and is the intended
-  mechanism; producing any other string is not;
-- read raw GitHub data, snapshots, signals, evidence, eligibility results or
-  scores.
+- state that a person is a developer of, expert in, skilled at, experienced
+  with or capable in a technology or production practice; presentation may
+  say only that visible repeated use/traces appear across public repositories;
+- expand practice labels into glossary definitions; the active §8.4.9 copy
+  keeps all canonical items in one bounded working-method synthesis;
+- use an LLM, external service, runtime heuristic or new analysis; or produce
+  prose outside the exact deterministic templates and label joining locked
+  above.
+
+### 8.4.8 Working Style Detail Card
+
+`EngineeringPracticePatterns` has a second, separate presentation job from
+Meaning: it is the compact first-read card that answers which working methods
+are visibly repeated across the public work. Its heading is exactly `Working
+style` / `Çalışma biçimi`.
+
+When `Supported` and non-empty, the card renders every item from
+`EngineeringPracticePatterns.Items` in existing canonical report order as a
+short scannable bullet row. Each row is exactly one deterministic localized
+noun phrase keyed only by the canonical EngineeringPractice `PatternKey`:
+
+| Canonical key | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| `automated-testing` | Automated testing | Otomatik test kullanımı |
+| `continuous-integration` | Automated integration checks | Otomatik kontrol süreçleri |
+| `documentation` | Documentation | Dokümantasyon |
+| `release-usage` | Published releases | Sürüm yayınları |
+| `issue-usage` | Issue tracking | Issue ile takip |
+| `pull-request-usage` | Pull request workflow | Pull request ile değişiklik akışı |
+
+The list is complete: no item may be alphabetically reordered, ranked, capped,
+filtered or omitted. A label is never derived from arbitrary display text, and
+an unknown canonical identity is a presentation contract violation rather than
+a fallback label.
+
+The card contains no explanatory paragraph per item, signal/category term,
+metric, score, progress bar, percentage or person-level conclusion. In
+particular it must not say that the person tests while working, continuously
+checks code, manages changes professionally, values documentation or works
+with discipline. The labels describe only visible repeated methods; they do
+not claim quality, motivation, behavior outside the observed public work,
+capability, role or seniority. Meaning §8.4.9 connects these same canonical
+items into one short human synthesis and does not redefine them.
+
+### 8.4.9 Active First-Read Clarity Supersession
+
+This subsection is the active Meaning presentation rule. It explicitly
+supersedes every conflicting requirement in §8.4.2–§8.4.7 that requires
+per-practice definitions, explanatory clauses or a glossary-like expansion.
+The earlier detailed templates remain historical Session 111 review context;
+they are not active copy.
+
+Meaning is exactly:
+
+1. one short paragraph naming every ordered canonical
+   `TechnicalFocusAreas.Items` label and synthesizing what visibly repeats;
+2. one short paragraph naming every ordered canonical
+   `EngineeringPracticePatterns.Items` through its concise §8.4.8 Working
+   Style label and synthesizing what working methods visibly repeat;
+3. the existing quiet evidence-boundary sentence.
+
+The first paragraph begins with the literal accepted username. One technical
+item states that the item recurs across repositories. Multiple items state
+that the Profile shows technical work spanning more than one technology. This
+does not introduce project/application types. Repository names and languages
+do not authorize labels such as API, backend, authentication, realtime, Web,
+mobile or AI: **Project-Type Presentation Pending Canonical Contract**.
+
+The second paragraph is not a glossary. For non-empty practice items it uses
+one locale-aware joined list, preserving every canonical item in report order
+with no cap, followed by one short relationship sentence that does not repeat
+the item list. It does not explain how
+tests, CI, pull requests, documentation, releases or issues work. The compact
+Working Style card remains the structured scan surface for those same items.
+
+For `TechnicalFocusAreas` present plus `EngineeringPracticePatterns` empty,
+the second paragraph says only that no equally recurring working method is
+visible across repositories and that the current GitHub view offers more
+limited traces of how the work was carried out. This is an evidence-surface
+observation, never a developer deficit, absence-of-practice claim or quality
+judgment.
+
+All other §8.4 boundaries remain active: only the accepted username and the two
+Supported ordered pattern sections participate; there is no raw-data analysis,
+sorting, ranking, hidden top-N, count, score, role/seniority/capability/quality
+inference, LLM or Razor-side narrative generation. Same canonical input and
+culture produce byte-identical output.
 
 ## 8.5 Supported + Empty Presentation Copy (P10-I3 / P10-I4 Sections)
 
@@ -596,9 +847,9 @@ P10-I4 (`WhyThisConclusion`, `RepositoryDrillDown`, §8.6):
 | Section | English (`en`) | Turkish (`tr`) |
 |---|---|---|
 | `TechnicalFocusAreas` | The visible public evidence did not establish a repeated technical direction under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı. |
-| `EngineeringPracticePatterns` | The visible public evidence did not establish recurring engineering practices under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden üretim pratikleri ortaya koymadı. |
+| `EngineeringPracticePatterns` | No recurring working method is visible across the current public work. | Farklı çalışmalarda tekrar eden belirgin bir yöntem görünmüyor. |
 | `RepresentativeRepositories` | No starting-point repository was selected from the current visible public evidence. | Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi. |
-| `WhyThisConclusion` | The visible public evidence did not establish a repeated pattern to explain under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında açıklanacak tekrar eden bir örüntü ortaya koymadı. |
+| `WhyThisConclusion` | The public GitHub work did not provide a recurring conclusion to explain. | Herkese açık GitHub çalışmaları, açıklanacak tekrar eden bir sonuç ortaya koymadı. |
 | `RepositoryDrillDown` | The visible public evidence contains no public repository to inspect. | Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor. |
 
 Rules:
@@ -614,9 +865,10 @@ Rules:
   and the selected request culture, when that section's `Availability` is
   `Supported` and its `Items` collection is empty.
 - Sections render their own empty result independently of the Meaning state.
-  In state M4 the Meaning synthesis and the two pattern sections therefore
-  each state a negative result; this repetition is deliberate, so that a
-  canonical section never fails to report its own outcome.
+  When both pattern sections are Supported + empty, Meaning renders its two
+  independently locked absence paragraphs and each detail section still states
+  its own outcome. This deliberate repetition ensures that a canonical section
+  never fails to report its own result.
 - No `Supported + empty` copy is defined or rendered for `ProblemAreaPatterns`
   (`Unsupported`) or `RoleEvidenceAlignment` (`Deferred`). Those sections are
   omitted entirely, per
@@ -627,6 +879,13 @@ Rules:
   locked `H2` label and the neutral paragraph above --- never as an empty
   `details` / `summary` control. There is nothing to disclose, so no
   disclosure affordance is offered.
+
+`Limitations` is separately the canonical `Supported` section at report
+position 7. Report contract §6.5 prohibits omitting a Supported section solely
+because its item collection is empty. The current neutral empty Limitations
+card therefore remains rendered. Omitting it for visitor value requires a
+separately approved presentation exception or a change to that canonical
+boundary: **Empty Limitations Presentation Contract Gap**.
 
 ## 8.6 P10-I4 Why + Repository Evidence Presentation Contract
 
@@ -643,20 +902,79 @@ after the first-read layer locked in §8.4/§8.5 and must never dilute it:
 ```text
 Meaning
     → Visible technical direction
-    → Recurring engineering practices
-    → Starting point          (first read — quiet, text only)
-    → Why this view           (evidence layer — collapsed by default)
+    → Working style
+    → Starting point          (first read — quiet, compact action)
+    → What is this based on?  (evidence layer — collapsed by default)
     → Repository evidence     (evidence layer — collapsed by default)
 ```
 
-`RepresentativeRepositories` / Starting point stays **text only** in P10-I4.
-No Repository Proof action, link or button is added to it. Repository Proof
-actions exist only inside the progressively disclosed `RepositoryDrillDown`
-surface (§8.6.5), so the product never presents two competing repository
-drill-down action surfaces. The first-read layer stays quiet and evidence
-inspection begins only when the reader explicitly enters the evidence layer.
-A later slice (P10-I6) may revisit this only if user testing proves it
-necessary.
+`RepresentativeRepositories` / Starting point is a compact, secondary first-
+read surface. For every canonical representative item, in existing report
+order, it renders exactly:
+
+1. the literal canonical repository identity;
+2. one short description line, sourced only from GitHub's own provider-returned
+   repository Description (§8.6.1a);
+3. the existing localized Repository Proof action (`Analyze this repository` /
+   `Bu repository'yi analiz et`).
+
+The action reuses the existing repository-analysis form contract: a POST to
+the existing `/Index` entry with the canonical `Repository.Url` as
+`GitHubTarget`, normal tag-helper anti-forgery behavior and the established
+validation flow. It is never an outbound GitHub link, GET/query-string flow,
+new endpoint or duplicate analysis implementation. The action stays visually
+secondary to Meaning, and repository identities retain safe wrapping. No
+score, stars, forks, language percentage, activity/status, confidence, role or
+quality field is added.
+
+#### 8.6.1a Starting Point Description (Session 111 STEP 3)
+
+The **Starting Point Description Contract Gap** is closed for the specific
+case of GitHub's own repository Description. `RepresentativeRepository` /
+`ProfileReport` still carry no Description of their own — that boundary is
+unchanged and remains correct: Description is repository identity/context
+metadata supplied by GitHub, not evidence, not a pattern, not a
+representative-repository score and not a `WhyThisConclusion` fact. It reaches
+Web through a separate, parallel, non-evidence path: `RepositoryPresentation
+Metadata`, looked up by the same canonical `ProfileRepositoryReference` used
+everywhere else, carried from `GitHubProfileSnapshot.RepositoryPresentation
+Metadata` through `ProfilePipelineResult.RepositoryPresentationMetadata` to
+`ProfileModel.RepositoryPresentationMetadata` — mirroring the Session 111
+STEP 2 avatar path and never touching `DeveloperPublicEvidenceProfile` or
+`ProfileReport`.
+
+The Description is the exact provider-returned text (trimmed of surrounding
+whitespace only): never rewritten, translated, summarized, inferred, or
+derived from repository name, language, README, topics or detected patterns.
+When GitHub returns no Description (null or blank), Web renders a fixed
+neutral fallback — `No short description is provided on GitHub.` / `GitHub'da
+kısa bir açıklama bulunmuyor.` — describing metadata absence only, never a
+claim about the repository's purpose, quality or documentation. Razor's
+default encoding renders the Description as plain text; it is never passed
+through `Html.Raw`, never interpreted as Markdown, and never turned into a
+link. It is bounded to approximately two visual lines on desktop via CSS
+line-clamp — a visual bound only, never a semantic truncation of the
+underlying string.
+
+The canonical representative-selection contract selects one repository per
+repeated pattern and then groups equal repository references. It explicitly has
+no global top-N/top-K and its final repository ordering is deterministic
+identity order (Owner-then-Name ordinal), not a first/recommended priority. The
+complete grouped set may therefore contain as many repository items as there
+are independently selected pattern representatives.
+
+Session 111 STEP 2 authorizes exactly one Web-only presentation bound over
+this: at most 3 items are **presented**, taken as the first 3 items of the
+existing canonical order via `StartingPointPresentation.Select`. This is a
+stable presentation sample, not a ranking, score, "top", "best" or
+"recommended" claim — the underlying order is an identity tie-break, not an
+importance measure, so the 3 presented items are not asserted to be the
+visitor's most significant repositories. The canonical
+`RepresentativeRepositories` collection itself is never capped, reordered or
+mutated by this bound; every item remains in the full typed report. A true
+importance/priority ordering over the canonical selection remains a separate,
+unauthorized design decision: **Starting Point Prioritization Contract Gap**
+(narrowed to presentation-bound-only by this amendment).
 
 ### 8.6.2 Progressive Disclosure Shape
 
@@ -677,13 +995,25 @@ patterns already rendered by `TechnicalFocusAreas` and
 `EngineeringPracticePatterns`, in the same canonical order. The Why layer adds
 the evidence trace beneath them, never a new claim.
 
-One Why entry shows exactly two things:
+One Why entry shows exactly three things:
 
-1. the localized pattern label, resolved by the existing pattern-label
-   mapping (no new copy, no new identity);
-2. the pattern's supporting public repositories, rendered as literal
+1. a visitor-facing question formed from the canonical-keyed visitor label:
+   TechnicalFocus uses its literal language identity and EngineeringPractice
+   uses the concise §8.4.8 Working Style label; the format is
+   `Why is {label} here?` / `{label} neden burada?`;
+2. one deterministic family-bounded explanation: a TechnicalFocus item appears
+   because it is visible again across different public repositories and is
+   therefore shown as a recurring technical direction; an EngineeringPractice
+   item appears for the same canonical repetition reason and is therefore shown
+   as a recurring way of working;
+3. the pattern's supporting public repositories, rendered as literal
    repository full names in the canonical order the pattern already provides,
-   under the locked lead-in line of §8.6.7.
+   under `Supporting repositories` / `Destekleyen repository'ler`.
+
+The question and reason translate the existing `WhyThisConclusion` trace into
+normal visitor language. They add no evidence relationship, count, promotion
+decision or inference. The canonical family and pattern key select deterministic
+copy; arbitrary display text is never interpreted.
 
 The supporting set rendered is the pattern's **supporting repositories** ---
 the set named by
@@ -706,7 +1036,7 @@ Profile Web surface**.
 The division of responsibility is:
 
 ```text
-Why this view        : pattern → supporting repository identities
+What is this based on? : conclusion → human reason → supporting repository identities
 Repository evidence  : repository → a fresh existing Repository Proof run
 Repository Proof     : signal / concrete evidence inspection
 ```
@@ -798,13 +1128,17 @@ remains owned by P10-I5 and is not surfaced through these labels.
 
 ### 8.6.7 Locked EN/TR Copy
 
-Existing section labels are unchanged and are not restated as new copy:
-`WhyThisConclusion` stays "Why this view" / "Bu görünümü neden görüyoruz?" and
+The active `WhyThisConclusion` section label is "What is this based on?" /
+"Bunu neye dayanarak söylüyoruz?"; it supersedes the previous system-sounding
+label. The
 `RepositoryDrillDown` stays "Repository evidence" / "Repository kanıtı".
 
 | Identity | English (`en`) | Turkish (`tr`) |
 |---|---|---|
-| Why --- supporting repositories lead-in | Observed across these public repositories | Şu herkese açık repository'lerde gözlemlendi |
+| Why — entry question (`{0}` = localized canonical label) | Why is {0} here? | {0} neden burada? |
+| Why — TechnicalFocus reason (`{0}` = localized canonical label) | {0} appears again across different public repositories, so it is shown as one of the profile's recurring technical directions. | {0} farklı herkese açık repository'lerde yeniden görüldüğü için profilin tekrar eden teknik yönlerinden biri olarak gösteriliyor. |
+| Why — EngineeringPractice reason (`{0}` = localized canonical label) | {0} appears again across different public repositories, so it is shown as one of the recurring ways of working. | {0} farklı herkese açık repository'lerde yeniden görüldüğü için çalışma biçiminde tekrar eden yöntemlerden biri olarak gösteriliyor. |
+| Why — supporting repositories lead-in | Supporting repositories | Destekleyen repository'ler |
 | Repository evidence --- fresh-analysis lead-in | Selecting a repository runs a fresh Repository Proof analysis. | Bir repository seçmek yeni bir Repository Proof analizi başlatır. |
 | Repository action --- visible label | Analyze this repository | Bu repository'yi analiz et |
 | Repository action --- accessible name (`{0}` = repository full name) | Analyze repository {0} | {0} repository'sini analiz et |
@@ -812,9 +1146,9 @@ Existing section labels are unchanged and are not restated as new copy:
 Row status copy is locked in §8.6.6. `Supported`-but-empty copy for both
 sections is locked in §8.5.
 
-The Why lead-in says "observed across", never "repeated in": a repeated
-profile pattern is evidence that repeats **across** independent repositories,
-which does not assert that the evidence repeats inside any single repository.
+The Why reason says that the item appears again **across different public
+repositories**. It never asserts that evidence repeats inside any single
+repository and never exposes the promotion mechanism.
 
 Literal identities are never translated: repository full names, GitHub
 usernames, URLs, and programming/GitHub language identities.
@@ -831,13 +1165,13 @@ fixed presentation slot:
   the selected request culture.
 - **Pattern labels** keep their existing canonical mapping by pattern family
   and pattern key; nothing about that mapping changes here.
-- **Fixed P10-I4 presentation-slot copy** --- the Why supporting-repositories
-  lead-in, the Repository-evidence fresh-analysis lead-in, the visible action
-  label and the accessible-name format --- has no canonical identity of its
-  own, because these are fixed slots of one section rather than one string per
-  canonical value. Each therefore lives in its own narrow, explicitly named
-  `ProfileWebPresentationLocalizer` method and varies only by the selected
-  request culture.
+- **Fixed P10-I4 presentation-slot copy** --- the Why question, family-bounded
+  reason and supporting-repositories lead-in, the Repository-evidence fresh-
+  analysis lead-in, the visible action label and the accessible-name format ---
+  has no new canonical identity of its own. Each lives in its own narrow,
+  explicitly named `ProfileWebPresentationLocalizer` method. Question/reason
+  selection uses the existing family/key; the remaining fixed slots vary only
+  by selected request culture.
 
 Two rules bind all four cases: presentation text is never used as a lookup
 key, and no new analysis, Domain or Application semantic identity, enum or
@@ -849,7 +1183,8 @@ own.
 
 - The page keeps exactly one `h1`. Each report section contributes one `h2`,
   including the two disclosure sections (their `h2` lives inside `summary`).
-- A Why entry's pattern label is an `h3` above its supporting-repository list.
+- A Why entry's visitor question is an `h3`, followed by its bounded reason and
+  supporting-repository list.
 - Item collections render as `ul` / `li`. Empty results render as a paragraph.
   No empty list container is rendered.
 - Disclosure is native `details` / `summary`; no ARIA is added where native
@@ -887,6 +1222,154 @@ The P10-I4 surface must never:
 - present `Supported + empty` as a negative developer finding;
 - introduce free-form or runtime-composed prose, or use an LLM for any part of
   this surface.
+
+## 8.7 P10-I6-A Profile Identity Header and Shareability Boundary
+
+### 8.7.1 Purpose and Active Header Shape
+
+The successful Profile page begins with the public GitHub identity, not an
+analysis-dashboard taxonomy label. The former visible `Profile view` / `Profil
+görünümü` eyebrow is not rendered and is not replaced with another eyebrow.
+
+The active compact header contains, in priority order:
+
+1. the literal canonical `DeveloperPublicEvidenceProfile.ProfileIdentity.Login`
+   as the page's single `h1`;
+2. the visible canonical GitHub identity `github.com/{login}`, projected from
+   `DeveloperPublicEvidenceProfile.ProfileIdentity.Url` rather than reconstructed
+   from the posted string;
+3. `View of public GitHub work` / `Herkese açık GitHub çalışmalarının görünümü`;
+4. the secondary GitHub external action of §8.7.3.
+
+The header contains no technology/practice item, repository count, score,
+percentage, metric tile, activity classification or report summary. Meaning
+remains the first report-content surface immediately below the header and any
+truthful P10-I5 status notice. The header aligns to the existing centered
+`64rem` Profile surface; actions may wrap below identity on narrow viewports and
+must not create horizontal overflow.
+
+### 8.7.2 Optional Identity Data and Current Gaps
+
+An avatar renders only from an authoritative typed Profile field. Session 111
+STEP 2 closes the **Profile Avatar Contract Gap** for collection and
+presentation: `GitHubProfileMetadataCollector` now reads GitHub's own
+`avatar_url` from the same successful profile-metadata response used for
+`login`/`name`/`public_repos`, and `GitHubProfileMetadata.AvatarUrl` requires
+it to be an absolute HTTPS URI (rejecting `http`, `javascript:`, `data:` or any
+other scheme as a Failed collection, exactly like the existing required-field
+philosophy for `created_at`/`public_repos`). The value travels unchanged from
+that same run's `GitHubProfileSnapshot.Metadata` through
+`ProfilePipelineResult.AvatarUrl` to `ProfileModel.AvatarUrl` — never through
+`DeveloperPublicEvidenceProfile` or `ProfileReport`, which remain evidence-
+report truth and carry no avatar field of their own. The header renders this
+image when present, with accessible alt text naming the profile, and falls
+back to the existing decorative `aria-hidden` GitHub mark only when a typed
+avatar is legitimately unavailable (e.g. metadata was not carried into this
+particular snapshot). No avatar is ever derived from the username, generated as
+an initial/identicon, or fetched separately by Web.
+
+A recency row may render only from a future authoritative profile-level fact
+whose meaning is the most recent observable public change/activity. Current
+typed Profile truth has no such fact. `GitHubProfileSnapshot.CapturedAt` and
+`DataAvailability.RetrievedAt` are observation/runtime times;
+`GitHubProfileMetadata.CreatedAt` is account creation; repository-level
+`LastPushedAt` and `ActivityClassification` do not authorize profile-level
+recency. Web must not scan commits/repositories, aggregate arbitrary timestamps,
+infer cadence, or say active/inactive/still coding. The row is therefore absent:
+**RECENCY CONTRACT GAP**.
+
+### 8.7.3 Canonical GitHub External Action
+
+The successful header exposes exactly one lightweight secondary action:
+`Open on GitHub` / `GitHub'da aç`. Its `href` is the exact canonical
+`DeveloperPublicEvidenceProfile.ProfileIdentity.Url`; it is never assembled
+from arbitrary display text. It opens in a new tab with `noopener`, `noreferrer`
+and external-link semantics, a visible external-link icon and localized
+accessible copy announcing the new tab. No GitHub fetch or analysis is started.
+
+### 8.7.4 Shareable URL and Social Preview Gaps
+
+The current Profile result is produced only by `POST /profile`, exists only in
+that response and is neither persisted nor cached. `GET /profile` redirects to
+the unified entry and performs no analysis. Consequently, the current browser
+URL cannot reproduce the result for a third party and must never be copied or
+sent to LinkedIn as though it were shareable: **SHAREABLE PROFILE URL CONTRACT
+GAP**.
+
+No stable public Profile URL means the application also cannot emit truthful
+profile-specific Open Graph title, description and canonical URL for a crawler.
+The shared layout contains no dynamic Profile social metadata. Generic static
+claims would misrepresent the person and are prohibited: **SOCIAL PREVIEW
+CONTRACT GAP**.
+
+Until both boundaries are separately designed and authorized, no Share button,
+menu/popover, LinkedIn action or Copy link action is rendered. There is no
+disabled/dead Share control and no current-URL clipboard fallback. A future
+Share action, once supportable, remains secondary to identity and must be
+keyboard-operable, localized and dismissible without a framework or external
+package.
+
+### 8.7.5 Future Share Content Truth Boundary
+
+Share content must introduce that specific Profile, never advertise GitHub
+Proof or say that the user analyzed/checked a profile. Current canonical truth
+could authorize only the literal username plus ordered
+`TechnicalFocusAreas.Items` and `EngineeringPracticePatterns.Items`; it cannot
+authorize project/application types or recency. Unknown facts are omitted, not
+replaced by attractive generic prose. No exact share copy is emitted or locked
+while the shareable-route/social-preview gaps remain open.
+
+### 8.7.6 Approved Mockup First-Read Visual Boundary
+
+The approved dark Profile mockup is the primary visual target for the successful
+Profile surface. Its binding visual sequence is: back link, public identity
+header with its safe GitHub action, a two-column first-read composition (Meaning
+plus the two paired pattern cards on the left; Starting Point on the right),
+then the full-width collapsed Why and Repository Evidence disclosures. The
+surface uses calm, dark raised cards, restrained blue emphasis, rounded borders,
+icon-led headings and responsive collapse without changing canonical DOM order.
+
+The header renders the mockup's avatar position as the real provider-returned
+GitHub avatar when `ProfileModel.AvatarUrl` is available (§8.7.2), and as the
+existing `aria-hidden` decorative GitHub mark only when it is legitimately
+unavailable. Neither branch is a generated initial, guessed image or Web-side
+fetch. The header surface is widened to the existing global content measure;
+its visual grouping must not be interpreted as a new report field.
+
+The mockup's visible work-type card title is `What kinds of work are visible?`
+/ `Ne tür çalışmalar görünüyor?`. This is a visitor-facing visual heading, not
+a project/application-type projection. Until the Project-Type Presentation
+Pending Canonical Contract is closed, the card may render only the existing
+ordered `TechnicalFocusAreas` language labels, with the explicit quiet lead-in
+`Recurring technologies` / `Tekrar eden teknolojiler`. It must not render,
+derive or name API, authentication, realtime, education, backend, frontend,
+mobile, AI or any other project type.
+
+Starting Point visually uses compact repository cards and the existing
+Repository Proof POST action. Session 111 STEP 2 authorizes presenting at
+most 3 of them (§8.6.1's presentation bound) with a bounded desktop rail height
+and an internal vertical scroll on the repository list, returning to natural
+flow at the single-column breakpoint. This is a Web-only presentation bound
+over the existing deterministic order, never a ranking or "curated" selection.
+The canonical `RepresentativeRepositories` collection itself still contains
+every item, uncapped and unreordered. The narrowed Starting Point
+Prioritization Contract Gap remains active. Each presented item's short
+description is now the real GitHub-provided repository Description (§8.6.1a),
+never a name-derived or fetched substitute, visually bounded to ~2 lines
+without semantic truncation.
+
+The non-empty Why and Repository Evidence native disclosures remain closed by
+default. Their summary may contain a fixed localized visitor-facing one-line
+description and a visual chevron, but no raw evidence term, count, status,
+selection mechanism, custom ARIA state or JavaScript. Opening behavior and
+their canonical body content are unchanged.
+
+The mockup does not show Limitations, but its omission is not authorized here.
+Limitations remains a canonical Supported section in its existing report order,
+including when empty, under the Empty Limitations Presentation Contract Gap.
+The mockup's Share action likewise remains absent under the Shareable Profile
+URL Contract Gap; no disabled/dead control is a substitute for a real share
+flow.
 
 ------------------------------------------------------------------------
 
@@ -978,7 +1461,7 @@ Then — EN / TR:
 
 Then — EN / TR:
 
-> Recurring engineering practices / Tekrar eden üretim pratikleri
+> Working style / Çalışma biçimi
 
 Then — EN / TR:
 
@@ -986,7 +1469,7 @@ Then — EN / TR:
 
 Finally — EN / TR:
 
-> Why this view / Bu görünümü neden görüyoruz?
+> What is this based on? / Bunu neye dayanarak söylüyoruz?
 
 The exact deterministic synthesis and copy of that first reading layer are
 locked in §8.4; the `Supported`-but-empty copy of its sections is locked in

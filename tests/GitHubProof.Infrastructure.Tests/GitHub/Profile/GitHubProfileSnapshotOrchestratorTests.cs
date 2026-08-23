@@ -17,7 +17,8 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
           "type": "User",
           "name": "The Octocat",
           "created_at": "2011-01-25T18:44:36Z",
-          "public_repos": 2
+          "public_repos": 2,
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
         }
         """;
 
@@ -310,7 +311,8 @@ public sealed class GitHubProfileSnapshotOrchestratorTests
             DataAvailability.Available(
                 "profile-repositories",
                 DateTimeOffset.Parse("2026-08-15T09:30:00Z")),
-            Array.Empty<string>());
+            Array.Empty<string>(),
+            RepositoryPresentationMetadata.Empty);
 
     private sealed class CallbackMetadataCollector(
         Func<GitHubProfileHandle, CancellationToken,

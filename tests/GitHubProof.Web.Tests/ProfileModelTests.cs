@@ -60,6 +60,8 @@ public sealed class ProfileModelTests
         Assert.Equal(0, collector.CallCount);
         Assert.False(model.HasComposedProfile);
         Assert.Null(model.Identity);
+        Assert.Null(model.ProfileUrl);
+        Assert.Null(model.ProfileUrlDisplay);
     }
 
     [Fact]
@@ -99,6 +101,127 @@ public sealed class ProfileModelTests
         Assert.Null(model.ErrorTitle);
         Assert.Null(model.ErrorMessage);
         Assert.NotNull(model.Report);
+        Assert.Equal(new Uri("https://github.com/octocat"), model.ProfileUrl);
+        Assert.Equal("github.com/octocat", model.ProfileUrlDisplay);
+        Assert.Null(model.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithAvailableAvatarMetadata_ExposesTheCanonicalAvatarUrl()
+    {
+        Uri avatarUrl = new("https://avatars.githubusercontent.com/u/1");
+        FakeProfileSnapshotCollector collector = new(
+            CreateSuccessfulSnapshotResult(
+                metadata: new GitHubProfileMetadata(
+                    "The Octocat",
+                    CapturedAt.AddYears(-10),
+                    publicRepositoryCount: 0,
+                    avatarUrl)));
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.Equal(avatarUrl, model.AvatarUrl);
+
+        // Avatar is identity/presentation metadata only: it never enters the
+        // typed evidence report.
+        Assert.NotNull(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithoutCollectedProfileMetadata_LeavesAvatarUrlNull()
+    {
+        // metadata: null (the collector default) mirrors a real snapshot where
+        // metadata legitimately was not carried forward. No fallback URL is
+        // derived — the decorative header mark is a Razor/CSS concern.
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.Null(model.AvatarUrl);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithRepositoryDescriptions_ExposesThemKeyedByCanonicalRepository()
+    {
+        ProfileRepositoryReference alpha = new(
+            Identity,
+            "alpha",
+            new Uri($"https://github.com/{Identity}/alpha"));
+        RepositoryPresentationMetadata descriptions = new(
+            new Dictionary<ProfileRepositoryReference, string?>
+            {
+                [alpha] = "Alpha's short description."
+            });
+        FakeProfileSnapshotCollector collector = new(
+            CreateSuccessfulSnapshotResult(repositoryPresentationMetadata: descriptions));
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.Equal(
+            "Alpha's short description.",
+            model.RepositoryPresentationMetadata.FindDescription(alpha));
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithoutCollectedRepositoryPresentationMetadata_LeavesItEmpty()
+    {
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult());
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.Null(
+            model.RepositoryPresentationMetadata.FindDescription(
+                new ProfileRepositoryReference(
+                    Identity,
+                    "alpha",
+                    new Uri($"https://github.com/{Identity}/alpha"))));
+    }
+
+    [Fact]
+    public async Task OnPostAsync_PreservesAnHtmlLikeRepositoryDescriptionVerbatimAsData()
+    {
+        // Sanitization is Razor's default @-encoding at render time, never a
+        // mutation of the stored canonical value. ProfileModel must carry the
+        // provider-returned string exactly as collected.
+        const string htmlLikeDescription = "<script>alert('x')</script> A repo.";
+        ProfileRepositoryReference alpha = new(
+            Identity,
+            "alpha",
+            new Uri($"https://github.com/{Identity}/alpha"));
+        RepositoryPresentationMetadata descriptions = new(
+            new Dictionary<ProfileRepositoryReference, string?>
+            {
+                [alpha] = htmlLikeDescription
+            });
+        FakeProfileSnapshotCollector collector = new(
+            CreateSuccessfulSnapshotResult(repositoryPresentationMetadata: descriptions));
+
+        ProfileModel model = CreateModel(collector);
+        model.GitHubTarget = Identity;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(
+            htmlLikeDescription,
+            model.RepositoryPresentationMetadata.FindDescription(alpha));
     }
 
     [Fact]
@@ -179,7 +302,7 @@ public sealed class ProfileModelTests
             Assert.Throws<System.Reflection.TargetInvocationException>(() =>
                 composedFactory.Invoke(
                     null,
-                    [pipelineResult.Composition, null]));
+                    [pipelineResult.Composition, null, null, null]));
 
         Assert.IsType<ArgumentNullException>(thrown.InnerException);
     }
@@ -593,18 +716,21 @@ public sealed class ProfileModelTests
             ProfileAnalyzerVersion.V1);
 
     private static GitHubProfileSnapshotResult CreateSuccessfulSnapshotResult(
-        bool isRepositoryManifestComplete = true)
+        bool isRepositoryManifestComplete = true,
+        GitHubProfileMetadata? metadata = null,
+        RepositoryPresentationMetadata? repositoryPresentationMetadata = null)
     {
         GitHubProfileSnapshot snapshot = new(
             new GitHubProfileIdentity(
                 Identity,
                 new Uri($"https://github.com/{Identity}")),
             CapturedAt,
-            metadata: null,
+            metadata,
             repositories: new ProfileRepositoryManifest(
                 isComplete: isRepositoryManifestComplete),
             availability: null,
-            collectionWarnings: null);
+            collectionWarnings: null,
+            repositoryPresentationMetadata);
 
         return new GitHubProfileSnapshotResult(
             snapshot,

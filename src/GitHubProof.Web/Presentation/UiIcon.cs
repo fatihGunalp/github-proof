@@ -14,6 +14,10 @@ public enum UiIcon
     Clock,
     Info,
     ChevronRight,
+    Sparkles,
+    Layers3,
+    Compass,
+    Search,
 
     // Boundary ("what GitHub Proof is not") icons. Each pairs a concept mark
     // with the same prohibition stroke, so it reads as the capability being

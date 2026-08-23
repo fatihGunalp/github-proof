@@ -1,39 +1,92 @@
-@model ProfileReportSection<RepresentativeRepository>
+@model StartingPointSectionModel
 
 @*
-    P10-I3 Starting Point. Renders each repository's full name as presentation
-    text only, in existing report order — no sorting, ranking or
-    deduplication, no selection-support detail, no quality/ranking language,
-    no analysis-linkage identity, no eligibility state and no Repository Proof
-    drill-down link/action: that action is P10-I4's responsibility
-    (implementation-plan.md §13.14/P10-I4).
+    P10-I3 Starting Point. Renders each canonical selected repository in
+    existing report order — no sorting, ranking or deduplication, no
+    selection-support detail, no quality/ranking language and no eligibility
+    state. Its compact action reuses the established Repository Proof POST
+    contract with Repository.Url as GitHubTarget; it is never a direct
+    GitHub navigation.
+
+    Session 111 STEP 2: at most StartingPointPresentation.PresentedItemLimit
+    items are PRESENTED here, via StartingPointPresentation.Select over the
+    existing canonical Model.Section.Items order. This is a Web-only
+    presentation bound, not a ranking — the canonical
+    RepresentativeRepositories collection itself is never capped, reordered
+    or mutated.
+
+    Session 111 STEP 3: each presented item's short description is looked up
+    from Model.Descriptions (provider-returned GitHub repository Description
+    only — never generated, translated or derived). Razor's default @-encoding
+    renders it as plain text; it is never passed through Html.Raw and never
+    turned into a link.
 *@
 @{
-    if (Model.SectionKey != ProfileReportSectionKey.RepresentativeRepositories)
+    if (Model.Section.SectionKey != ProfileReportSectionKey.RepresentativeRepositories)
     {
         throw new InvalidOperationException(
             "Starting point partial requires the RepresentativeRepositories "
-            + $"section, but received '{Model.SectionKey}'.");
+            + $"section, but received '{Model.Section.SectionKey}'.");
     }
+
+    IReadOnlyList<RepresentativeRepository> presentedItems =
+        StartingPointPresentation.Select(Model.Section.Items);
 }
 
 <section
-    class="profile-result__section"
+    class="profile-result__section profile-result__section--starting-point"
     aria-labelledby="profile-starting-point-title">
 
-    <h2
-        class="profile-result__section-title"
-        id="profile-starting-point-title">
-        @ProfileText.GetSectionLabel(Model.SectionKey, Text.Culture)
-    </h2>
+    <div class="profile-result__card-heading">
+        <span class="profile-result__icon-tile" aria-hidden="true">
+            @await Html.PartialAsync("_UiIcon", UiIcon.Compass)
+        </span>
 
-    @if (Model.Items.Count > 0)
+        <h2
+            class="profile-result__section-title"
+            id="profile-starting-point-title">
+            @ProfileText.GetSectionLabel(Model.Section.SectionKey, Text.Culture)
+        </h2>
+    </div>
+
+    @if (presentedItems.Count > 0)
     {
         <ul class="profile-result__repository-list">
-            @foreach (RepresentativeRepository item in Model.Items)
+            @foreach (RepresentativeRepository item in presentedItems)
             {
+                string? description = Model.Descriptions.FindDescription(item.Repository);
+
                 <li class="profile-result__repository-item">
-                    @item.Repository.FullName
+                    <span class="profile-result__starting-point-identity">
+                        @item.Repository.FullName
+                    </span>
+
+                    <p class="profile-result__starting-point-description">
+                        @(description is not null
+                            ? description
+                            : ProfileText.GetStartingPointDescriptionFallback(Text.Culture))
+                    </p>
+
+                    <form
+                        method="post"
+                        asp-page="/Index"
+                        data-analysis-form>
+
+                        <input
+                            type="hidden"
+                            name="GitHubTarget"
+                            value="@item.Repository.Url" />
+
+                        <button
+                            class="button button--secondary"
+                            type="submit"
+                            data-analysis-submit
+                            aria-label="@ProfileText.GetRepositoryActionAccessibleName(
+                                item.Repository.FullName,
+                                Text.Culture)">
+                            @ProfileText.GetRepositoryActionLabel(Text.Culture)
+                        </button>
+                    </form>
                 </li>
             }
         </ul>
@@ -41,7 +94,7 @@
     else
     {
         <p class="profile-result__section-empty">
-            @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
+            @ProfileText.GetEmptySectionMessage(Model.Section.SectionKey, Text.Culture)
         </p>
     }
 </section>

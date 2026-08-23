@@ -18,7 +18,8 @@ public sealed class GitHubProfileMetadataCollectorTests
               "type": "User",
               "name": "The Octocat",
               "created_at": "2011-01-25T18:44:36Z",
-              "public_repos": 8
+              "public_repos": 8,
+              "avatar_url": "https://avatars.githubusercontent.com/u/583231?v=4"
             }
             """));
 
@@ -33,7 +34,89 @@ public sealed class GitHubProfileMetadataCollectorTests
             DateTimeOffset.Parse("2011-01-25T18:44:36Z"),
             result.Metadata.CreatedAt);
         Assert.Equal(8, result.Metadata.PublicRepositoryCount);
+        Assert.Equal(
+            new Uri("https://avatars.githubusercontent.com/u/583231?v=4"),
+            result.Metadata.AvatarUrl);
         Assert.Equal("/users/octocat", handler.RequestUris[0].AbsolutePath);
+    }
+
+    [Fact]
+    public async Task CollectAsync_FailsWhenAvatarUrlFieldIsMissing()
+    {
+        GitHubProfileMetadataCollection result = await CreateCollector(
+                new QueueHttpMessageHandler(JsonResponse("""
+                    {
+                      "login": "octocat",
+                      "type": "User",
+                      "name": "The Octocat",
+                      "created_at": "2011-01-25T18:44:36Z",
+                      "public_repos": 8
+                    }
+                    """)))
+            .CollectAsync(ProfileHandle);
+
+        Assert.Equal(DataAvailabilityStatus.Failed, result.Availability.Status);
+        Assert.Null(result.Metadata);
+    }
+
+    [Fact]
+    public async Task CollectAsync_FailsWhenAvatarUrlIsNotAnAbsoluteUri()
+    {
+        GitHubProfileMetadataCollection result = await CreateCollector(
+                new QueueHttpMessageHandler(JsonResponse("""
+                    {
+                      "login": "octocat",
+                      "type": "User",
+                      "name": "The Octocat",
+                      "created_at": "2011-01-25T18:44:36Z",
+                      "public_repos": 8,
+                      "avatar_url": "not-a-url"
+                    }
+                    """)))
+            .CollectAsync(ProfileHandle);
+
+        Assert.Equal(DataAvailabilityStatus.Failed, result.Availability.Status);
+        Assert.Null(result.Metadata);
+    }
+
+    [Fact]
+    public async Task CollectAsync_FailsWhenAvatarUrlIsNotHttps()
+    {
+        GitHubProfileMetadataCollection result = await CreateCollector(
+                new QueueHttpMessageHandler(JsonResponse("""
+                    {
+                      "login": "octocat",
+                      "type": "User",
+                      "name": "The Octocat",
+                      "created_at": "2011-01-25T18:44:36Z",
+                      "public_repos": 8,
+                      "avatar_url": "http://avatars.githubusercontent.com/u/583231?v=4"
+                    }
+                    """)))
+            .CollectAsync(ProfileHandle);
+
+        Assert.Equal(DataAvailabilityStatus.Failed, result.Availability.Status);
+        Assert.Null(result.Metadata);
+    }
+
+    [Fact]
+    public async Task CollectAsync_FailsWhenAvatarUrlUsesANonHttpScheme()
+    {
+        GitHubProfileMetadataCollection result = await CreateCollector(
+                new QueueHttpMessageHandler(JsonResponse("""
+                    {
+                      "login": "octocat",
+                      "type": "User",
+                      "name": "The Octocat",
+                      "created_at": "2011-01-25T18:44:36Z",
+                      "public_repos": 8,
+                      "avatar_url": "javascript:alert(1)"
+                    }
+                    """)))
+            .CollectAsync(ProfileHandle);
+
+        Assert.Equal(DataAvailabilityStatus.Failed, result.Availability.Status);
+        Assert.Null(result.Metadata);
     }
 
     [Fact]

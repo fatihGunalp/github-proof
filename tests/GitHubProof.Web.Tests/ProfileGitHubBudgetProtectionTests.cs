@@ -193,7 +193,8 @@ public sealed class ProfileGitHubBudgetProtectionTests
               "type": "User",
               "name": "The Octocat",
               "created_at": "2011-01-25T18:44:36Z",
-              "public_repos": 1
+              "public_repos": 1,
+              "avatar_url": "https://avatars.githubusercontent.com/u/1"
             }
             """;
 

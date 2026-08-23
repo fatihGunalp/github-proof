@@ -476,7 +476,8 @@ public sealed class ProfileExecutionBoundaryTests
             new GitHubProfileMetadata(
                 "The Octocat",
                 CapturedAt.AddYears(-10),
-                publicRepositoryCount: 0),
+                publicRepositoryCount: 0,
+                avatarUrl: new Uri("https://avatars.githubusercontent.com/u/1")),
             ProfileAvailable());
 
     private static GitHubProfileMetadataCollection UnavailableMetadataCollection() =>
@@ -492,7 +493,8 @@ public sealed class ProfileExecutionBoundaryTests
         new(
             new ProfileRepositoryManifest(),
             DataAvailability.Available("profile-repositories", CapturedAt),
-            Array.Empty<string>());
+            Array.Empty<string>(),
+            RepositoryPresentationMetadata.Empty);
 
     private sealed class StubCollector(GitHubProfileSnapshotResult result)
         : IGitHubProfileSnapshotCollector
