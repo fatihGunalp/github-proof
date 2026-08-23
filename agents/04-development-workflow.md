@@ -16,22 +16,8 @@ Pre-existing değişiklikleri not et.
 
 Unrelated kullanıcı değişikliklerine dokunma.
 
-Default meaningful session modeli:
-
-~~~text
-1 meaningful session → 1 working branch
-~~~
-
-`CURRENT.md` veya ilgili session Active Branch ya da Base HEAD bildiriyorsa,
-mutation öncesi bunları Git ile karşılaştır.
-
-~~~text
-branch mismatch → DUR
-base mismatch   → DUR
-~~~
-
-Mismatch'i sessizce repair etme. Session base → branch HEAD diff'i primary
-structural scope evidence'dır.
+Session/branch invariant'ı (default 1 session → 1 branch, mismatch → DUR)
+`AGENTS.md` §4'ün sorumluluğundadır; burada tekrar tanımlanmaz.
 
 ## 2. Active Work
 
@@ -112,28 +98,13 @@ Canonical docs değişmesi gerekiyorsa bunu kullanıcıya açıkça bildir.
 
 ## 6. Git Safety
 
-Varsayılan ownership:
-
-~~~text
-Codex:
-- edit
-- test
-- diff/status review
-- worklog update
-- suggested commit message
-
-Kullanıcı:
-- commit
-- push
-~~~
-
-Açık talimat olmadan commit/push/merge/rebase/tag/release/deploy yok.
-
-Destructive cleanup yok.
+Ownership, destructive-command listesi ve unrelated-changes kuralı
+`AGENTS.md` §5'in sorumluluğundadır; burada tekrar tanımlanmaz.
 
 ## 7. Mid-task Model Escalation
 
-Görev seçilen modelden daha karmaşık hâle gelirse `01-model-routing.md` escalation kuralını uygula.
+Görev seçilen modelden daha karmaşık hâle gelirse `AGENTS.md` §2 escalation
+disiplinini ve `01-model-routing.md` (Codex) tier detaylarını uygula.
 
 Safe checkpoint bırak.
 

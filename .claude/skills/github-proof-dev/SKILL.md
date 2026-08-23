@@ -72,16 +72,10 @@ Claude, `agents/01-model-routing.md` içindeki Codex model gate'ini çalıştır
 
 ## Change
 
-En küçük doğru değişikliği yap.
+En küçük doğru değişikliği yap; genel implementation disiplini
+`agents/04-development-workflow.md` §4'ün sorumluluğundadır.
 
-- existing architecture/naming'i önce doğrula,
-- contract'ı implementation kolaylığı için gevşetme,
-- unrelated cleanup yapma,
-- gereksiz dependency/abstraction ekleme,
-- unavailable evidence'i stronger truth'e dönüştürme,
-- unrelated user work'e dokunma.
-
-Test edilebilir invariant için mümkünse test kullan.
+Skill'e özgü ek kural: unavailable evidence'i stronger truth'e dönüştürme.
 
 DEBUG_FIX:
 failure evidence → narrow reproduction → root cause → bounded patch → regression validation.
@@ -140,9 +134,7 @@ Worklog product truth değildir.
 
 ## Stop
 
-Development completion Git side-effect authority değildir.
-
-Commit/push/merge/rebase/tag/release/deploy yapma;
-explicit finalization gerekiyorsa `/github-proof-finalize` kullan.
+Development completion Git side-effect authority değildir (bkz. `AGENTS.md`
+§5). Explicit finalization gerekiyorsa `/github-proof-finalize` kullan.
 
 Kullanıcıya Türkçe ve kısa rapor ver.

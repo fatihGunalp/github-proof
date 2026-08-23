@@ -36,14 +36,8 @@ CURRENT operational state'tir; product truth değildir.
 Yalnız review verdict'ini değiştirebilecek canonical docs/code/test context'ini
 yükle.
 
-Authority:
-
-user requirement
-→ canonical docs
-→ CLAUDE.md / applicable repository policy
-→ agents
-→ worklog
-→ code/diff evidence
+Authority sırası `AGENTS.md` §1'in sorumluluğundadır; burada tekrar
+tanımlanmaz.
 
 Implementation davranışı canonical docs'u override edemez.
 

@@ -1,169 +1,83 @@
-# GitHub Proof — Codex Repository Instructions
+# GitHub Proof — Repository Agent Contract
 
-Bu dosya repository düzeyindeki Codex giriş noktasıdır.
+Ortak davranış sözleşmesi (Codex, Claude Code). Ürün/domain gerçeği taşımaz —
+source of truth `docs/`. Tool-specific routing: Codex → `agents/01-model-routing.md`,
+Claude → `CLAUDE.md`.
 
-Codex bu repository'de hiçbir meaningful işi doğrudan uygulamaya başlamaz. Önce görev için model ve reasoning effort seçimi yapar, kullanıcıdan `devam et` onayı bekler, sonra yalnız gerekli bağlamı yükleyip çalışır.
-
-## 1. Instruction Precedence
-
-Project içinde çelişki olduğunda şu sıra kullanılır:
+## 1. Authority
 
 ~~~text
-1. Kullanıcının mevcut açık talimatı
-2. docs/ içindeki güncel ürün/domain/mimari sözleşmeleri
-3. Bu AGENTS.md
-4. agents/ altındaki playbook'lar
-5. GitHub Proof'a ait geçerli worklog/ state'i
-6. Mevcut koddan yapılan çıkarım
+1. kullanıcının mevcut talimatı
+2. docs/
+3. AGENTS.md
+4. agents/ playbook'ları
+5. worklog/
+6. koddan çıkarım
 ~~~
 
-`docs/` project source of truth'tur.
+`agents/` çalışma biçimini tanımlar, ürün gerçeğini değiştiremez. `worklog/`
+yalnız geliştirme hafızasıdır; `docs/` ile çelişirse `docs/` kazanır.
 
-`agents/` çalışma biçimini tanımlar; ürün gerçeğini değiştiremez.
+## 2. Model Gate
 
-`worklog/` yalnız geliştirme hafızasıdır; `docs/` ile çelişirse `docs/` kazanır.
+Her yeni meaningful görevde ajan bir model/effort route'u önerir ve kullanıcı
+açıkça onaylamadan (örn. `devam et`) mutasyon yapmaz: kod/dosya değişikliği,
+test/build, dependency, migration, geniş tarama, commit/push yok.
 
-## 2. Mandatory Model Gate
+`devam et`: pending öneri varsa → onaylandı, uygula. Pending yok + Active
+Session varsa → aynı session'a devam. İkisi de yoksa → yeniden route et.
+Görev pending sırasında değişirse öneri geçersizdir. Risk yükselirse güvenli
+checkpoint'te DUR ve yeniden öner.
 
-Her yeni repository görevi için önce `agents/01-model-routing.md` kurallarını uygula.
+Tier vocabulary ve çıktı formatı tool-specific dosyanın sorumluluğudur;
+burada tekrar tanımlanmaz.
 
-Yeni görevde, kullanıcı açıkça `devam et` demeden önce:
+## 3. Context & Workflow
 
-- kod yazma veya değiştirme,
-- dosya oluşturma/silme,
-- test/build çalıştırma,
-- dependency ekleme,
-- migration üretme,
-- geniş repository taraması yapma,
-- commit/push yapma.
-
-Model seçimi için yalnız görevin kendisini ve gerekiyorsa çok sınırlı read-only triage bilgisini kullan.
-
-Model önerisini ver ve DUR.
-
-Öneri şu biçimde bitmelidir:
+Gate onayından sonra önce `agents/02-context-loading.md` okunur; o, task/
+context route'una göre hangi ek playbook'un gerekli olduğunu belirler.
+Yalnız route'un işaret ettiği playbook(lar) yüklenir — `agents/03`..`07`'nin
+hepsi her görevde eager-load edilmez. Sahiplik referansı:
 
 ~~~text
-Modeli <MODEL> / <EFFORT> olarak ayarla.
-Devam etmek için: devam et
+03 = invariant özeti
+04 = implementation/session
+05 = Repository domain (yalnız etkileniyorsa)
+06 = validation
+07 = worklog (yalnız kullanılıyorsa)
 ~~~
 
-Codex modeli kendisinin değiştirdiğini iddia etmez. Modeli kullanıcı değiştirir.
+Kararı değiştirmeyecek dosya yüklenmez; bütün `docs/`/repository eager-load
+edilmez.
 
-## 3. `devam et` Semantiği
+## 4. Session / Branch
 
-Eğer bir önceki Codex mesajı model seçimi önerisi ise kullanıcının `devam et` mesajı:
+Default 1 meaningful session → 1 working branch (trivial/mekanik iş istisna
+olabilir). Push count branch count'u belirlemez. CURRENT'in bildirdiği Active
+Branch/Session Base, mutation öncesi Git ile doğrulanır; mismatch → DUR,
+sessizce repair edilmez. Session-base → HEAD diff, primary scope evidence'dır.
+
+## 5. Git Safety
 
 ~~~text
-model seçimi onaylandı
-→ artık görevi uygula
+Ajan: edit, test, diff/status review, worklog update, suggested commit
+Kullanıcı: commit, push
 ~~~
 
-anlamına gelir.
+Açık talimat olmadan commit/push/merge/rebase/tag/release/deploy yok. Ajan
+kullanıcı için Git identity (author/committer) oluşturmaz/değiştirmez.
+Destructive komut (`reset --hard`, `clean -fd`, `restore <file>`,
+`checkout -- <file>`) açık talimatsız kullanılmaz. Unrelated kullanıcı
+değişikliği sahiplenilmez, stage/overwrite/revert edilmez.
 
-Bu durumda yeniden model seçimi isteme.
+## 6. Discipline
 
-Eğer pending model seçimi yoksa ve kullanıcı `devam et` derse, GitHub Proof'a ait geçerli bir Active Session varsa aynı session'ın devam işi olarak yorumla. Yeni bir bağımsız görev oluşuyorsa yeniden model gate uygula.
+Gerekmeyen refactor/abstraction/framework/"ileride lazım olur" işi yapılmaz.
+Docs sözleşmesi sessizce değiştirilmez.
 
-Kullanıcı model gate beklenirken görevi değiştirirse eski öneriyi geçersiz say ve yeni görev için yeniden route et.
+Mismatch, çelişki, eksik kritik karar veya scope collision → DUR, kullanıcıya
+açıkça bildir; sessizce ilerleme veya scope genişletme yok.
 
-## 4. Context Loading
-
-Model gate onayından sonra `agents/02-context-loading.md` dosyasını uygula.
-
-Bütün `docs/` klasörünü her görevde okuma.
-
-Yalnız görevin kararını etkileyen belgeleri yükle.
-
-## 5. Project Contract
-
-Uygulama boyunca `agents/03-project-contract.md` içindeki invariant özetine uy.
-
-Özet ile `docs/` çelişirse `docs/` kazanır.
-
-Özellikle:
-
-- GitHub Proof geliştiriciyi değil görünür kanıtı değerlendirir.
-- Repository Proof, tek bir public repository için micro evidence view'dur;
-  mevcut deterministik 15-sinyal / 4-kategori scoring contract'ını kullanır.
-- Profile Proof, bir public GitHub profili üzerindeki görünür repository
-  evidence'ını deterministic ve job-agnostic macro aggregation olarak sunar;
-  Repository Proof scoring semantics'ini yeniden tanımlamaz.
-- Her iki proof surface seniority, employability veya unsupported capability
-  inference üretmez.
-- LLM doğrudan puan üretmez.
-- Puanlama deterministiktir.
-- `Missing`, `NotApplicable`, `UnavailableEvidence` ve `RequiresHumanReview` birbirine karıştırılmaz.
-- Bileşik presentation completeness sinyali overall skorda ikinci kez sayılmaz.
-
-## 6. Development Workflow
-
-Model gate onayından sonra implementation için `agents/04-development-workflow.md` uygulanır.
-
-`agents/05-domain-development.md`, Repository Proof V1'in original
-domain-scoring foundation rehberidir. Yalnız Repository-domain concerns
-etkilendiğinde oku. Profile domain işleri için `agents/02-context-loading.md`
-Profile routes'larını ve ilgili canonical Profile contract'ını kullan.
-
-İş bitiminde `agents/06-review-and-validation.md` uygulanır.
-
-Worklog kullanılıyorsa `agents/07-worklog-integration.md` kuralları geçerlidir.
-
-Shared session invariant:
-
-~~~text
-default: 1 meaningful session → 1 working branch
-CURRENT active branch/base bildiriyorsa mutation öncesi Git ile doğrula
-branch veya base mismatch → DUR
-~~~
-
-## 7. Git Safety
-
-Kullanıcı açıkça istemedikçe Codex:
-
-~~~text
-git commit
-git push
-git merge
-git rebase
-git tag
-release
-deploy
-~~~
-
-yapmaz.
-
-Meaningful görev başlangıcında pre-existing working tree korunur.
-
-Açık talimat olmadan şu destructive komutları kullanma:
-
-~~~text
-git reset --hard
-git clean -fd
-git restore <file>
-git checkout -- <file>
-~~~
-
-Unrelated kullanıcı değişikliklerini sahiplenme, stage etme, overwrite etme veya revert etme.
-
-## 8. Scope Discipline
-
-Görevin gerektirmediği architecture refactor, framework ekleme, abstraction üretme veya "ileride lazım olur" işi yapma.
-
-Yeni ürün/domain/mimari kararı gerekiyorsa mevcut docs sözleşmesini sessizce değiştirme. Çelişkiyi veya yeni karar ihtiyacını kullanıcıya açıkça bildir.
-
-## 9. Cost Discipline
-
-Ana hedef:
-
-~~~text
-minimum gerekli model
-minimum gerekli reasoning effort
-minimum gerekli context
-minimum gereksiz tool kullanımı
-maximum doğrulanabilirlik
-~~~
-
-Kolay görevde Sol seçme.
-
-Zor veya yüksek riskli görevi sırf ucuzluk için Luna'ya zorlama.
+Meaningful mutation, final rapordan önce bağımsız review'den geçer (bkz.
+`agents/06-review-and-validation.md`); yazan ajan kendi işi için closure
+review authority'si sayılmaz.

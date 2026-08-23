@@ -24,20 +24,10 @@ agent commit/push yapmaz
 
 ## Model Gate ile `devam et` Çakışması
 
-Eski worklog pattern'inde `devam et` Active Session continuation komutuydu.
-
-GitHub Proof Codex workflow'unda yeni öncelik:
-
-~~~text
-1. Pending MODEL SEÇİMİ varsa:
-   "devam et" = kullanıcı modeli değiştirdi, mevcut task'ı uygula
-
-2. Pending model gate yoksa ve Active Session varsa:
-   "devam et" = aynı session'a devam et
-
-3. Pending gate yok ve yeni bağımsız iş gerekiyorsa:
-   yeniden model route et
-~~~
+Eski worklog pattern'inde `devam et` yalnız Active Session continuation
+komutuydu. `devam et`'in güncel önceliği (pending gate onayı > Active Session
+continuation > yeni route) `AGENTS.md` §2'nin sorumluluğundadır; burada
+tekrar tanımlanmaz.
 
 Bu ayrım zorunludur; aksi hâlde model gate sonsuz döngüye girebilir.
 
