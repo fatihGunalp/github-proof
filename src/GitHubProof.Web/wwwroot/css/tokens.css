@@ -11,6 +11,7 @@
     --primitive-neutral-300: #c8ced6;
     --primitive-neutral-400: #9da6b2;
     --primitive-neutral-500: #6f7885;
+    --primitive-neutral-550: #5f6875;
     --primitive-neutral-600: #505965;
     --primitive-neutral-700: #353c45;
     --primitive-neutral-800: #23282f;
@@ -152,7 +153,14 @@
     /* Light semantic foregrounds */
     --fg-primary: var(--primitive-neutral-925);
     --fg-secondary: var(--primitive-neutral-600);
-    --fg-tertiary: var(--primitive-neutral-500);
+    /* Session 116: light tertiary text is semantic content (row status,
+       Supported+empty copy, evidence source, score readouts), not decoration,
+       and neutral-500 sat below WCAG AA 4.5:1 on EVERY light background
+       (4.016-4.467). neutral-550 is the arithmetic midpoint of neutral-500
+       and neutral-600, so it clears AA everywhere (min 5.070) while staying
+       visibly lighter than --fg-secondary. Dark keeps neutral-400, which
+       already passes. */
+    --fg-tertiary: var(--primitive-neutral-550);
     --fg-muted: var(--primitive-neutral-400);
     --fg-disabled: var(--primitive-neutral-400);
     --fg-inverse: var(--primitive-neutral-000);

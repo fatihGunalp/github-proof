@@ -1,18 +1,17 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-24 (Session 115)
+**Last Updated:** 2026-08-24 (Session 116)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 115 — P10-I6-C Responsive + Theme + EN/TR Closure — **PASS**
-  (validation-only; no production change). Branch
-  `session/115-p10-i6-c-responsive-theme-localization-closure`, base `8ecf782`,
+- **Last Session:** 116 — Shared Light-Theme Tertiary Text Contrast — **PASS**.
+  Branch `session/116-shared-light-theme-tertiary-contrast`, base `f085961`,
   route Opus / high.
-  Detail: [`sessions/2026-08-24-115-p10-i6-c-responsive-theme-localization-closure.md`](./sessions/2026-08-24-115-p10-i6-c-responsive-theme-localization-closure.md)
-- **Last integrated commit on `main`:** `8ecf782` (Session 114).
+  Detail: [`sessions/2026-08-24-116-shared-light-theme-tertiary-contrast.md`](./sessions/2026-08-24-116-shared-light-theme-tertiary-contrast.md)
+- **Last integrated commit on `main`:** `f085961` (Session 115).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -25,6 +24,13 @@ carries product, domain or architecture truth.
   sub-slices, so only I6-A has a canonical clause (§8.7).
 - **P10 is NOT marked complete.** Completion is a separate architecture-owner
   exit evaluation, still pending. Milestone B remains open.
+- Session 116 corrected the Session 115 escalation in shared `tokens.css`:
+  light `--fg-tertiary` now resolves to a new `--primitive-neutral-550`
+  (`#5f6875`, the midpoint of neutral-500/600). It clears WCAG AA on all nine
+  reachable light backgrounds (min 5.070) with the three-level type hierarchy
+  intact; dark is unchanged and already passed. Zero consumer stylesheets were
+  patched — all 34 consumers inherit. Two contrast guards were added to
+  `CssArchitectureTests` and proven to fail on the pre-change value.
 - Session 115 changed no production, test or docs file. A 6-state rendered
   matrix (1280 / 880 / 390 × dark / light × TR / EN) over all nine Profile
   surfaces found no defect: no page overflow, no clipped semantic text, no card
@@ -59,7 +65,7 @@ These block a production PASS, not the next development slice.
 
 | Open item | State |
 |---|---|
-| Light-theme `--fg-tertiary` contrast | **escalated, unfixed.** 13px tertiary text measures 4.467 on raised cards and 4.357 on canvas (WCAG AA normal text = 4.5); dark passes at 7.30/8.10. The token is shared: 19 uses in `report.css`, 8 in `profile-result.css`, 7 elsewhere. A Profile-only patch would fork the design system, so the repair belongs in `tokens.css` — a shared file. Architecture-owner decision required |
+| `--fg-muted` contrast | **open, unfixed — separate token.** Fails AA in BOTH themes: light `neutral-400` on canvas **2.401**, dark `neutral-500` on canvas **4.463**. Observed on `.report-disclaimer__version`; also used at `report.css:140/867/1190` and `components.css:109`. Outside Session 116's stated goal, so it was reported rather than silently fixed. Architecture-owner decision required |
 | Profile pixel review | no screenshot or human aesthetic review has been performed; Sessions 114/115 evidence is measured layout geometry and computed contrast from the real engine |
 | Real analyzed Profile render | never captured — no `GITHUB_TOKEN`, unauthenticated quota is 60/hour and was exhausted. Both visual gates used browser-injected DOM carrying real canonical copy |
 | Visitor rate limit `2/10 min` | unselected candidate; permit/window unset, so IP limiting is disabled |
@@ -77,9 +83,9 @@ RECENCY · SHAREABLE PROFILE URL · SOCIAL PREVIEW · Project-Type Presentation 
 Starting Point Prioritization · Empty Limitations. All six remain open;
 Session 115 touched none of them.
 
-Evidence and reasoning: sessions 106-110, 114, 115 (see [`INDEX.md`](./INDEX.md)).
+Evidence and reasoning: sessions 106-110, 114, 115, 116 (see [`INDEX.md`](./INDEX.md)).
 
 ## Exact Next Action
 
-Architecture-owner decision on the escalated light-theme `--fg-tertiary`
-contrast finding, then the separate P10 exit evaluation.
+Architecture-owner decision on the separate `--fg-muted` AA finding, then the
+pending P10 exit evaluation.
