@@ -30,6 +30,24 @@
 > four short text-only meanings. The prior four-card/icon composition is
 > superseded; Analyze remains the only primary CTA.
 
+> **Amended:** 2026-08-24 / Sessions 116-117 — accessibility-driven semantic
+> foreground correction, resolving an internal contradiction in this document
+> rather than setting a new design direction. §29's WCAG 2.2 AA normal-text
+> requirement (4.5:1) is the governing invariant. The former `--fg-tertiary`
+> and `--fg-muted` mappings were measured against the surfaces their actual
+> semantic small-text consumers render on — Repository Proof evidence sources,
+> score readouts and category status, the report policy-version string, Profile
+> row status and Supported+empty copy, and the GitHub input placeholder — and
+> were found insufficient: light tertiary failed on every reachable light
+> background (4.016-4.467) and muted failed in both themes (light 2.401-2.462,
+> dark 4.353-4.463). §5.1, the Light/Dark foreground mappings and the §31
+> variable examples are aligned to the validated implementation, which adds
+> `neutral-490`, `neutral-510` and `neutral-550` to the neutral ramp. No
+> product, status or domain semantics changed; no consumer was reassigned to a
+> different semantic token. The Light/Dark hierarchy remains equivalent —
+> primary > secondary > tertiary > muted holds in both themes — and only
+> contrast/luminance adaptation changed.
+
 ---
 
 ## 1. Amaç
@@ -247,7 +265,10 @@ neutral-150   #E9ECF0
 neutral-200   #DEE2E7
 neutral-300   #C8CED6
 neutral-400   #9DA6B2
+neutral-490   #727B87
 neutral-500   #6F7885
+neutral-510   #6C7582
+neutral-550   #5F6875
 neutral-600   #505965
 neutral-700   #353C45
 neutral-800   #23282F
@@ -343,8 +364,8 @@ violet-700   #6D28D9
 ```text
 --fg-primary               neutral-925
 --fg-secondary             neutral-600
---fg-tertiary              neutral-500
---fg-muted                 neutral-400
+--fg-tertiary              neutral-550
+--fg-muted                 neutral-510
 --fg-disabled              neutral-400
 --fg-inverse               neutral-000
 --fg-link                  blue-600
@@ -404,7 +425,7 @@ Amaç:
 --fg-primary               neutral-050
 --fg-secondary             neutral-300
 --fg-tertiary              neutral-400
---fg-muted                 neutral-500
+--fg-muted                 neutral-490
 --fg-disabled              neutral-600
 --fg-inverse               neutral-950
 --fg-link                  blue-300
@@ -1621,8 +1642,8 @@ Header veya preferences alanında sessiz bir kontrol olmalıdır.
 
   --fg-primary: #101318;
   --fg-secondary: #505965;
-  --fg-tertiary: #6F7885;
-  --fg-muted: #9DA6B2;
+  --fg-tertiary: #5F6875;
+  --fg-muted: #6C7582;
 
   --border-subtle: #E9ECF0;
   --border-default: #DEE2E7;
@@ -1646,7 +1667,7 @@ Header veya preferences alanında sessiz bir kontrol olmalıdır.
   --fg-primary: #F8F9FB;
   --fg-secondary: #C8CED6;
   --fg-tertiary: #9DA6B2;
-  --fg-muted: #6F7885;
+  --fg-muted: #727B87;
 
   --border-subtle: #14171C;
   --border-default: #1B1F25;

@@ -10,7 +10,15 @@
     --primitive-neutral-200: #dee2e7;
     --primitive-neutral-300: #c8ced6;
     --primitive-neutral-400: #9da6b2;
+    /* Session 117: two narrow steps either side of neutral-500, added
+       because --fg-muted serves non-exempt semantic text (an input
+       placeholder and the report policy-version string) and neither theme
+       had an existing step inside its admissible band. The 10-unit
+       granularity is finer than the rest of the scale only because those
+       bands are narrow; the ordering rule (lower label = lighter) holds. */
+    --primitive-neutral-490: #727b87;
     --primitive-neutral-500: #6f7885;
+    --primitive-neutral-510: #6c7582;
     --primitive-neutral-550: #5f6875;
     --primitive-neutral-600: #505965;
     --primitive-neutral-700: #353c45;
@@ -161,7 +169,13 @@
        visibly lighter than --fg-secondary. Dark keeps neutral-400, which
        already passes. */
     --fg-tertiary: var(--primitive-neutral-550);
-    --fg-muted: var(--primitive-neutral-400);
+    /* Session 117: neutral-400 measured 2.462 (placeholder on
+       --surface-default) and 2.401 (version string on --bg-canvas), far
+       below the WCAG AA 4.5:1 that both consumers require as text.
+       neutral-510 is the smallest movement clearing AA on both while
+       staying strictly dimmer than --fg-tertiary. --fg-disabled keeps
+       neutral-400 deliberately: inactive controls are exempt. */
+    --fg-muted: var(--primitive-neutral-510);
     --fg-disabled: var(--primitive-neutral-400);
     --fg-inverse: var(--primitive-neutral-000);
     --fg-link: var(--primitive-blue-600);
@@ -234,7 +248,7 @@
     --fg-primary: var(--primitive-neutral-050);
     --fg-secondary: var(--primitive-neutral-300);
     --fg-tertiary: var(--primitive-neutral-400);
-    --fg-muted: var(--primitive-neutral-500);
+    --fg-muted: var(--primitive-neutral-490);
     --fg-disabled: var(--primitive-neutral-600);
     --fg-inverse: var(--primitive-neutral-950);
     --fg-link: var(--primitive-blue-300);
@@ -309,7 +323,7 @@
         --fg-primary: var(--primitive-neutral-050);
         --fg-secondary: var(--primitive-neutral-300);
         --fg-tertiary: var(--primitive-neutral-400);
-        --fg-muted: var(--primitive-neutral-500);
+        --fg-muted: var(--primitive-neutral-490);
         --fg-disabled: var(--primitive-neutral-600);
         --fg-inverse: var(--primitive-neutral-950);
         --fg-link: var(--primitive-blue-300);

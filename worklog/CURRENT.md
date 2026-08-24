@@ -1,17 +1,17 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-24 (Session 116)
+**Last Updated:** 2026-08-24 (Session 117)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 116 — Shared Light-Theme Tertiary Text Contrast — **PASS**.
-  Branch `session/116-shared-light-theme-tertiary-contrast`, base `f085961`,
-  route Opus / high.
-  Detail: [`sessions/2026-08-24-116-shared-light-theme-tertiary-contrast.md`](./sessions/2026-08-24-116-shared-light-theme-tertiary-contrast.md)
-- **Last integrated commit on `main`:** `f085961` (Session 115).
+- **Last Session:** 117 — `--fg-muted` Accessibility Audit & Correction —
+  **PASS**. Branch `session/117-fg-muted-accessibility-audit-correction`,
+  base `74f8444`, route Opus / high.
+  Detail: [`sessions/2026-08-24-117-fg-muted-accessibility-audit-correction.md`](./sessions/2026-08-24-117-fg-muted-accessibility-audit-correction.md)
+- **Last integrated commit on `main`:** `74f8444` (Session 116).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -24,17 +24,20 @@ carries product, domain or architecture truth.
   sub-slices, so only I6-A has a canonical clause (§8.7).
 - **P10 is NOT marked complete.** Completion is a separate architecture-owner
   exit evaluation, still pending. Milestone B remains open.
-- Session 116 corrected the Session 115 escalation in shared `tokens.css`:
-  light `--fg-tertiary` now resolves to a new `--primitive-neutral-550`
-  (`#5f6875`, the midpoint of neutral-500/600). It clears WCAG AA on all nine
-  reachable light backgrounds (min 5.070) with the three-level type hierarchy
-  intact; dark is unchanged and already passed. Zero consumer stylesheets were
-  patched — all 34 consumers inherit. Two contrast guards were added to
-  `CssArchitectureTests` and proven to fail on the pre-change value.
-- Session 115 changed no production, test or docs file. A 6-state rendered
-  matrix (1280 / 880 / 390 × dark / light × TR / EN) over all nine Profile
-  surfaces found no defect: no page overflow, no clipped semantic text, no card
-  containment break, correct breakpoint behaviour, I6-A/I6-B intact.
+- **Text-contrast accessibility is closed for both shared foreground roles.**
+  Session 116 remapped light `--fg-tertiary` to `--primitive-neutral-550`;
+  Session 117 remapped `--fg-muted` in both themes to new `neutral-510` /
+  `neutral-490` after classifying its four consumers individually (two
+  non-exempt text, two exempt). Both corrections live only in `tokens.css`; no
+  consumer stylesheet was patched. `CssArchitectureTests` now owns five
+  contrast/token guards, each proven to fail on its pre-change value.
+- **The canonical token contract now matches production.**
+  `docs/product/github-proof-ui-system-light-dark-v1.md` had prescribed the
+  pre-correction mappings while its own §29 required WCAG 2.2 AA — an internal
+  contradiction. Session 117 amended §5.1, the Light/Dark foreground mappings
+  and the §31 examples to the validated implementation, using the file's
+  existing `> **Amended:**` convention. Doc and `tokens.css` are mechanically
+  verified to agree; no stale mapping remains in a normative token example.
 - Production guardrails — execution deadline, admission/concurrency, provider
   budget protection, Partial/failure UX — are implemented and integrated.
   Their exact semantics are owned by `docs/`; they are not restated here.
@@ -65,7 +68,7 @@ These block a production PASS, not the next development slice.
 
 | Open item | State |
 |---|---|
-| `--fg-muted` contrast | **open, unfixed — separate token.** Fails AA in BOTH themes: light `neutral-400` on canvas **2.401**, dark `neutral-500` on canvas **4.463**. Observed on `.report-disclaimer__version`; also used at `report.css:140/867/1190` and `components.css:109`. Outside Session 116's stated goal, so it was reported rather than silently fixed. Architecture-owner decision required |
+| `--fg-muted` AA margin headroom | **accepted, documented.** Margins over 4.5 are only +0.047 (light on `--bg-canvas`) and +0.036 (dark on `--surface-default`), a deliberate consequence of the "smallest visual movement, no invented threshold" rule. Several surfaces sit below AA with this value — lowest is dark `--surface-raised` / `--surface-hover` at **4.190** — but **no non-exempt `--fg-muted` semantic consumer renders on any of them**, so none is a current defect. Any future semantic `--fg-muted` use on a new background requires its own contrast validation before it ships |
 | Profile pixel review | no screenshot or human aesthetic review has been performed; Sessions 114/115 evidence is measured layout geometry and computed contrast from the real engine |
 | Real analyzed Profile render | never captured — no `GITHUB_TOKEN`, unauthenticated quota is 60/hour and was exhausted. Both visual gates used browser-injected DOM carrying real canonical copy |
 | Visitor rate limit `2/10 min` | unselected candidate; permit/window unset, so IP limiting is disabled |
@@ -80,12 +83,12 @@ These block a production PASS, not the next development slice.
 ## Deferred Canonical Gaps
 
 RECENCY · SHAREABLE PROFILE URL · SOCIAL PREVIEW · Project-Type Presentation ·
-Starting Point Prioritization · Empty Limitations. All six remain open;
-Session 115 touched none of them.
+Starting Point Prioritization · Empty Limitations. All six are still open and
+none has been touched.
 
-Evidence and reasoning: sessions 106-110, 114, 115, 116 (see [`INDEX.md`](./INDEX.md)).
+Evidence and reasoning: see [`INDEX.md`](./INDEX.md).
 
 ## Exact Next Action
 
-Architecture-owner decision on the separate `--fg-muted` AA finding, then the
-pending P10 exit evaluation.
+The pending P10 exit evaluation. The Milestone B accessibility blocker raised in
+Session 116 is closed by Session 117.
