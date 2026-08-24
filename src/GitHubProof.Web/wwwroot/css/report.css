@@ -399,10 +399,15 @@
     padding-block: var(--space-3) var(--space-5);
 }
 
+/*
+ * Proves / Weakens / Do First only. The score column was removed: the evidence
+ * score is a secondary diagnostic summary and must not lead the first read
+ * (ui-system 2/22, scoring-and-report-contract 14). The retained three keep
+ * their previous relative proportions unchanged.
+ */
 .report-decision-grid {
     display: grid;
     grid-template-columns:
-        minmax(12rem, 0.85fr)
         minmax(0, 1.1fr)
         minmax(0, 1.1fr)
         minmax(18rem, 1.45fr);
@@ -468,10 +473,6 @@
 .report-summary-card__icon .ui-icon {
     width: 1.25rem;
     height: 1.25rem;
-}
-
-.report-summary-card__icon--score {
-    color: var(--accent-primary);
 }
 
 .report-summary-card__icon--strength {
@@ -610,121 +611,6 @@
     color: var(--fg-secondary);
     font-size: var(--font-size-small);
     line-height: var(--line-height-small);
-}
-
-.report-score-card__body {
-    display: grid;
-    gap: var(--space-3);
-}
-
-.report-score-card__ring {
-    display: grid;
-    width: 4.75rem;
-    height: 4.75rem;
-    place-items: center;
-    border-radius: var(--radius-full);
-    background:
-        conic-gradient(
-            var(--accent-primary)
-            calc(var(--report-score) * 1%),
-            var(--border-subtle) 0);
-}
-
-.report-score-card__ring::before {
-    width: 3.625rem;
-    height: 3.625rem;
-    grid-area: 1 / 1;
-    content: "";
-    border-radius: var(--radius-full);
-    background: var(--surface-raised);
-}
-
-.report-score-card__value {
-    z-index: 1;
-    display: inline-flex;
-    grid-area: 1 / 1;
-    align-items: baseline;
-    color: var(--fg-primary);
-    font-variant-numeric: tabular-nums;
-}
-
-.report-score-card__value strong {
-    font-size: var(--font-size-h2);
-    font-weight: var(--font-weight-h1);
-    line-height: 1;
-}
-
-.report-score-card__value span {
-    margin-left: var(--space-1);
-    color: var(--fg-tertiary);
-    font-size: var(--font-size-caption);
-}
-
-.report-score-card__unavailable {
-    display: grid;
-    width: 4.75rem;
-    height: 4.75rem;
-    place-items: center;
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-full);
-    color: var(--fg-tertiary);
-    font-size: var(--font-size-h2);
-}
-
-.report-score-card__metrics {
-    display: grid;
-    gap: 0;
-    margin-top: var(--space-4);
-    border-top: 1px solid var(--border-subtle);
-}
-
-.report-score-card__metric {
-    display: grid;
-    grid-template-columns: 1rem auto minmax(0, 1fr);
-    align-items: center;
-    gap: var(--space-2);
-    padding-block: var(--space-2);
-    border-bottom: 1px solid var(--border-subtle);
-}
-
-.report-score-card__metric-icon {
-    display: inline-flex;
-    width: 1rem;
-    height: 1rem;
-}
-
-.report-score-card__metric-icon .status-icon {
-    width: 1rem;
-    height: 1rem;
-}
-
-.report-score-card__metric-icon--strength {
-    color: var(--status-strong-icon);
-}
-
-.report-score-card__metric-icon--weakness {
-    color: var(--status-missing-icon);
-}
-
-.report-score-card__metric-icon--uncertainty {
-    color: var(--status-unavailable-icon);
-}
-
-.report-score-card__metric strong {
-    color: var(--fg-primary);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-label);
-    font-variant-numeric: tabular-nums;
-}
-
-.report-score-card__metric-label {
-    min-width: 0;
-    overflow: hidden;
-    color: var(--fg-secondary);
-    font-size: var(--font-size-caption);
-    line-height: var(--line-height-small);
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .disclosure-icon {
@@ -1264,10 +1150,6 @@
 
     .report-summary-card {
         padding: var(--space-5);
-    }
-
-    .report-score-card__body {
-        min-height: 0;
     }
 }
 

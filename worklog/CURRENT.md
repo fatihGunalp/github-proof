@@ -1,17 +1,17 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-24 (Session 118)
+**Last Updated:** 2026-08-24 (Session 119)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 118 — P10 COMPLETE Exit Evaluation — **PASS**.
-  Branch `session/118-p10-complete-exit-evaluation`, base `237804f`,
+- **Last Session:** 119 — Repository Proof Visual Alignment — **PASS**.
+  Branch `session/119-repository-proof-visual-alignment`, base `edb35fd`,
   route Opus / high.
-  Detail: [`sessions/2026-08-24-118-p10-complete-exit-evaluation.md`](./sessions/2026-08-24-118-p10-complete-exit-evaluation.md)
-- **Last integrated commit on `main`:** `237804f` (Session 117).
+  Detail: [`sessions/2026-08-24-119-repository-proof-visual-alignment.md`](./sessions/2026-08-24-119-repository-proof-visual-alignment.md)
+- **Last integrated commit on `main`:** `edb35fd` (Session 118).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -26,9 +26,16 @@ carries product, domain or architecture truth.
   `docs/roadmap/deployment-milestones.md` §3 counts P10 COMPLETE as an *input*
   to Milestone B; §4 reserves milestone COMPLETE for production deploy + smoke
   + remote production verification. None of that has happened.
-- Next product work: **Repository Proof Visual Alignment** (post-P10, separate
-  scope — no canonical P10 clause claims it), then the **Milestone B production
-  gate**.
+- **Repository Proof first-read visual alignment: COMPLETE for this bounded
+  slice.** Repository Proof already shared the design system; the one concrete
+  canonical violation was first-read score dominance. The score card left the
+  first-read layer, which is now exactly Proves → Weakens → Do First. Score
+  semantics are unchanged and the score still renders in its canonical
+  Categories + Score surface. **No unresolved Repository Proof accessibility
+  defect.** Measure/breakpoint unification, the identity card and the Profile
+  radius-token cleanup were deferred by owner decision.
+- Next product work: **Profile Runtime Performance & Budget**, then the
+  **Milestone B production gate**.
 
 ## Locked Decisions
 
@@ -85,5 +92,5 @@ None is unfinished required P10 implementation.
 
 ## Exact Next Action
 
-Open a new model gate for Repository Proof Visual Alignment, or for the
+Open a new model gate for Profile Runtime Performance & Budget, or for the
 Milestone B production gate — architecture owner's choice of order.

@@ -1,3 +1,5 @@
+using System.Text;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace GitHubProof.Web.Tests;
@@ -26,7 +28,6 @@ public sealed class RepositoryReportShellTests
         string[] partials =
         {
             "_RepositoryReportIdentity",
-            "_RepositoryReportScoreCard",
             "_RepositoryReportProves",
             "_RepositoryReportWeakens",
             "_RepositoryReportActions",
@@ -95,17 +96,22 @@ public sealed class RepositoryReportShellTests
         }
     }
 
+    // Session 119. The first-read decision layer is evidence-first: exactly
+    // Proves -> Weakens -> Do First. The evidence score used to lead this layer
+    // as a fourth card with a circular gauge, which contradicted ui-system §2
+    // ("Evidence -> Meaning -> Action -> Score", explicitly avoiding
+    // "72 / 100 -> her şey"), §22's canonical first-reading order, §21.10's
+    // "Avoid: circular gauge", and scoring-and-report-contract §14 ("Toplam ve
+    // kategori skorları korunur ancak ilk okuma katmanının ana mesajı olmaz").
+    // The score is unchanged; it now appears only in its canonical
+    // Categories + Score surface below.
     [Fact]
-    public void Report_shell_builds_four_card_decision_viewport_without_changing_canonical_section_order()
+    public void Report_shell_builds_an_evidence_first_decision_viewport_without_changing_canonical_section_order()
     {
         string content = ReadReportComposition();
 
         int grid = content.IndexOf(
             "report-first-reading report-decision-grid",
-            StringComparison.Ordinal);
-
-        int scoreCard = content.IndexOf(
-            "report-summary-card--score",
             StringComparison.Ordinal);
 
         int proves = content.IndexOf(
@@ -131,12 +137,44 @@ public sealed class RepositoryReportShellTests
             .Length - 1;
 
         Assert.True(grid >= 0);
-        Assert.True(grid < scoreCard);
-        Assert.True(scoreCard < proves);
+        Assert.True(grid < proves);
         Assert.True(proves < weakens);
         Assert.True(weakens < doFirst);
         Assert.True(doFirst < uncertainty);
         Assert.Equal(3, firstReadingClassCount);
+    }
+
+    // The score must not return to the first-read layer in any form — neither
+    // as the old gauge card nor as another quiet summary card.
+    [Fact]
+    public void First_reading_layer_does_not_render_the_evidence_score()
+    {
+        string content = ReadReportComposition();
+        string shell = ReadWebFile("Pages", "Shared", "_RepositoryReport.cshtml");
+
+        foreach (string marker in new[]
+        {
+            "_RepositoryReportScoreCard",
+            "report-summary-card--score",
+            "report-score-card"
+        })
+        {
+            Assert.DoesNotContain(marker, content, StringComparison.Ordinal);
+        }
+
+        int grid = shell.IndexOf(
+            "report-first-reading report-decision-grid",
+            StringComparison.Ordinal);
+        int gridEnd = shell.IndexOf(
+            "data-report-section=\"@RepositoryReportSectionKeys.Uncertainty\"",
+            StringComparison.Ordinal);
+
+        Assert.True(grid >= 0 && gridEnd > grid);
+
+        string firstRead = shell[grid..gridEnd];
+
+        Assert.DoesNotContain("ScoreSummary", firstRead, StringComparison.Ordinal);
+        Assert.DoesNotContain("NormalizedScore", firstRead, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -336,8 +374,17 @@ public sealed class RepositoryReportShellTests
             StringComparison.Ordinal);
     }
 
+    // Session 119: three columns, not four — the score column was removed from
+    // the first-read layer. The retained Proves / Weakens / Do First keep their
+    // previous relative proportions, and the 64rem -> 2 column and 48rem -> 1
+    // column collapse is unchanged.
+    //
+    // The desktop column structure is parsed out of the .report-decision-grid
+    // declaration itself rather than string-matched against the whole file:
+    // a bare Contains() would still pass if one of the two evidence columns
+    // disappeared, which is exactly the regression this guard exists to catch.
     [Fact]
-    public void Decision_viewport_uses_proportional_four_two_one_responsive_card_grid()
+    public void Decision_viewport_uses_proportional_three_two_one_responsive_card_grid()
     {
         string content = ReadWebFile(
             "wwwroot",
@@ -349,15 +396,17 @@ public sealed class RepositoryReportShellTests
             content,
             StringComparison.Ordinal);
 
-        Assert.Contains(
+        Assert.DoesNotContain(
             "minmax(12rem, 0.85fr)",
             content,
             StringComparison.Ordinal);
 
-        Assert.Contains(
-            "minmax(18rem, 1.45fr)",
-            content,
-            StringComparison.Ordinal);
+        string[] columns = ReadDesktopDecisionGridColumns(content);
+
+        Assert.Equal(3, columns.Length);
+        Assert.Equal("minmax(0, 1.1fr)", columns[0]);
+        Assert.Equal("minmax(0, 1.1fr)", columns[1]);
+        Assert.Equal("minmax(18rem, 1.45fr)", columns[2]);
 
         Assert.Contains(
             "@media (max-width: 64rem)",
@@ -385,14 +434,14 @@ public sealed class RepositoryReportShellTests
             StringComparison.Ordinal);
     }
 
+    // Score semantics are untouched by the first-read correction: the canonical
+    // Categories + Score surface still renders the normalized score, the
+    // per-category scores and the /100 presentation, and it still sits after
+    // uncertainty and before signal details (ui-system §22 position 6).
     [Fact]
-    public void Decision_viewport_surfaces_overall_score_without_moving_canonical_score_section()
+    public void Canonical_score_surface_still_renders_score_after_the_first_read_correction()
     {
         string content = ReadReportComposition();
-
-        int summaryCard = content.IndexOf(
-            "report-summary-card--score",
-            StringComparison.Ordinal);
 
         int proves = content.IndexOf(
             "data-report-section=\"@RepositoryReportSectionKeys.Proves\"",
@@ -402,58 +451,18 @@ public sealed class RepositoryReportShellTests
             "data-report-section=\"@RepositoryReportSectionKeys.CategoriesAndScore\"",
             StringComparison.Ordinal);
 
-        Assert.True(summaryCard >= 0);
-        Assert.True(summaryCard < proves);
         Assert.True(canonicalScore > proves);
 
-        Assert.Contains(
+        foreach (string marker in new[]
+        {
             "@Model.ScoreSummary.NormalizedScore",
-            content,
-            StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Score_summary_card_prioritizes_decision_counts_over_raw_scoring_metadata()
-    {
-        string content = ReadWebFile(
-            "Pages",
-            "Shared",
-            "_RepositoryReportScoreCard.cshtml");
-
-        Assert.Contains(
-            "@Model.Proves.Items.Count",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "@Model.Weakens.Items.Count",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "@Model.Uncertainty.Items.Count",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.Contains(
-            "report-score-card__metrics",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.DoesNotContain(
-            "@Model.ScoreSummary.Categories.Count",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.DoesNotContain(
-            "@Model.ScoreSummary.EarnedScore",
-            content,
-            StringComparison.Ordinal);
-
-        Assert.DoesNotContain(
-            "@Model.ScoreSummary.ApplicableMaximumScore",
-            content,
-            StringComparison.Ordinal);
+            "@category.NormalizedScore",
+            "@category.Score / @category.MaximumScore",
+            "/100"
+        })
+        {
+            Assert.Contains(marker, content, StringComparison.Ordinal);
+        }
     }
 
     [Fact]
@@ -800,7 +809,6 @@ public sealed class RepositoryReportShellTests
         string[] partialNames =
         {
             "_RepositoryReportIdentity",
-            "_RepositoryReportScoreCard",
             "_RepositoryReportProves",
             "_RepositoryReportWeakens",
             "_RepositoryReportActions",
@@ -846,6 +854,69 @@ public sealed class RepositoryReportShellTests
         }
 
         return content;
+    }
+
+    // Extracts the desktop grid-template-columns track list of the top-level
+    // .report-decision-grid rule (the one outside any @media block) and returns
+    // one entry per column, so column COUNT and ORDER are both assertable.
+    private static string[] ReadDesktopDecisionGridColumns(string css)
+    {
+        Match rule = Regex.Match(
+            css,
+            @"(?m)^\.report-decision-grid\s*\{(?<body>[^}]*)\}",
+            RegexOptions.CultureInvariant);
+
+        Assert.True(
+            rule.Success,
+            "No top-level .report-decision-grid rule was found in report.css.");
+
+        Match tracks = Regex.Match(
+            rule.Groups["body"].Value,
+            @"grid-template-columns\s*:(?<value>[^;]*);",
+            RegexOptions.CultureInvariant);
+
+        Assert.True(
+            tracks.Success,
+            ".report-decision-grid declares no grid-template-columns.");
+
+        // Split on the whitespace that separates tracks, not on the characters
+        // inside minmax(...).
+        string value = tracks.Groups["value"].Value;
+        List<string> columns = [];
+        int depth = 0;
+        StringBuilder current = new();
+
+        foreach (char character in value)
+        {
+            if (character == '(')
+            {
+                depth++;
+            }
+            else if (character == ')')
+            {
+                depth--;
+            }
+
+            current.Append(character);
+
+            if (depth == 0 && character == ')')
+            {
+                columns.Add(Regex.Replace(current.ToString(), @"\s+", " ").Trim());
+                current.Clear();
+            }
+        }
+
+        // A track that is not a function call (e.g. a bare `0.85fr`) leaves a
+        // remainder behind. Without this it would be silently discarded and a
+        // four-column regression could still pass.
+        string remainder = Regex.Replace(current.ToString(), @"\s+", " ").Trim();
+
+        if (remainder.Length > 0)
+        {
+            columns.Add(remainder);
+        }
+
+        return [.. columns];
     }
 
     private static string ReadWebFile(params string[] relativeSegments)

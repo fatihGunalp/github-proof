@@ -26,16 +26,15 @@
             Model)
     </section>
 
+    @*
+        Canonical first-reading order (ui-system §22, scoring-and-report-contract
+        §14, design-principles §7.4) is Proves -> Weakens -> Do First. The
+        evidence score is a SECONDARY diagnostic summary and stays in its
+        canonical Categories + Score surface below; it is deliberately absent
+        from this decision layer so evidence, not a number, leads the first read
+        (ui-system §2 "Evidence -> Meaning -> Action -> Score").
+    *@
     <div class="report-first-reading report-decision-grid">
-        <div
-            class="report-summary-card report-summary-card--score"
-            aria-label="@Model.ScoreSummary.SectionTitle">
-
-            @await Html.PartialAsync(
-                "_RepositoryReportScoreCard",
-                Model)
-        </div>
-
         <section
             class="report-section report-section--first-reading report-summary-card report-summary-card--strength"
             data-report-section="@RepositoryReportSectionKeys.Proves">
