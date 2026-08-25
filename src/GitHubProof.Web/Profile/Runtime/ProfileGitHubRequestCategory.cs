@@ -24,6 +24,19 @@ public static class ProfileGitHubRequestCategory
     public const string RepositoryGitCommit = "repository-git-commit";
     public const string RepositoryGitTree = "repository-git-tree";
     public const string RepositoryContents = "repository-contents";
+
+    // Session 124 (S1). The single GraphQL HTTP category authorized by
+    // docs/architecture/public-profile-runtime-collection.md §18.9. One
+    // physical POST /graphql increments the total request count once and this
+    // category once. A GraphQL envelope is never counted once per surface it
+    // served: the counting rule is locked in §18.9 precisely because that would
+    // make §9's total request count untrue.
+    //
+    // Per-surface GraphQL served/fallback facts, if they are ever added, are
+    // separate non-additive structural counters and are not HTTP request
+    // counts. They are not part of S1.
+    public const string GraphQl = "graphql";
+
     public const string Other = "other";
 
     public static IReadOnlyList<string> All { get; } =
@@ -44,6 +57,7 @@ public static class ProfileGitHubRequestCategory
         RepositoryGitCommit,
         RepositoryGitTree,
         RepositoryContents,
+        GraphQl,
         Other
     ];
 
@@ -89,6 +103,12 @@ public static class ProfileGitHubRequestCategory
             ["repositories", var repositoryId, .. var byRepositoryId]
                 when IsNumericId(repositoryId) =>
                 ClassifyRepositoryResource(byRepositoryId),
+
+            // The GraphQL endpoint has no resource path of its own: one opaque
+            // POST serves whatever the query asked for. It is matched exactly,
+            // so nothing below /graphql/ can widen the vocabulary, and it stays
+            // one category no matter how many surfaces a future envelope serves.
+            ["graphql"] => GraphQl,
 
             _ => Other
         };

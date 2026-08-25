@@ -389,7 +389,9 @@ public sealed class ProfileRuntimeInstrumentationTests
         Assert.All(
             telemetry.RequestCategories.Keys,
             key => Assert.Contains(key, ProfileGitHubRequestCategory.All));
-        Assert.Equal(17, ProfileGitHubRequestCategory.All.Count);
+        // Session 124 (S1): exactly one new member, the single GraphQL HTTP
+        // category authorized by §18.9. The vocabulary is still closed.
+        Assert.Equal(18, ProfileGitHubRequestCategory.All.Count);
     }
 
     // ------------------------------------------------------------- 5. privacy

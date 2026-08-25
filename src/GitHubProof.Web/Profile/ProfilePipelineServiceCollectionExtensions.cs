@@ -151,6 +151,17 @@ public static class ProfilePipelineServiceCollectionExtensions
                         CreateGitHubClient(provider),
                         provider.GetRequiredService<TimeProvider>()))));
 
+        // Session 124 (S1). The Profile-only GraphQL transport is registered and
+        // resolvable, and NOTHING in the production collection path resolves it:
+        // the snapshot source above still composes the exact REST collector set,
+        // and no collector takes this dependency. It shares the existing profile
+        // named client, so a GraphQL request would pass through the same §9
+        // observation handler exactly once, and it introduces no second client,
+        // no credential source and no package
+        // (docs/architecture/public-profile-runtime-collection.md §§18-19).
+        services.AddScoped<IGitHubGraphQlTransport>(
+            provider => new GitHubGraphQlTransport(CreateGitHubClient(provider)));
+
         // Constructed from the policy — the only construction input — so Stage A
         // reads the fork admission rule the version owns and cannot be paired
         // with a rule that version does not carry.

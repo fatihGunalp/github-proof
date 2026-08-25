@@ -179,12 +179,15 @@ public sealed class ProfileGitHubRequestClassificationTests
     public void NullUri_BecomesOther() =>
         Assert.Equal(ProfileGitHubRequestCategory.Other, ProfileGitHubRequestCategory.Classify(null));
 
-    // The vocabulary is closed and its size is locked: A-T was a classification
-    // defect, never a reason to grow the category set.
+    // The vocabulary is closed and its size is locked. A-T was a classification
+    // defect, never a reason to grow the category set; Session 124 (S1) adds
+    // exactly one member, the single GraphQL HTTP category authorized by
+    // docs/architecture/public-profile-runtime-collection.md §18.9. One physical
+    // POST /graphql counts once here, never once per surface it served.
     [Fact]
     public void CategoryVocabulary_IsUnchanged()
     {
-        Assert.Equal(17, ProfileGitHubRequestCategory.All.Count);
+        Assert.Equal(18, ProfileGitHubRequestCategory.All.Count);
         Assert.Equal(
             [
                 "profile-metadata",
@@ -203,6 +206,7 @@ public sealed class ProfileGitHubRequestClassificationTests
                 "repository-git-commit",
                 "repository-git-tree",
                 "repository-contents",
+                "graphql",
                 "other"
             ],
             ProfileGitHubRequestCategory.All);

@@ -1,26 +1,27 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-25 (Session 123)
+**Last Updated:** 2026-08-25 (Session 124)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 123 — GraphQL Partial-Data / Error Contract (**S0**) —
-  **PASS**. §18 (13 subsections) and §19 (17 acceptance criteria) are locked in
-  `public-profile-runtime-collection.md`, with Session 123 notes in §9.1, §11
-  and §13. Independent review returned CHANGES REQUIRED; the architecture owner
-  accepted all six findings and all six were closed in-session and re-reviewed.
-  Canonical docs + worklog only — no code, no runtime value, no performance
-  claim. **CLOSED / awaiting final integration** — the commit is user-owned and
-  still pending on branch `session/123-graphql-partial-data-error-contract`
-  (base `5044b03`, route Opus / xhigh). **Not resumable**; further work opens a
-  new session.
+- **Last Session:** 124 — S1 GraphQL Transport Client — **PASS**. Branch
+  `session/124-graphql-transport-client`, base `2016501`, route Opus / high.
+  Independent review **PASS WITH FINDINGS**; the owner rejected F-2 with
+  reason and accepted F-3 through F-6, all closed in-session and re-reviewed.
+  Build 0 warnings, **1953/1953**. **CLOSED / awaiting final integration** —
+  the commit is user-owned and still pending. **Not resumable**; further work
+  opens a new session.
+  Detail: [`sessions/2026-08-25-124-graphql-transport-client.md`](./sessions/2026-08-25-124-graphql-transport-client.md)
+- **Previous Session:** 123 — GraphQL Partial-Data / Error Contract (**S0**) —
+  **PASS**; §18 (13 subsections) and §19 (17 acceptance criteria) locked in
+  `public-profile-runtime-collection.md`, review CHANGES REQUIRED with all six
+  owner-accepted findings closed in-session; **integrated as `2016501`**.
   Detail: [`sessions/2026-08-25-123-graphql-partial-data-error-contract.md`](./sessions/2026-08-25-123-graphql-partial-data-error-contract.md)
-- **Previous Session:** 122 — Profile REST Request Redundancy Audit — **PASS**,
-  verdict **REST-R3 — no material redundancy**, independent review PASS WITH
-  FINDINGS (1 HIGH, 2 MEDIUM, 1 LOW, all corrected); **integrated as `5044b03`**.
+- **Earlier:** 122 — Profile REST Request Redundancy Audit — **PASS**, verdict
+  **REST-R3 — no material redundancy**; **integrated as `5044b03`**.
   Detail: [`sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md`](./sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md)
 - **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
   shapes were measured; the full evidence, including the complete per-category
@@ -30,8 +31,8 @@ carries product, domain or architecture truth.
   request budget, no GitHub reserve floor, no concurrency change, no contents
   bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
   and 122 own feasibility and audit analysis only; Session 123 owns a contract
-  decision only.
-- **Last integrated commit on `main`:** `5044b03` (Session 122).
+  decision only; Session 124 owns an unused transport only.
+- **Last integrated commit on `main`:** `2016501` (Session 123).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -123,6 +124,23 @@ carries product, domain or architecture truth.
   **§19.14** — rollout is gated on a live A/B parity run on the three measured
   profile shapes plus owner approval. **Still no GraphQL code, no runtime value
   and no performance claim.**
+- **GraphQL transport S1: IMPLEMENTED, UNUSED** (Session 124). A Profile-only,
+  read-only `IGitHubGraphQlTransport` exists on the **existing** profile named
+  client — no second HttpClient, no credential source, no package, no GraphQL
+  framework. It makes §18.4's four states structurally distinguishable
+  (`Success` / `DataWithErrors` / `EnvelopeFailure` / `Malformed`), so an
+  HTTP 200 carrying `errors` and an unreadable body can never become successful
+  absence. GraphQL errors are normalized to a **count** — no message, path or
+  extension is retained anywhere. It produces **no `DataAvailability` and no
+  domain status** (§18.7); availability stays with the future surface adapter.
+  Telemetry gains exactly one closed-vocabulary member, `graphql` (17 -> 18),
+  and one physical POST counts once in total and once in that category,
+  **never once per surface** (§18.9). Caller cancellation propagates and is
+  never converted into a failure result. **Nothing uses it:** the snapshot
+  source still composes the exact REST set, no Infrastructure type takes the
+  dependency, Repository Proof is untouched, and the D-2 profile-metadata budget
+  observation is unchanged. Full suite **1953/1953**, 0 warnings. **No S2, no
+  production query, no runtime value, no performance claim.**
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -201,18 +219,17 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 123 is closed; its commit is user-owned and still pending. All six
-review findings were owner-accepted and closed, so **S0 is complete**. The
-immediate item is architecture-owner final acceptance of the locked amendment.
-The queue is:
+Session 124 is closed; its commit is user-owned and still pending. The
+independent review returned PASS WITH FINDINGS, the owner rejected F-2 with
+reason and accepted F-3 through F-6, and all four were closed and re-reviewed.
+The immediate item is architecture-owner acceptance of S1. The queue after it:
 
-- **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — next
-  session. It was queued as 123 and moved by explicit owner prioritization of
-  S0.
-- **First GraphQL implementation slice** — now possible for the first time,
-  gated by §19's 17 criteria. Session 121's S1 (a read-only transport client
-  behind its own interface, no collector wired, default off) is the smallest
-  slice consistent with them.
+- **S2 — one surface over GraphQL** (Session 121's plan: languages, the
+  smallest order-independent surface, behind a default-off switch, with
+  field-mapping and equivalence tests). It must satisfy the relevant §19
+  criteria before it may ever be default-on.
+- **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — still
+  pending; the owner chose S1 first.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
   duplicate-fetch defect. Correctness only; it saves 0 requests.
 
