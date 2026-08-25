@@ -74,6 +74,20 @@ public sealed class GitHubGraphQlTransport : IGitHubGraphQlTransport
         {
             throw;
         }
+        // Session 125 (G-1). A cancellation whose supplied token is NOT
+        // cancelled is not a caller cancellation at all — it is this client's
+        // own transport timeout, which HttpClient surfaces as a
+        // TaskCanceledException. §18.6 names transport failure and server-side
+        // timeout as envelope-level, so it is reported as one; otherwise a
+        // systemic timeout would escape the run-scoped disable and be paid once
+        // per admitted repository.
+        //
+        // The filter above runs first, so a genuine caller or execution-deadline
+        // cancellation can never reach here.
+        catch (OperationCanceledException)
+        {
+            return GitHubGraphQlResponse.EnvelopeFailure(statusCode);
+        }
         // No response, or a broken one: envelope-level by §18.6. The exception
         // message is not carried anywhere — nothing downstream may branch on it
         // and nothing may log it.

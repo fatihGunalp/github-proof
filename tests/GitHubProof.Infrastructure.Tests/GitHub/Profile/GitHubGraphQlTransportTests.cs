@@ -112,17 +112,34 @@ public sealed class GitHubGraphQlTransportTests
     // --------------------------------------------- D. HTTP 200 + data + errors
 
     // §18.4, the blocking rule this whole slice exists for.
-    [Fact]
-    public async Task Send_DoesNotTreatHttp200WithErrorsAsOrdinarySuccess()
+    //
+    // Both envelope shapes must land in the same outcome. The second one —
+    // a null `data` alongside `errors` — is the shape a top-level failure takes,
+    // and Session 125 (L-3) pins it here because the owner ruled it is a bounded
+    // structural fact that is nevertheless NOT proof of a provider-wide failure:
+    // it stays DataWithErrors, exactly like a partial payload.
+    [Theory]
+    [InlineData("""
+        {
+          "data": { "repository": null },
+          "errors": [
+            { "type": "NOT_FOUND", "path": ["repository"], "message": "Could not resolve to a Repository." }
+          ]
+        }
+        """, false)]
+    [InlineData("""
+        {
+          "data": null,
+          "errors": [
+            { "type": "RATE_LIMITED", "path": ["repository"], "message": "API rate limit exceeded." }
+          ]
+        }
+        """, true)]
+    public async Task Send_DoesNotTreatHttp200WithErrorsAsOrdinarySuccess(
+        string body,
+        bool expectsNullData)
     {
-        RecordingHandler handler = new(Json("""
-            {
-              "data": { "repository": null },
-              "errors": [
-                { "type": "NOT_FOUND", "path": ["repository"], "message": "Could not resolve to a Repository." }
-              ]
-            }
-            """));
+        RecordingHandler handler = new(Json(body));
         GitHubGraphQlTransport transport = new(CreateClient(handler));
 
         GitHubGraphQlResponse response = await transport.SendAsync(Query);
@@ -130,6 +147,14 @@ public sealed class GitHubGraphQlTransportTests
         Assert.Equal(GitHubGraphQlOutcome.DataWithErrors, response.Outcome);
         Assert.False(response.IsSuccess);
         Assert.Equal(1, response.ErrorCount);
+        Assert.Equal(expectsNullData, response.Data is null);
+
+        // Neither shape retains any error text, path or extension.
+        string surface = DescribeResponseSurface(response);
+
+        Assert.DoesNotContain("rate limit", surface, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("NOT_FOUND", surface, StringComparison.Ordinal);
+        Assert.DoesNotContain("RATE_LIMITED", surface, StringComparison.Ordinal);
     }
 
     // E (transport half): errors are normalized to a count. No message, path or
@@ -408,6 +433,46 @@ public sealed class GitHubGraphQlTransportTests
         Assert.Equal(GitHubGraphQlOutcome.Malformed, response.Outcome);
         Assert.False(response.IsSuccess);
         Assert.Null(response.Data);
+    }
+
+    // ------------------------------------------- G-1. client transport timeout
+
+    // HttpClient surfaces its own Timeout as a TaskCanceledException whose token
+    // is NOT the caller's. §18.6 names transport failure and server-side timeout
+    // as envelope-level, so it must be reported as one rather than escaping —
+    // otherwise a systemic timeout is paid once per admitted repository.
+    [Theory]
+    [InlineData(typeof(TaskCanceledException))]
+    [InlineData(typeof(OperationCanceledException))]
+    public async Task Send_ReportsAClientTimeoutAsEnvelopeFailure(Type exceptionType)
+    {
+        ThrowingHandler handler = new(
+            (Exception)Activator.CreateInstance(exceptionType, "The request timed out.")!);
+        GitHubGraphQlTransport transport = new(CreateClient(handler));
+
+        // The caller's token is alive throughout: this is the client's timeout,
+        // not a cancellation anybody asked for.
+        using CancellationTokenSource cancellation = new();
+
+        GitHubGraphQlResponse response = await transport.SendAsync(Query, cancellation.Token);
+
+        Assert.Equal(GitHubGraphQlOutcome.EnvelopeFailure, response.Outcome);
+        Assert.False(cancellation.IsCancellationRequested);
+    }
+
+    // The two are distinguished by the supplied token alone, never by the
+    // exception type: a cancelled token still propagates even though the
+    // exception is the same kind.
+    [Fact]
+    public async Task Send_StillPropagatesWhenTheSuppliedTokenIsCancelled()
+    {
+        ThrowingHandler handler = new(new TaskCanceledException("cancelled"));
+        GitHubGraphQlTransport transport = new(CreateClient(handler));
+        using CancellationTokenSource cancellation = new();
+        await cancellation.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => transport.SendAsync(Query, cancellation.Token));
     }
 
     // -------------------------------------------------------- J. cancellation

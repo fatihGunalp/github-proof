@@ -1,28 +1,31 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-25 (Session 124)
+**Last Updated:** 2026-08-25 (Session 125)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 124 — S1 GraphQL Transport Client — **PASS**. Branch
-  `session/124-graphql-transport-client`, base `2016501`, route Opus / high.
-  Independent review **PASS WITH FINDINGS**; the owner rejected F-2 with
-  reason and accepted F-3 through F-6, all closed in-session and re-reviewed.
-  Build 0 warnings, **1953/1953**. **CLOSED / awaiting final integration** —
-  the commit is user-owned and still pending. **Not resumable**; further work
-  opens a new session.
+- **Last Session:** 125 — S2 GraphQL Languages Shadow Parity — **PASS**. Branch
+  `session/125-graphql-languages-shadow-parity`, base `bf5fc8e`, route
+  Opus / high. Build 0 warnings, **2033/2033**. Three review rounds, every
+  finding closed: the owner accepted F-1/F-2/F-3 and ruled no action on F-6,
+  then accepted and closed G-1 through G-5, then M-1/L-1/L-2 and finally L-3.
+  **No unresolved code or review finding.** **CLOSED / awaiting final
+  integration** — the commit is user-owned and still pending. **Not resumable**;
+  further work opens a new session.
+  Detail: [`sessions/2026-08-25-125-graphql-languages-shadow-parity.md`](./sessions/2026-08-25-125-graphql-languages-shadow-parity.md)
+- **Previous Session:** 124 — S1 GraphQL Transport Client — **PASS**.
+  Independent review PASS WITH FINDINGS; the owner rejected F-2 with reason and
+  accepted F-3 through F-6, all closed in-session and re-reviewed;
+  **integrated as `bf5fc8e`**.
   Detail: [`sessions/2026-08-25-124-graphql-transport-client.md`](./sessions/2026-08-25-124-graphql-transport-client.md)
-- **Previous Session:** 123 — GraphQL Partial-Data / Error Contract (**S0**) —
+- **Earlier:** 123 — GraphQL Partial-Data / Error Contract (**S0**) —
   **PASS**; §18 (13 subsections) and §19 (17 acceptance criteria) locked in
   `public-profile-runtime-collection.md`, review CHANGES REQUIRED with all six
   owner-accepted findings closed in-session; **integrated as `2016501`**.
   Detail: [`sessions/2026-08-25-123-graphql-partial-data-error-contract.md`](./sessions/2026-08-25-123-graphql-partial-data-error-contract.md)
-- **Earlier:** 122 — Profile REST Request Redundancy Audit — **PASS**, verdict
-  **REST-R3 — no material redundancy**; **integrated as `5044b03`**.
-  Detail: [`sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md`](./sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md)
 - **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
   shapes were measured; the full evidence, including the complete per-category
   request breakdowns, is persisted in the Session 120 record. No further
@@ -31,8 +34,9 @@ carries product, domain or architecture truth.
   request budget, no GitHub reserve floor, no concurrency change, no contents
   bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
   and 122 own feasibility and audit analysis only; Session 123 owns a contract
-  decision only; Session 124 owns an unused transport only.
-- **Last integrated commit on `main`:** `2016501` (Session 123).
+  decision only; Session 124 owns an unused transport only; Session 125 owns a
+  default-off observation only.
+- **Last integrated commit on `main`:** `bf5fc8e` (Session 124).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -141,6 +145,46 @@ carries product, domain or architecture truth.
   dependency, Repository Proof is untouched, and the D-2 profile-metadata budget
   observation is unchanged. Full suite **1953/1953**, 0 warnings. **No S2, no
   production query, no runtime value, no performance claim.**
+- **GraphQL languages shadow S2: IMPLEMENTED, DEFAULT-OFF** (Session 125). The
+  first real REST ↔ GraphQL parity observation, on `languages`, behind
+  `ProfileGraphQlShadow:LanguagesShadowEnabled` (**false** by default). Off
+  constructs no shadow at all, so the Profile request graph and result are
+  exactly what they were. On, the seam is one optional argument to the Profile
+  composition factory that wraps the descriptive collector: it calls REST as
+  today, observes on the side, discards the outcome and returns **the same
+  collection instance** — so the languages map, the `languages`
+  DataAvailability and its `RetrievedAt` remain REST's own. Complete-map parity
+  with cursor pagination (no cap, no sampling); **no `totalCount`**, no
+  `isEmpty`, no unrelated field requested; ambiguity (duplicate language,
+  negative size, partial `errors` envelope, malformed body, non-advancing
+  cursor) **abstains** rather than applying last-wins. **No
+  `DataAvailability`, no domain status, no new telemetry vocabulary** — one POST
+  per page counts once in the existing `graphql` category. Match, mismatch,
+  failure and even a throwing shadow all leave the `ProfileReport` identical,
+  proven end to end. Full suite **2033/2033**, 0 warnings. Review-driven additions, all
+  owner-accepted: **§18.6 execution-scoped disable** — an `EnvelopeFailure` or
+  `Malformed` envelope disables the shadow for the rest of that Profile
+  execution, so a systemic fault costs one POST per run instead of one per
+  admitted repository, and the disable provably cannot leak into another
+  execution; and **bounded §18.9 shadow telemetry** — Match / Mismatch /
+  NotCompared counts plus a `GraphQlDisabledForRun` boolean, never request
+  counts, never evidence, never carrying identity or content. **Open gap:**
+  `DataWithErrors` cannot participate in the §18.6 disable, because S1
+  normalizes errors to a count and always reports HTTP 200 and so exposes no
+  bounded structural discriminator between a provider-wide auth/rate-limit
+  failure and ordinary partial data. A `DataWithErrors` envelope *can* carry a
+  null `data`, which is a bounded structural fact, but it does not **prove** an
+  auth failure, a rate limit or any provider-wide fault — an ordinary top-level
+  query error looks identical — so it does not disable the run.
+- **S2 is NOT approved for enablement** (Session 125, owner ruling). The
+  mechanics are proven and the shadow stays **default-off**; because S1 cannot
+  yet classify a provider-wide GraphQL failure carried as HTTP 200 + `errors`,
+  `LanguagesShadowEnabled` is **not** approved for production, beta, live A/B
+  (§19.14) or default-on use. A separate bounded session must first establish a
+  proven GraphQL error-kind classification from provider-supported structural
+  information. This is an **operational enablement blocker, not evidence or
+  domain drift**: off, the Profile path is exactly the pre-S2 path; on, REST
+  stays authoritative either way.
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -219,17 +263,21 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 124 is closed; its commit is user-owned and still pending. The
-independent review returned PASS WITH FINDINGS, the owner rejected F-2 with
-reason and accepted F-3 through F-6, and all four were closed and re-reviewed.
-The immediate item is architecture-owner acceptance of S1. The queue after it:
+Session 125 is closed; its commit is user-owned and still pending. Every finding
+from three review rounds is closed. The immediate item is architecture-owner
+acceptance of S2. The queue after it:
 
-- **S2 — one surface over GraphQL** (Session 121's plan: languages, the
-  smallest order-independent surface, behind a default-off switch, with
-  field-mapping and equivalence tests). It must satisfy the relevant §19
-  criteria before it may ever be default-on.
+- **Proven GraphQL error-kind classification** — the named pre-enablement
+  blocker. Until a separate bounded session establishes, from
+  provider-supported structural information, how a provider-wide failure
+  carried as HTTP 200 + `errors` is recognised, the languages shadow must not be
+  enabled in production, in beta, for the §19.14 live A/B validation, or by
+  default.
+- **S3 — the repository envelope** (Session 121's plan). Not started; it must
+  satisfy the §19 criteria, including the §18.13 empty-repository re-proof, for
+  every surface it adopts.
 - **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — still
-  pending; the owner chose S1 first.
+  pending.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
   duplicate-fetch defect. Correctness only; it saves 0 requests.
 

@@ -48,6 +48,15 @@ public sealed class ProfileExecutionTelemetry
 
     private int unrecordedRateLimitObservations;
 
+    // Session 125 (S2). Bounded structural shadow observation, §18.9. These are
+    // NOT HTTP request counts: they are never added to GitHubRequests, never
+    // become evidence, and carry no repository, language, payload or error
+    // content. Zero and false unless the languages shadow actually ran.
+    private int shadowMatch;
+    private int shadowMismatch;
+    private int shadowNotCompared;
+    private bool shadowDisabledForRun;
+
     private int collectionSamples;
     private TimeSpan collectionTotal;
     private TimeSpan collectionMinimum;
@@ -73,6 +82,17 @@ public sealed class ProfileExecutionTelemetry
         Math.Max(0, RepositoriesAdmitted - RepositoriesCompleted);
 
     public TimeSpan Duration { get; private set; }
+
+    public int LanguagesShadowMatch => shadowMatch;
+
+    public int LanguagesShadowMismatch => shadowMismatch;
+
+    public int LanguagesShadowNotCompared => shadowNotCompared;
+
+    public bool GraphQlDisabledForRun => shadowDisabledForRun;
+
+    public bool HasLanguagesShadowObservations =>
+        shadowMatch + shadowMismatch + shadowNotCompared > 0 || shadowDisabledForRun;
 
     // ------------------------------------------------------- Session 120 timing
     //
@@ -212,6 +232,26 @@ public sealed class ProfileExecutionTelemetry
             : ProfileGitHubRequestCategory.Other;
 
         requestCategories.AddOrUpdate(key, 1, (_, current) => current + 1);
+    }
+
+    // Recorded once, at the end of the execution, from the execution-scoped
+    // shadow state. A mismatch is operationally visible here and nowhere else:
+    // it produces no evidence, no warning, no limitation and no report change.
+    public void RecordLanguagesShadow(
+        int match,
+        int mismatch,
+        int notCompared,
+        bool disabledForRun)
+    {
+        if (match < 0 || mismatch < 0 || notCompared < 0)
+        {
+            return;
+        }
+
+        shadowMatch = match;
+        shadowMismatch = mismatch;
+        shadowNotCompared = notCompared;
+        shadowDisabledForRun = disabledForRun;
     }
 
     public void RecordRepositoriesDiscovered(int count) =>
@@ -418,6 +458,16 @@ public sealed class ProfileExecutionTelemetry
             ? ProfileDurationDistribution.Empty
             : new ProfileDurationDistribution(samples, total, minimum, maximum);
 
+    // Rendered only when the shadow actually observed something, so a default
+    // (disabled) execution logs exactly what it logged before S2.
+    private string FormatLanguagesShadow() =>
+        HasLanguagesShadowObservations
+            ? string.Create(
+                CultureInfo.InvariantCulture,
+                $" LanguagesShadow={{Match={shadowMatch};Mismatch={shadowMismatch};"
+                + $"NotCompared={shadowNotCompared};GraphQlDisabledForRun={shadowDisabledForRun}}}")
+            : string.Empty;
+
     // A single structured Information-level line, so a controlled live run can
     // be read straight from the console. It deliberately carries no profile
     // identity: the measurement does not need one.
@@ -447,7 +497,8 @@ public sealed class ProfileExecutionTelemetry
             + $"Status={Status} "
             + $"Outcome={Outcome} "
             + $"RepositoryOutcomes={{{Format(repositoryOutcomes)}}} "
-            + $"RequestCategories={{{Format(requestCategories)}}}");
+            + $"RequestCategories={{{Format(requestCategories)}}}"
+            + $"{FormatLanguagesShadow()}");
     }
 
     private static string Format(ConcurrentDictionary<string, int> counters) =>

@@ -1,4 +1,5 @@
 using GitHubProof.Domain.Analysis.Collection;
+using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Domain.Analysis.Models;
 using GitHubProof.Domain.Analysis.ValueObjects;
 
@@ -53,16 +54,42 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     // CreateDefault stays the Repository Proof composition, still builds the
     // full collector set and supplies no boundary at all, so it keeps
     // enumerating fully.
+    //
+    // Session 125 (S2) adds one optional parameter and nothing else. When
+    // `languagesShadow` is null — the default, and what every existing caller
+    // passes — the construction below is exactly the Session 099 composition,
+    // collector for collector. Only a non-null shadow wraps the descriptive
+    // collector, and even then the wrapper returns that collector's result
+    // unchanged: REST remains authoritative for the languages surface (§18.1).
     public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
         HttpClient httpClient,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null) =>
+        CreateProfileComposition(httpClient, timeProvider, languagesShadow: null);
+
+    // The S2 overload. It is a separate overload rather than a third optional
+    // parameter so the existing two-argument signature stays byte-identical for
+    // every current caller, including method-group conversions.
+    public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
+        HttpClient httpClient,
+        TimeProvider? timeProvider,
+        IGitHubGraphQlLanguagesShadow? languagesShadow)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
+
+        IGitHubRepositoryDescriptiveDataCollector descriptiveDataCollector =
+            new GitHubRepositoryDescriptiveDataCollector(httpClient);
+
+        if (languagesShadow is not null)
+        {
+            descriptiveDataCollector = new ShadowedDescriptiveDataCollector(
+                descriptiveDataCollector,
+                languagesShadow);
+        }
 
         return new GitHubRepositorySnapshotOrchestrator(
             new GitHubRepositoryMetadataCollector(httpClient),
             new GitHubRepositoryContentsCollector(httpClient),
-            new GitHubRepositoryDescriptiveDataCollector(httpClient),
+            descriptiveDataCollector,
             new GitHubRepositoryCommitCollector(
                 httpClient,
                 timeProvider,

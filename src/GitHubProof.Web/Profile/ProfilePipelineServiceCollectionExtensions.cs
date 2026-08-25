@@ -103,6 +103,19 @@ public static class ProfilePipelineServiceCollectionExtensions
                 "The Profile GitHub remaining floor must be non-negative.")
             .ValidateOnStart();
 
+        // Session 125 (S2). One boolean, off unless configuration turns it on.
+        // No validation rule: a boolean has no invalid value, and adding one
+        // would be inventing a policy this slice does not own.
+        OptionsBuilder<ProfileGraphQlShadowOptions> graphQlShadowOptions =
+            services.AddOptions<ProfileGraphQlShadowOptions>();
+
+        if (configuration is not null)
+        {
+            graphQlShadowOptions.Bind(
+                configuration.GetSection(
+                    ProfileGraphQlShadowOptions.ConfigurationSectionName));
+        }
+
         services.AddSingleton<
             IProfileExecutionDeadlineFactory,
             ProfileExecutionDeadlineFactory>();
@@ -149,16 +162,22 @@ public static class ProfilePipelineServiceCollectionExtensions
                 new GitHubProfileRepositorySnapshotSource(
                     GitHubRepositorySnapshotOrchestrator.CreateProfileComposition(
                         CreateGitHubClient(provider),
-                        provider.GetRequiredService<TimeProvider>()))));
+                        provider.GetRequiredService<TimeProvider>(),
+                        CreateLanguagesShadow(provider)))));
 
-        // Session 124 (S1). The Profile-only GraphQL transport is registered and
-        // resolvable, and NOTHING in the production collection path resolves it:
-        // the snapshot source above still composes the exact REST collector set,
-        // and no collector takes this dependency. It shares the existing profile
-        // named client, so a GraphQL request would pass through the same §9
-        // observation handler exactly once, and it introduces no second client,
-        // no credential source and no package
-        // (docs/architecture/public-profile-runtime-collection.md §§18-19).
+        // Session 124 (S1), amended by Session 125 (S2). The Profile-only GraphQL
+        // transport shares the existing profile named client, so a GraphQL
+        // request passes through the same §9 observation handler exactly once,
+        // and it introduces no second client, no credential source and no
+        // package (docs/architecture/public-profile-runtime-collection.md
+        // §§18-19).
+        //
+        // Exactly one component resolves it: the S2 languages shadow, and only
+        // when that shadow is enabled. With the default configuration
+        // CreateLanguagesShadow returns null, nothing in the production
+        // collection path resolves this registration, and no collector takes
+        // the dependency in either case — the shadow observes, it never supplies
+        // a surface.
         services.AddScoped<IGitHubGraphQlTransport>(
             provider => new GitHubGraphQlTransport(CreateGitHubClient(provider)));
 
@@ -214,6 +233,24 @@ public static class ProfilePipelineServiceCollectionExtensions
 
         return services;
     }
+
+    // Session 125 (S2). Returns null unless the shadow is explicitly enabled,
+    // and null is what makes the default path identical to Session 099: the
+    // composition then constructs the same collectors it always did and no
+    // GraphQL request can be issued at all.
+    //
+    // When it is enabled the shadow observes and nothing more. It never supplies
+    // the languages surface, produces no DataAvailability and cannot change the
+    // collection result (§18.1, §18.7).
+    private static IGitHubGraphQlLanguagesShadow? CreateLanguagesShadow(
+        IServiceProvider provider) =>
+        provider
+            .GetRequiredService<IOptions<ProfileGraphQlShadowOptions>>()
+            .Value
+            .LanguagesShadowEnabled
+                ? new GitHubGraphQlLanguagesShadow(
+                    provider.GetRequiredService<IGitHubGraphQlTransport>())
+                : null;
 
     // The one place the profile GitHub client is created, so every profile
     // request — profile metadata, repository manifest and per-repository
