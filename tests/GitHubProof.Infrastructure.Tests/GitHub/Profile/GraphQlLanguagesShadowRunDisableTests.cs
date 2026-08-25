@@ -129,6 +129,94 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         Assert.Equal(1, second.Match);
     }
 
+    // Session 126. An HTTP 200 errored envelope whose HEADERS report a
+    // provider-wide condition does disable the run — §18.6 already names a
+    // primary or secondary rate-limit response as envelope-level. The error text
+    // is never read; only the header decides.
+    [Theory]
+    [InlineData("x-ratelimit-remaining", "0")]
+    [InlineData("Retry-After", "60")]
+    [InlineData("Retry-After", "Wed, 26 Aug 2026 12:00:00 GMT")]
+    public async Task AProviderWideHeaderOnAnErroredEnvelope_DisablesTheRun(
+        string header,
+        string value)
+    {
+        ShadowFixture fixture = new(
+            (ErroredEnvelope, HttpStatusCode.OK),
+            graphQlHeaders: [(header, value)]);
+        GraphQlLanguagesShadowState state = new();
+
+        using (GraphQlLanguagesShadowScope.Begin(state))
+        {
+            for (int repository = 0; repository < 3; repository++)
+            {
+                RepositorySnapshot snapshot = await fixture.CollectAsync($"repo-{repository}");
+
+                // REST supplies every repository, disabled or not.
+                Assert.Equal(RestLanguages, snapshot.Languages);
+            }
+        }
+
+        // One POST for the first repository, none for the two that followed.
+        Assert.Equal(1, fixture.GraphQlRequests);
+        Assert.True(state.IsDisabledForRun);
+        Assert.Equal(3, state.NotCompared);
+        Assert.Equal(0, state.Match);
+        Assert.Equal(0, state.Mismatch);
+    }
+
+    // The disable stays scoped to one execution, exactly as it does for the
+    // Session 125 envelope-level cases.
+    [Fact]
+    public async Task AFollowingExecution_MayAttemptGraphQlAgainAfterAProviderWideHeader()
+    {
+        ShadowFixture fixture = new(
+            (ErroredEnvelope, HttpStatusCode.OK),
+            (MatchingLanguages(), HttpStatusCode.OK),
+            graphQlHeaders: [("x-ratelimit-remaining", "0")],
+            headerCalls: 1);
+        GraphQlLanguagesShadowState first = new();
+        GraphQlLanguagesShadowState second = new();
+
+        using (GraphQlLanguagesShadowScope.Begin(first))
+        {
+            await fixture.CollectAsync("repo-0");
+            await fixture.CollectAsync("repo-1");
+        }
+
+        using (GraphQlLanguagesShadowScope.Begin(second))
+        {
+            await fixture.CollectAsync("repo-2");
+        }
+
+        Assert.True(first.IsDisabledForRun);
+        Assert.False(second.IsDisabledForRun);
+        Assert.Equal(2, fixture.GraphQlRequests);
+        Assert.Equal(1, second.Match);
+    }
+
+    // A successful envelope is not turned into a failure by a header, and the
+    // comparison it carries is still consumed.
+    [Fact]
+    public async Task AZeroRemainingHeaderOnASuccessfulEnvelope_DoesNotDisableTheRun()
+    {
+        ShadowFixture fixture = new(
+            (MatchingLanguages(), HttpStatusCode.OK),
+            graphQlHeaders: [("x-ratelimit-remaining", "0")]);
+        GraphQlLanguagesShadowState state = new();
+
+        using (GraphQlLanguagesShadowScope.Begin(state))
+        {
+            await fixture.CollectAsync("repo-0");
+            await fixture.CollectAsync("repo-1");
+        }
+
+        Assert.Equal(2, fixture.GraphQlRequests);
+        Assert.False(state.IsDisabledForRun);
+        Assert.Equal(2, state.Match);
+        Assert.Equal(0, state.NotCompared);
+    }
+
     // DataWithErrors deliberately does NOT disable the run. §18.4 makes that
     // response unusable for the repository it belongs to, and it stays a
     // per-repository abstention.
@@ -353,6 +441,21 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     private static readonly Dictionary<string, long> RestLanguages =
         new(StringComparer.OrdinalIgnoreCase) { ["C#"] = 1200, ["JavaScript"] = 300 };
 
+    // Sentinels only in the error members: the assertions elsewhere rely on the
+    // payload being distinguishable from the error content.
+    private const string ErroredEnvelope = """
+        {
+          "data": { "repository": null },
+          "errors": [
+            {
+              "type": "SENTINELTYPErateLimited",
+              "path": ["SENTINELPATHrepositoryOwner"],
+              "message": "SENTINELMESSAGEapiRateLimitExceeded"
+            }
+          ]
+        }
+        """;
+
     private static string MatchingLanguages() => """
         {
           "data": { "repository": { "languages": {
@@ -390,10 +493,14 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
             bool languagesFail = false,
             bool withShadow = true,
             bool timeoutOnGraphQl = false,
-            int timeoutCalls = int.MaxValue)
+            int timeoutCalls = int.MaxValue,
+            (string Name, string Value)[]? graphQlHeaders = null,
+            int headerCalls = int.MaxValue)
         {
             TimeoutOnGraphQl = timeoutOnGraphQl;
             TimeoutCalls = timeoutCalls;
+            GraphQlHeaders = graphQlHeaders ?? [];
+            HeaderCalls = headerCalls;
             graphQl = call => call == 1 || later is null ? first : later.Value;
             this.languagesFail = languagesFail;
             this.withShadow = withShadow;
@@ -409,6 +516,10 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         internal bool TimeoutOnGraphQl { get; }
 
         internal int TimeoutCalls { get; }
+
+        internal (string Name, string Value)[] GraphQlHeaders { get; }
+
+        internal int HeaderCalls { get; }
 
         public async Task<RepositorySnapshot> CollectAsync(
             string name,
@@ -466,8 +577,17 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
                     }
 
                     (string body, HttpStatusCode status) = fixture.graphQl(graphQlCalls);
+                    HttpResponseMessage graphQlResponse = Json(body, status);
 
-                    return Task.FromResult(Json(body, status));
+                    if (graphQlCalls <= fixture.HeaderCalls)
+                    {
+                        foreach ((string name, string value) in fixture.GraphQlHeaders)
+                        {
+                            graphQlResponse.Headers.TryAddWithoutValidation(name, value);
+                        }
+                    }
+
+                    return Task.FromResult(graphQlResponse);
                 }
 
                 if (path.EndsWith("/languages", StringComparison.Ordinal))

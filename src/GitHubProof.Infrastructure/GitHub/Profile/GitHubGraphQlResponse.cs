@@ -22,13 +22,15 @@ public sealed record GitHubGraphQlResponse
         JsonElement? data,
         int errorCount,
         GitHubGraphQlRateLimit? rateLimit,
-        HttpStatusCode? statusCode)
+        HttpStatusCode? statusCode,
+        GitHubGraphQlProviderSignal providerSignal = GitHubGraphQlProviderSignal.None)
     {
         Outcome = outcome;
         Data = data;
         ErrorCount = errorCount;
         RateLimit = rateLimit;
         StatusCode = statusCode;
+        ProviderSignal = providerSignal;
     }
 
     public GitHubGraphQlOutcome Outcome { get; }
@@ -46,6 +48,18 @@ public sealed record GitHubGraphQlResponse
     // The provider status for an envelope failure. Null when no response was
     // produced at all.
     public HttpStatusCode? StatusCode { get; }
+
+    // Session 126. Set only on a DataWithErrors envelope, and only from a
+    // response header, never from error content. `None` everywhere else — in
+    // particular a Success envelope always carries `None`, so a successful
+    // response can never be turned into a failure by a header.
+    public GitHubGraphQlProviderSignal ProviderSignal { get; }
+
+    // §18.6 acts on this rather than on the outcome alone: an HTTP 200 carrying
+    // errors is provider-wide only when the provider itself said so
+    // structurally.
+    public bool ReportsProviderWideCondition =>
+        ProviderSignal != GitHubGraphQlProviderSignal.None;
 
     // Deliberately narrow: only this outcome permits reading an absence as an
     // observation. Callers should branch on this rather than on `Data is not
@@ -65,13 +79,16 @@ public sealed record GitHubGraphQlResponse
     internal static GitHubGraphQlResponse DataWithErrors(
         JsonElement? data,
         int errorCount,
-        GitHubGraphQlRateLimit? rateLimit) =>
+        GitHubGraphQlRateLimit? rateLimit,
+        GitHubGraphQlProviderSignal providerSignal =
+            GitHubGraphQlProviderSignal.None) =>
         new(
             GitHubGraphQlOutcome.DataWithErrors,
             data,
             errorCount,
             rateLimit,
-            HttpStatusCode.OK);
+            HttpStatusCode.OK,
+            providerSignal);
 
     internal static GitHubGraphQlResponse EnvelopeFailure(HttpStatusCode? statusCode) =>
         new(

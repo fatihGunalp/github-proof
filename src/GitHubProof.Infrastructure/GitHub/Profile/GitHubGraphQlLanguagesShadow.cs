@@ -103,13 +103,23 @@ public sealed class GitHubGraphQlLanguagesShadow : IGitHubGraphQlLanguagesShadow
             // the same. Disabling the whole run on it would be inference, not
             // classification.
             //
-            // Message text is not parsed and error codes are not invented, so
-            // §18.6 provider-wide classification of an HTTP 200 + errors
-            // response remains unproven. That is recorded as a named
-            // pre-enablement blocker in the Session 125 worklog, not papered
-            // over here.
+            // Message text is still not parsed and error codes are still not
+            // invented. Session 126 narrowed what remains unproven: a 200 whose
+            // HEADERS report the condition is now classified (below), and only
+            // the shape GitHub identifies through the message alone —
+            // remaining > 0, no Retry-After — is left open. That residual shape
+            // is the named pre-enablement blocker, and it is not papered over
+            // here.
+            //
+            // Session 126 adds the third case: an HTTP 200 errored envelope whose
+            // HEADERS report a provider-wide condition — zero remaining GraphQL
+            // points, or a Retry-After the provider set. §18.6 already names a
+            // primary or secondary rate-limit response as envelope-level, so
+            // acting on it is applying that rule, not extending it. The error
+            // text is still never read.
             if (response.Outcome is GitHubGraphQlOutcome.EnvelopeFailure
-                or GitHubGraphQlOutcome.Malformed)
+                or GitHubGraphQlOutcome.Malformed
+                || response.ReportsProviderWideCondition)
             {
                 state?.DisableForRun();
 

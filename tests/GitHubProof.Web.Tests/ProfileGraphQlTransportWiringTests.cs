@@ -400,6 +400,69 @@ public sealed class ProfileGraphQlTransportWiringTests
         Assert.Equal(12, budgetState.MetadataObservation!.Remaining);
     }
 
+    // ------------------ Session 126. REST budget isolation and counting
+
+    // A GraphQL response reporting an exhausted GraphQL budget must not touch
+    // the REST profile-metadata budget decision (§10.4 / §11.3, §18.9): the two
+    // provider budgets are separate resources and are never merged.
+    [Fact]
+    public async Task AnExhaustedGraphQlBudget_NeverReachesTheRestBudgetDecision()
+    {
+        ProfileExecutionTelemetry telemetry = new();
+        ProfileGitHubBudgetState budgetState = new();
+        CountingHandler inner = new(
+            GraphQlBody("""
+                {
+                  "data": { "repository": null },
+                  "errors": [ { "message": "SENTINELMESSAGEexceeded" } ]
+                }
+                """),
+            remaining: "0",
+            resource: "graphql");
+        ProfileGitHubRequestTelemetryHandler handler = new() { InnerHandler = inner };
+        using HttpClient client = new(handler)
+        {
+            BaseAddress = new Uri("https://api.github.com/")
+        };
+        GitHubGraphQlTransport transport = new(client);
+
+        using (ProfileExecutionTelemetryScope.Begin(telemetry))
+        using (ProfileGitHubBudgetScope.Begin(budgetState))
+        {
+            GitHubGraphQlResponse response =
+                await transport.SendAsync(new GitHubGraphQlRequest("query { viewer { login } }"));
+
+            // The transport classified it structurally, from the header alone.
+            Assert.Equal(GitHubGraphQlOutcome.DataWithErrors, response.Outcome);
+            Assert.True(response.ReportsProviderWideCondition);
+        }
+
+        // Zero remaining on the GraphQL resource, and the REST metadata budget
+        // decision is still unobserved.
+        Assert.Null(budgetState.MetadataObservation);
+
+        // One physical POST is still one request and one graphql category count.
+        Assert.Equal(1, inner.SendCount);
+        Assert.Equal(1, telemetry.GitHubRequests);
+        Assert.Equal(
+            ProfileGitHubRequestCategory.GraphQl,
+            Assert.Single(telemetry.RequestCategories.Keys));
+
+        telemetry.Complete(
+            TimeSpan.FromMilliseconds(1),
+            "Complete",
+            ProfileExecutionOutcome.Composed);
+
+        // The rate-limit observation is bucketed by its own resource and carries
+        // no error content.
+        string log = telemetry.ToLogMessage();
+
+        Assert.DoesNotContain("SENTINELMESSAGEexceeded", log, StringComparison.Ordinal);
+        Assert.All(
+            telemetry.RequestCategories.Keys,
+            key => Assert.Contains(key, ProfileGitHubRequestCategory.All));
+    }
+
     // ------------------------------------------------------------ test support
 
     private static ServiceProvider BuildProvider(out RecordingHandler handler)

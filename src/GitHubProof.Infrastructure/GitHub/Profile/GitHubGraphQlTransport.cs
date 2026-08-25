@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -63,9 +64,12 @@ public sealed class GitHubGraphQlTransport : IGitHubGraphQlTransport
                 return GitHubGraphQlResponse.EnvelopeFailure(statusCode);
             }
 
+            // Session 126. Headers only, and read before the body so the
+            // classification cannot depend on anything inside it.
+            GitHubGraphQlProviderSignal providerSignal = ReadProviderSignal(response);
             string body = await response.Content.ReadAsStringAsync(cancellationToken);
 
-            return ReadEnvelope(body, statusCode);
+            return ReadEnvelope(body, statusCode, providerSignal);
         }
         // Caller cancellation is not a GraphQL failure and must not be converted
         // into one (§11.1, §18.8). It keeps propagating exactly as every REST
@@ -129,9 +133,75 @@ public sealed class GitHubGraphQlTransport : IGitHubGraphQlTransport
 
     // The §18.4 decision, made structurally and from the envelope shape only —
     // never from an error message's wording.
+    // Session 126 (§18.6). The two conditions GitHub reports through headers on
+    // an otherwise-200 response. Deliberately nothing else: the secondary
+    // rate-limit shape that GitHub identifies only through the error message is
+    // NOT classified here, because reading that message is forbidden and no
+    // documented stable structural discriminator exists for it.
+    //
+    // `x-ratelimit-resource: graphql` is normal for every GraphQL response and
+    // is never treated as a signal.
+    private static GitHubGraphQlProviderSignal ReadProviderSignal(
+        HttpResponseMessage response)
+    {
+        if (IsRateLimitExhausted(response))
+        {
+            return GitHubGraphQlProviderSignal.RateLimitExhausted;
+        }
+
+        return HasRetryAfter(response)
+            ? GitHubGraphQlProviderSignal.RetryAfterRequested
+            : GitHubGraphQlProviderSignal.None;
+    }
+
+    // Exactly zero. A malformed, absent or repeated header is not a signal:
+    // guessing would be the inference this session exists to avoid.
+    private static bool IsRateLimitExhausted(HttpResponseMessage response) =>
+        response.Headers.TryGetValues("x-ratelimit-remaining", out IEnumerable<string>? values)
+        && values.Count() == 1
+        && int.TryParse(
+            values.Single(),
+            NumberStyles.None,
+            CultureInfo.InvariantCulture,
+            out int remaining)
+        && remaining == 0;
+
+    // Present and readable as either delta-seconds or a timestamp. The value
+    // itself is not retained: this slice implements no retry or backoff, so the
+    // bounded fact that the provider asked us to wait is the whole signal.
+    //
+    // The timestamp branch is DateTimeOffset.TryParse, which accepts more than
+    // the strict HTTP-date grammar. That looseness is deliberate and one-way:
+    // the only consequence of accepting a value GitHub would not have sent is
+    // that the shadow stops early, which costs an observation and can never
+    // cost evidence — REST supplies the surface either way.
+    private static bool HasRetryAfter(HttpResponseMessage response)
+    {
+        if (!response.Headers.TryGetValues("Retry-After", out IEnumerable<string>? values)
+            || values.Count() != 1)
+        {
+            return false;
+        }
+
+        string value = values.Single();
+
+        // NumberStyles.None rejects a sign, so a negative delta never parses.
+        return int.TryParse(
+                value,
+                NumberStyles.None,
+                CultureInfo.InvariantCulture,
+                out _)
+            || DateTimeOffset.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal,
+                out _);
+    }
+
     private static GitHubGraphQlResponse ReadEnvelope(
         string body,
-        HttpStatusCode? statusCode)
+        HttpStatusCode? statusCode,
+        GitHubGraphQlProviderSignal providerSignal)
     {
         JsonElement? data;
         int errorCount;
@@ -174,7 +244,11 @@ public sealed class GitHubGraphQlTransport : IGitHubGraphQlTransport
 
         if (errorCount > 0)
         {
-            return GitHubGraphQlResponse.DataWithErrors(data, errorCount, rateLimit);
+            return GitHubGraphQlResponse.DataWithErrors(
+                data,
+                errorCount,
+                rateLimit,
+                providerSignal);
         }
 
         // No errors and no readable `data`: an empty or `"data": null` envelope.
