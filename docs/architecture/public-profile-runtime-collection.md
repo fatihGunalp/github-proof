@@ -21,6 +21,19 @@ dependency. Architecture-owner re-review corrected the deadline start to occur
 before the first live metadata operation and recorded `ResponseHeadersRead`
 semantics. No evidence, scoring, eligibility, composition, report or Repository
 Proof behavior changed
+**Amended:** 2026-08-25 / Session 123 — closed the blocking GQL-F2 gap Session
+121 recorded: added §18 (GraphQL transport optimization — Hybrid V1 surface
+split, the HTTP 200 + `errors` rule, error isolation and per-surface fallback,
+run-scoped envelope disable, availability ownership, guard separation and
+telemetry) and §19 acceptance criteria, and added Session 123 scope notes to
+§9.1, §11 and §13. Independent review returned CHANGES REQUIRED and the
+architecture owner accepted all six findings, closed in the same session: §18.12
+(exact-total provider fields not adopted), §18.13 (empty-repository shape), the
+§18.2 mapping obligation, the §18.7 `RetrievedAt` rule, the §18.9 counting rule,
+and §19.2 / §19.11 / §19.14 / §19.15-§19.17. GraphQL is transport only: no
+evidence surface, signal, score, status, evidence key, availability status,
+limitation, warning, pattern, representative or report semantics changed, and no
+production code, runtime numeric or performance claim was selected
 **Production Code:** NOT IN SCOPE (contract only)
 
 ## 1. Purpose
@@ -450,6 +463,11 @@ Telemetry must never:
 This restates, at profile level, the logging boundary already locked by
 `repository-source-evidence-collection.md` §21.
 
+**Session 123 note.** This list is not exhaustive once a second transport
+exists. §18.9 adds the GraphQL-specific prohibitions — query text, query
+variables beyond existing bounded policy, `data` payloads and raw error
+messages — and they bind exactly as strictly as the list above.
+
 ### 9.2 Purpose
 
 Telemetry exists so the implementation session can measure the actual request
@@ -678,6 +696,11 @@ fabricates an analysis result.
 
 ## 11. Failure and Cancellation Behavior
 
+**Session 123 note.** This section stays authoritative for every failure the
+Profile path can produce, on any transport. §18.4-§18.8 add how a GraphQL
+response maps onto it; they introduce no new failure kind and no new status, and
+§18.8 keeps §11.1-§11.3 strictly separate from GraphQL error handling.
+
 Collection and analysis failure semantics are unchanged, and restated here so
 the guard work cannot drift:
 
@@ -801,6 +824,14 @@ This contract does not:
 - introduce persistence, caching or replay of any collected surface,
 - fix production numeric values for the execution guard,
 - implement anything: no production code is in scope for this session.
+
+**Session 123 scope note.** Every item above still holds. §18 authorizes a
+transport *design* and its acceptance criteria only — it implements nothing,
+introduces no concurrency, fan-out, queueing, persistence, caching or replay,
+fixes no production numeric, and adds no repository-count cap or subset
+selection rule. The "no production code is in scope for this session" item is
+Session 096's statement about Session 096, and remains true of Session 123 as
+well.
 
 Narrowed by Session 098:
 
@@ -1072,3 +1103,431 @@ requiring something another criterion forbids.
 10. No repository-count cap, sampling, approximation, concurrency fan-out or
     arbitrary page cap is introduced, and no execution-guard numeric value is
     selected.
+
+## 18. GraphQL Transport Optimization (Session 123)
+
+**Status:** CONTRACT DECISION. This section closes the blocking gap Session 121
+recorded as **GQL-F2**, and it is the gate every GraphQL implementation slice
+must satisfy first. It authorizes no production code.
+
+### 18.1 GraphQL is transport only
+
+GraphQL may change **how** an already-required surface is fetched. It may never
+change **what** is required, what it means, or what its absence means.
+
+Locked rules:
+
+- GraphQL introduces no evidence surface, removes none and re-scopes none. §4
+  remains the required surface list; §5 remains the omission list.
+- No signal, threshold, score, status, evidence key, evidence value, limitation,
+  warning, category result, pattern, representative selection or report section
+  may change because a surface arrived over GraphQL.
+- A `DataAvailability` data key belongs to the **surface**, not to the transport.
+  `commits` is `commits` whether it arrived over REST or GraphQL.
+- A Profile result must be indistinguishable, in every output this contract
+  governs, between a run served entirely by REST and a run served by the hybrid.
+  Which transport ran is observable only through §18.9 telemetry.
+- Repository Proof is untouched (§3.1). GraphQL is a Profile-path composition
+  concern resolved at the existing `IProfileRepositorySnapshotSource` seam
+  (§3.2), without modifying any §14.2 component.
+
+### 18.2 Hybrid V1 surface split
+
+| Surface | Hybrid V1 transport |
+|---|---|
+| profile metadata | **REST** |
+| repository manifest | **REST** |
+| repository metadata / topics | GraphQL candidate |
+| default branch head, commit and tree identity | GraphQL candidate |
+| languages | GraphQL candidate |
+| commits | GraphQL candidate |
+| pull requests | GraphQL candidate |
+| releases | GraphQL candidate |
+| tags | GraphQL candidate |
+| issues | **REST** |
+| recursive file tree | **REST** |
+| README | **REST** |
+| license and license file | **REST** |
+| project files, workflows, documentation Markdown contents | **REST** |
+
+Each REST retention is a verifiable reason, not a preference:
+
+- **profile metadata** is the sole input of the §10.4 / §11.3 budget observation;
+  moving it would silently change that premise;
+- **the repository manifest** is the repository universe (§7) and the input of
+  the `Empty` derivation (§18.3);
+- **issues** stays REST because REST `/issues` interleaves pull requests and
+  filters them client-side *after* the page is fetched, while a GraphQL `issues`
+  connection never contains them. For the same repository under the same §15.3
+  stop rule the two transports observe different prefixes and therefore produce
+  different §15.5 `DecisionBounded` evidence values. Keeping issues on REST
+  removes the only known evidence-value divergence in the candidate set, so the
+  GraphQL column carries none;
+- **the recursive tree** stays REST because GraphQL exposes no recursive tree and
+  no `truncated` equivalent, and `truncated` drives `FileTree.IsComplete`;
+- **README** stays REST because provider-side preferred-README resolution cannot
+  be reproduced from a query; guessing paths would be new inference, not
+  transport;
+- **license** stays REST because GraphQL `licenseInfo` carries no file path or
+  size, and the path is written into `EvidenceItem.Location` and into the merged
+  file tree;
+- **file contents** stay REST because blob truncation semantics differ from
+  REST's documented rule, so byte-identical parity cannot be asserted.
+
+**Ordering obligation.** Commits, pull requests, releases and tags are
+`DecisionBounded` surfaces (§15): the observed *prefix* decides. A candidate may
+be adopted only if its GraphQL ordering is proven to reach the same §15.3 stop
+outcome and the same §15.5 evidence values as the REST ordering. Where ordering
+parity cannot be proven, the surface stays REST. Appearing in the GraphQL column
+is permission to attempt adoption under §19, never a finding that parity already
+holds.
+
+**Mapping obligation.** Adoption also requires proven field-mapping parity.
+For every adopted GraphQL field the implementation must prove, by test, that it
+maps onto exactly the value the REST path produces today. At minimum:
+`committedDate` onto REST `commit.committer.date`; `closed` and `mergedAt` onto
+`IsClosed` and `IsMerged`; a release `description` onto `Notes`; `isDraft` onto
+`IsDraft`; `LanguageEdge.size` onto the language byte count; topic
+normalization; and `defaultBranchRef` target and commit tree `oid` onto the
+existing head-commit and root-tree identities. A surface whose mapping parity is
+not proven stays REST.
+
+Moving any surface into the GraphQL column later is a contract amendment, not an
+implementation choice.
+
+### 18.3 `isEmpty` is not adopted
+
+`RepositoryConditionState Empty` continues to be derived exactly as it is today,
+from the REST manifest's `size` and `pushed_at`. GitHub's GraphQL `isEmpty` is
+**not** adopted in Hybrid V1.
+
+It is not rejected for being inaccurate — it would be *more* accurate, which is
+precisely the problem. Replacing the derivation would change admission outcomes
+for the `Undetermined` case. That is an eligibility semantics change owned by
+`public-profile-evidence-repository-eligibility.md`, reachable only through the
+product/domain route §6 requires, and it is not a transport decision.
+
+### 18.4 Partial data with `errors` — the blocking rule
+
+GitHub GraphQL may answer **HTTP 200** with a `data` object **and** a non-empty
+`errors` array. The existing availability mapping resolves failure from the HTTP
+status alone, so without this section such a response reaches the domain as
+success. That is the gap Session 121 refused to implement past.
+
+> A GraphQL response carrying `errors` may never cause affected or missing data
+> to be treated as successful absence, as `Missing` evidence, as zero evidence,
+> or as any statement about the developer.
+
+Consequences:
+
+- HTTP 200 is not by itself success. A response is successful only when `errors`
+  is absent or empty **and** every surface read from it is complete.
+- An absent, null or empty field in a response carrying `errors` is
+  **unresolved**, not observed-empty, unless it is deterministically proven
+  unaffected under §18.5.
+- "No commits", "no releases", "no tags", "no languages" are evidence claims.
+  They may be made only from a response carrying no error touching that surface.
+- Where both readings are available, the conservative one — fallback — is
+  required. There is no optimistic read of an errored response.
+
+### 18.5 Error isolation and per-surface fallback
+
+Three cases, evaluated in order:
+
+1. **Deterministically attributable error.** The error is attributable to exactly
+   one GraphQL surface. Discard that surface's GraphQL result entirely and
+   collect the surface through the existing REST path. The discarded payload is
+   never merged, sampled, or used as a lower bound.
+2. **Retaining unaffected surfaces.** A surface untouched by any error may be
+   retained only if **both** hold: its payload is complete for that surface, and
+   its independence from every reported error is deterministically established.
+   Both must be provable from the response itself, never inferred from an error
+   message's wording.
+3. **Ambiguity.** If attribution or completeness is ambiguous for any surface,
+   discard the **entire repository GraphQL envelope** and collect that repository
+   through the existing REST path.
+
+Ambiguity is the default, not the exception: an implementation that cannot prove
+case 1 or case 2 is in case 3. Nothing here authorizes merging a GraphQL payload
+with a REST payload for the same surface — **one surface is served by exactly one
+transport, per repository, per run**.
+
+### 18.6 Envelope-level and provider-wide failure
+
+An envelope-level failure is one not attributable to any single surface:
+transport failure, a non-200 status, an unparsable body, an authentication or
+authorization failure, a GraphQL primary or secondary rate-limit response, or a
+server-side timeout of the query.
+
+Locked rules:
+
+- On an envelope-level failure, GraphQL optimization is **disabled for the
+  remainder of that Profile execution**, and collection continues through the
+  proven REST path.
+- The failing envelope must not be re-attempted for every repository. This exists
+  so a systemic failure cannot be multiplied by the admitted repository count. It
+  is not a retry policy, and no retry, backoff or circuit numeric is selected
+  (§18.11).
+- The disable is scoped to a single execution. It is not persisted, not shared
+  between executions and not remembered.
+- Because §6 requires both transports to produce identical results, disabling
+  GraphQL mid-run cannot change any output this contract governs; it is visible
+  only in §18.9 telemetry. An implementation that can produce different results
+  before and after the switch violates §6 — the switch is not a licence to
+  differ.
+- A GraphQL rate-limit response is a provider fact about the **GraphQL resource**.
+  It is neither GitHub Proof's internal §11.3 budget rejection nor a REST
+  rate-limit outcome, and none of the three may impersonate another.
+
+### 18.7 Availability ownership — no new status
+
+- Falling back from GraphQL to REST is **not** an availability failure. It
+  produces no `DataAvailability` entry of its own, no collection warning, no
+  limitation and no `RepositoryAnalysis.Status` change.
+- The final `DataAvailability` for a surface is the one produced by the
+  collector/provider result that **actually supplied** it. A surface served by
+  REST after a GraphQL fallback carries exactly the REST outcome it would have
+  carried had GraphQL never been attempted.
+- **No new `DataAvailabilityStatus` member.** No GraphQL-specific domain evidence
+  status, signal status, warning code or limitation code.
+- A discarded GraphQL attempt leaves no trace in evidence. It is a structural
+  telemetry fact only (§18.9).
+
+**`RetrievedAt` for a GraphQL envelope.** `DataAvailability.RetrievedAt` is
+truthful retrieval metadata and is read as an observation instant by signal
+evaluators, so its semantics are fixed here rather than left to the
+implementation:
+
+- one successful envelope captures **one** UTC retrieval instant, taken only
+  after the response body has been fully read, parsed, validated and accepted;
+- every surface actually supplied by that envelope carries that same
+  `RetrievedAt`;
+- a surface that falls back to REST carries the REST collector's own
+  `RetrievedAt`, exactly as it does today.
+
+A REST execution and a hybrid execution are separate observations, so their
+wall-clock instants legitimately differ. That difference is **not** semantic
+drift and must never be asserted equal in a parity test (§19.2). Status, reason
+and data-key semantics must still match.
+
+### 18.8 Both transports failing, and the guard relationship
+
+- If GraphQL falls back and the REST collection then fails, the existing
+  REST/provider availability semantics are authoritative: the surface reports its
+  own typed outcome (`RateLimited`, `Forbidden`, `Failed`, ...) exactly as §11
+  already requires. The earlier GraphQL attempt neither strengthens nor weakens
+  it, and adds nothing to it.
+- **Failure is never converted to `Missing`.** `UnavailableEvidence` is never
+  automatically `Missing`, and adding a transport creates no exception.
+- §11.1 caller cancellation, §11.2 execution-deadline expiration and §11.3
+  proactive budget rejection remain governed by §§10-11, unchanged. None may be
+  reinterpreted, caught, normalized or reported as a GraphQL error, and no
+  GraphQL error may be reported as any of them.
+- An `OperationCanceledException` crossing a GraphQL call continues to propagate
+  under §11.1, and must not trigger the §18.6 run-scoped disable — it is not a
+  provider failure.
+
+### 18.9 Telemetry
+
+Extends §9 and is bound by §9.1 without exception.
+
+May be recorded — bounded structural facts only:
+
+- GraphQL request count for the run,
+- fallback count, at the granularity the implementation actually decides at
+  (per surface, and per repository envelope),
+- whether GraphQL was disabled for the run (§18.6), as a boolean structural fact,
+- per-surface request attribution consistent with the existing bounded category
+  set.
+
+The §9 category set must stay **bounded, enumerable and closed**, and must never
+be derived from repository, file or identity values. Extending it so that
+GraphQL-served surfaces remain attributable is authorized here; inventing an
+open-ended category is not.
+
+Must never be recorded, in addition to every §9.1 prohibition:
+
+- raw GraphQL query or mutation text,
+- query variables carrying identities beyond what existing bounded policy already
+  permits,
+- any part of a GraphQL `data` payload,
+- source file, README, documentation or dependency-manifest content,
+- credentials or token material,
+- raw GraphQL error messages, error extensions or error paths as free text.
+  Error content may drive control flow (§18.5) without any of it reaching
+  telemetry.
+
+**Counting rule (locked).** One physical GraphQL HTTP POST is counted **exactly
+once** in the total GitHub request count, and **exactly once** in a closed,
+bounded GraphQL request category. A physical request is never counted once per
+surface it served: doing so would make §9's "total GitHub HTTP request count"
+untrue and would make the existing measured baseline incomparable.
+
+Per-surface GraphQL served/fallback facts may exist as separate bounded
+structural counters. They are **non-additive**, they are **not** HTTP request
+counts, and they must never be summed with request counts or presented as them.
+
+REST and GraphQL rate-limit observations address **different provider resources**
+and must never be summed, averaged or presented as one budget. The §10.4 / §11.3
+budget decision continues to read the REST profile-metadata response, which §18.2
+keeps on REST precisely so that premise stays unchanged.
+
+### 18.10 Preserved invariants
+
+- **§6 semantic equivalence stands unchanged and is the acceptance bar.** For
+  every profile input the hybrid composition must produce a semantically
+  identical result to the current REST composition — exactly the per-repository
+  and profile-level list §6 enumerates. GraphQL is granted no equivalent of the
+  Session 098 scope-note exception; that exception belongs to §15 and §16 alone.
+- **§7 no-hidden-cap stands unchanged.** No repository-count truncation, ranking,
+  sampling or subset selection may be introduced under a transport argument, and
+  a GraphQL page or batch bound may never become a hidden repository cap.
+- §15 decision-sufficient collection and §15.5 evidence language continue to
+  govern the bounded surfaces, on whichever transport serves them.
+- §3.1 Repository Proof preservation and the §14.2 untouched-component list are
+  unchanged.
+
+### 18.11 What this section does not select
+
+No concurrency increase or fan-out; no execution-deadline value; no rate-limit
+reserve or floor value; no cache, persistence or replay; no queue; no repository
+cap; no GraphQL batch size, page size or query shape; no retry or backoff policy;
+no credential type, which stays open; and **no performance, latency or wall-clock
+claim of any kind**. Session 121's figures are HTTP round-trip projections only,
+and this section adopts none of them as an expectation or a target.
+
+This exclusion covers the whole of §18, including §18.12 and §18.13 below.
+
+### 18.12 Exact-total provider fields are not adopted
+
+GraphQL connections expose `totalCount`, and equivalent exact-total fields exist
+elsewhere in the schema. None of them is adopted.
+
+Locked rules:
+
+- GraphQL `totalCount`, and any equivalent exact-total field, must never populate
+  `RepositoryCollection.TotalCount`.
+- It must never enter a `DecisionBounded` evidence value, and must never be
+  presented as an exact repository total in any evidence, report, warning or
+  limitation.
+- Existing enumeration and `DecisionBounded` semantics stay authoritative. §17.4
+  (`TotalCount` is `null` for every `DecisionBounded` collection), §15.5
+  lower-bound evidence language and §15.4's refusal of count-based optimization
+  are unchanged, and none of them is relaxed by a cheaper provider count becoming
+  available.
+
+This is the same pattern §18.3 rejects for `isEmpty`: a more precise provider
+field silently becoming an evidence-strength upgrade. Being cheaper to obtain is
+not a reason to adopt it, and adopting it would be an evidence semantics change
+rather than a transport change.
+
+### 18.13 Empty-repository shape
+
+REST distinguishes an empty repository from a failure by response body: HTTP 409
+carrying exactly `"Git Repository is empty."` is successful emptiness, and every
+other 409 is a failure. GraphQL has no 409 — an empty repository answers
+`defaultBranchRef: null`, which collapses that distinction.
+
+Locked rules:
+
+- `defaultBranchRef == null` must never be read blindly as successful empty
+  evidence.
+- The default-branch head / commit-tree identity and the commits surface may be
+  adopted over GraphQL only if the implementation **proves** that the GraphQL
+  empty-repository shape reproduces the current REST successful-empty semantics
+  exactly, **and** remains distinguishable from failure or error.
+- If that equivalence cannot be proven, those surfaces stay on REST, or fall back
+  to REST under §18.5.
+- No new availability status, reason vocabulary or evidence status is introduced
+  for this. The existing successful-empty and failure outcomes remain the only
+  two, on either transport.
+
+Note that §18.4 does not cover this case on its own: its trigger is the presence
+of `errors`, and an empty-repository response carries none. §18.13 is what closes
+the null-becomes-successful-absence path when no error is reported at all.
+
+## 19. Session 123 Acceptance Criteria
+
+Additional to §14 and §17, which remain unchanged. A first GraphQL implementation
+slice is acceptable only if all of the following hold.
+
+1. **§6 parity proven by test.** The same profile input through the REST
+   composition and through the hybrid composition yields an identical
+   `ProfileReport`, profile status, limitations, warnings, admitted repository
+   set, contribution assessments, observed evidence, promoted patterns and
+   representative selection; and per admitted repository an identical
+   `RepositoryAnalysis.Status`, score breakdown, 15 `SignalResults`, evidence
+   keys, limitation keys, warning codes and category results.
+2. **Availability parity.** For every surface the `DataAvailability` key, status
+   and semantics match the REST-only run whenever the observed provider facts
+   match, and no new `DataAvailabilityStatus` member exists. `RetrievedAt` is
+   deliberately excluded from that equality: a REST execution and a hybrid
+   execution are separate observations whose wall-clock instants legitimately
+   differ (§18.7). Parity tests assert key, status, reason and data-key
+   semantics, never wall-clock equality; they do assert that one envelope's
+   surfaces share one instant and that a fallen-back surface carries the REST
+   collector's own.
+3. **HTTP 200 with `errors` provably does not reach the domain as success.** A
+   test feeds a 200 response carrying both `data` and `errors` and asserts that
+   no surface becomes observed-empty, `Missing`, zero evidence or any positive
+   claim.
+4. **All three §18.5 cases are covered by test.** An attributable single-surface
+   error falls back only that surface; an unaffected surface is retained only
+   when independently complete; ambiguous attribution discards the whole
+   repository envelope and collects that repository over REST. The ambiguous case
+   is the default whenever the test cannot prove otherwise.
+5. **An envelope-level failure disables GraphQL for the run.** A test in which
+   the first repository fails systemically results in exactly one GraphQL
+   envelope attempt for the whole execution, REST collection for every remaining
+   repository, and an identical `ProfileReport`.
+6. **Fallback leaves no evidence trace.** No availability entry, collection
+   warning, limitation, status change or report difference is attributable to a
+   fallback.
+7. **Ordering and prefix parity per adopted `DecisionBounded` surface.** For
+   commits, pull requests, releases and tags the GraphQL ordering reaches the
+   same §15.3 stop outcome and the same §15.5 evidence values as REST, or the
+   surface is not adopted in this slice.
+8. **The REST-retained surfaces stay on REST**, proven by request-level
+   assertion: profile metadata, repository manifest, issues, recursive tree,
+   README, license and file contents.
+9. **`isEmpty` is not read**, and the `Empty` derivation is unchanged.
+10. **Guard separation holds.** Caller cancellation, deadline expiration and
+    budget rejection are not reinterpreted as GraphQL errors and do not trigger
+    the §18.6 disable; no GraphQL error is reported as any of them.
+11. **Telemetry tests** prove the §18.9 prohibitions for at least query text,
+    response data, raw error messages and tokens; that the category set stays
+    closed and bounded; that one physical GraphQL POST is counted exactly once in
+    the total request count and exactly once in a closed bounded GraphQL
+    category, never once per surface served; that per-surface served/fallback
+    counters are never summed into or presented as HTTP request counts; and that
+    REST and GraphQL rate-limit observations are never summed.
+12. **Repository Proof is unchanged** — composition, request graph and tests
+    untouched and green.
+13. **No §18.11 value is selected**, no repository cap, sampling or `Task.WhenAll`
+    fan-out is introduced, and the full solution builds and tests green with 0
+    warnings.
+14. **Rollout is gated on live parity evidence.** The REST composition remains
+    the reference and fallback path, and the hybrid is switchable off by
+    configuration to exactly that composition, for as long as the hybrid exists.
+    Before **any** production switch: the approved live A/B parity validation is
+    run on the same three profile shapes Session 120 measured; REST and hybrid
+    outputs are compared under the canonical parity contract of criterion 1; and
+    the production switch requires architecture-owner approval on that evidence.
+    No performance target, threshold or claim is attached to this gate, and none
+    may be introduced by it.
+15. **Exact-total fields are gated.** A test proves that GraphQL `totalCount`,
+    and any equivalent exact-total field, never reaches
+    `RepositoryCollection.TotalCount`, never enters a `DecisionBounded` evidence
+    value and is never presented as an exact repository total; `TotalCount`
+    remains `null` for every `DecisionBounded` collection (§17.4, §18.12).
+16. **Empty-repository equivalence is proven in both directions.** A positive
+    test proves the GraphQL empty-repository shape produces exactly the current
+    REST successful-empty result; a negative test proves a failure or error
+    response is **not** read as empty. If either cannot be proven, the affected
+    surfaces stay on REST. No availability, reason or status vocabulary is added
+    (§18.13).
+17. **Field-mapping parity is proven per adopted field**, explicitly rather than
+    incidentally: at minimum `committedDate`, `closed` and `mergedAt`, a release
+    `description` onto `Notes`, `isDraft`, `LanguageEdge.size`, topic
+    normalization, and `defaultBranchRef` target and commit tree `oid`. A surface
+    whose mapping parity is not proven stays REST (§18.2).

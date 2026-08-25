@@ -1,24 +1,27 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-25 (Session 122)
+**Last Updated:** 2026-08-25 (Session 123)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 122 — Profile REST Request Redundancy Audit — **PASS**,
-  verdict **REST-R3 — no material redundancy**; independent review
-  **PASS WITH FINDINGS** (1 HIGH, 2 MEDIUM, 1 LOW, all corrected in-session).
-  **CLOSED / awaiting final integration** — read-only audit, worklog was the
-  only mutation, and the commit is user-owned and still pending on branch
-  `session/122-profile-rest-request-redundancy-audit` (base `3b77600`, route
-  Opus / high). **Not resumable**; further work opens a new session.
+- **Last Session:** 123 — GraphQL Partial-Data / Error Contract (**S0**) —
+  **PASS**. §18 (13 subsections) and §19 (17 acceptance criteria) are locked in
+  `public-profile-runtime-collection.md`, with Session 123 notes in §9.1, §11
+  and §13. Independent review returned CHANGES REQUIRED; the architecture owner
+  accepted all six findings and all six were closed in-session and re-reviewed.
+  Canonical docs + worklog only — no code, no runtime value, no performance
+  claim. **CLOSED / awaiting final integration** — the commit is user-owned and
+  still pending on branch `session/123-graphql-partial-data-error-contract`
+  (base `5044b03`, route Opus / xhigh). **Not resumable**; further work opens a
+  new session.
+  Detail: [`sessions/2026-08-25-123-graphql-partial-data-error-contract.md`](./sessions/2026-08-25-123-graphql-partial-data-error-contract.md)
+- **Previous Session:** 122 — Profile REST Request Redundancy Audit — **PASS**,
+  verdict **REST-R3 — no material redundancy**, independent review PASS WITH
+  FINDINGS (1 HIGH, 2 MEDIUM, 1 LOW, all corrected); **integrated as `5044b03`**.
   Detail: [`sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md`](./sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md)
-- **Previous Session:** 121 — GraphQL Request Consolidation Feasibility —
-  **PASS**, verdict **GQL-F2 ACCEPTED**, independent review PASS WITH FINDINGS
-  (4 LOW, all corrected); **integrated as `3b77600`**.
-  Detail: [`sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md`](./sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md)
 - **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
   shapes were measured; the full evidence, including the complete per-category
   request breakdowns, is persisted in the Session 120 record. No further
@@ -26,8 +29,9 @@ carries product, domain or architecture truth.
 - **No production runtime value has been selected.** No execution deadline, no
   request budget, no GitHub reserve floor, no concurrency change, no contents
   bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
-  and 122 own feasibility and audit analysis only.
-- **Last integrated commit on `main`:** `3b77600` (Session 121).
+  and 122 own feasibility and audit analysis only; Session 123 owns a contract
+  decision only.
+- **Last integrated commit on `main`:** `5044b03` (Session 122).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -65,17 +69,16 @@ carries product, domain or architecture truth.
   recursive tree, README, license and file contents) can consolidate 9 of the
   12 per-repository REST round trips; projected 2.3x-3.7x fewer HTTP round
   trips on the three measured shapes, **round trips only, no wall-clock
-  claim**. Blocking gap: GitHub GraphQL can answer HTTP 200 with partial `data`
-  **and** `errors`, and no canonical section maps that onto
-  `DataAvailability` — today it would silently become positive evidence.
-  Three further findings are non-blocking but decision-relevant: `issues`
-  carries a `DecisionBounded` evidence-**value** difference (repository level
-  only, no profile output change); adopting `isEmpty` would change current
-  **eligibility** semantics; and the manifest completeness / count-consistency
-  warning could stop firing if both sides came from the same GraphQL
-  connection. Semantic preservation is therefore **qualified, not blanket**.
-  GraphQL is **not** a Milestone B exit criterion and must not become one.
-  **No S0, no code, nothing implemented.**
+  claim**. Its blocking gap — an HTTP 200 carrying partial `data` **and**
+  `errors` had no canonical `DataAvailability` mapping — is **CLOSED by Session
+  123 §18**; it is no longer open. Session 121's three decision-relevant
+  findings were all resolved by that amendment: `issues` stays REST, so its
+  `DecisionBounded` evidence-value difference cannot arise; `isEmpty` is not
+  adopted, so eligibility semantics are unchanged; and the repository manifest
+  stays REST, so the manifest completeness warning keeps its independent source.
+  What remains open is **ordering parity** for the adopted `DecisionBounded`
+  surfaces (§18.2, §19.7). GraphQL is **not** a Milestone B exit criterion and
+  must not become one. **Still no GraphQL code and nothing implemented.**
 - **REST request redundancy: AUDITED, nothing to implement** (Session 122).
   Verdict **REST-R3 — no material redundancy**. The Profile REST graph is
   2 profile-level requests plus a 12-request per-repository floor, and the
@@ -93,6 +96,33 @@ carries product, domain or architecture truth.
   overlap the workflow and documentation selectors, producing a duplicate
   content request for the same path — zero incidence in the measured shapes,
   worth 0 requests to fix, and owed its own bounded session.
+- **GraphQL partial-data / error contract: LOCKED** (Session 123, **S0
+  complete**). `public-profile-runtime-collection.md` §18 says GraphQL is
+  **transport only** and may never change evidence semantics; fixes the Hybrid V1
+  split (GraphQL candidates: repository metadata/topics, default-branch head and
+  commit/tree identity, languages, commits, pull requests, releases, tags — REST
+  retained: profile metadata, repository manifest, **issues**, recursive tree,
+  README, license/file, project/workflow/docs contents); does **not** adopt
+  `isEmpty`; and closes the blocking gap — an HTTP 200 carrying `errors` may
+  never become successful absence, `Missing`, zero evidence or developer truth.
+  Error isolation is per-surface REST fallback when attribution is
+  deterministic, whole-envelope discard when it is ambiguous, and a run-scoped
+  GraphQL disable on envelope-level failure. Fallback is **not** an availability
+  failure; **no new `DataAvailabilityStatus`** and no GraphQL-specific evidence
+  status. §§10-11 cancellation/deadline/budget semantics are untouched. §19 adds
+  17 acceptance criteria for the first implementation slice. Review-driven
+  additions, all owner-accepted: **§18.12** — GraphQL `totalCount` and any
+  exact-total field may never reach `TotalCount`, a `DecisionBounded` evidence
+  value or an exact-total claim; **§18.13** — `defaultBranchRef == null` may not
+  be read blindly as empty, and the head/commit-tree and commits surfaces are
+  adoptable only if the GraphQL empty shape provably reproduces REST
+  successful-empty semantics and stays distinguishable from failure; **§18.9** —
+  one physical GraphQL POST counts exactly once, never once per surface;
+  **§18.7** — one envelope, one `RetrievedAt`, captured only after the body is
+  accepted; **§18.2** — field-mapping parity is an adoption condition;
+  **§19.14** — rollout is gated on a live A/B parity run on the three measured
+  profile shapes plus owner approval. **Still no GraphQL code, no runtime value
+  and no performance claim.**
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -148,7 +178,7 @@ Session 118 from canonical ownership: four are prohibitions being honoured, one
 is required behaviour being sustained, one is an unauthorized future design.
 None is unfinished required P10 implementation.
 
-## Open Runtime Decisions — for Session 123
+## Open Runtime Decisions — for the Profile Production Runtime Decision session
 
 | Decision | State at Session 120 exit |
 |---|---|
@@ -159,27 +189,30 @@ None is unfinished required P10 implementation.
 | D-5 credential strategy | ready; measured cost 63 / 131 / 662 requests per profile shape |
 | D-6 secondary rate-limit response shape | OPEN; intentionally not provoked |
 
-GraphQL request consolidation stays a separate performance-architecture
-question and must not be folded into these guard decisions. Session 121 answered
-its feasibility only (**GQL-F2**); it selected no guard value. Two couplings are
-recorded there and matter to D-2 and D-5: `POST /graphql` would become one more
-used endpoint whose credential compatibility §10.4 already requires to be
-verified — and the code path's unauthenticated REST tolerance would disappear —
-and moving profile metadata off REST would silently change the D-2 budget
-premise.
+GraphQL stays a separate performance-architecture question and must not be
+folded into these guard decisions. Session 121 answered feasibility only
+(**GQL-F2**) and Session 123 locked the contract (**§18/§19**); neither selected
+a guard value, and §18.11 explicitly selects none. Two couplings still matter to
+D-2 and D-5: `POST /graphql` would become one more used endpoint whose
+credential compatibility §10.4 already requires to be verified — and the code
+path's unauthenticated REST tolerance would disappear. The second former
+coupling is now closed: §18.2 keeps profile metadata on REST precisely so the
+D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 122 is closed; its worklog commit is user-owned and still pending.
-Architecture-owner decision on the REST-R3 verdict is the immediate item. If it
-is accepted, no REST implementation slice opens and the queue is:
+Session 123 is closed; its commit is user-owned and still pending. All six
+review findings were owner-accepted and closed, so **S0 is complete**. The
+immediate item is architecture-owner final acceptance of the locked amendment.
+The queue is:
 
-- **Session 123 — Profile Production Runtime Decision Design** (D-1, D-2, D-3,
-  D-5) — next.
-- **S0** — write the GraphQL partial-data/error availability mapping amendment
-  into `docs/architecture/public-profile-runtime-collection.md` (no code) —
-  authorized from Session 121, not started, and still the gate for any GraphQL
-  slice.
+- **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — next
+  session. It was queued as 123 and moved by explicit owner prioritization of
+  S0.
+- **First GraphQL implementation slice** — now possible for the first time,
+  gated by §19's 17 criteria. Session 121's S1 (a read-only transport client
+  behind its own interface, no collector wired, default off) is the smallest
+  slice consistent with them.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
   duplicate-fetch defect. Correctness only; it saves 0 requests.
 
