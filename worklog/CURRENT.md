@@ -1,32 +1,33 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-25 (Session 121)
+**Last Updated:** 2026-08-25 (Session 122)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 121 — GraphQL Request Consolidation Feasibility — **PASS**,
-  verdict **GQL-F2 ACCEPTED** by the architecture owner, independent review
-  **PASS WITH FINDINGS** (4 LOW, all corrected in-session).
-  **CLOSED / awaiting final integration** — read-only feasibility, worklog was
-  the only mutation, and the commit is user-owned and still pending on branch
-  `session/121-graphql-request-consolidation-feasibility` (base `59a7c30`,
-  route Opus / xhigh). **Not resumable**; further work opens a new session.
+- **Last Session:** 122 — Profile REST Request Redundancy Audit — **PASS**,
+  verdict **REST-R3 — no material redundancy**; independent review
+  **PASS WITH FINDINGS** (1 HIGH, 2 MEDIUM, 1 LOW, all corrected in-session).
+  **CLOSED / awaiting final integration** — read-only audit, worklog was the
+  only mutation, and the commit is user-owned and still pending on branch
+  `session/122-profile-rest-request-redundancy-audit` (base `3b77600`, route
+  Opus / high). **Not resumable**; further work opens a new session.
+  Detail: [`sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md`](./sessions/2026-08-25-122-profile-rest-request-redundancy-audit.md)
+- **Previous Session:** 121 — GraphQL Request Consolidation Feasibility —
+  **PASS**, verdict **GQL-F2 ACCEPTED**, independent review PASS WITH FINDINGS
+  (4 LOW, all corrected); **integrated as `3b77600`**.
   Detail: [`sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md`](./sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md)
-- **Previous Session:** 120 — Profile Runtime Performance & Budget — **PASS**,
-  architecture-owner **VERIFIED** and integrated as `59a7c30`.
-  Detail: [`sessions/2026-08-24-120-profile-runtime-performance-budget.md`](./sessions/2026-08-24-120-profile-runtime-performance-budget.md)
 - **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
   shapes were measured; the full evidence, including the complete per-category
   request breakdowns, is persisted in the Session 120 record. No further
   benchmark is planned.
 - **No production runtime value has been selected.** No execution deadline, no
   request budget, no GitHub reserve floor, no concurrency change, no contents
-  bound. Session 120 owns measurement and diagnostic evidence only; Session 121
-  owns feasibility analysis only.
-- **Last integrated commit on `main`:** `59a7c30` (Session 120).
+  bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
+  and 122 own feasibility and audit analysis only.
+- **Last integrated commit on `main`:** `3b77600` (Session 121).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -75,6 +76,23 @@ carries product, domain or architecture truth.
   connection. Semantic preservation is therefore **qualified, not blanket**.
   GraphQL is **not** a Milestone B exit criterion and must not become one.
   **No S0, no code, nothing implemented.**
+- **REST request redundancy: AUDITED, nothing to implement** (Session 122).
+  Verdict **REST-R3 — no material redundancy**. The Profile REST graph is
+  2 profile-level requests plus a 12-request per-repository floor, and the
+  proven removable set is **0** on all three measured shapes (131 / 662 / 63
+  unchanged) — request counts only, no wall-clock claim. Nothing was found that
+  can be removed while preserving availability and failure truth; the three
+  existing reduction mechanisms (omitted surfaces, the `has_issues` gate, the
+  §15 decision boundaries) have already taken what was available. Two routes
+  remain **R4 — contract decision required**, each worth ~1 request per admitted
+  repository: seeding repository metadata from the manifest, and taking the head
+  SHA from the commits surface. Both are blocked on availability/failure-key
+  semantics, not on missing fields. **No `ProfileRepositoryCollectionContext`
+  and no REST slice is justified.** One source defect was found and deliberately
+  not fixed: the `jest.config.*` / `vitest.config.*` project-file prefixes can
+  overlap the workflow and documentation selectors, producing a duplicate
+  content request for the same path — zero incidence in the measured shapes,
+  worth 0 requests to fix, and owed its own bounded session.
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -152,15 +170,18 @@ premise.
 
 ## Exact Next Action
 
-Session 121 is closed; its worklog commit is user-owned and still pending. The
-architecture owner has set the sequencing:
+Session 122 is closed; its worklog commit is user-owned and still pending.
+Architecture-owner decision on the REST-R3 verdict is the immediate item. If it
+is accepted, no REST implementation slice opens and the queue is:
 
-- **Session 122 — Profile REST Request Redundancy Audit** — next.
 - **Session 123 — Profile Production Runtime Decision Design** (D-1, D-2, D-3,
-  D-5) — the previously proposed Session 122 subject, moved.
+  D-5) — next.
 - **S0** — write the GraphQL partial-data/error availability mapping amendment
   into `docs/architecture/public-profile-runtime-collection.md` (no code) —
-  authorized, not started, and still the gate for any GraphQL slice.
+  authorized from Session 121, not started, and still the gate for any GraphQL
+  slice.
+- **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
+  duplicate-fetch defect. Correctness only; it saves 0 requests.
 
 Each opens through the normal model/effort gate. The Milestone B production gate
 remains available as the architecture owner's alternative order.
