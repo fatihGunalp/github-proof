@@ -1,16 +1,22 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-25 (Session 120, opened 2026-08-24)
+**Last Updated:** 2026-08-25 (Session 121)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 120 — Profile Runtime Performance & Budget — **PASS**,
-  **CLOSED / awaiting architecture-owner final verification**.
-  Branch `session/120-profile-runtime-performance-budget`, base `5599291`,
-  route Opus / high.
+- **Last Session:** 121 — GraphQL Request Consolidation Feasibility — **PASS**,
+  verdict **GQL-F2 ACCEPTED** by the architecture owner, independent review
+  **PASS WITH FINDINGS** (4 LOW, all corrected in-session).
+  **CLOSED / awaiting final integration** — read-only feasibility, worklog was
+  the only mutation, and the commit is user-owned and still pending on branch
+  `session/121-graphql-request-consolidation-feasibility` (base `59a7c30`,
+  route Opus / xhigh). **Not resumable**; further work opens a new session.
+  Detail: [`sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md`](./sessions/2026-08-25-121-graphql-request-consolidation-feasibility.md)
+- **Previous Session:** 120 — Profile Runtime Performance & Budget — **PASS**,
+  architecture-owner **VERIFIED** and integrated as `59a7c30`.
   Detail: [`sessions/2026-08-24-120-profile-runtime-performance-budget.md`](./sessions/2026-08-24-120-profile-runtime-performance-budget.md)
 - **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
   shapes were measured; the full evidence, including the complete per-category
@@ -18,8 +24,9 @@ carries product, domain or architecture truth.
   benchmark is planned.
 - **No production runtime value has been selected.** No execution deadline, no
   request budget, no GitHub reserve floor, no concurrency change, no contents
-  bound. Session 120 deliberately owns measurement and diagnostic evidence only.
-- **Last integrated commit on `main`:** `5599291` (Session 119).
+  bound. Session 120 owns measurement and diagnostic evidence only; Session 121
+  owns feasibility analysis only.
+- **Last integrated commit on `main`:** `59a7c30` (Session 120).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -51,6 +58,23 @@ carries product, domain or architecture truth.
   production risk, not "no risk"**; **B-RI** — rate-limit telemetry lacked the
   context to reason about D-2, which is *not* a claim that GitHub's headers are
   unreliable. Production values remain unselected.
+- **GraphQL request consolidation: GQL-F2 ACCEPTED, not implemented**
+  (Session 121). Verdict **GQL-F2 — feasible, contract amendment required**. A
+  hybrid (GraphQL repository envelope over admitted repositories + REST for the
+  recursive tree, README, license and file contents) can consolidate 9 of the
+  12 per-repository REST round trips; projected 2.3x-3.7x fewer HTTP round
+  trips on the three measured shapes, **round trips only, no wall-clock
+  claim**. Blocking gap: GitHub GraphQL can answer HTTP 200 with partial `data`
+  **and** `errors`, and no canonical section maps that onto
+  `DataAvailability` — today it would silently become positive evidence.
+  Three further findings are non-blocking but decision-relevant: `issues`
+  carries a `DecisionBounded` evidence-**value** difference (repository level
+  only, no profile output change); adopting `isEmpty` would change current
+  **eligibility** semantics; and the manifest completeness / count-consistency
+  warning could stop firing if both sides came from the same GraphQL
+  connection. Semantic preservation is therefore **qualified, not blanket**.
+  GraphQL is **not** a Milestone B exit criterion and must not become one.
+  **No S0, no code, nothing implemented.**
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -106,7 +130,7 @@ Session 118 from canonical ownership: four are prohibitions being honoured, one
 is required behaviour being sustained, one is an unauthorized future design.
 None is unfinished required P10 implementation.
 
-## Open Runtime Decisions — for Session 121
+## Open Runtime Decisions — for Session 123
 
 | Decision | State at Session 120 exit |
 |---|---|
@@ -117,11 +141,26 @@ None is unfinished required P10 implementation.
 | D-5 credential strategy | ready; measured cost 63 / 131 / 662 requests per profile shape |
 | D-6 secondary rate-limit response shape | OPEN; intentionally not provoked |
 
-GraphQL request consolidation is a separate performance-architecture question
-and must not be folded into these guard decisions.
+GraphQL request consolidation stays a separate performance-architecture
+question and must not be folded into these guard decisions. Session 121 answered
+its feasibility only (**GQL-F2**); it selected no guard value. Two couplings are
+recorded there and matter to D-2 and D-5: `POST /graphql` would become one more
+used endpoint whose credential compatibility §10.4 already requires to be
+verified — and the code path's unauthenticated REST tolerance would disappear —
+and moving profile metadata off REST would silently change the D-2 budget
+premise.
 
 ## Exact Next Action
 
-Open **Session 121 — Profile Production Runtime Decision Design** through the
-normal model/effort gate. It has not started. Alternatively open the Milestone B
-production gate — architecture owner's choice of order.
+Session 121 is closed; its worklog commit is user-owned and still pending. The
+architecture owner has set the sequencing:
+
+- **Session 122 — Profile REST Request Redundancy Audit** — next.
+- **Session 123 — Profile Production Runtime Decision Design** (D-1, D-2, D-3,
+  D-5) — the previously proposed Session 122 subject, moved.
+- **S0** — write the GraphQL partial-data/error availability mapping amendment
+  into `docs/architecture/public-profile-runtime-collection.md` (no code) —
+  authorized, not started, and still the gate for any GraphQL slice.
+
+Each opens through the normal model/effort gate. The Milestone B production gate
+remains available as the architecture owner's alternative order.
