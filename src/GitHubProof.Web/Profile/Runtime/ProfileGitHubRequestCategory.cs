@@ -47,6 +47,25 @@ public static class ProfileGitHubRequestCategory
         Other
     ];
 
+    // Session 120 — A-T.
+    //
+    // A GitHub request reaches this classifier in one of two shapes, and the
+    // application controls only the first:
+    //
+    //   application-built   repos/{owner}/{repo}/issues?state=all&per_page=100
+    //   provider-supplied   https://api.github.com/repositories/{id}/issues?page=2
+    //
+    // The second shape is whatever GitHub puts in its `Link: rel="next"` header,
+    // which the paginated collectors follow verbatim through
+    // GitHubPagination.FindNextPage. The earlier classifier only recognised the
+    // owner/name form, so every continuation page fell into `other` and
+    // pagination cost could not be attributed to any evidence surface.
+    //
+    // The fix is to classify by the RESOURCE SHAPE that follows the addressing
+    // prefix, instead of requiring one particular prefix. The owner, repository
+    // name and numeric repository id all sit in wildcard positions: they are
+    // read to find where the resource path begins and are never returned,
+    // stored or emitted. The vocabulary is unchanged.
     public static string Classify(Uri? requestUri)
     {
         if (requestUri is null)
@@ -54,29 +73,97 @@ public static class ProfileGitHubRequestCategory
             return Other;
         }
 
-        string[] segments = requestUri.AbsolutePath.Split(
-            '/',
-            StringSplitOptions.RemoveEmptyEntries);
+        string[] segments = ReadPathSegments(requestUri);
 
         return segments switch
         {
+            // Profile addressing: by login, or by the numeric form GitHub uses
+            // in its own pagination links.
             ["users", _] => ProfileMetadata,
-            ["users", _, "repos"] => ProfileRepositories,
-            ["repos", _, _] => RepositoryMetadata,
-            ["repos", _, _, "git", "ref", ..] => RepositoryGitReference,
-            ["repos", _, _, "git", "commits", ..] => RepositoryGitCommit,
-            ["repos", _, _, "git", "trees", ..] => RepositoryGitTree,
-            ["repos", _, _, "contents", ..] => RepositoryContents,
-            ["repos", _, _, "readme", ..] => RepositoryReadme,
-            ["repos", _, _, "license", ..] => RepositoryLicense,
-            ["repos", _, _, "languages", ..] => RepositoryLanguages,
-            ["repos", _, _, "commits", ..] => RepositoryCommits,
-            ["repos", _, _, "issues", ..] => RepositoryIssues,
-            ["repos", _, _, "pulls", ..] => RepositoryPullRequests,
-            ["repos", _, _, "releases", ..] => RepositoryReleases,
-            ["repos", _, _, "tags", ..] => RepositoryTags,
-            ["repos", _, _, "contributors", ..] => RepositoryContributors,
+            ["users", _, .. var byLogin] => ClassifyProfileResource(byLogin),
+            ["user", var userId, .. var byUserId] when IsNumericId(userId) =>
+                ClassifyProfileResource(byUserId),
+
+            // Repository addressing: by owner/name, or by numeric repository id.
+            ["repos", _, _, .. var byName] => ClassifyRepositoryResource(byName),
+            ["repositories", var repositoryId, .. var byRepositoryId]
+                when IsNumericId(repositoryId) =>
+                ClassifyRepositoryResource(byRepositoryId),
+
             _ => Other
         };
+    }
+
+    // The id-addressed forms exist only because GitHub emits them in pagination
+    // links, and there the id is always numeric. Requiring that keeps the arm
+    // from swallowing a genuinely different endpoint whose second segment is a
+    // word: `/user/repos` is the authenticated-user repository list, not this
+    // profile's metadata, and it must stay `other` rather than hide behind a
+    // known category — the more so because `profile-metadata` is the single
+    // category gating the proactive budget observation.
+    private static bool IsNumericId(string segment)
+    {
+        if (segment.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (char character in segment)
+        {
+            if (!char.IsAsciiDigit(character))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string ClassifyProfileResource(string[] resource) =>
+        resource switch
+        {
+            [] => ProfileMetadata,
+            ["repos", ..] => ProfileRepositories,
+            _ => Other
+        };
+
+    private static string ClassifyRepositoryResource(string[] resource) =>
+        resource switch
+        {
+            [] => RepositoryMetadata,
+            ["git", "ref", ..] => RepositoryGitReference,
+            ["git", "commits", ..] => RepositoryGitCommit,
+            ["git", "trees", ..] => RepositoryGitTree,
+            ["contents", ..] => RepositoryContents,
+            ["readme", ..] => RepositoryReadme,
+            ["license", ..] => RepositoryLicense,
+            ["languages", ..] => RepositoryLanguages,
+            ["commits", ..] => RepositoryCommits,
+            ["issues", ..] => RepositoryIssues,
+            ["pulls", ..] => RepositoryPullRequests,
+            ["releases", ..] => RepositoryReleases,
+            ["tags", ..] => RepositoryTags,
+            ["contributors", ..] => RepositoryContributors,
+            _ => Other
+        };
+
+    // The query string never participates: page, per_page, state, sha and
+    // friends are addressing detail, not resource shape. A relative URI is
+    // accepted too, so the classifier behaves identically whether it is handed
+    // the URI a collector built or the absolute one HttpClient resolved.
+    private static string[] ReadPathSegments(Uri requestUri)
+    {
+        string path = requestUri.IsAbsoluteUri
+            ? requestUri.AbsolutePath
+            : TrimQueryAndFragment(requestUri.OriginalString);
+
+        return path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    private static string TrimQueryAndFragment(string value)
+    {
+        int end = value.IndexOfAny(['?', '#']);
+
+        return end < 0 ? value : value[..end];
     }
 }

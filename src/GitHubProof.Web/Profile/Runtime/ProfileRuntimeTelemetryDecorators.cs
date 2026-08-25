@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using GitHubProof.Application.Analysis;
 using GitHubProof.Application.Profile;
 using GitHubProof.Domain.Analysis.Enums;
@@ -38,6 +39,13 @@ public sealed class TelemetryProfileRepositorySnapshotSource(
 
         ProfileRepositorySnapshotResult result;
 
+        // Session 120. This is the only call site through which the orchestrator
+        // reaches repository collection, so the sampled interval is exactly one
+        // repository's collection. The sample is anonymous — a duration and
+        // nothing else — and it is recorded even when the call throws, because
+        // an aborted collection still consumed wall-clock.
+        long startedAt = Stopwatch.GetTimestamp();
+
         try
         {
             result = await inner.CollectAsync(reference, cancellationToken);
@@ -63,6 +71,11 @@ public sealed class TelemetryProfileRepositorySnapshotSource(
                 ProfileRepositoryOutcome.FromAvailabilityStatus(
                     DataAvailabilityStatus.Failed));
             throw;
+        }
+        finally
+        {
+            telemetry?.RecordRepositoryCollectionElapsed(
+                Stopwatch.GetElapsedTime(startedAt));
         }
 
         // A rate limit must stay distinguishable from a forbidden repository and
@@ -98,6 +111,11 @@ public sealed class TelemetryRepositoryAnalysisRunner(
     {
         RepositoryAnalysis analysis;
 
+        // Session 120: the same anonymous sampling on the analysis side. Analyze
+        // is synchronous, so this interval is pure CPU and never overlaps the
+        // collection interval measured above.
+        long startedAt = Stopwatch.GetTimestamp();
+
         try
         {
             analysis = inner.Analyze(snapshot, version, analysisId);
@@ -112,6 +130,11 @@ public sealed class TelemetryRepositoryAnalysisRunner(
             ProfileExecutionTelemetryScope.Current?.RecordRepositoryOutcome(
                 ProfileRepositoryOutcome.AnalysisFailed);
             throw;
+        }
+        finally
+        {
+            ProfileExecutionTelemetryScope.Current?.RecordRepositoryAnalysisElapsed(
+                Stopwatch.GetElapsedTime(startedAt));
         }
 
         ProfileExecutionTelemetryScope.Current?.RecordRepositoryCompleted();

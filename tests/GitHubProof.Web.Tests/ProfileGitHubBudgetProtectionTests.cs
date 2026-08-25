@@ -36,10 +36,45 @@ public sealed class ProfileGitHubBudgetProtectionTests
             using HttpResponseMessage ignored = await client.GetAsync("users/octocat");
         }
 
+        string message = telemetry.ToLogMessage();
+
         Assert.Equal(
             new ProfileGitHubBudgetObservation(37, resetAt),
             budgetState.MetadataObservation);
-        Assert.DoesNotContain("37", telemetry.ToLogMessage(), StringComparison.Ordinal);
+
+        // Session 109 additionally asserted that the remaining value never
+        // reached the log at all. Session 120 deliberately reverses that one
+        // clause on architecture-owner instruction: first/last/minimum remaining
+        // are now REQUIRED §9 observation, because §9.2 exists precisely so the
+        // §10.4 reserve floor can be chosen from measurement instead of guessed.
+        // The value is not a credential and appears only inside the authorized
+        // observation group.
+        // Session 120 Step 7 groups observations by rate-limit bucket, so the
+        // rendered sequence now names the bucket it belongs to. This response
+        // carried no resource header, hence `unspecified`.
+        Assert.Contains(
+            "RateLimitBuckets={unspecified#1[limit=unobserved, first=37, "
+            + "last=37, min=37, used=unobserved->unobserved, samples=1]}",
+            message,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "UnrecordedRateLimitObservations=0",
+            message,
+            StringComparison.Ordinal);
+
+        // The reset instant never reaches the RENDERED log. It is not absent
+        // from telemetry — Session 120 Step 7 keeps it on
+        // ProfileRateLimitWindow.ResetAt so a later D-2 design can reason about
+        // the window — and keeping it out of the log is Session 120's own
+        // constraint, not something Session 109 asserted: Session 109 had no
+        // rate-limit telemetry surface at all and guarded only the remaining
+        // value.
+        Assert.DoesNotContain(
+            resetAt.ToUnixTimeSeconds().ToString(),
+            message,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("Reset", message, StringComparison.Ordinal);
+        Assert.DoesNotContain("2026-08-22", message, StringComparison.Ordinal);
     }
 
     [Theory]

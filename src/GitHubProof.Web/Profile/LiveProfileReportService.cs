@@ -75,11 +75,25 @@ public sealed class LiveProfileReportService
 
         try
         {
-            GitHubProfileSnapshotResult snapshotResult =
-                await snapshotCollector.CollectAsync(
+            // Session 120: the discovery interval is exactly the live collector
+            // call — profile metadata plus the public repository manifest. It is
+            // recorded in a finally so an aborted discovery still reports the
+            // wall-clock it consumed.
+            long discoveryStartedAt = Stopwatch.GetTimestamp();
+            GitHubProfileSnapshotResult snapshotResult;
+
+            try
+            {
+                snapshotResult = await snapshotCollector.CollectAsync(
                     profileIdentity,
                     deadline.ExecutionToken,
                     progress);
+            }
+            finally
+            {
+                telemetry.RecordDiscoveryElapsed(
+                    Stopwatch.GetElapsedTime(discoveryStartedAt));
+            }
 
             // The progress carrier, not a late collector return, owns the
             // availability-vs-cancellation ordering. Caller cancellation is
@@ -148,10 +162,25 @@ public sealed class LiveProfileReportService
             telemetry.RecordRepositoriesDiscovered(
                 snapshot.Repositories.Repositories.Count);
 
-            ProfilePipelineResult pipelineResult = await profilePipeline.RunAsync(
-                snapshot,
-                version,
-                deadline.ExecutionToken);
+            // The pipeline interval encloses every per-repository collection and
+            // analysis sample the two decorators record, which is what makes
+            // ProfileExecutionTelemetry.PipelineWorkOutsideRepositoriesElapsed a
+            // sound subtraction rather than an estimate.
+            long pipelineStartedAt = Stopwatch.GetTimestamp();
+            ProfilePipelineResult pipelineResult;
+
+            try
+            {
+                pipelineResult = await profilePipeline.RunAsync(
+                    snapshot,
+                    version,
+                    deadline.ExecutionToken);
+            }
+            finally
+            {
+                telemetry.RecordPipelineElapsed(
+                    Stopwatch.GetElapsedTime(pipelineStartedAt));
+            }
 
             // The internal deadline remains active through creation of the
             // terminal outer result. Caller cancellation is checked first so

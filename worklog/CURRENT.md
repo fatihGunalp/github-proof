@@ -1,17 +1,25 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-24 (Session 119)
+**Last Updated:** 2026-08-25 (Session 120, opened 2026-08-24)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 119 — Repository Proof Visual Alignment — **PASS**.
-  Branch `session/119-repository-proof-visual-alignment`, base `edb35fd`,
+- **Last Session:** 120 — Profile Runtime Performance & Budget — **PASS**,
+  **CLOSED / awaiting architecture-owner final verification**.
+  Branch `session/120-profile-runtime-performance-budget`, base `5599291`,
   route Opus / high.
-  Detail: [`sessions/2026-08-24-119-repository-proof-visual-alignment.md`](./sessions/2026-08-24-119-repository-proof-visual-alignment.md)
-- **Last integrated commit on `main`:** `edb35fd` (Session 118).
+  Detail: [`sessions/2026-08-24-120-profile-runtime-performance-budget.md`](./sessions/2026-08-24-120-profile-runtime-performance-budget.md)
+- **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
+  shapes were measured; the full evidence, including the complete per-category
+  request breakdowns, is persisted in the Session 120 record. No further
+  benchmark is planned.
+- **No production runtime value has been selected.** No execution deadline, no
+  request budget, no GitHub reserve floor, no concurrency change, no contents
+  bound. Session 120 deliberately owns measurement and diagnostic evidence only.
+- **Last integrated commit on `main`:** `5599291` (Session 119).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -34,8 +42,16 @@ carries product, domain or architecture truth.
   Categories + Score surface. **No unresolved Repository Proof accessibility
   defect.** Measure/breakpoint unification, the identity card and the Profile
   radius-token cleanup were deferred by owner decision.
-- Next product work: **Profile Runtime Performance & Budget**, then the
-  **Milestone B production gate**.
+- **Profile runtime measurement: COMPLETE** (Session 120). Repository collection
+  dominates Profile wall-clock at 95-99.5% in every measured shape; runtime is
+  materially affected by admitted repository count x repository weight. Three
+  operational findings are locked: **A-T** (pagination telemetry classification)
+  CLOSED; **D4-E2** — contents amplification is real but no bound is justified
+  by current measurements, and the source-level mechanism stays a **monitored
+  production risk, not "no risk"**; **B-RI** — rate-limit telemetry lacked the
+  context to reason about D-2, which is *not* a claim that GitHub's headers are
+  unreliable. Production values remain unselected.
+- **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
 
@@ -90,7 +106,22 @@ Session 118 from canonical ownership: four are prohibitions being honoured, one
 is required behaviour being sustained, one is an unauthorized future design.
 None is unfinished required P10 implementation.
 
+## Open Runtime Decisions — for Session 121
+
+| Decision | State at Session 120 exit |
+|---|---|
+| D-1 execution deadline | measurement complete; product/production decision required |
+| D-2 reserve / request protection | telemetry context refined; the guard premise needs an architecture decision |
+| D-3 run-time provider-limit behaviour | design decision ready; no natural limit event observed |
+| D-4 contents fan-out | D4-E2 locked — monitored risk, no bound justified |
+| D-5 credential strategy | ready; measured cost 63 / 131 / 662 requests per profile shape |
+| D-6 secondary rate-limit response shape | OPEN; intentionally not provoked |
+
+GraphQL request consolidation is a separate performance-architecture question
+and must not be folded into these guard decisions.
+
 ## Exact Next Action
 
-Open a new model gate for Profile Runtime Performance & Budget, or for the
-Milestone B production gate — architecture owner's choice of order.
+Open **Session 121 — Profile Production Runtime Decision Design** through the
+normal model/effort gate. It has not started. Alternatively open the Milestone B
+production gate — architecture owner's choice of order.
