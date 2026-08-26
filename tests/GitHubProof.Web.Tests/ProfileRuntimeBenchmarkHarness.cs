@@ -71,8 +71,10 @@ internal sealed record ProfileRuntimeBenchmarkPlan(IReadOnlyList<string> Profile
 public sealed class ProfileRuntimeBenchmarkHarness(ITestOutputHelper output)
 {
     // The version Program.cs registers. Nothing branches on it, but a benchmark
-    // that claims to measure production must not run a different one.
-    private static readonly AnalysisVersion BenchmarkVersion =
+    // that claims to measure production must not run a different one. Internal
+    // so Session 130's real-profile validation harness runs the identical
+    // version rather than declaring its own.
+    internal static readonly AnalysisVersion BenchmarkVersion =
         new(
             analyzerVersion: "1.2.0",
             ruleSetVersion: "2026.08.21",
@@ -204,7 +206,11 @@ public sealed class ProfileRuntimeBenchmarkHarness(ITestOutputHelper output)
     //     "guards were active".
     //   * The Web admission guard and visitor limiter live in the Razor page and
     //     are not part of the measured path at all.
-    private static ServiceProvider BuildBenchmarkProvider()
+    //
+    // Internal (not private) so Session 130's real-profile validation harness can
+    // reuse the EXACT same production composition rather than building a second
+    // one — one composition, two observers.
+    internal static ServiceProvider BuildBenchmarkProvider()
     {
         ServiceCollection services = new();
 

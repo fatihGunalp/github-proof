@@ -1,14 +1,69 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 129)
+**Last Updated:** 2026-08-26 (Session 130)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 129 — GraphQL Default-Branch Head / Tree Identity Parity —
-  **PASS**. Branch `session/129-graphql-head-tree-identity-parity`, base
+- **Last Session:** 130 — Milestone B Pre-Production Real Profile Validation —
+  **B-PREPROD-READY-WITH-FINDINGS**. Branch
+  `session/130-milestone-b-real-profile-validation`, base `4075e9a`, route
+  Opus / high. First opened the same day and initially returned
+  REAL-VALIDATION-BLOCKED (`GITHUB_TOKEN` unset in every environment scope
+  this session's tools could see); the owner then set it as a persistent User
+  environment variable, which this session bridged into the Process scope of
+  the exact commands that needed it (never printed/logged) and continued.
+  Ran the real Profile Proof pipeline (production `AddProfilePipeline` +
+  `LiveProfileReportService`, Session 120's own opt-in
+  `GITHUBPROOF_RUN_LIVE_TESTS`/`GITHUBPROOF_BENCHMARK_PROFILES` harness
+  pattern, reused not duplicated) against **six** real public GitHub
+  profiles: Stage A `fatihGunalp`/`torvalds`/`karpathy` (Session 120's own
+  comparison shapes) and Stage B `imArafatHussein` (sparse),
+  `newluckybaby` (fork-heavy), `asynkayo` (archive-heavy) — the latter three
+  selected by observable public repository composition via bounded
+  unauthenticated reconnaissance, never through the app's credential. All
+  six completed with **zero** incomplete repositories and **zero**
+  authoritative GraphQL requests (envelope confirmed DEFAULT OFF throughout).
+  Admission/eligibility behaved coherently for every shape (forks excluded
+  from admission; archived repositories admitted but eligibility-restricted,
+  not excluded). Session 120 comparison: two of the three known profiles
+  reproduced their exact discovered/admitted/completed *and* request counts
+  two days later; the third differed by exactly one request while matching
+  every discrete count — no regression, no structural request-graph change.
+  Traceability: a mechanical defect in this session's own new *test-only*
+  verification code (checked only the signal-evidence `EvidenceKey` shape,
+  missed the documented snapshot-data shape `ProfileEvidenceKeys` names for
+  languages) was found on the first live run, fixed in-session, and
+  re-verified — **0 broken traceability** post-fix; **not** a production
+  defect. Web/Profile flow smoke-tested end to end for a small
+  (`fatihGunalp`) and a denser (`torvalds`) profile via a locally-run
+  instance, including a working repository drill-down into Repository Proof.
+  No naturally occurring provider failure was observed (none provoked).
+  **Closure round (architecture-owner review):** the original
+  prohibited-inference check only scanned closed vocabulary (limitation/
+  warning codes, pattern keys) and never the actual rendered report text a
+  reader sees, so "PASS for all six" was not yet fully evidenced. Fixed by
+  adding `PROHIBITED_INFERENCE_TEXT` to the same test-only harness — it
+  renders every `ProfileWebPresentationLocalizer` surface each profile's
+  `ProfileReport` actually reaches, in both shipped cultures, with a
+  placeholder substituted only for the two GitHub-owned identity/repository
+  parameters (never for a language/pattern key, which is technical metadata,
+  not excluded free-form text) — then reran all six profiles once (rate-limit
+  confirmed safe: 5000/5000 before the rerun). **Result: PASS for all six**,
+  0 matches across 432 rendered surfaces (60/82/114/58/60/58 per profile).
+  Build 0 warnings, **2292/2292** throughout both closure rounds. Independent
+  closure review: first pass **PASS WITH FINDINGS** (a worklog-sequencing
+  note, since resolved); second pass (post-text-scan-fix) **PASS**, confirmed
+  independently against actual repo state. **Recommendation: GO TO
+  PRODUCTION RUNTIME DECISIONS.** No production code changed in either round
+  (two test-file accessibility keywords + one new/extended test-only file
+  only). No commit, no push, no deploy.
+  Detail: [`sessions/2026-08-26-130-milestone-b-real-profile-validation.md`](./sessions/2026-08-26-130-milestone-b-real-profile-validation.md)
+- **Previous Session:** 129 — GraphQL Default-Branch Head / Tree Identity Parity —
+  **PASS**; **integrated as `4075e9a`**. Branch
+  `session/129-graphql-head-tree-identity-parity`, base
   `9608804`, route Opus / high. Verdict **HEADTREE-PASS**: the §18.13 proof
   succeeded and the bounded implementation closed in the same session. The
   default-branch **head commit SHA** and that commit's **root tree SHA** are now
@@ -18,8 +73,6 @@ carries product, domain or architecture truth.
   FINDINGS** (0 blocker, 0 high, 0 medium, 1 low), the low finding (a stale
   code comment overstating parity with `GitHubCommitReference`'s case
   normalization) corrected in-session and re-verified with a clean rebuild.
-  **CLOSED / awaiting final integration** — the commit is user-owned and still
-  pending. **Not resumable**; further work opens a new session.
   Detail: [`sessions/2026-08-26-129-graphql-head-tree-identity-parity.md`](./sessions/2026-08-26-129-graphql-head-tree-identity-parity.md)
 - **Previous Session:** 128 — GraphQL DecisionBounded Ordering Parity — **PASS**;
   **integrated as `9608804`**.
@@ -85,8 +138,9 @@ carries product, domain or architecture truth.
   owns a transport-feasibility verdict only and adopts nothing; Session 129 owns
   a default-off identity-transport consolidation only — it changes which requests
   are issued, never what any value means.
-- **Last integrated commit on `main`:** `9608804` (Session 128). Session 129's
-  commit is not created yet.
+- **Last integrated commit on `main`:** `4075e9a` (Session 129). Session 130
+  changed only test-only files (two accessibility keywords + one new
+  test-only validation harness) and has no commit yet.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -366,9 +420,20 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 129 is closed; its commit is user-owned and still pending. **No
-production, beta, default-on or live-A/B approval exists for any GraphQL
-switch.** The queue:
+Session 130 (Milestone B real-profile validation) closed
+**B-PREPROD-READY-WITH-FINDINGS**: real validation across six public
+profiles found no blocker, and its recommendation is **GO TO PRODUCTION
+RUNTIME DECISIONS**. Its own test-file changes (two accessibility keywords +
+one new opt-in-disabled live-validation harness) are user-owned and still
+pending commit. **The immediate next action is the Profile Production
+Runtime Decision session** (D-1 execution deadline, D-2 request/reserve
+protection, D-3 run-time provider-limit behaviour, D-5 credential strategy —
+see the Open Runtime Decisions table below), which Session 130 was
+explicitly scoped as the precondition for and does not itself decide.
+
+Session 129 is closed and integrated as `4075e9a`. **No production, beta,
+default-on or live-A/B approval exists for any GraphQL switch.** The remaining
+queue (unblocked by GraphQL, not gated on Session 130):
 
 - **The DecisionBounded surfaces stay REST.** Commits, pull requests and
   releases each lack a published REST ordering contract (or, for pull requests, a
