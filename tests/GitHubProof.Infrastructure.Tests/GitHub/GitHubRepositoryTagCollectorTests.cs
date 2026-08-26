@@ -105,6 +105,60 @@ public sealed class GitHubRepositoryTagCollectorTests
         Assert.Equal(DataAvailabilityStatus.Unavailable, notFound.Availability.Status);
     }
 
+    // Session 128. Git tag refs are case-sensitive, so a repository may carry both
+    // `V1.0` and `v1.0` — but this collector deduplicates with
+    // StringComparer.OrdinalIgnoreCase, so it reports ONE tag for the pair.
+    //
+    // Pinned here because the Session 128 parity proof turns on it: the deduped
+    // count is what reaches `tagsAtLeast`, so which side of a page boundary the
+    // second variant falls on changes a §15.5 evidence value. That makes the
+    // observed tag count order-dependent, which is why tags is ORDER-BLOCKED
+    // rather than ORDER-PASS.
+    //
+    // This test states current behaviour. It does not assert that the behaviour
+    // is correct — whether the comparer should be Ordinal is an open question for
+    // the architecture owner, because changing it changes existing REST results.
+    [Fact]
+    public async Task CollectAsync_TreatsCaseVariantTagNamesAsOneTag()
+    {
+        GitHubRepositoryTagCollector collector = CreateCollector(
+            new QueueHttpMessageHandler(JsonResponse("""
+                [{ "name": "V1.0" }, { "name": "v1.0" }]
+                """)));
+
+        GitHubRepositoryTagCollection result = await collector.CollectAsync(
+            RepositoryUrl,
+            AvailableMetadata());
+
+        Assert.Equal(["V1.0"], result.Tags.Items.Select(tag => tag.Name));
+    }
+
+    // The other side of the same boundary: with the second variant on page two,
+    // the collector observes the SAME two upstream tags and still reports one —
+    // so the divergence is not about dedup being wrong, it is about WHICH tags
+    // reach the prefix before the decision boundary is asked.
+    [Fact]
+    public async Task CollectAsync_DeduplicatesACaseVariantAcrossAPageBoundary()
+    {
+        HttpResponseMessage firstPage = JsonResponse("""
+            [{ "name": "V1.0" }, { "name": "v2.0" }]
+            """);
+        firstPage.Headers.Add(
+            "Link",
+            "<https://api.github.com/repos/octocat/hello-world/tags?per_page=100&page=2>; rel=\"next\"");
+        GitHubRepositoryTagCollector collector = CreateCollector(new QueueHttpMessageHandler(
+            firstPage,
+            JsonResponse("""
+                [{ "name": "v1.0" }]
+                """)));
+
+        GitHubRepositoryTagCollection result = await collector.CollectAsync(
+            RepositoryUrl,
+            AvailableMetadata());
+
+        Assert.Equal(["V1.0", "v2.0"], result.Tags.Items.Select(tag => tag.Name));
+    }
+
     private static GitHubRepositoryTagCollector CreateCollector(HttpMessageHandler handler) =>
         new(CreateClient(handler), CreateFixedTimeProvider());
 }

@@ -1,13 +1,28 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 127)
+**Last Updated:** 2026-08-26 (Session 128)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 127 — S3 Hybrid Repository Envelope — **PASS**. Branch
+- **Last Session:** 128 — GraphQL DecisionBounded Ordering Parity — **PASS**.
+  Branch `session/128-graphql-decision-bounded-ordering-parity`, base `8f42a6f`,
+  route Opus / high. A proof/decision session, not an implementation one. Verdict
+  **PARITY-BLOCKED**: no `DecisionBounded` surface — commits, pull requests,
+  releases, tags — can meet §19.7 from current provider guarantees, and all four
+  are ORDER-BLOCKED. Test-only change; build 0 warnings, **2247/2247**. Closure
+  review **PASS WITH FINDINGS** (0 blocker, 0 high, 3 MEDIUM, 3 LOW), all six
+  corrected — the review found a real hole in the tags proof, which is why tags
+  is ORDER-BLOCKED rather than ORDER-PASS. The owner accepted PARITY-BLOCKED and
+  **withdrew one further claim the record had made about REST pagination**; no
+  verdict changed. **CLOSED / awaiting final integration** — the commit is
+  user-owned and still pending. **Not resumable**; further work opens a new
+  session.
+  Detail: [`sessions/2026-08-26-128-graphql-decision-bounded-ordering-parity.md`](./sessions/2026-08-26-128-graphql-decision-bounded-ordering-parity.md)
+- **Previous Session:** 127 — S3 Hybrid Repository Envelope — **PASS**;
+  **integrated as `8f42a6f`**. Branch
   `session/127-graphql-hybrid-repository-envelope`, base `09707f4`, route
   Opus / high. The first **authoritative** hybrid slice: one GraphQL envelope
   supplies repository metadata, topics and languages, replacing the REST
@@ -15,9 +30,8 @@ carries product, domain or architecture truth.
   candidate is accepted — one fewer physical provider request. **DEFAULT OFF.**
   Build 0 warnings, **2238/2238**. Closure review **PASS WITH FINDINGS**
   (0 blocker, 0 high, 3 LOW), all three corrected; owner accepted with no
-  production or test change requested. **CLOSED / awaiting final integration** —
-  the commit is user-owned and still pending. **Not resumable**; further work
-  opens a new session.
+  production or test change requested. Remains **DEFAULT OFF** with no
+  production, beta, default-on or live-A/B approval.
   Detail: [`sessions/2026-08-26-127-graphql-hybrid-repository-envelope.md`](./sessions/2026-08-26-127-graphql-hybrid-repository-envelope.md)
 - **Previous Session:** 126 — GraphQL Provider Failure Classification — **PASS**;
   **integrated as `09707f4`**. Branch
@@ -54,8 +68,9 @@ carries product, domain or architecture truth.
   decision only; Session 124 owns an unused transport only; Session 125 owns a
   default-off observation only; Session 126 owns a transport classification
   only; Session 127 owns a default-off authoritative transport consolidation
-  only — no evidence, score, status or report value changes with it.
-- **Last integrated commit on `main`:** `09707f4` (Session 126).
+  only — no evidence, score, status or report value changes with it; Session 128
+  owns a transport-feasibility verdict only and adopts nothing.
+- **Last integrated commit on `main`:** `8f42a6f` (Session 127).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -304,9 +319,20 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 127 is closed; its commit is user-owned and still pending. **No
-production, beta, default-on or live-A/B approval exists for either GraphQL
+Session 128 is closed; its commit is user-owned and still pending. **No
+production, beta, default-on or live-A/B approval exists for any GraphQL
 switch.** The queue:
+
+- **The DecisionBounded surfaces stay REST.** Commits, pull requests and
+  releases each lack a published REST ordering contract (or, for pull requests, a
+  published tie-break). Tags is blocked for a different reason worth keeping
+  visible: `GitHubRepositoryTagCollector` deduplicates tag names with
+  `OrdinalIgnoreCase` while Git refs are case-sensitive, so the observed count —
+  and therefore `tagsAtLeast` — is order-dependent for a repository with more
+  than one page of tags and a case-variant pair. That is a **latent
+  order-dependence in the existing REST path**, not something GraphQL
+  introduced; changing the comparer to `Ordinal` would change existing REST
+  results and is an owner decision.
 
 - **The residual message-only shape** — a secondary rate limit arriving as
   HTTP 200 + `DataWithErrors` with `remaining > 0`, no `Retry-After`, and its
@@ -319,10 +345,10 @@ switch.** The queue:
   validation surface. The mapping is pinned by test; **provider-level equality
   must not be claimed before live evidence**, so this belongs to the §19.14
   comparison.
-- **S4 — batching / aliases.** Not started, and not opened by S3.
-- **The unadopted surfaces** — commits, pull requests, releases and tags need
-  §19.7 ordering and prefix parity; default-branch head/tree needs the §18.13
-  empty-repository re-proof. Each is its own session.
+- **S4 — batching / aliases.** Not started, and not opened by S3 or S128.
+- **Default-branch head / tree** still needs the §18.13 empty-repository
+  re-proof. Commits depend on it twice over, since `Commit.history` is only
+  reachable through the default branch ref target.
 - **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — still
   pending.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
