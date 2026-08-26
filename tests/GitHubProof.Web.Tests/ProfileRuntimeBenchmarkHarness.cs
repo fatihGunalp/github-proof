@@ -218,28 +218,49 @@ public sealed class ProfileRuntimeBenchmarkHarness(ITestOutputHelper output)
     // test-only backdoor, so an R1-vs-R2 measurement exercises exactly the
     // wiring a deployment would. Omitting it keeps R=1.
     internal static ServiceProvider BuildBenchmarkProvider(
-        int? maxRepositoryConcurrency = null)
+        int? maxRepositoryConcurrency = null,
+        int? profileAdmissionRemainingFloor = null,
+        DelegatingHandler? additionalProfileHandler = null)
     {
         ServiceCollection services = new();
 
         services.AddSingleton<TimeProvider>(TimeProvider.System);
         services.AddScoped<RepositoryAnalysisRunner>();
 
-        IConfiguration? configuration =
-            maxRepositoryConcurrency is null
-                ? null
-                : new ConfigurationBuilder()
-                    .AddInMemoryCollection(
-                    [
-                        new KeyValuePair<string, string?>(
-                            $"{ProfileCollectionOptions.ConfigurationSectionName}"
-                            + $":{nameof(ProfileCollectionOptions.MaxRepositoryConcurrency)}",
-                            maxRepositoryConcurrency.Value.ToString(
-                                CultureInfo.InvariantCulture)),
-                    ])
-                    .Build();
+        List<KeyValuePair<string, string?>> configurationValues = [];
+
+        if (maxRepositoryConcurrency is int repositoryConcurrency)
+        {
+            configurationValues.Add(
+                new KeyValuePair<string, string?>(
+                    $"{ProfileCollectionOptions.ConfigurationSectionName}"
+                    + $":{nameof(ProfileCollectionOptions.MaxRepositoryConcurrency)}",
+                    repositoryConcurrency.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        if (profileAdmissionRemainingFloor is int remainingFloor)
+        {
+            configurationValues.Add(
+                new KeyValuePair<string, string?>(
+                    $"{ProfileGitHubBudgetProtectionOptions.ConfigurationSectionName}"
+                    + $":{nameof(ProfileGitHubBudgetProtectionOptions.ProfileAdmissionRemainingFloor)}",
+                    remainingFloor.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        IConfiguration? configuration = configurationValues.Count == 0
+            ? null
+            : new ConfigurationBuilder()
+                .AddInMemoryCollection(configurationValues)
+                .Build();
 
         services.AddProfilePipeline(configuration);
+
+        if (additionalProfileHandler is not null)
+        {
+            services
+                .AddHttpClient(ProfilePipelineServiceCollectionExtensions.GitHubHttpClientName)
+                .AddHttpMessageHandler(() => additionalProfileHandler);
+        }
 
         services.AddScoped<IGitHubProfileSnapshotCollector>(
             provider => GitHubProfileSnapshotOrchestrator.CreateDefault(

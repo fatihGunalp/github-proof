@@ -131,6 +131,8 @@ public sealed class ProfileRepositoryConcurrencyTests
     [Theory]
     [InlineData(2)]
     [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
     public async Task ConcurrentRun_IsSemanticallyIdenticalToTheSequentialRun(int concurrency)
     {
         // §6: same inputs, same versions => same result. Mixed admission
@@ -287,13 +289,34 @@ public sealed class ProfileRepositoryConcurrencyTests
             repository.Admission.Decision,
             repository.Admission.Reason?.ToString() ?? "-",
             repository.Analysis?.Status.ToString() ?? "-",
-            repository.Analysis?.ScoreBreakdown.NormalizedScore.ToString() ?? "-",
+            repository.Analysis is null
+                ? "-"
+                : string.Join(
+                    ":",
+                    repository.Analysis.ScoreBreakdown.EarnedScore,
+                    repository.Analysis.ScoreBreakdown.ApplicableMaximumScore,
+                    repository.Analysis.ScoreBreakdown.NormalizedScore?.ToString() ?? "-"),
             repository.Analysis is null
                 ? "-"
                 : string.Join(
                     ",",
                     repository.Analysis.SignalResults.Select(
-                        signal => $"{signal.SignalKey}:{signal.Status}:{signal.Score?.ToString() ?? "-"}")),
+                        signal => $"{signal.SignalKey}:{signal.Status}:{signal.Score?.ToString() ?? "-"}"
+                            + $":{string.Join("+", signal.Evidence.Select(evidence => evidence.Key))}")),
+            repository.Analysis is null
+                ? "-"
+                : string.Join(",", repository.Analysis.LimitationKeys),
+            repository.Analysis is null
+                ? "-"
+                : string.Join(",", repository.Analysis.Warnings.Select(warning => warning.Code)),
+            repository.Analysis is null
+                ? "-"
+                : string.Join(
+                    ",",
+                    repository.Analysis.CategoryResults.Select(category =>
+                        $"{category.Category}:{category.Status}:{category.Score}"
+                        + $":{category.MaximumScore}"
+                        + $":{category.NormalizedScore?.ToString() ?? "-"}")),
             repository.CollectionAvailability?.Status.ToString() ?? "-",
             repository.FailureReason ?? "-"));
 

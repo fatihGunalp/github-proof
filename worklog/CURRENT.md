@@ -1,12 +1,39 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 131)
+**Last Updated:** 2026-08-26 (Session 133)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 131 — Profile Repository Concurrency and Capacity —
+- **Active Session:** 133 — Milestone B Runtime Gates — branch
+  `session/133-milestone-b-runtime-gates`, session base `37b8ec2`, route
+  Sol / high, **PASS** for the bounded runtime-gate objective. Independent
+  closure review **PASS WITH FINDINGS** (critical findings **NONE**; the
+  non-blocking findings were record-accuracy items, since corrected in a
+  worklog-only pass). **R5 ACCEPTED** as the Milestone B production-candidate
+  repository concurrency; **Milestone B closure is NOT CLAIMED.**
+  Authenticated production-composition sequence
+  at U1 measured R3 `112.209 s`, R4 `70.888 s`, and first-pass R5 `55.557 s`.
+  Every candidate issued exactly 662 requests, composed with incomplete=0,
+  semantic parity PASS, GraphQL=0, no `Retry-After`, no primary event, and max
+  in-flight HTTP equal to R. Production configuration remains **unchanged**
+  (R/U defaults still 1) — R5 is accepted as a candidate, not applied.
+  Deterministic 10/50/100 arrival gates PASS at U1
+  (accepted/capacity 1/9, 1/49, 1/99; crash/wait 0), and existing processing,
+  capacity/provider/terminal Web mappings PASS. One test-only multi-core-window
+  telemetry formatter defect was found on the first R3 attempt, fixed and
+  regression-tested before the full sequence reran successfully. Review-driven
+  test/harness-only proof-strengthening followed: true all-ready burst
+  synchronization, direct R4/R5 repository parity coverage, and immediate
+  candidate invalidation on a provider-protection response. A separate
+  architecture-owner manual R5 Web smoke (57/57 repositories, incomplete 0,
+  `composed`, provider budget above the 1500 floor) is recorded as **supporting**
+  evidence only — a different profile shape, not a replacement for the
+  `55.557 s` benchmark. Final current-tree validation: build 0 warnings/0 errors,
+  **2322/2322**, `git diff --check` PASS. `artifacts/` remains untouched.
+  Detail: [`sessions/2026-08-26-133-milestone-b-runtime-gates.md`](./sessions/2026-08-26-133-milestone-b-runtime-gates.md)
+- **Previous Session:** 131 — Profile Repository Concurrency and Capacity —
   branch `session/131-profile-repository-concurrency-capacity`, session base
   `cc76c75`, route Opus / high. Verdict **R2-PERFORMANCE-INSUFFICIENT** — technical R2/U2 gate PASS, but the dense-profile product latency gate FAILS because **127.667 s > 60 s**. Bounded
   repository concurrency (**R**) added as an externally configurable,
@@ -28,8 +55,7 @@ carries product, domain or architecture truth.
   **rewriting the concurrent path as a fixed pool of R workers over a shared
   queue** rather than by asking for a contract reading in its own favour. Build
   0 warnings, **2312/2312**. **Nothing is enabled**: R and U both still default
-  to 1 and no configuration file sets either. **CLOSED / awaiting final
-  integration** — commit is user-owned and still pending.
+  to 1 and no configuration file sets either. **CLOSED / integrated to main**.
   Detail: [`sessions/2026-08-26-131-profile-repository-concurrency-capacity.md`](./sessions/2026-08-26-131-profile-repository-concurrency-capacity.md)
 - **Previous Session:** 130 — Milestone B Pre-Production Real Profile Validation —
   **B-PREPROD-READY-WITH-FINDINGS**. Branch
@@ -147,13 +173,11 @@ carries product, domain or architecture truth.
   `public-profile-runtime-collection.md`, review CHANGES REQUIRED with all six
   owner-accepted findings closed in-session; **integrated as `2016501`**.
   Detail: [`sessions/2026-08-25-123-graphql-partial-data-error-contract.md`](./sessions/2026-08-25-123-graphql-partial-data-error-contract.md)
-- **The Profile runtime measurement phase is COMPLETE.** Three live benchmark
-  shapes were measured; the full evidence, including the complete per-category
-  request breakdowns, is persisted in the Session 120 record. No further
-  benchmark is planned.
-- **No production runtime value has been selected.** No execution deadline, no
-  request budget, no GitHub reserve floor, no concurrency change, no contents
-  bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
+- **The Profile runtime measurement phase is COMPLETE.** Session 120 owns the
+  baseline shapes and Session 133 owns the Milestone B R3/R4/R5 latency gate.
+- **R5 is proposed, not configured.** No execution deadline, request budget,
+  GitHub reserve floor, production concurrency value or contents bound changed.
+  Session 120 owns measurement and diagnostic evidence only; Sessions 121
   and 122 own feasibility and audit analysis only; Session 123 owns a contract
   decision only; Session 124 owns an unused transport only; Session 125 owns a
   default-off observation only; Session 126 owns a transport classification
@@ -161,9 +185,11 @@ carries product, domain or architecture truth.
   only — no evidence, score, status or report value changes with it; Session 128
   owns a transport-feasibility verdict only and adopts nothing; Session 129 owns
   a default-off identity-transport consolidation only — it changes which requests
-  are issued, never what any value means.
-- **Last integrated commit on `main`:** `cc76c75` (Session 130). Session 131 is
-  the active session on its own branch and has no commit yet.
+  are issued, never what any value means. Session 133 proposes R5 from measured
+  runtime evidence but leaves production configuration owner-controlled.
+- **Last remote-verified `main`:** `37b8ec2` — Milestone B first-user and
+  launch-burst gates locked; verified equal to `origin/main` at Session 133
+  start.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -443,30 +469,40 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 131 closed **R2-PERFORMANCE-INSUFFICIENT** (technical R2/U2 PASS; product latency gate FAIL) and its commit is user-owned and
-still pending. **The immediate next action is the Profile Production Runtime
-Decision session** (D-1 execution deadline, D-2 request/reserve protection,
-D-3 run-time provider-limit behaviour, D-5 credential strategy — see the Open
-Runtime Decisions table below). Sessions 130 and 131 were both scoped as
-inputs to it and neither decides any production value.
+**Session 133 is independently closed** (review **PASS WITH FINDINGS**, critical
+findings **NONE**), and **R5 is ACCEPTED as the Milestone B production-candidate
+repository concurrency**. **Production configuration is still unchanged** — R and
+U both remain at their `1` defaults and nothing has been applied.
 
-**Two Session 131 items belong to that session, not to a new optimization
-session:**
+**The next meaningful session applies and validates the production-candidate
+configuration:**
 
-- **Whether to enable R=2 and/or U=2 at all**, and with what reserve. Session
-  131 measured the cost but selected nothing: R does **not** change request
-  count (662 at R1 and R2 alike), so R affects only request *rate*
-  (156 → 311 /min on the dense profile) and never the reserve arithmetic; **U** and
-  profile shape are what govern the reserve (one dense profile = 662
-  requests, a dense+medium U2 pair = 792 measured, a dense+dense pair ≈ 1324
-  projected, never observed).
-- **R>2 / U>2 remain untested and unproposed.** Session 131 stopped at its own
-  stop rule; raising either needs an explicit architecture-owner decision.
+~~~text
+R = 5
+U = 1
+GraphQL = default OFF
+~~~
 
-Session 130 is integrated as `cc76c75`. **No production, beta, default-on or
-live-A/B approval exists for any GraphQL switch**, and none exists for any
-concurrency value either — R and U both still default to 1. The remaining
-queue (unblocked by GraphQL, not gated on Sessions 130/131):
+and then performs the required production-candidate smoke / Milestone B exit
+validation. That session has not been opened; it goes through the normal
+model/effort gate like any other.
+
+Two constraints carry into it from Session 131's measurement:
+
+- R does **not** change request count (662 at R1 through R5 alike), so R affects
+  only request *rate* and never the reserve arithmetic; **U** and profile shape
+  are what govern the reserve (one dense profile = 662 requests, a dense+medium
+  U2 pair = 792 measured, a dense+dense pair ≈ 1324 projected, never observed).
+  This is why the candidate keeps **U=1**.
+- The remaining open runtime decisions (D-1 execution deadline, D-2
+  request/reserve protection, D-3 run-time provider-limit behaviour, D-5
+  credential strategy — see the Open Runtime Decisions table above) are still
+  open. Accepting R5 selects a concurrency candidate only; it decides none of
+  them, and the provider floor is not changed without a separate owner decision.
+
+**No production, beta, default-on or live-A/B approval exists for any GraphQL
+switch.** The remaining queue (unblocked by GraphQL, not gated on Sessions
+130/131/133):
 
 - **The DecisionBounded surfaces stay REST.** Commits, pull requests and
   releases each lack a published REST ordering contract (or, for pull requests, a

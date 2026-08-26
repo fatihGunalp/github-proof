@@ -190,7 +190,7 @@ public sealed class ProfileConcurrencyMeasurementHarness(ITestOutputHelper outpu
     // proven deterministically by ProfileRepositoryConcurrencyTests against
     // captured inputs, which is where it belongs: comparing it across two LIVE
     // runs would be comparing two separate observations of a moving provider.
-    private static string Fingerprint(LiveProfileAnalysisResult result)
+    internal static string Fingerprint(LiveProfileAnalysisResult result)
     {
         if (result.PipelineResult is not ProfilePipelineResult pipeline
             || pipeline.Profile is not DeveloperPublicEvidenceProfile profile)
