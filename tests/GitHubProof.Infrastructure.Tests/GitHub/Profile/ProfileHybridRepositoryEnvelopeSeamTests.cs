@@ -36,6 +36,20 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
     private const string ReadmeRequest = "/repos/octocat/hello-world/readme";
     private const string LicenseRequest = "/repos/octocat/hello-world/license";
 
+    // Session 129. The two identity requests an accepted envelope replaces, and
+    // the recursive tree request it does NOT replace.
+    private const string GitRefRequest =
+        "/repos/octocat/hello-world/git/ref/heads/main";
+
+    private const string GitCommitRequest =
+        "/repos/octocat/hello-world/git/commits/"
+        + FakeGitHubApiHandler.HeadCommitSha;
+
+    private const string RecursiveTreeRequest =
+        "/repos/octocat/hello-world/git/trees/"
+        + FakeGitHubApiHandler.RootTreeSha
+        + "?recursive=1";
+
     // ------------------------------------- 1. default OFF is the existing path
 
     // The three-argument and four-argument overloads with no envelope source are
@@ -49,6 +63,12 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
         Assert.Equal(0, rest.Handler.CountRequests("/graphql"));
         Assert.Equal(1, Exactly(rest, MetadataRequest));
         Assert.Equal(1, Exactly(rest, LanguagesRequest));
+
+        // Session 129: with no envelope source the identity chain is the REST
+        // one, in full.
+        Assert.Equal(1, Exactly(rest, GitRefRequest));
+        Assert.Equal(1, Exactly(rest, GitCommitRequest));
+        Assert.Equal(1, Exactly(rest, RecursiveTreeRequest));
     }
 
     // ------------------------- 2. an accepted envelope REPLACES two REST calls
@@ -61,25 +81,44 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
         // One physical POST for the repository.
         Assert.Equal(1, hybrid.Handler.CountRequests("/graphql"));
 
-        // The two replaced requests are GONE, not merely equal-in-result.
+        // The replaced requests are GONE, not merely equal-in-result.
         Assert.Equal(0, Exactly(hybrid, MetadataRequest));
         Assert.Equal(0, Exactly(hybrid, LanguagesRequest));
 
-        // And the REST-retained surfaces still happen.
+        // Session 129: and so are the two identity requests.
+        Assert.Equal(0, Exactly(hybrid, GitRefRequest));
+        Assert.Equal(0, Exactly(hybrid, GitCommitRequest));
+
+        // And the REST-retained surfaces still happen — including the RECURSIVE
+        // TREE, which is the whole point of adopting identity only.
+        Assert.Equal(1, Exactly(hybrid, RecursiveTreeRequest));
         Assert.Equal(1, Exactly(hybrid, ReadmeRequest));
         Assert.Equal(1, Exactly(hybrid, LicenseRequest));
     }
 
     // The consolidation is a real reduction in physical provider requests for
-    // this repository: two REST GETs become one POST. This is a request-graph
-    // fact, not a latency or performance claim (§18.11).
+    // this repository: FOUR REST GETs — metadata, languages, git-ref and
+    // git-commit — become one POST, so the repository costs three fewer physical
+    // requests than the REST-only run. Session 127 removed one; Session 129
+    // removes two more.
+    //
+    // This is a request-graph fact, not a latency or performance claim (§18.11).
     [Fact]
-    public async Task AnAcceptedEnvelope_CostsOneFewerPhysicalRequest()
+    public async Task AnAcceptedEnvelope_CostsThreeFewerPhysicalRequests()
     {
         Collected rest = await CollectAsync(envelope: null);
         Collected hybrid = await CollectAsync(FakeGitHubApiHandler.RepositoryEnvelopeJson);
 
-        Assert.Equal(rest.Handler.RequestPaths.Count - 1, hybrid.Handler.RequestPaths.Count);
+        Assert.Equal(rest.Handler.RequestPaths.Count - 3, hybrid.Handler.RequestPaths.Count);
+
+        // Named rather than only counted, so an unrelated request disappearing
+        // could never satisfy this.
+        Assert.Equal(
+            new[] { MetadataRequest, LanguagesRequest, GitRefRequest, GitCommitRequest }
+                .Order(StringComparer.Ordinal),
+            rest.Handler.RequestPaths
+                .Except(hybrid.Handler.RequestPaths)
+                .Order(StringComparer.Ordinal));
     }
 
     // The REST-retained surfaces are asserted as a set, so a future slice that
@@ -92,7 +131,10 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
 
         Assert.Equal(
             rest.Handler.RequestPaths
-                .Where(path => path != MetadataRequest && path != LanguagesRequest),
+                .Where(path => path != MetadataRequest
+                    && path != LanguagesRequest
+                    && path != GitRefRequest
+                    && path != GitCommitRequest),
             hybrid.Handler.RequestPaths.Where(path => path != "/graphql"));
     }
 
@@ -197,7 +239,16 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
             { IncompleteLanguages, HttpStatusCode.OK },
             { MissingDefaultBranch, HttpStatusCode.OK },
             { DuplicateLanguage, HttpStatusCode.OK },
-            { PrivateRepository, HttpStatusCode.OK }
+            { PrivateRepository, HttpStatusCode.OK },
+
+            // Session 129 — every break in the identity chain, each falling all
+            // the way back to the REST-only run.
+            { NullTarget, HttpStatusCode.OK },
+            { NonCommitTarget, HttpStatusCode.OK },
+            { MissingTree, HttpStatusCode.OK },
+            { NullTree, HttpStatusCode.OK },
+            { InvalidTreeOid, HttpStatusCode.OK },
+            { InvalidHeadOid, HttpStatusCode.OK }
         };
 
     [Theory]
@@ -211,10 +262,12 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
 
         Assert.Equal(Fingerprint(rest.Snapshot), Fingerprint(hybrid.Snapshot));
 
-        // The whole candidate was discarded: BOTH replaced requests happened,
+        // The whole candidate was discarded: EVERY replaced request happened,
         // which is what "no partial merge" means in the request graph (§18.5).
         Assert.Equal(1, Exactly(hybrid, MetadataRequest));
         Assert.Equal(1, Exactly(hybrid, LanguagesRequest));
+        Assert.Equal(1, Exactly(hybrid, GitRefRequest));
+        Assert.Equal(1, Exactly(hybrid, GitCommitRequest));
     }
 
     [Theory]
@@ -563,12 +616,8 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
         .RepositoryEnvelopeJson
         .Replace("\"isPrivate\": false", "\"isPrivate\": true", StringComparison.Ordinal);
 
-    private static readonly string MissingDefaultBranch = FakeGitHubApiHandler
-        .RepositoryEnvelopeJson
-        .Replace(
-            "\"defaultBranchRef\": { \"name\": \"main\" }",
-            "\"defaultBranchRef\": null",
-            StringComparison.Ordinal);
+    private static readonly string MissingDefaultBranch =
+        WithDefaultBranchRef("null");
 
     private static readonly string DuplicateLanguage = FakeGitHubApiHandler
         .RepositoryEnvelopeJson
@@ -589,6 +638,83 @@ public sealed class ProfileHybridRepositoryEnvelopeSeamTests
         return envelope[..index]
             + "{ \"hasNextPage\": true }"
             + envelope[(index + complete.Length)..];
+    }
+
+    // Every §18.13 break, expressed against the WHOLE `defaultBranchRef` value so
+    // none of them can silently stop matching.
+    private static readonly string NullTarget = WithDefaultBranchRef(
+        """
+        {
+          "name": "main",
+          "target": null
+        }
+        """);
+
+    // What an unmatched `... on Commit` fragment actually produces: an object
+    // that simply has no `oid`. It is refused exactly like a null target.
+    private static readonly string NonCommitTarget = WithDefaultBranchRef(
+        """
+        {
+          "name": "main",
+          "target": { }
+        }
+        """);
+
+    private static readonly string MissingTree = WithDefaultBranchRef(
+        $$"""
+        {
+          "name": "main",
+          "target": { "oid": "{{FakeGitHubApiHandler.HeadCommitSha}}" }
+        }
+        """);
+
+    private static readonly string NullTree = WithDefaultBranchRef(
+        $$"""
+        {
+          "name": "main",
+          "target": {
+            "oid": "{{FakeGitHubApiHandler.HeadCommitSha}}",
+            "tree": null
+          }
+        }
+        """);
+
+    private static readonly string InvalidTreeOid = WithDefaultBranchRef(
+        $$"""
+        {
+          "name": "main",
+          "target": {
+            "oid": "{{FakeGitHubApiHandler.HeadCommitSha}}",
+            "tree": { "oid": "not-a-git-object-id" }
+          }
+        }
+        """);
+
+    private static readonly string InvalidHeadOid = WithDefaultBranchRef(
+        $$"""
+        {
+          "name": "main",
+          "target": {
+            "oid": "0BAD",
+            "tree": { "oid": "{{FakeGitHubApiHandler.RootTreeSha}}" }
+          }
+        }
+        """);
+
+    private static string WithDefaultBranchRef(string value)
+    {
+        // The anchor must still be present in the fixture. Asserting on the
+        // RESULT instead would misfire whenever a substitution is legitimately
+        // identical to what it replaces.
+        Assert.Contains(
+            FakeGitHubApiHandler.DefaultBranchRefJson,
+            FakeGitHubApiHandler.RepositoryEnvelopeJson,
+            StringComparison.Ordinal);
+
+        return FakeGitHubApiHandler.RepositoryEnvelopeJson.Replace(
+            FakeGitHubApiHandler.DefaultBranchRefJson,
+            value,
+            StringComparison.Ordinal);
     }
 
     private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider

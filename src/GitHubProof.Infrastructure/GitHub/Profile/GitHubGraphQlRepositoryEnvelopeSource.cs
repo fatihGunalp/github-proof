@@ -10,26 +10,41 @@ namespace GitHubProof.Infrastructure.GitHub.Profile;
 // metadata GET and the REST languages GET for a repository whose candidate is
 // accepted.
 //
-// Three surfaces are adopted and no more: repository metadata, topics and the
-// complete language map. Everything else — README, license, the recursive tree,
-// file contents, issues, commits, pull requests, releases and tags — stays REST
+// Four surfaces are adopted and no more: repository metadata, topics, the
+// complete language map and — Session 129 — the default-branch head/tree
+// IDENTITY. Everything else — README, license, the recursive tree, file
+// contents, issues, commits, pull requests, releases and tags — stays REST
 // (§18.2), and the `DecisionBounded` surfaces stay out because §19.7 ordering
-// parity is unproven. The default-branch head and tree identity stay out because
-// §18.13 empty-repository parity is a separate proof obligation; only the branch
-// NAME is read here.
+// parity is unproven.
+//
+// THE HEAD/TREE IDENTITY IS NOT THE FILE TREE. What is adopted is two Git
+// object IDs: the commit the default branch points to, and that commit's root
+// tree. The recursive tree is still fetched over REST from that exact tree OID,
+// because GraphQL exposes no recursive tree and no `truncated` equivalent and
+// `truncated` drives `FileTree.IsComplete` (§18.2). `Tree.entries` is never
+// requested.
+//
+// §18.13 AND NULL. `defaultBranchRef` is REQUIRED here, and so are its Commit
+// target and that commit's tree. A null anywhere in that chain — the shape an
+// empty repository answers with — discards the whole candidate. It is never
+// read as successful emptiness: the repository then goes through the REST path,
+// where the exact 409 `"Git Repository is empty."` body remains the only thing
+// that distinguishes an empty repository from a failed one. GraphQL null means
+// "candidate unusable" and nothing else.
 //
 // SINGLE-ENVELOPE COMPLETENESS. The candidate is accepted only when the initial
-// response contains all three surfaces completely. `hasNextPage` on either
+// response contains every adopted surface completely. `hasNextPage` on either
 // adopted connection discards the candidate — the repository is then collected
 // over REST in full. That is a fallback, never a cap (§7): no evidence is
 // omitted and nothing is truncated. It keeps §18.7 simple, because one accepted
 // physical envelope means exactly one accepted retrieval instant.
 //
 // Deliberately absent from the query: `totalCount`, `totalSize`, `isEmpty`,
-// history, pull requests, releases, refs, tree objects, README and
+// history, pull requests, releases, refs, `Tree.entries`, README and
 // `licenseInfo`. §18.3 and §18.12 refuse the first three as evidence-strength
 // upgrades, and requesting a field that is never read would still be a step
-// toward adopting it.
+// toward adopting it. `Tree.entries` is absent for the §18.2 reason above: the
+// tree OID anchors a REST request, it does not replace one.
 public sealed class GitHubGraphQlRepositoryEnvelopeSource
     : IGitHubGraphQlRepositoryEnvelopeSource
 {
@@ -65,6 +80,14 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSource
             }
             defaultBranchRef {
               name
+              target {
+                ... on Commit {
+                  oid
+                  tree {
+                    oid
+                  }
+                }
+              }
             }
             repositoryTopics(first: $topics) {
               pageInfo {
@@ -211,7 +234,10 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSource
             || !TryReadOptionalString(repository, "description", out string? description)
             || !TryReadOptionalString(repository, "homepageUrl", out string? homepage)
             || !TryReadNestedName(repository, "primaryLanguage", required: false, out string? primaryLanguage)
-            || !TryReadNestedName(repository, "defaultBranchRef", required: true, out string? defaultBranch))
+            || !TryReadDefaultBranch(
+                repository,
+                out string? defaultBranch,
+                out GitHubRepositoryHeadTreeIdentity? headTree))
         {
             return null;
         }
@@ -251,6 +277,7 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSource
             new RepositoryMetadata(description, homepage, createdAt, hasIssues),
             topics!,
             languages!,
+            headTree!,
             retrievedAt);
     }
 
@@ -411,10 +438,116 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSource
             && TryReadRequiredString(owner, "login", out login);
     }
 
+    // The whole §18.13 decision, in one place.
+    //
+    // The identity chain must be coherent END TO END before any of it is used:
+    // `defaultBranchRef` exists, its `name` is a usable branch name, its
+    // `target` resolves through the `... on Commit` fragment, that commit has an
+    // `oid`, it has a `tree`, and the tree has an `oid`. A break anywhere
+    // returns false, which discards the WHOLE candidate — including the metadata,
+    // topics and languages it also carried (§18.5 case 3). There is deliberately
+    // no path that keeps the other three surfaces while quietly leaving the
+    // identity to REST: that would be a partial-envelope policy this session does
+    // not have.
+    //
+    // Every one of those breaks is treated identically, and none of them is
+    // emptiness. `defaultBranchRef: null` is exactly what an empty repository
+    // answers, and it leaves here as "candidate unusable" — the REST path then
+    // decides empty-versus-failed from the 409 body, as it does today.
+    //
+    // MAPPING (§18.2, §19.17). `Commit.oid` is the Git object the default-branch
+    // ref points to, which is the same object REST reports as
+    // `reference.object.sha` for `heads/{defaultBranch}`. `Commit.tree.oid` is
+    // that commit's single root tree, which is what REST reports as
+    // `commit.tree.sha`. Both are Git-defined object identities rather than
+    // provider-computed values, so for one ref at one instant there is exactly
+    // one correct answer on either transport.
+    private static bool TryReadDefaultBranch(
+        JsonElement repository,
+        out string? name,
+        out GitHubRepositoryHeadTreeIdentity? headTree)
+    {
+        headTree = null;
+
+        if (!TryReadNestedName(repository, "defaultBranchRef", required: true, out name)
+            || name is null)
+        {
+            // `required: true` already refuses absent and null. The explicit
+            // null check keeps that true if the helper is ever relaxed.
+            name = null;
+
+            return false;
+        }
+
+        JsonElement reference = repository.GetProperty("defaultBranchRef");
+
+        // An unmatched inline fragment yields an object with only the fields the
+        // fragment did not gate — so a `target` that is not a Commit arrives as
+        // an object WITHOUT `oid`, and is refused here exactly like a null one.
+        if (!reference.TryGetProperty("target", out JsonElement target)
+            || target.ValueKind != JsonValueKind.Object
+            || !TryReadObjectId(target, "oid", out string? headCommitSha)
+            || !target.TryGetProperty("tree", out JsonElement tree)
+            || tree.ValueKind != JsonValueKind.Object
+            || !TryReadObjectId(tree, "oid", out string? rootTreeSha))
+        {
+            name = null;
+
+            return false;
+        }
+
+        headTree = new GitHubRepositoryHeadTreeIdentity(headCommitSha!, rootTreeSha!);
+
+        return true;
+    }
+
+    // A Git object ID as this codebase already defines one: exactly 40 lowercase
+    // hexadecimal characters, the same shape the two REST responses carry.
+    // Unlike `GitHubCommitReference`, which normalizes case, this refuses
+    // anything not already lowercase rather than normalize it (see below).
+    //
+    // Anything else — a short OID, an uppercase one, or a wider hash should
+    // GitHub ever serve one — is refused rather than normalized. Refusing costs
+    // a REST fallback and nothing else; normalizing would risk this path writing
+    // a `HeadCommitSha` string the REST path would not have produced, and that
+    // value reaches the snapshot.
+    private static bool TryReadObjectId(
+        JsonElement owner,
+        string name,
+        out string? value)
+    {
+        value = null;
+
+        if (!owner.TryGetProperty(name, out JsonElement property)
+            || property.ValueKind != JsonValueKind.String)
+        {
+            return false;
+        }
+
+        string? read = property.GetString();
+
+        if (read is null || read.Length != 40)
+        {
+            return false;
+        }
+
+        foreach (char character in read)
+        {
+            if (character is not (>= '0' and <= '9' or >= 'a' and <= 'f'))
+            {
+                return false;
+            }
+        }
+
+        value = read;
+
+        return true;
+    }
+
     // `primaryLanguage` is legitimately null for a repository GitHub reports no
-    // language for, exactly as REST `language` is. `defaultBranchRef` is not:
-    // §18.13 forbids reading its null as evidence, so a required nested name
-    // that is absent discards the candidate and REST decides.
+    // language for, exactly as REST `language` is, so `required: false` is the
+    // only shape this helper is used in today. The required shape is kept
+    // because `TryReadDefaultBranch` delegates the branch NAME to it.
     private static bool TryReadNestedName(
         JsonElement repository,
         string name,

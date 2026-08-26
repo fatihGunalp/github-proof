@@ -177,7 +177,13 @@ public sealed class HybridRepositoryEnvelopeRunDisableTests
               "createdAt": "2024-01-01T00:00:00Z",
               "hasIssuesEnabled": true,
               "primaryLanguage": { "name": "C#" },
-              "defaultBranchRef": { "name": "main" },
+              "defaultBranchRef": {
+                "name": "main",
+                "target": {
+                  "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+                  "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" }
+                }
+              },
               "repositoryTopics": {
                 "pageInfo": { "hasNextPage": false },
                 "nodes": []

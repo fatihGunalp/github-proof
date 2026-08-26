@@ -425,9 +425,28 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
             { """ "createdAt": "2024-01-01T00:00:00Z",""", """ "createdAt": 1704067200,""" },
             { """ "description": "A deterministic fixture repository.",""", """ "description": 7,""" },
             { """ "homepageUrl": "https://example.invalid/demo",""", """ "homepageUrl": 7,""" },
-            { """ "defaultBranchRef": { "name": "main" },""", " " },
-            { """ "defaultBranchRef": { "name": "main" },""", """ "defaultBranchRef": null,""" },
-            { """ "defaultBranchRef": { "name": "main" },""", """ "defaultBranchRef": { "name": "" },""" },
+            { DefaultBranchRef, " " },
+            { DefaultBranchRef, """ "defaultBranchRef": null,""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "", "target": { "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b", "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" } } },""" },
+
+            // Session 129 — every break in the §18.13 identity chain. Each is
+            // "candidate unusable", and none of them is emptiness.
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": null },""" },
+
+            // What an unmatched `... on Commit` fragment actually produces: an
+            // object with none of the fields the fragment gated.
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b" } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b", "tree": null } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b", "tree": { } } },""" },
+
+            // A short OID, an uppercase one and a non-hex one are all refused
+            // rather than normalized: this path must never write a
+            // `HeadCommitSha` string the REST path would not have produced.
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1a2b3c4", "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" } } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B", "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" } } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b", "tree": { "oid": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" } } },""" },
+            { DefaultBranchRef, """ "defaultBranchRef": { "name": "main", "target": { "oid": 7, "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" } } },""" },
             { """ "repositoryTopics":""", """ "somethingElse":""" },
             { """ "languages":""", """ "otherLanguages":""" }
         };
@@ -594,11 +613,14 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
     [InlineData("releases")]
     [InlineData("refs")]
     [InlineData("object")]
-    [InlineData("tree")]
-    [InlineData("oid")]
-    [InlineData("target")]
     [InlineData("stargazer")]
     [InlineData("mutation")]
+
+    // Session 129. The tree OID is adopted; the tree CONTENTS are not. A
+    // query that asked for `entries` would be fetching the file tree over
+    // GraphQL, which §18.2 keeps on REST because only REST carries
+    // `truncated`.
+    [InlineData("entries")]
     public async Task TheQuery_NeverRequestsAnUnadoptedField(string field)
     {
         StubTransport transport = new(CompleteEnvelope);
@@ -617,6 +639,13 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
     [InlineData("defaultBranchRef")]
     [InlineData("primaryLanguage")]
     [InlineData("hasIssuesEnabled")]
+
+    // Session 129 — the identity chain, including the `... on Commit`
+    // fragment that is what makes a non-Commit target resolve to nothing.
+    [InlineData("target")]
+    [InlineData("... on Commit")]
+    [InlineData("oid")]
+    [InlineData("tree")]
     public async Task TheQuery_RequestsEveryAdoptedSurface(string field)
     {
         StubTransport transport = new(CompleteEnvelope);
@@ -665,6 +694,20 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
 
     private const string RestTopics = """["dotnet", "github-api"]""";
 
+    // Session 129. The same two SHAs the REST `git/ref` and `git/commits`
+    // fixture bodies carry, so an accepted envelope must reproduce them exactly
+    // (§19.17).
+    private const string HeadCommitSha = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b";
+    private const string RootTreeSha = "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a";
+
+    // Kept on ONE line, and as ONE constant, so every substitution below
+    // replaces the whole `defaultBranchRef` member rather than a fragment of
+    // it that could quietly stop matching.
+    private const string DefaultBranchRef = $$"""
+         "defaultBranchRef": { "name": "main", "target": { "oid": "{{HeadCommitSha}}", "tree": { "oid": "{{RootTreeSha}}" } } },
+        """;
+
+
     private const string CompleteEnvelope = $$"""
         {
           "data": {
@@ -680,7 +723,7 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
               "createdAt": "2024-01-01T00:00:00Z",
               "hasIssuesEnabled": true,
               "primaryLanguage": { "name": "C#" },
-              "defaultBranchRef": { "name": "main" },
+            {{DefaultBranchRef}}
               "repositoryTopics": {
                 "pageInfo": { "hasNextPage": false },
                 "nodes": {{TopicNodes}}
@@ -732,7 +775,7 @@ public sealed class GitHubGraphQlRepositoryEnvelopeSourceTests
         """;
 
     private static readonly string MissingDefaultBranchEnvelope = CompleteEnvelope
-        .Replace(""" "defaultBranchRef": { "name": "main" },""", """ "defaultBranchRef": null,""");
+        .Replace(DefaultBranchRef, """ "defaultBranchRef": null,""");
 
     // Both connections carry the same pageInfo line, so the two variants are
     // built by position: topics is the first connection in the envelope,

@@ -29,6 +29,19 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
     private const string MetadataRequest = "/repos/octocat/hello-world";
     private const string LanguagesRequest = "/repos/octocat/hello-world/languages";
 
+    // Session 129. The two identity requests an accepted envelope also
+    // replaces, and the recursive tree request it does NOT.
+    private const string GitRefRequest =
+        "/repos/octocat/hello-world/git/ref/heads/main";
+
+    private const string GitCommitRequest =
+        "/repos/octocat/hello-world/git/commits/" + FixtureHandler.HeadCommitSha;
+
+    // This handler records AbsolutePath, so the `?recursive=1` query the
+    // collector sends is not part of the recorded value.
+    private const string RecursiveTreeRequest =
+        "/repos/octocat/hello-world/git/trees/" + FixtureHandler.RootTreeSha;
+
     // ------------------------------------------------------- 1. default is off
 
     [Fact]
@@ -77,6 +90,11 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
         Assert.Equal(1, handler.Count(MetadataRequest));
         Assert.Equal(1, handler.Count(LanguagesRequest));
 
+        // Session 129: off, the identity chain is the REST one, in full.
+        Assert.Equal(1, handler.Count(GitRefRequest));
+        Assert.Equal(1, handler.Count(GitCommitRequest));
+        Assert.Equal(1, handler.Count(RecursiveTreeRequest));
+
         Assert.True(result.IsSuccessful);
         Assert.Equal(
             new Dictionary<string, long> { ["C#"] = 1200, ["JavaScript"] = 300 },
@@ -99,10 +117,19 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
         Assert.Equal(0, handler.Count(MetadataRequest));
         Assert.Equal(0, handler.Count(LanguagesRequest));
 
+        // Session 129: the two identity GETs are gone as well, and the
+        // recursive tree GET is NOT — it runs from the envelope tree OID.
+        Assert.Equal(0, handler.Count(GitRefRequest));
+        Assert.Equal(0, handler.Count(GitCommitRequest));
+        Assert.Equal(1, handler.Count(RecursiveTreeRequest));
+
         Assert.True(result.IsSuccessful);
+
+        // The snapshot is anchored to the commit the ENVELOPE named.
+        Assert.Equal(FixtureHandler.HeadCommitSha, result.Snapshot!.HeadCommitSha);
         Assert.Equal(
             new Dictionary<string, long> { ["C#"] = 1200, ["JavaScript"] = 300 },
-            result.Snapshot!.Languages);
+            result.Snapshot.Languages);
         Assert.Equal("hello-world", result.Snapshot.Repository.Name);
     }
 
@@ -163,6 +190,15 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
         Assert.Equal(0, on.Count(MetadataRequest));
         Assert.Equal(0, on.Count(LanguagesRequest));
 
+        // Session 129: three fewer physical provider requests for the accepted
+        // repository, and an identical report. Request counts only (§18.11).
+        Assert.Equal(1, off.Count(GitRefRequest));
+        Assert.Equal(1, off.Count(GitCommitRequest));
+        Assert.Equal(0, on.Count(GitRefRequest));
+        Assert.Equal(0, on.Count(GitCommitRequest));
+        Assert.Equal(1, off.Count(RecursiveTreeRequest));
+        Assert.Equal(1, on.Count(RecursiveTreeRequest));
+
         Assert.Equal(off.Result.Status, on.Result.Status);
         Assert.True(off.Result.HasProfile);
         Assert.True(on.Result.HasProfile);
@@ -187,6 +223,8 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
         Assert.Equal(1, fallback.GraphQlRequests);
         Assert.Equal(1, fallback.Count(MetadataRequest));
         Assert.Equal(1, fallback.Count(LanguagesRequest));
+        Assert.Equal(1, fallback.Count(GitRefRequest));
+        Assert.Equal(1, fallback.Count(GitCommitRequest));
 
         Assert.Equal(off.Result.Status, fallback.Result.Status);
         Assert.Equal(FingerprintReport(off.Result), FingerprintReport(fallback.Result));
@@ -641,11 +679,30 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
                 return Json("""{ "C#": 1200, "JavaScript": 300 }""");
             }
 
-            if (path.StartsWith($"{prefix}/git/ref/", StringComparison.Ordinal))
+            // Session 129. The fixture repository is NON-EMPTY, and its REST
+            // identity chain carries exactly the two SHAs the GraphQL envelope
+            // carries — which is what makes an off/on comparison a mapping
+            // proof rather than a coincidence (§19.17).
+            if (path == $"{prefix}/git/ref/heads/main")
             {
-                return Json(
-                    """{ "message": "Git Repository is empty." }""",
-                    HttpStatusCode.Conflict);
+                return Json($$"""{ "object": { "sha": "{{HeadCommitSha}}" } }""");
+            }
+
+            if (path == $"{prefix}/git/commits/{HeadCommitSha}")
+            {
+                return Json($$"""{ "tree": { "sha": "{{RootTreeSha}}" } }""");
+            }
+
+            if (path == $"{prefix}/git/trees/{RootTreeSha}")
+            {
+                return Json("""
+                    {
+                      "truncated": false,
+                      "tree": [
+                        { "path": "README.md", "type": "blob", "mode": "100644", "size": 42 }
+                      ]
+                    }
+                    """);
             }
 
             if (path.EndsWith("/commits", StringComparison.Ordinal)
@@ -663,6 +720,10 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
         // The accepted body mirrors the REST metadata and languages responses
         // above field for field. The fallback bodies differ from it in exactly
         // one way each, so a test names the reason it fell back.
+        // The one head commit and root tree this fixture repository has.
+        public const string HeadCommitSha = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b";
+        public const string RootTreeSha = "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a";
+
         private string GraphQlBody() => mode switch
         {
             GraphQlEnvelopeMode.Malformed => """{ "unexpected": true }""",
@@ -709,7 +770,13 @@ public sealed class ProfileGraphQlHybridEnvelopeWiringTests
                   "createdAt": "2024-01-01T00:00:00Z",
                   "hasIssuesEnabled": true,
                   "primaryLanguage": { "name": "C#" },
-                  "defaultBranchRef": { "name": "main" },
+                  "defaultBranchRef": {
+                    "name": "main",
+                    "target": {
+                      "oid": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+                      "tree": { "oid": "0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a" }
+                    }
+                  },
                   "repositoryTopics": {
                     "pageInfo": { "hasNextPage": false },
                     "nodes": [ { "topic": { "name": "dotnet" } } ]

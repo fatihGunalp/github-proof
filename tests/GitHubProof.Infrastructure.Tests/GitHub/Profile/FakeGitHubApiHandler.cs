@@ -36,6 +36,8 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
     private readonly List<string> requestPaths = [];
     private readonly Func<int, HttpResponseMessage>? graphQl;
     private readonly string metadataLicenseKey;
+    private readonly Func<HttpResponseMessage>? gitReference;
+    private readonly bool truncatedTree;
 
     private int graphQlCalls;
 
@@ -46,12 +48,23 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
     // `metadataLicenseKey` exists so a test can make the repository-metadata
     // license DIFFER from the /license response and prove which of the two the
     // snapshot actually carries. Default: the two agree, as they do upstream.
+    // Session 129 adds two more. `gitReference` replaces the `git/ref` answer
+    // so a test can serve the exact 409 `"Git Repository is empty."` body, a
+    // DIFFERENT 409 body, or any other failure, and then compare a REST-only
+    // run against a hybrid one under the identical provider facts.
+    // `truncatedTree` flips the recursive tree `truncated` flag, which is the
+    // flag `FileTree.IsComplete` is derived from and the reason §18.2 keeps the
+    // recursive tree on REST.
     public FakeGitHubApiHandler(
         Func<int, HttpResponseMessage>? graphQl = null,
-        string metadataLicenseKey = "mit")
+        string metadataLicenseKey = "mit",
+        Func<HttpResponseMessage>? gitReference = null,
+        bool truncatedTree = false)
     {
         this.graphQl = graphQl;
         this.metadataLicenseKey = metadataLicenseKey;
+        this.gitReference = gitReference;
+        this.truncatedTree = truncatedTree;
     }
 
     public IReadOnlyList<string> RequestPaths => requestPaths;
@@ -110,7 +123,9 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
 
         if (path == $"{prefix}/git/ref/heads/{DefaultBranch}")
         {
-            return Json($$"""{ "object": { "sha": "{{HeadCommitSha}}" } }""");
+            return gitReference is null
+                ? Json($$"""{ "object": { "sha": "{{HeadCommitSha}}" } }""")
+                : gitReference();
         }
 
         if (path == $"{prefix}/git/commits/{HeadCommitSha}")
@@ -118,9 +133,13 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
             return Json($$"""{ "tree": { "sha": "{{RootTreeSha}}" } }""");
         }
 
-        if (path == $"{prefix}/git/trees/{RootTreeSha}")
+        // Session 129 answers ANY tree OID with the same body on purpose. A
+        // test can then point the GraphQL envelope at a different root tree and
+        // prove, from the RECORDED PATH, which OID the recursive tree request
+        // actually used — rather than inferring it from a 404.
+        if (path.StartsWith($"{prefix}/git/trees/", StringComparison.Ordinal))
         {
-            return Json(TreeJson());
+            return Json(TreeJson(truncatedTree));
         }
 
         if (path.StartsWith($"{prefix}/contents/", StringComparison.Ordinal))
@@ -190,10 +209,10 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
 
     // Mode 100644 regular blobs, so the source collector's regular-blob rule
     // accepts the .cs entry.
-    private static string TreeJson() =>
+    private static string TreeJson(bool truncated = false) =>
         $$"""
         {
-          "truncated": false,
+          "truncated": {{(truncated ? "true" : "false")}},
           "tree": [
             { "path": "README.md", "type": "blob", "mode": "100644", "size": 42 },
             { "path": "LICENSE", "type": "blob", "mode": "100644", "size": 20 },
@@ -229,6 +248,27 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
     private static string Base64(string value) =>
         Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
 
+    // The Session 129 identity chain, kept as its own constant so a test can
+    // replace the WHOLE `defaultBranchRef` value — null target, wrong object
+    // type, missing tree — with one substitution instead of matching a
+    // multi-line fragment.
+    //
+    // It deliberately carries the SAME two SHAs the REST `git/ref` and
+    // `git/commits` bodies above carry. That pairing IS the §19.17 mapping
+    // proof in fixture form: `Commit.oid` is what REST reports as
+    // `reference.object.sha`, and `Commit.tree.oid` is what REST reports as
+    // `commit.tree.sha`. A test that changes one side and not the other is
+    // asserting a divergence on purpose.
+    public const string DefaultBranchRefJson = $$"""
+        {
+          "name": "{{DefaultBranch}}",
+          "target": {
+            "oid": "{{HeadCommitSha}}",
+            "tree": { "oid": "{{RootTreeSha}}" }
+          }
+        }
+        """;
+
     // The GraphQL envelope for this fixture repository, mirroring the REST
     // bodies above field for field. A test that changes one side and not the
     // other is asserting a divergence on purpose.
@@ -247,7 +287,7 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
               "createdAt": "2024-01-01T00:00:00Z",
               "hasIssuesEnabled": true,
               "primaryLanguage": { "name": "C#" },
-              "defaultBranchRef": { "name": "{{DefaultBranch}}" },
+              "defaultBranchRef": {{DefaultBranchRefJson}},
               "repositoryTopics": {
                 "pageInfo": { "hasNextPage": false },
                 "nodes": [

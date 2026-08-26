@@ -27,15 +27,48 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
 
     private readonly HttpClient httpClient;
     private readonly TimeProvider timeProvider;
+    private readonly Func<GitHubRepositoryMetadataCollection, GitHubRepositoryHeadTreeIdentity?>?
+        suppliedHeadTree;
 
     public GitHubRepositoryContentsCollector(
         HttpClient httpClient,
         TimeProvider? timeProvider = null)
+        : this(httpClient, timeProvider, suppliedHeadTree: null)
+    {
+    }
+
+    // The Session 129 overload. `suppliedHeadTree` is an opt-in a composition
+    // uses when it has ALREADY resolved this repository's default-branch head
+    // commit SHA and root tree SHA over another transport
+    // (docs/architecture/public-profile-runtime-collection.md §18.2). It follows
+    // the same delegate shape as the descriptive collector's supplied-languages
+    // seam rather than introducing an interface, so no shared collector contract
+    // changes and the Repository Proof composition is untouched (§3.1).
+    //
+    // When it is null — the default, and what the Repository Proof composition
+    // passes — this collector resolves both identities itself, with the two GET
+    // requests it always issued. When it returns null for a given repository the
+    // same is true, which is what makes a hybrid fallback structurally identical
+    // to a REST-only run.
+    //
+    // It supplies IDENTITY ONLY. The recursive tree request still happens, from
+    // the supplied root tree OID, so `truncated`, `FileTree.IsComplete`, the
+    // `file-tree` availability and its `RetrievedAt` all stay exactly where they
+    // are (§18.2, §18.7).
+    //
+    // It is consulted ONLY when no explicit `contentReference` was requested. A
+    // caller that named a commit is asking for THAT commit, and a current-HEAD
+    // identity resolved elsewhere may never silently answer in its place.
+    public GitHubRepositoryContentsCollector(
+        HttpClient httpClient,
+        TimeProvider? timeProvider,
+        Func<GitHubRepositoryMetadataCollection, GitHubRepositoryHeadTreeIdentity?>? suppliedHeadTree)
     {
         this.httpClient = httpClient
             ?? throw new ArgumentNullException(nameof(httpClient));
         this.httpClient.BaseAddress ??= GitHubApiBaseUri;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.suppliedHeadTree = suppliedHeadTree;
     }
 
     public async Task<GitHubRepositoryContentsCollection> CollectAsync(
@@ -56,6 +89,10 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
             repository,
             metadata.Repository.DefaultBranch,
             contentReference,
+
+            // §18.2 / §19.18: an explicit content reference is authoritative, so
+            // the supplier is not even consulted when a caller named a commit.
+            contentReference is null ? suppliedHeadTree?.Invoke(metadata) : null,
             cancellationToken);
 
         if (tree.Availability is not null)
@@ -122,53 +159,79 @@ public sealed class GitHubRepositoryContentsCollector : IGitHubRepositoryContent
         GitHubRepositoryUrl repository,
         string defaultBranch,
         GitHubCommitReference? contentReference,
+        GitHubRepositoryHeadTreeIdentity? suppliedIdentity,
         CancellationToken cancellationToken)
     {
         try
         {
             string headCommitSha;
+            string rootTreeSha;
 
-            if (contentReference is null)
+            // Both identities already resolved elsewhere for the CURRENT default
+            // branch head, so neither the ref request nor the commit request is
+            // built at all: the two skipped GETs are a property of the call graph
+            // rather than of an assertion.
+            //
+            // This branch cannot represent an EMPTY repository. An empty one has
+            // no default-branch commit to resolve, so no identity is ever
+            // supplied for it and the ref request below runs — which is exactly
+            // where the 409 empty-versus-failed rule still lives (§18.13).
+            if (suppliedIdentity is not null)
             {
-                using HttpResponseMessage referenceResponse = await SendAsync(
-                    $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/ref/heads/{EscapeRepositorySegment(defaultBranch)}",
-                    cancellationToken);
-
-                if (referenceResponse.StatusCode == HttpStatusCode.Conflict
-                    && await IsEmptyRepositoryResponseAsync(referenceResponse, cancellationToken))
-                {
-                    return TreeResult.Empty;
-                }
-
-                if (!referenceResponse.IsSuccessStatusCode)
-                {
-                    return TreeResult.Failed(
-                        GitHubApiAvailability.FromFailureResponse(referenceResponse, FileTreeDataKey));
-                }
-
-                GitHubReferenceResponse? reference = await referenceResponse.Content
-                    .ReadFromJsonAsync<GitHubReferenceResponse>(JsonOptions, cancellationToken);
-                headCommitSha = RequireValue(reference?.Object?.Sha, "reference.object.sha");
+                headCommitSha = suppliedIdentity.HeadCommitSha;
+                rootTreeSha = suppliedIdentity.RootTreeSha;
             }
             else
             {
-                headCommitSha = contentReference.CommitSha;
+                if (contentReference is null)
+                {
+                    using HttpResponseMessage referenceResponse = await SendAsync(
+                        $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/ref/heads/{EscapeRepositorySegment(defaultBranch)}",
+                        cancellationToken);
+
+                    if (referenceResponse.StatusCode == HttpStatusCode.Conflict
+                        && await IsEmptyRepositoryResponseAsync(referenceResponse, cancellationToken))
+                    {
+                        return TreeResult.Empty;
+                    }
+
+                    if (!referenceResponse.IsSuccessStatusCode)
+                    {
+                        return TreeResult.Failed(
+                            GitHubApiAvailability.FromFailureResponse(referenceResponse, FileTreeDataKey));
+                    }
+
+                    GitHubReferenceResponse? reference = await referenceResponse.Content
+                        .ReadFromJsonAsync<GitHubReferenceResponse>(JsonOptions, cancellationToken);
+                    headCommitSha = RequireValue(reference?.Object?.Sha, "reference.object.sha");
+                }
+                else
+                {
+                    headCommitSha = contentReference.CommitSha;
+                }
+
+                using HttpResponseMessage commitResponse = await SendAsync(
+                    $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/commits/{EscapeRepositorySegment(headCommitSha)}",
+                    cancellationToken);
+
+                if (!commitResponse.IsSuccessStatusCode)
+                {
+                    return TreeResult.Failed(
+                        GitHubApiAvailability.FromFailureResponse(commitResponse, FileTreeDataKey));
+                }
+
+                GitHubCommitResponse? commit = await commitResponse.Content
+                    .ReadFromJsonAsync<GitHubCommitResponse>(JsonOptions, cancellationToken);
+                rootTreeSha = RequireValue(commit?.Tree?.Sha, "commit.tree.sha");
             }
 
-            using HttpResponseMessage commitResponse = await SendAsync(
-                $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/commits/{EscapeRepositorySegment(headCommitSha)}",
-                cancellationToken);
-
-            if (!commitResponse.IsSuccessStatusCode)
-            {
-                return TreeResult.Failed(
-                    GitHubApiAvailability.FromFailureResponse(commitResponse, FileTreeDataKey));
-            }
-
-            GitHubCommitResponse? commit = await commitResponse.Content
-                .ReadFromJsonAsync<GitHubCommitResponse>(JsonOptions, cancellationToken);
-            string rootTreeSha = RequireValue(commit?.Tree?.Sha, "commit.tree.sha");
-
+            // ALWAYS REST, on both paths (§18.2). GraphQL exposes no recursive
+            // tree and no `truncated` equivalent, and `truncated` is what drives
+            // `FileTree.IsComplete` — so this request, its availability and its
+            // `RetrievedAt` do not move when the root tree OID arrives from
+            // somewhere else. The OID is used verbatim rather than the branch
+            // name, which is what keeps the snapshot anchored to the exact commit
+            // `HeadCommitSha` names.
             using HttpResponseMessage treeResponse = await SendAsync(
                 $"repos/{EscapeRepositorySegment(repository.Owner)}/{EscapeRepositorySegment(repository.Name)}/git/trees/{EscapeRepositorySegment(rootTreeSha)}?recursive=1",
                 cancellationToken);

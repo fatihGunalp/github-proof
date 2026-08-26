@@ -83,14 +83,17 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     // default for every existing caller — this is exactly the composition above,
     // collector for collector.
     //
-    // With a source supplied, two collectors change and nothing else does:
-    // repository metadata is asked for a GraphQL envelope first, and the
-    // descriptive collector is told where an already-collected language map may
-    // be found. Both point at the SAME hybrid collector instance, which is what
-    // ties the two adopted surfaces to one accepted envelope. README, license,
-    // the recursive tree, project files, workflows, documentation Markdown,
-    // issues, commits, pull requests, releases and tags are untouched and stay
-    // REST (§18.2).
+    // With a source supplied, three collectors change and nothing else does:
+    // repository metadata is asked for a GraphQL envelope first, the descriptive
+    // collector is told where an already-collected language map may be found,
+    // and — Session 129 — the contents collector is told where an already
+    // resolved default-branch head/tree identity may be found. All three point
+    // at the SAME hybrid collector instance, which is what ties every adopted
+    // surface to one accepted envelope. README, license, the RECURSIVE TREE,
+    // project files, workflows, documentation Markdown, issues, commits, pull
+    // requests, releases and tags are untouched and stay REST (§18.2) — the
+    // identity seam skips the git-ref and git-commit GETs only, and the
+    // recursive tree GET still runs from the accepted tree OID.
     //
     // The two are mutually exclusive by construction: an authoritative envelope
     // supplies the languages surface itself, so pairing it with a shadow that
@@ -118,6 +121,8 @@ public sealed class GitHubRepositorySnapshotOrchestrator
             new GitHubRepositoryMetadataCollector(httpClient);
         Func<GitHubRepositoryMetadataCollection, GitHubRepositoryLanguages?>?
             suppliedLanguages = null;
+        Func<GitHubRepositoryMetadataCollection, GitHubRepositoryHeadTreeIdentity?>?
+            suppliedHeadTree = null;
 
         if (repositoryEnvelopeSource is not null)
         {
@@ -127,6 +132,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
 
             metadataCollector = hybrid;
             suppliedLanguages = hybrid.TryGetServedLanguages;
+            suppliedHeadTree = hybrid.TryGetServedHeadTree;
         }
 
         IGitHubRepositoryDescriptiveDataCollector descriptiveDataCollector =
@@ -144,7 +150,10 @@ public sealed class GitHubRepositorySnapshotOrchestrator
 
         return new GitHubRepositorySnapshotOrchestrator(
             metadataCollector,
-            new GitHubRepositoryContentsCollector(httpClient),
+            new GitHubRepositoryContentsCollector(
+                httpClient,
+                timeProvider: null,
+                suppliedHeadTree),
             descriptiveDataCollector,
             new GitHubRepositoryCommitCollector(
                 httpClient,

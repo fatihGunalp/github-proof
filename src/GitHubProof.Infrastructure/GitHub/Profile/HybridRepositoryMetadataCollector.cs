@@ -7,16 +7,25 @@ namespace GitHubProof.Infrastructure.GitHub.Profile;
 // the GraphQL candidate is accepted, the REST repository metadata GET is never
 // issued and the accepted envelope supplies identity, metadata and topics.
 //
-// It also carries the accepted language map forward. The orchestrator hands the
-// exact metadata instance this collector returned to the descriptive collector,
-// so associating the languages with that instance is enough to reunite them —
-// no repository identity is stored, no per-run cache is kept, and there is no
-// key that could pair one repository's metadata with another's languages. The
-// association is weak, so it disappears with the metadata it belongs to.
+// It also carries the accepted language map and — Session 129 — the accepted
+// default-branch head/tree identity forward. The orchestrator hands the exact
+// metadata instance this collector returned to the descriptive collector and to
+// the contents collector, so associating both with that instance is enough to
+// reunite them — no repository identity is stored, no per-run cache is kept, and
+// there is no key that could pair one repository's metadata with another's
+// languages or head SHA. The association is weak, so it disappears with the
+// metadata it belongs to.
 //
-// Together those two facts make "no partial merge" (§18.5) structural rather
-// than asserted: either the envelope was accepted and BOTH surfaces come from
-// it, or it was not and NEITHER does.
+// The two travel in ONE entry rather than two tables, so they cannot diverge:
+// there is no state in which the languages came from an envelope and the
+// identity did not. That, together with the envelope's own all-or-nothing rule,
+// makes "no partial merge" (§18.5) structural rather than asserted — either the
+// envelope was accepted and EVERY adopted surface comes from it, or it was not
+// and NONE does.
+//
+// Nothing here can express emptiness. An empty repository produces no envelope
+// (§18.13), so it reaches `inner` and the REST 409 rule decides, exactly as it
+// does today.
 //
 // This type exists only in the Profile composition. Repository Proof never
 // constructs it (§3.1).
@@ -25,12 +34,19 @@ internal sealed class HybridRepositoryMetadataCollector : IGitHubRepositoryMetad
     private readonly IGitHubRepositoryMetadataCollector inner;
     private readonly IGitHubGraphQlRepositoryEnvelopeSource envelopeSource;
 
+    // Everything one accepted envelope supplied beyond the metadata collection
+    // itself. It is one type so the surfaces are handed out together or not at
+    // all.
+    private sealed record ServedSurfaces(
+        GitHubRepositoryLanguages Languages,
+        GitHubRepositoryHeadTreeIdentity HeadTree);
+
     // Reference-keyed and weak: an entry exists only while the metadata
     // collection it belongs to is still alive, and it can only ever be found by
     // the caller holding that exact instance.
     private readonly ConditionalWeakTable<
         GitHubRepositoryMetadataCollection,
-        GitHubRepositoryLanguages> servedLanguages = new();
+        ServedSurfaces> served = new();
 
     public HybridRepositoryMetadataCollector(
         IGitHubRepositoryMetadataCollector inner,
@@ -80,9 +96,11 @@ internal sealed class HybridRepositoryMetadataCollector : IGitHubRepositoryMetad
                 GitHubRepositoryMetadataCollector.MetadataDataKey,
                 envelope.RetrievedAt));
 
-        servedLanguages.Add(
+        served.Add(
             collection,
-            new GitHubRepositoryLanguages(envelope.Languages, envelope.RetrievedAt));
+            new ServedSurfaces(
+                new GitHubRepositoryLanguages(envelope.Languages, envelope.RetrievedAt),
+                envelope.HeadTree));
 
         return collection;
     }
@@ -93,10 +111,23 @@ internal sealed class HybridRepositoryMetadataCollector : IGitHubRepositoryMetad
     // means REST collects it exactly as it does today.
     public GitHubRepositoryLanguages? TryGetServedLanguages(
         GitHubRepositoryMetadataCollection metadata) =>
+        TryGetServed(metadata)?.Languages;
+
+    // The contents collector asks this the same way. A hit means the
+    // default-branch head commit and root tree OIDs are already known, so
+    // neither the REST git-ref GET nor the REST git-commit GET is built; the
+    // recursive tree GET still is, from that exact tree OID (§18.2).
+    //
+    // A miss — including every fallback and every empty repository — means the
+    // contents collector resolves both identities over REST exactly as it does
+    // today.
+    public GitHubRepositoryHeadTreeIdentity? TryGetServedHeadTree(
+        GitHubRepositoryMetadataCollection metadata) =>
+        TryGetServed(metadata)?.HeadTree;
+
+    private ServedSurfaces? TryGetServed(GitHubRepositoryMetadataCollection metadata) =>
         metadata is not null
-            && servedLanguages.TryGetValue(
-                metadata,
-                out GitHubRepositoryLanguages? languages)
-            ? languages
+            && served.TryGetValue(metadata, out ServedSurfaces? surfaces)
+            ? surfaces
             : null;
 }

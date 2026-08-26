@@ -1,13 +1,28 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 128)
+**Last Updated:** 2026-08-26 (Session 129)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 128 — GraphQL DecisionBounded Ordering Parity — **PASS**.
+- **Last Session:** 129 — GraphQL Default-Branch Head / Tree Identity Parity —
+  **PASS**. Branch `session/129-graphql-head-tree-identity-parity`, base
+  `9608804`, route Opus / high. Verdict **HEADTREE-PASS**: the §18.13 proof
+  succeeded and the bounded implementation closed in the same session. The
+  default-branch **head commit SHA** and that commit's **root tree SHA** are now
+  adopted over GraphQL inside the **existing** Session 127 envelope — no second
+  request, no second envelope, no second circuit — and the envelope stays
+  **DEFAULT OFF**. Build 0 warnings, **2291/2291**. Closure review **PASS WITH
+  FINDINGS** (0 blocker, 0 high, 0 medium, 1 low), the low finding (a stale
+  code comment overstating parity with `GitHubCommitReference`'s case
+  normalization) corrected in-session and re-verified with a clean rebuild.
+  **CLOSED / awaiting final integration** — the commit is user-owned and still
+  pending. **Not resumable**; further work opens a new session.
+  Detail: [`sessions/2026-08-26-129-graphql-head-tree-identity-parity.md`](./sessions/2026-08-26-129-graphql-head-tree-identity-parity.md)
+- **Previous Session:** 128 — GraphQL DecisionBounded Ordering Parity — **PASS**;
+  **integrated as `9608804`**.
   Branch `session/128-graphql-decision-bounded-ordering-parity`, base `8f42a6f`,
   route Opus / high. A proof/decision session, not an implementation one. Verdict
   **PARITY-BLOCKED**: no `DecisionBounded` surface — commits, pull requests,
@@ -17,9 +32,7 @@ carries product, domain or architecture truth.
   corrected — the review found a real hole in the tags proof, which is why tags
   is ORDER-BLOCKED rather than ORDER-PASS. The owner accepted PARITY-BLOCKED and
   **withdrew one further claim the record had made about REST pagination**; no
-  verdict changed. **CLOSED / awaiting final integration** — the commit is
-  user-owned and still pending. **Not resumable**; further work opens a new
-  session.
+  verdict changed.
   Detail: [`sessions/2026-08-26-128-graphql-decision-bounded-ordering-parity.md`](./sessions/2026-08-26-128-graphql-decision-bounded-ordering-parity.md)
 - **Previous Session:** 127 — S3 Hybrid Repository Envelope — **PASS**;
   **integrated as `8f42a6f`**. Branch
@@ -69,8 +82,11 @@ carries product, domain or architecture truth.
   default-off observation only; Session 126 owns a transport classification
   only; Session 127 owns a default-off authoritative transport consolidation
   only — no evidence, score, status or report value changes with it; Session 128
-  owns a transport-feasibility verdict only and adopts nothing.
-- **Last integrated commit on `main`:** `8f42a6f` (Session 127).
+  owns a transport-feasibility verdict only and adopts nothing; Session 129 owns
+  a default-off identity-transport consolidation only — it changes which requests
+  are issued, never what any value means.
+- **Last integrated commit on `main`:** `9608804` (Session 128). Session 129's
+  commit is not created yet.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -241,6 +257,37 @@ carries product, domain or architecture truth.
   and §18.6 is unchanged. So
   **`LanguagesShadowEnabled` stays DEFAULT OFF and is still not approved** for
   production, beta, §19.14 live A/B or default-on use.
+- **GraphQL default-branch head/tree identity: IMPLEMENTED, DEFAULT-OFF**
+  (Session 129, **HEADTREE-PASS**). Two Git object identities — the default
+  branch's head commit SHA and that commit's root tree SHA — are now adopted over
+  GraphQL inside the **existing** S127 envelope. §18.13 was satisfied through the
+  exit its own text names: *"those surfaces stay on REST, **or fall back to REST
+  under §18.5**"*. So this session never classified null as empty. A clean
+  non-null `defaultBranchRef` → `Commit` → `oid` → `tree` → `oid` chain may be
+  adopted; **every** other shape — null ref, null target, a target that is not a
+  Commit, a missing or null tree, or an OID that is not 40 lowercase hex — is
+  "candidate unusable" and discards the **whole** envelope, leaving the exact
+  REST 409 `"Git Repository is empty."` rule as the sole owner of
+  empty-versus-failed. Proven in both directions: null + the exact empty 409
+  reproduces the REST successful-empty result identically, and null + any other
+  409 stays a typed failure. **GitHub's docs do NOT establish
+  `defaultBranchRef == null ⟺ successfully empty`, and that equivalence is
+  asserted nowhere.** Mapping parity is Git-defined rather than
+  provider-computed, and the two OIDs arrive in **one** envelope, so they cannot
+  straddle a push the way the two REST requests can. **The recursive file tree
+  stays REST** — GraphQL exposes no recursive tree and no `truncated`,
+  `truncated` drives `FileTree.IsComplete`, and `Tree.entries` is never
+  requested; the adopted tree OID **anchors** the REST request instead of
+  replacing it. An accepted repository now skips the REST git-ref and git-commit
+  GETs on top of S127's metadata and languages GETs: four GETs become one POST,
+  **three fewer physical provider requests** — request counts only, no latency
+  claim. Explicit `contentReference` is never consulted against the supplier at
+  all. The seam is one optional delegate on the contents collector mirroring the
+  S127 supplied-languages seam: **no shared interface changed**, `CreateDefault`
+  untouched and still issuing both identity requests. No new availability status,
+  reason, key or telemetry; `file-tree` keeps the REST collector's own
+  `RetrievedAt`; S126 run-disable and budget isolation unchanged; **no canonical
+  change**. Build 0 warnings, **2291/2291**.
 - **Milestone B remains IN PROGRESS.**
 
 ## Locked Decisions
@@ -319,7 +366,7 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 128 is closed; its commit is user-owned and still pending. **No
+Session 129 is closed; its commit is user-owned and still pending. **No
 production, beta, default-on or live-A/B approval exists for any GraphQL
 switch.** The queue:
 
@@ -346,9 +393,10 @@ switch.** The queue:
   must not be claimed before live evidence**, so this belongs to the §19.14
   comparison.
 - **S4 — batching / aliases.** Not started, and not opened by S3 or S128.
-- **Default-branch head / tree** still needs the §18.13 empty-repository
-  re-proof. Commits depend on it twice over, since `Commit.history` is only
-  reachable through the default branch ref target.
+- **Default-branch head / tree is DONE** (Session 129, default-off). What it
+  unblocks is narrow: `Commit.history` is now reachable through an adopted
+  default-branch ref target, but commits stay **ORDER-BLOCKED** on Session 128's
+  own ordering evidence, which Session 129 did not touch.
 - **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — still
   pending.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector
