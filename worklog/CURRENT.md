@@ -1,12 +1,49 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 133)
+**Last Updated:** 2026-08-27 (Session 134)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 133 — Milestone B Runtime Gates — branch
+- **Active Session:** 134 — Milestone B Production-Candidate Runtime
+  Configuration + Exit Validation — branch
+  `session/134-milestone-b-production-candidate-runtime`, session base
+  `53991ac` (`main`/`origin/main`/`HEAD` verified equal before branching),
+  route Sonnet / high, **PARTIAL** — independent closure review
+  **PASS WITH FINDINGS** (critical findings **NONE**; findings were
+  worklog/record-accuracy only, corrected in this same-session pass), and the
+  configuration implementation itself is **technically accepted**. The session
+  is scored **PARTIAL**, not PASS, because authenticated live validation was
+  an explicit part of the Session 134 objective and could not run
+  (`GITHUB_TOKEN` unavailable). Wires the Session 133-accepted
+  R5 candidate into a real production configuration file,
+  `src/GitHubProof.Web/appsettings.Production.json`
+  (`ProfileGuardrails:Collection:MaxRepositoryConcurrency = 5`) — the first
+  `appsettings*.json` this repository has ever had; none existed before. U and
+  the two GraphQL flags are left unset because their existing default already
+  **is** the production-candidate value. Proven deterministically through the
+  real ASP.NET Core file-loading path (not an in-memory double): resolves to 5
+  under `Production`, stays at the source default 1 under `Development` (no
+  masking either direction), and reaches the real production orchestrator
+  composition end to end — 7 admitted repositories, max observed concurrency
+  exactly 5, all 7 still produce a result (no repository-count cap). No
+  production/domain/application/infrastructure source changed; the C# default
+  (`1`) is untouched. Full regression **2327/2327** (568 + 5 new tests), build
+  0 warnings, `git diff --check` PASS — no production/domain/application/
+  infrastructure source tracked-modified; only `worklog/CURRENT.md` and
+  `worklog/INDEX.md` are tracked-modified, by this same worklog-only
+  correction pass. **Authenticated live validation is BLOCKED**
+  (`GITHUB_TOKEN` unset in both available shells; presence-only checked, never
+  printed) — the dense-latency and burst gates were **not** re-measured this
+  session. **Milestone B closure is NOT CLAIMED**: VPS deployment, remote
+  production verification, production telemetry/monitoring infrastructure and
+  a multi-user smoke specifically under R5 all remain open and outside this
+  session's scope. Provider floor, execution deadline, credential strategy,
+  visitor rate-limit/trusted-proxy topology, R>5, U>1 and GraphQL enablement
+  were **not** touched or decided. `artifacts/` remains untouched.
+  Detail: [`sessions/2026-08-27-134-milestone-b-production-candidate-runtime.md`](./sessions/2026-08-27-134-milestone-b-production-candidate-runtime.md)
+- **Previous Session:** 133 — Milestone B Runtime Gates — branch
   `session/133-milestone-b-runtime-gates`, session base `37b8ec2`, route
   Sol / high, **PASS** for the bounded runtime-gate objective. Independent
   closure review **PASS WITH FINDINGS** (critical findings **NONE**; the
@@ -175,21 +212,28 @@ carries product, domain or architecture truth.
   Detail: [`sessions/2026-08-25-123-graphql-partial-data-error-contract.md`](./sessions/2026-08-25-123-graphql-partial-data-error-contract.md)
 - **The Profile runtime measurement phase is COMPLETE.** Session 120 owns the
   baseline shapes and Session 133 owns the Milestone B R3/R4/R5 latency gate.
-- **R5 is proposed, not configured.** No execution deadline, request budget,
-  GitHub reserve floor, production concurrency value or contents bound changed.
-  Session 120 owns measurement and diagnostic evidence only; Sessions 121
-  and 122 own feasibility and audit analysis only; Session 123 owns a contract
-  decision only; Session 124 owns an unused transport only; Session 125 owns a
+- **R5 is CONFIGURED as the production-candidate value (Session 134), not yet
+  deployed or remote-verified.** `src/GitHubProof.Web/appsettings.Production.json`
+  selects `ProfileGuardrails:Collection:MaxRepositoryConcurrency = 5`. U stays
+  `1` and GraphQL stays OFF through their unchanged defaults — neither was
+  duplicated into the new file. No execution deadline, request budget, GitHub
+  reserve floor or contents bound has been selected. Session 120 owns
+  measurement and diagnostic evidence only; Sessions 121 and 122 own
+  feasibility and audit analysis only; Session 123 owns a contract decision
+  only; Session 124 owns an unused transport only; Session 125 owns a
   default-off observation only; Session 126 owns a transport classification
   only; Session 127 owns a default-off authoritative transport consolidation
   only — no evidence, score, status or report value changes with it; Session 128
   owns a transport-feasibility verdict only and adopts nothing; Session 129 owns
   a default-off identity-transport consolidation only — it changes which requests
-  are issued, never what any value means. Session 133 proposes R5 from measured
-  runtime evidence but leaves production configuration owner-controlled.
-- **Last remote-verified `main`:** `37b8ec2` — Milestone B first-user and
-  launch-burst gates locked; verified equal to `origin/main` at Session 133
-  start.
+  are issued, never what any value means. Session 133 measured R3/R4/R5 and
+  proposed R5 from that evidence, but Session 133 itself left production
+  configuration unchanged; it was Session 134 that actually selected R5 in
+  configuration, still without deployment or remote verification.
+- **Last remote-verified `main`:** `53991ac` — `main` == `origin/main` == `HEAD`
+  verified equal at Session 134 start. (Session 133's Milestone B first-user
+  and launch-burst gates were integrated into `main` between Session 133 and
+  Session 134; Session 134's own work is not yet integrated.)
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -220,7 +264,12 @@ carries product, domain or architecture truth.
   by current measurements, and the source-level mechanism stays a **monitored
   production risk, not "no risk"**; **B-RI** — rate-limit telemetry lacked the
   context to reason about D-2, which is *not* a claim that GitHub's headers are
-  unreliable. Production values remain unselected.
+  unreliable. **Selected:** repository concurrency `R = 5` (Session 134
+  configuration, not yet deployed). **Preserved at default:** `U = 1`, GraphQL
+  OFF. **Still unselected/open:** execution deadline, provider reserve/admission
+  floor, run-time provider-limit behaviour, credential strategy, visitor
+  rate-limit and trusted-proxy topology, and the other Open Runtime Decisions
+  below.
 - **GraphQL request consolidation: GQL-F2 ACCEPTED, not implemented**
   (Session 121). Verdict **GQL-F2 — feasible, contract amendment required**. A
   hybrid (GraphQL repository envelope over admitted repositories + REST for the
@@ -471,21 +520,36 @@ D-2 budget premise is unchanged.
 
 **Session 133 is independently closed** (review **PASS WITH FINDINGS**, critical
 findings **NONE**), and **R5 is ACCEPTED as the Milestone B production-candidate
-repository concurrency**. **Production configuration is still unchanged** — R and
-U both remain at their `1` defaults and nothing has been applied.
+repository concurrency**. **Session 134 applied that value to a real
+configuration surface** — `src/GitHubProof.Web/appsettings.Production.json`
+selects `MaxRepositoryConcurrency = 5`; U and GraphQL stay at their unset
+defaults (already the candidate value). **Session 134 has now itself been
+independently closure-reviewed: PASS WITH FINDINGS, critical findings NONE.**
+The configuration implementation is **technically accepted** (real
+ASP.NET Core file-loading path proven, real `dotnet publish` artifact
+verified, orchestrator wiring proven, 2327/2327, `git diff --check` PASS). The
+review's non-blocking findings were worklog/record-accuracy issues only (an
+invented Result status, stale current-state wording) and were corrected in
+this same-session pass. **Session 134's lifecycle result is `PARTIAL`, not
+PASS** — solely because authenticated live validation, an explicit part of the
+Session 134 objective, could not run (`GITHUB_TOKEN` unavailable).
 
-**The next meaningful session applies and validates the production-candidate
-configuration:**
+**R/U/GraphQL production-candidate values, now wired into configuration:**
 
 ~~~text
-R = 5
-U = 1
-GraphQL = default OFF
+R = 5   (src/GitHubProof.Web/appsettings.Production.json — CONFIGURED,
+         not yet deployed or remote-verified)
+U = 1   (default, unset)
+GraphQL = default OFF (default, unset)
 ~~~
 
-and then performs the required production-candidate smoke / Milestone B exit
-validation. That session has not been opened; it goes through the normal
-model/effort gate like any other.
+**The next meaningful session is one bounded authenticated live smoke run
+against this exact production-candidate configuration** (`R=5`, `U=1`,
+GraphQL OFF) — the one piece of the Session 134 objective a missing
+`GITHUB_TOKEN` left undone. This is deliberately **not** bundled with VPS
+deployment: deployment, the real host's `ASPNETCORE_ENVIRONMENT` and a
+production telemetry/health surface are a separate, later, owner-controlled
+session that only makes sense once the authenticated smoke evidence exists.
 
 Two constraints carry into it from Session 131's measurement:
 
@@ -502,7 +566,7 @@ Two constraints carry into it from Session 131's measurement:
 
 **No production, beta, default-on or live-A/B approval exists for any GraphQL
 switch.** The remaining queue (unblocked by GraphQL, not gated on Sessions
-130/131/133):
+130/131/133/134):
 
 - **The DecisionBounded surfaces stay REST.** Commits, pull requests and
   releases each lack a published REST ordering contract (or, for pull requests, a
