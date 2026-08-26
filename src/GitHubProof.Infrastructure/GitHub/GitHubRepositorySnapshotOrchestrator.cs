@@ -72,12 +72,68 @@ public sealed class GitHubRepositorySnapshotOrchestrator
     public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
         HttpClient httpClient,
         TimeProvider? timeProvider,
-        IGitHubGraphQlLanguagesShadow? languagesShadow)
+        IGitHubGraphQlLanguagesShadow? languagesShadow) =>
+        CreateProfileComposition(
+            httpClient,
+            timeProvider,
+            languagesShadow,
+            repositoryEnvelopeSource: null);
+
+    // The S3 overload (Session 127). With `repositoryEnvelopeSource` null — the
+    // default for every existing caller — this is exactly the composition above,
+    // collector for collector.
+    //
+    // With a source supplied, two collectors change and nothing else does:
+    // repository metadata is asked for a GraphQL envelope first, and the
+    // descriptive collector is told where an already-collected language map may
+    // be found. Both point at the SAME hybrid collector instance, which is what
+    // ties the two adopted surfaces to one accepted envelope. README, license,
+    // the recursive tree, project files, workflows, documentation Markdown,
+    // issues, commits, pull requests, releases and tags are untouched and stay
+    // REST (§18.2).
+    //
+    // The two are mutually exclusive by construction: an authoritative envelope
+    // supplies the languages surface itself, so pairing it with a shadow that
+    // re-reads the same surface over GraphQL would issue a second POST per
+    // repository for no observation at all.
+    public static GitHubRepositorySnapshotOrchestrator CreateProfileComposition(
+        HttpClient httpClient,
+        TimeProvider? timeProvider,
+        IGitHubGraphQlLanguagesShadow? languagesShadow,
+        IGitHubGraphQlRepositoryEnvelopeSource? repositoryEnvelopeSource)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
 
+        if (languagesShadow is not null && repositoryEnvelopeSource is not null)
+        {
+            throw new ArgumentException(
+                "The Profile composition cannot run the GraphQL languages shadow "
+                + "and the authoritative GraphQL repository envelope together: "
+                + "the envelope already supplies the languages surface, so the "
+                + "shadow would issue a second GraphQL request per repository.",
+                nameof(languagesShadow));
+        }
+
+        IGitHubRepositoryMetadataCollector metadataCollector =
+            new GitHubRepositoryMetadataCollector(httpClient);
+        Func<GitHubRepositoryMetadataCollection, GitHubRepositoryLanguages?>?
+            suppliedLanguages = null;
+
+        if (repositoryEnvelopeSource is not null)
+        {
+            HybridRepositoryMetadataCollector hybrid = new(
+                metadataCollector,
+                repositoryEnvelopeSource);
+
+            metadataCollector = hybrid;
+            suppliedLanguages = hybrid.TryGetServedLanguages;
+        }
+
         IGitHubRepositoryDescriptiveDataCollector descriptiveDataCollector =
-            new GitHubRepositoryDescriptiveDataCollector(httpClient);
+            new GitHubRepositoryDescriptiveDataCollector(
+                httpClient,
+                timeProvider: null,
+                suppliedLanguages);
 
         if (languagesShadow is not null)
         {
@@ -87,7 +143,7 @@ public sealed class GitHubRepositorySnapshotOrchestrator
         }
 
         return new GitHubRepositorySnapshotOrchestrator(
-            new GitHubRepositoryMetadataCollector(httpClient),
+            metadataCollector,
             new GitHubRepositoryContentsCollector(httpClient),
             descriptiveDataCollector,
             new GitHubRepositoryCommitCollector(

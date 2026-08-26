@@ -28,9 +28,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         HttpStatusCode statusCode)
     {
         ShadowFixture fixture = new(("""{ "message": "no" }""", statusCode));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             for (int repository = 0; repository < 4; repository++)
             {
@@ -58,9 +58,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public async Task AMalformedEnvelope_DisablesTheShadowForTheRestOfTheExecution(string body)
     {
         ShadowFixture fixture = new((body, HttpStatusCode.OK));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             await fixture.CollectAsync("repo-0");
             await fixture.CollectAsync("repo-1");
@@ -80,9 +80,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         ShadowFixture fixture = new(
             (MatchingLanguages(), HttpStatusCode.OK),
             timeoutOnGraphQl: true);
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             for (int repository = 0; repository < 3; repository++)
             {
@@ -109,16 +109,16 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
             (MatchingLanguages(), HttpStatusCode.OK),
             timeoutOnGraphQl: true,
             timeoutCalls: 1);
-        GraphQlLanguagesShadowState first = new();
-        GraphQlLanguagesShadowState second = new();
+        ProfileGraphQlExecutionState first = new();
+        ProfileGraphQlExecutionState second = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(first))
+        using (ProfileGraphQlExecutionScope.Begin(first))
         {
             await fixture.CollectAsync("repo-0");
             await fixture.CollectAsync("repo-1");
         }
 
-        using (GraphQlLanguagesShadowScope.Begin(second))
+        using (ProfileGraphQlExecutionScope.Begin(second))
         {
             await fixture.CollectAsync("repo-2");
         }
@@ -144,9 +144,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         ShadowFixture fixture = new(
             (ErroredEnvelope, HttpStatusCode.OK),
             graphQlHeaders: [(header, value)]);
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             for (int repository = 0; repository < 3; repository++)
             {
@@ -175,16 +175,16 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
             (MatchingLanguages(), HttpStatusCode.OK),
             graphQlHeaders: [("x-ratelimit-remaining", "0")],
             headerCalls: 1);
-        GraphQlLanguagesShadowState first = new();
-        GraphQlLanguagesShadowState second = new();
+        ProfileGraphQlExecutionState first = new();
+        ProfileGraphQlExecutionState second = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(first))
+        using (ProfileGraphQlExecutionScope.Begin(first))
         {
             await fixture.CollectAsync("repo-0");
             await fixture.CollectAsync("repo-1");
         }
 
-        using (GraphQlLanguagesShadowScope.Begin(second))
+        using (ProfileGraphQlExecutionScope.Begin(second))
         {
             await fixture.CollectAsync("repo-2");
         }
@@ -203,9 +203,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         ShadowFixture fixture = new(
             (MatchingLanguages(), HttpStatusCode.OK),
             graphQlHeaders: [("x-ratelimit-remaining", "0")]);
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             await fixture.CollectAsync("repo-0");
             await fixture.CollectAsync("repo-1");
@@ -249,11 +249,11 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public async Task ADataWithErrorsEnvelope_AbstainsWithoutDisablingTheRun(string body)
     {
         ShadowFixture fixture = new((body, HttpStatusCode.OK));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
         RepositorySnapshot first;
         RepositorySnapshot second;
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             first = await fixture.CollectAsync("repo-0");
 
@@ -285,16 +285,16 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
         ShadowFixture fixture = new(
             ("""{ "message": "no" }""", HttpStatusCode.Forbidden),
             (MatchingLanguages(), HttpStatusCode.OK));
-        GraphQlLanguagesShadowState first = new();
-        GraphQlLanguagesShadowState second = new();
+        ProfileGraphQlExecutionState first = new();
+        ProfileGraphQlExecutionState second = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(first))
+        using (ProfileGraphQlExecutionScope.Begin(first))
         {
             await fixture.CollectAsync("repo-0");
             await fixture.CollectAsync("repo-1");
         }
 
-        using (GraphQlLanguagesShadowScope.Begin(second))
+        using (ProfileGraphQlExecutionScope.Begin(second))
         {
             await fixture.CollectAsync("repo-2");
         }
@@ -310,15 +310,15 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     [Fact]
     public void TheDisableDoesNotSurviveItsScope()
     {
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
-            Assert.Same(state, GraphQlLanguagesShadowScope.Current);
+            Assert.Same(state, ProfileGraphQlExecutionScope.Current);
             state.DisableForRun();
         }
 
-        Assert.Null(GraphQlLanguagesShadowScope.Current);
+        Assert.Null(ProfileGraphQlExecutionScope.Current);
     }
 
     // ------------------------------------------- §18.9 bounded observation
@@ -327,9 +327,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public async Task AMatchIncrementsOnlyMatch()
     {
         ShadowFixture fixture = new((MatchingLanguages(), HttpStatusCode.OK));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             await fixture.CollectAsync("repo-0");
         }
@@ -351,9 +351,9 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
               } } }
             }
             """, HttpStatusCode.OK));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             RepositorySnapshot snapshot = await fixture.CollectAsync("repo-0");
 
@@ -372,7 +372,7 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public void TheShadowStateExposesOnlyBoundedCounters()
     {
         Assert.All(
-            typeof(GraphQlLanguagesShadowState)
+            typeof(ProfileGraphQlExecutionState)
                 .GetProperties()
                 .Select(property => property.PropertyType),
             type => Assert.Contains(type, new[] { typeof(int), typeof(bool) }));
@@ -387,10 +387,10 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public async Task CallerCancellation_PropagatesAndDoesNotDisableTheRun()
     {
         ShadowFixture fixture = new((MatchingLanguages(), HttpStatusCode.OK));
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
         using CancellationTokenSource cancellation = new();
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             await Assert.ThrowsAnyAsync<OperationCanceledException>(
                 () => fixture.CollectAsync("repo-0", cancellation, cancelOnGraphQl: true));
@@ -411,11 +411,11 @@ public sealed class GraphQlLanguagesShadowRunDisableTests
     public async Task WhenRestLanguagesIsUnavailable_TheShadowIsNotInvokedAtAll()
     {
         ShadowFixture fixture = new((MatchingLanguages(), HttpStatusCode.OK), languagesFail: true);
-        GraphQlLanguagesShadowState state = new();
+        ProfileGraphQlExecutionState state = new();
         RepositorySnapshot withShadow;
         RepositorySnapshot withoutShadow;
 
-        using (GraphQlLanguagesShadowScope.Begin(state))
+        using (ProfileGraphQlExecutionScope.Begin(state))
         {
             withShadow = await fixture.CollectAsync("repo-0");
         }

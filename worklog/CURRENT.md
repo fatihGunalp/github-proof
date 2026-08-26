@@ -1,19 +1,30 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 126)
+**Last Updated:** 2026-08-26 (Session 127)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
 - **Active Session:** NONE.
-- **Last Session:** 126 — GraphQL Provider Failure Classification — **PASS**.
-  Branch `session/126-graphql-provider-failure-classification`, base `5a4bae5`,
+- **Last Session:** 127 — S3 Hybrid Repository Envelope — **PASS**. Branch
+  `session/127-graphql-hybrid-repository-envelope`, base `09707f4`, route
+  Opus / high. The first **authoritative** hybrid slice: one GraphQL envelope
+  supplies repository metadata, topics and languages, replacing the REST
+  repository-metadata GET and the REST languages GET for every repository whose
+  candidate is accepted — one fewer physical provider request. **DEFAULT OFF.**
+  Build 0 warnings, **2238/2238**. Closure review **PASS WITH FINDINGS**
+  (0 blocker, 0 high, 3 LOW), all three corrected; owner accepted with no
+  production or test change requested. **CLOSED / awaiting final integration** —
+  the commit is user-owned and still pending. **Not resumable**; further work
+  opens a new session.
+  Detail: [`sessions/2026-08-26-127-graphql-hybrid-repository-envelope.md`](./sessions/2026-08-26-127-graphql-hybrid-repository-envelope.md)
+- **Previous Session:** 126 — GraphQL Provider Failure Classification — **PASS**;
+  **integrated as `09707f4`**. Branch
+  `session/126-graphql-provider-failure-classification`, base `5a4bae5`,
   route Opus / high. Verdict **CLASS-PARTIAL**, owner-accepted; build 0
   warnings, **2069/2069**. Closure review PASS WITH FINDINGS (0 blocker, 0 high),
-  all corrected. **CLOSED / awaiting final integration** — the commit is
-  user-owned and still pending. **Not resumable**; further work opens a new
-  session.
+  all corrected.
   Detail: [`sessions/2026-08-26-126-graphql-provider-failure-classification.md`](./sessions/2026-08-26-126-graphql-provider-failure-classification.md)
 - **Previous Session:** 125 — S2 GraphQL Languages Shadow Parity — **PASS**;
   **integrated as `5a4bae5`**. Branch
@@ -41,8 +52,10 @@ carries product, domain or architecture truth.
   bound. Session 120 owns measurement and diagnostic evidence only; Sessions 121
   and 122 own feasibility and audit analysis only; Session 123 owns a contract
   decision only; Session 124 owns an unused transport only; Session 125 owns a
-  default-off observation only.
-- **Last integrated commit on `main`:** `5a4bae5` (Session 125).
+  default-off observation only; Session 126 owns a transport classification
+  only; Session 127 owns a default-off authoritative transport consolidation
+  only — no evidence, score, status or report value changes with it.
+- **Last integrated commit on `main`:** `09707f4` (Session 126).
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -291,18 +304,25 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 126 is closed; its commit is user-owned and still pending. The queue:
+Session 127 is closed; its commit is user-owned and still pending. **No
+production, beta, default-on or live-A/B approval exists for either GraphQL
+switch.** The queue:
 
 - **The residual message-only shape** — a secondary rate limit arriving as
   HTTP 200 + `DataWithErrors` with `remaining > 0`, no `Retry-After`, and its
   identity available only through the error message. Until it has a
-  provider-supported structural discriminator, the languages shadow must not be
-  enabled in production, in beta, for the §19.14 live A/B validation, or by
-  default.
-- **S3 — the repository envelope** (Session 121's plan). Not started. The
-  residual above does **not** block it: S3 may proceed **default-off**, and it
-  must satisfy the §19 criteria, including the §18.13 empty-repository re-proof,
-  for every surface it adopts.
+  provider-supported structural discriminator, **neither** the languages shadow
+  **nor** the S3 repository envelope may be enabled in production, in beta, for
+  the §19.14 live A/B validation, or by default.
+- **The S3 live-parity items** — `homepageUrl` versus REST `homepage`, plus
+  `primaryLanguage` and `description`, which are part of the same rollout
+  validation surface. The mapping is pinned by test; **provider-level equality
+  must not be claimed before live evidence**, so this belongs to the §19.14
+  comparison.
+- **S4 — batching / aliases.** Not started, and not opened by S3.
+- **The unadopted surfaces** — commits, pull requests, releases and tags need
+  §19.7 ordering and prefix parity; default-branch head/tree needs the §18.13
+  empty-repository re-proof. Each is its own session.
 - **Profile Production Runtime Decision Design** (D-1, D-2, D-3, D-5) — still
   pending.
 - **Unscheduled:** a bounded session for the Session 122 §6.1 content-selector

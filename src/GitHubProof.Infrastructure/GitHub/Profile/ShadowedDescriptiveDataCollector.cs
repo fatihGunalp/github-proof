@@ -91,7 +91,7 @@ internal sealed class ShadowedDescriptiveDataCollector
             //
             // It is still recorded as an unusable comparison, so a contained
             // shadow bug is operationally visible rather than silent (§18.9).
-            GraphQlLanguagesShadowScope.Current?.Record(
+            ProfileGraphQlExecutionScope.Current?.Record(
                 GraphQlLanguagesShadowOutcome.NotCompared);
         }
     }

@@ -55,7 +55,15 @@ public sealed class ProfileExecutionTelemetry
     private int shadowMatch;
     private int shadowMismatch;
     private int shadowNotCompared;
-    private bool shadowDisabledForRun;
+    private bool graphQlDisabledForRun;
+
+    // Session 127 (S3). Two more bounded structural counters, under exactly the
+    // same rules: an accepted authoritative repository envelope, and a
+    // repository that fell back to the REST composition instead. They are NOT
+    // HTTP request counts and are never summed with one — one accepted envelope
+    // is one physical POST, but a fallback may be zero of them.
+    private int envelopeServed;
+    private int envelopeFallback;
 
     private int collectionSamples;
     private TimeSpan collectionTotal;
@@ -89,10 +97,26 @@ public sealed class ProfileExecutionTelemetry
 
     public int LanguagesShadowNotCompared => shadowNotCompared;
 
-    public bool GraphQlDisabledForRun => shadowDisabledForRun;
+    public bool GraphQlDisabledForRun => graphQlDisabledForRun;
 
+    // Each section renders only when ITS OWN recorder observed something.
+    //
+    // Session 127 drops the `|| disabled` term both had. Before S3 the run-scoped
+    // disable could only be set by the shadow, so the term was harmless; now the
+    // authoritative envelope shares that one flag, and keeping it would print a
+    // LanguagesShadow section for an execution whose shadow was never even
+    // constructed. Nothing is lost: both consumers record an outcome on the very
+    // call that disables the run, so a disable always implies an observation on
+    // whichever side caused it.
     public bool HasLanguagesShadowObservations =>
-        shadowMatch + shadowMismatch + shadowNotCompared > 0 || shadowDisabledForRun;
+        shadowMatch + shadowMismatch + shadowNotCompared > 0;
+
+    public int RepositoryEnvelopeServed => envelopeServed;
+
+    public int RepositoryEnvelopeFallback => envelopeFallback;
+
+    public bool HasRepositoryEnvelopeObservations =>
+        envelopeServed + envelopeFallback > 0;
 
     // ------------------------------------------------------- Session 120 timing
     //
@@ -235,7 +259,7 @@ public sealed class ProfileExecutionTelemetry
     }
 
     // Recorded once, at the end of the execution, from the execution-scoped
-    // shadow state. A mismatch is operationally visible here and nowhere else:
+    // GraphQL state. A mismatch is operationally visible here and nowhere else:
     // it produces no evidence, no warning, no limitation and no report change.
     public void RecordLanguagesShadow(
         int match,
@@ -251,7 +275,29 @@ public sealed class ProfileExecutionTelemetry
         shadowMatch = match;
         shadowMismatch = mismatch;
         shadowNotCompared = notCompared;
-        shadowDisabledForRun = disabledForRun;
+        graphQlDisabledForRun |= disabledForRun;
+    }
+
+    // Recorded once, at the end of the execution, from the same
+    // execution-scoped GraphQL state. Serving an envelope produces no evidence,
+    // no warning, no limitation and no report change, and neither does falling
+    // back from one (§18.7).
+    //
+    // The disable flag is OR-ed rather than assigned because both recorders read
+    // the one §18.6 run-scoped disable, so neither may clear what the other saw.
+    public void RecordRepositoryEnvelope(
+        int served,
+        int fallback,
+        bool disabledForRun)
+    {
+        if (served < 0 || fallback < 0)
+        {
+            return;
+        }
+
+        envelopeServed = served;
+        envelopeFallback = fallback;
+        graphQlDisabledForRun |= disabledForRun;
     }
 
     public void RecordRepositoriesDiscovered(int count) =>
@@ -465,7 +511,20 @@ public sealed class ProfileExecutionTelemetry
             ? string.Create(
                 CultureInfo.InvariantCulture,
                 $" LanguagesShadow={{Match={shadowMatch};Mismatch={shadowMismatch};"
-                + $"NotCompared={shadowNotCompared};GraphQlDisabledForRun={shadowDisabledForRun}}}")
+                + $"NotCompared={shadowNotCompared};GraphQlDisabledForRun={graphQlDisabledForRun}}}")
+            : string.Empty;
+
+    // Rendered only when the authoritative envelope actually ran, so a default
+    // (disabled) execution logs exactly what it logged before S3. It carries two
+    // counts and one boolean — no repository, topic, language, byte count,
+    // query, payload or error content.
+    private string FormatRepositoryEnvelope() =>
+        HasRepositoryEnvelopeObservations
+            ? string.Create(
+                CultureInfo.InvariantCulture,
+                $" RepositoryEnvelope={{Served={envelopeServed};"
+                + $"Fallback={envelopeFallback};"
+                + $"GraphQlDisabledForRun={graphQlDisabledForRun}}}")
             : string.Empty;
 
     // A single structured Information-level line, so a controlled live run can
@@ -498,7 +557,8 @@ public sealed class ProfileExecutionTelemetry
             + $"Outcome={Outcome} "
             + $"RepositoryOutcomes={{{Format(repositoryOutcomes)}}} "
             + $"RequestCategories={{{Format(requestCategories)}}}"
-            + $"{FormatLanguagesShadow()}");
+            + $"{FormatLanguagesShadow()}"
+            + $"{FormatRepositoryEnvelope()}");
     }
 
     private static string Format(ConcurrentDictionary<string, int> counters) =>

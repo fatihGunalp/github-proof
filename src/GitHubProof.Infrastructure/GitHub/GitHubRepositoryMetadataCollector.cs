@@ -10,7 +10,10 @@ namespace GitHubProof.Infrastructure.GitHub;
 
 public sealed class GitHubRepositoryMetadataCollector : IGitHubRepositoryMetadataCollector
 {
-    private const string MetadataDataKey = "metadata";
+    // Internal rather than private since Session 127, so the Profile hybrid
+    // metadata path names the same data key by reference instead of repeating
+    // the literal. The value and its meaning are unchanged.
+    internal const string MetadataDataKey = "metadata";
     private static readonly Uri GitHubApiBaseUri = new("https://api.github.com/");
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

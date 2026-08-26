@@ -142,14 +142,15 @@ public sealed class ProfileGraphQlTransportWiringTests
     // Lazy<>/Func<>/IEnumerable<> wrapper, property injection, or a dependency
     // taken outside this assembly. Those are covered by the two tests above.
     //
-    // Session 125 (S2) adds the first legitimate consumer, exactly as the S1
-    // version of this test anticipated: the languages shadow. The assertion is
-    // an allow-list rather than an emptiness check, so a fourth type appearing
-    // here still fails and still has to be a deliberate decision. Note what this
-    // does NOT relax — the shadow only observes, and
+    // Session 125 (S2) added the first legitimate consumer, exactly as the S1
+    // version of this test anticipated: the languages shadow. Session 127 (S3)
+    // adds the second and — unlike the shadow — authoritative one: the
+    // repository envelope source. The assertion stays an allow-list rather than
+    // an emptiness check, so a third type appearing here still fails and still
+    // has to be a deliberate decision. Note what this does NOT relax —
     // ProductionPipelineGraph_NeverResolvesTheGraphQlTransport above still proves
-    // that with the shadow off (the default) the production graph never resolves
-    // the transport at all.
+    // that with both switches off (the default) the production graph never
+    // resolves the transport at all.
     [Fact]
     public void OnlyTheAuthorizedInfrastructureTypesTakeTheGraphQlTransport()
     {
@@ -166,7 +167,10 @@ public sealed class ProfileGraphQlTransportWiringTests
             .OrderBy(name => name, StringComparer.Ordinal)];
 
         Assert.Equal(
-            ["GitHubProof.Infrastructure.GitHub.Profile.GitHubGraphQlLanguagesShadow"],
+            [
+                "GitHubProof.Infrastructure.GitHub.Profile.GitHubGraphQlLanguagesShadow",
+                "GitHubProof.Infrastructure.GitHub.Profile.GitHubGraphQlRepositoryEnvelopeSource"
+            ],
             dependents);
     }
 

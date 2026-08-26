@@ -64,7 +64,7 @@ public sealed class GitHubGraphQlLanguagesShadow : IGitHubGraphQlLanguagesShadow
         ArgumentNullException.ThrowIfNull(repository);
         ArgumentNullException.ThrowIfNull(restLanguages);
 
-        GraphQlLanguagesShadowState? state = GraphQlLanguagesShadowScope.Current;
+        ProfileGraphQlExecutionState? state = ProfileGraphQlExecutionScope.Current;
 
         // §18.6: once an envelope-level failure has disabled the shadow for this
         // execution, every later repository skips it entirely — no POST at all,
@@ -168,7 +168,7 @@ public sealed class GitHubGraphQlLanguagesShadow : IGitHubGraphQlLanguagesShadow
     // With no ambient scope — a direct unit-test call — nothing is recorded and
     // the outcome is simply returned.
     private static GraphQlLanguagesShadowOutcome Record(
-        GraphQlLanguagesShadowState? state,
+        ProfileGraphQlExecutionState? state,
         GraphQlLanguagesShadowOutcome outcome)
     {
         state?.Record(outcome);

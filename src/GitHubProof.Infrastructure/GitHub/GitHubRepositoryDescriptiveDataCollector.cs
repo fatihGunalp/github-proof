@@ -24,15 +24,41 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
 
     private readonly HttpClient httpClient;
     private readonly TimeProvider timeProvider;
+    private readonly Func<GitHubRepositoryMetadataCollection, GitHubRepositoryLanguages?>?
+        suppliedLanguages;
 
     public GitHubRepositoryDescriptiveDataCollector(
         HttpClient httpClient,
         TimeProvider? timeProvider = null)
+        : this(httpClient, timeProvider, suppliedLanguages: null)
+    {
+    }
+
+    // The Session 127 overload. `suppliedLanguages` is an opt-in a composition
+    // uses when it has ALREADY collected the complete language map for this
+    // repository over another transport
+    // (docs/architecture/public-profile-runtime-collection.md §18.2). It follows
+    // the delegate shape the five paginated collectors already use for their
+    // §15 decision boundaries rather than introducing an interface.
+    //
+    // When it is null — the default, and what the Repository Proof composition
+    // passes — this collector behaves exactly as it did before: it issues the
+    // languages request itself. When it returns null for a given repository the
+    // same is true, which is what makes a hybrid fallback structurally identical
+    // to a REST-only run.
+    //
+    // When it returns a value the languages request is never built, so the
+    // skipped GET is a property of the call graph rather than of an assertion.
+    public GitHubRepositoryDescriptiveDataCollector(
+        HttpClient httpClient,
+        TimeProvider? timeProvider,
+        Func<GitHubRepositoryMetadataCollection, GitHubRepositoryLanguages?>? suppliedLanguages)
     {
         this.httpClient = httpClient
             ?? throw new ArgumentNullException(nameof(httpClient));
         this.httpClient.BaseAddress ??= GitHubApiBaseUri;
         this.timeProvider = timeProvider ?? TimeProvider.System;
+        this.suppliedLanguages = suppliedLanguages;
     }
 
     public async Task<GitHubRepositoryDescriptiveDataCollection> CollectAsync(
@@ -57,8 +83,14 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
             repository,
             contentReference,
             cancellationToken);
+        // Already collected over another transport for this repository, or null.
+        // Null keeps the original call below, so nothing about the REST path
+        // changes when no composition supplies anything.
+        GitHubRepositoryLanguages? preCollected = suppliedLanguages?.Invoke(metadata);
         EndpointResult<IReadOnlyDictionary<string, long>> languages =
-            await CollectLanguagesAsync(repository, cancellationToken);
+            preCollected is null
+                ? await CollectLanguagesAsync(repository, cancellationToken)
+                : NormalizeSuppliedLanguages(preCollected);
 
         return new GitHubRepositoryDescriptiveDataCollection(
             readme.Value,
@@ -227,6 +259,31 @@ public sealed class GitHubRepositoryDescriptiveDataCollector : IGitHubRepository
                 CreateFailedAvailability(
                     LicenseDataKey,
                     $"GitHub license response could not be normalized: {exception.Message}"));
+        }
+    }
+
+    // The supplied map is normalized with the SAME rules the REST response goes
+    // through, so a composition cannot serve a map this collector would have
+    // refused. The guard mirrors the REST branch exactly rather than trusting
+    // the supplier: the delegate is public, and a normalization failure must
+    // surface as the same typed unavailability, never as an exception escaping
+    // into the snapshot assembly.
+    private static EndpointResult<IReadOnlyDictionary<string, long>> NormalizeSuppliedLanguages(
+        GitHubRepositoryLanguages supplied)
+    {
+        try
+        {
+            return EndpointResult<IReadOnlyDictionary<string, long>>.Available(
+                NormalizeLanguages(supplied.Values),
+                LanguagesDataKey,
+                supplied.RetrievedAt);
+        }
+        catch (ArgumentException exception)
+        {
+            return EndpointResult<IReadOnlyDictionary<string, long>>.Unavailable(
+                CreateFailedAvailability(
+                    LanguagesDataKey,
+                    $"GitHub languages response could not be normalized: {exception.Message}"));
         }
     }
 

@@ -34,6 +34,25 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
     private static readonly JsonSerializerOptions JsonOptions = new();
 
     private readonly List<string> requestPaths = [];
+    private readonly Func<int, HttpResponseMessage>? graphQl;
+    private readonly string metadataLicenseKey;
+
+    private int graphQlCalls;
+
+    // Session 127. Without a responder `/graphql` answers 404 exactly as it did
+    // before, which is what the Session 125 envelope-failure test relies on.
+    // With one, the argument is the 1-based call index, so a test can vary the
+    // answer per repository without a second fixture.
+    // `metadataLicenseKey` exists so a test can make the repository-metadata
+    // license DIFFER from the /license response and prove which of the two the
+    // snapshot actually carries. Default: the two agree, as they do upstream.
+    public FakeGitHubApiHandler(
+        Func<int, HttpResponseMessage>? graphQl = null,
+        string metadataLicenseKey = "mit")
+    {
+        this.graphQl = graphQl;
+        this.metadataLicenseKey = metadataLicenseKey;
+    }
 
     public IReadOnlyList<string> RequestPaths => requestPaths;
 
@@ -58,8 +77,13 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
         return Task.FromResult(Route(path));
     }
 
-    private static HttpResponseMessage Route(string path)
+    private HttpResponseMessage Route(string path)
     {
+        if (path == "/graphql")
+        {
+            return graphQl is null ? NotFound() : graphQl(++graphQlCalls);
+        }
+
         string prefix = $"/repos/{Owner}/{Name}";
 
         if (path == prefix)
@@ -79,7 +103,7 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
                   "created_at": "2024-01-01T00:00:00Z",
                   "has_issues": true,
                   "topics": ["dotnet", "github-api"],
-                  "license": { "key": "mit", "name": "MIT License", "spdx_id": "MIT" }
+                  "license": { "key": "{{metadataLicenseKey}}", "name": "MIT License", "spdx_id": "MIT" }
                 }
                 """);
         }
@@ -204,6 +228,52 @@ internal sealed class FakeGitHubApiHandler : HttpMessageHandler
 
     private static string Base64(string value) =>
         Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+
+    // The GraphQL envelope for this fixture repository, mirroring the REST
+    // bodies above field for field. A test that changes one side and not the
+    // other is asserting a divergence on purpose.
+    public const string RepositoryEnvelopeJson = $$"""
+        {
+          "data": {
+            "repository": {
+              "name": "{{Name}}",
+              "owner": { "login": "{{Owner}}" },
+              "isPrivate": false,
+              "isArchived": false,
+              "isFork": false,
+              "isTemplate": false,
+              "description": "A deterministic fixture repository.",
+              "homepageUrl": "https://example.invalid/demo",
+              "createdAt": "2024-01-01T00:00:00Z",
+              "hasIssuesEnabled": true,
+              "primaryLanguage": { "name": "C#" },
+              "defaultBranchRef": { "name": "{{DefaultBranch}}" },
+              "repositoryTopics": {
+                "pageInfo": { "hasNextPage": false },
+                "nodes": [
+                  { "topic": { "name": "dotnet" } },
+                  { "topic": { "name": "github-api" } }
+                ]
+              },
+              "languages": {
+                "pageInfo": { "hasNextPage": false },
+                "edges": [
+                  { "size": 1200, "node": { "name": "C#" } },
+                  { "size": 300, "node": { "name": "JavaScript" } }
+                ]
+              }
+            }
+          }
+        }
+        """;
+
+    public static HttpResponseMessage JsonResponse(
+        string content,
+        HttpStatusCode status = HttpStatusCode.OK) =>
+        new(status)
+        {
+            Content = new StringContent(content, Encoding.UTF8, "application/json")
+        };
 
     private static HttpResponseMessage Json(string content) =>
         new(HttpStatusCode.OK)

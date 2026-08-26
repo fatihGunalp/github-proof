@@ -69,12 +69,14 @@ public sealed class LiveProfileReportService
         using IDisposable scope = ProfileExecutionTelemetryScope.Begin(telemetry);
         using IDisposable budgetScope = ProfileGitHubBudgetScope.Begin(budgetState);
 
-        // Session 125 (S2). The §18.6 disable and the §18.9 shadow counters live
-        // for exactly this call: a fresh state per AnalyzeAsync, restored on
-        // dispose, so nothing can leak into another execution even when the same
-        // scoped service instance is reused.
-        GraphQlLanguagesShadowState shadowState = new();
-        using IDisposable shadowScope = GraphQlLanguagesShadowScope.Begin(shadowState);
+        // Session 125 (S2), extended by Session 127 (S3). ONE §18.6 run-scoped
+        // disable and the §18.9 bounded counters live for exactly this call: a
+        // fresh state per AnalyzeAsync, restored on dispose, so nothing can leak
+        // into another execution even when the same scoped service instance is
+        // reused. The languages shadow and the authoritative repository envelope
+        // share this state rather than each owning a circuit of their own.
+        ProfileGraphQlExecutionState graphQlState = new();
+        using IDisposable graphQlScope = ProfileGraphQlExecutionScope.Begin(graphQlState);
         using IProfileExecutionDeadline deadline =
             deadlineFactory.Create(cancellationToken);
         using GitHubProfileSnapshotProgress progress =
@@ -305,10 +307,14 @@ public sealed class LiveProfileReportService
         finally
         {
             telemetry.RecordLanguagesShadow(
-                shadowState.Match,
-                shadowState.Mismatch,
-                shadowState.NotCompared,
-                shadowState.IsDisabledForRun);
+                graphQlState.Match,
+                graphQlState.Mismatch,
+                graphQlState.NotCompared,
+                graphQlState.IsDisabledForRun);
+            telemetry.RecordRepositoryEnvelope(
+                graphQlState.RepositoryEnvelopeServed,
+                graphQlState.RepositoryEnvelopeFallback,
+                graphQlState.IsDisabledForRun);
             telemetry.Complete(
                 Stopwatch.GetElapsedTime(startedAt),
                 status,

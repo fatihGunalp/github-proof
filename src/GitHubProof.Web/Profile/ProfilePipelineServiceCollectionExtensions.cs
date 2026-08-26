@@ -116,6 +116,18 @@ public static class ProfilePipelineServiceCollectionExtensions
                     ProfileGraphQlShadowOptions.ConfigurationSectionName));
         }
 
+        // Session 127 (S3). One boolean, off unless configuration turns it on.
+        // No validation rule, for the same reason as above.
+        OptionsBuilder<ProfileGraphQlHybridOptions> graphQlHybridOptions =
+            services.AddOptions<ProfileGraphQlHybridOptions>();
+
+        if (configuration is not null)
+        {
+            graphQlHybridOptions.Bind(
+                configuration.GetSection(
+                    ProfileGraphQlHybridOptions.ConfigurationSectionName));
+        }
+
         services.AddSingleton<
             IProfileExecutionDeadlineFactory,
             ProfileExecutionDeadlineFactory>();
@@ -163,7 +175,8 @@ public static class ProfilePipelineServiceCollectionExtensions
                     GitHubRepositorySnapshotOrchestrator.CreateProfileComposition(
                         CreateGitHubClient(provider),
                         provider.GetRequiredService<TimeProvider>(),
-                        CreateLanguagesShadow(provider)))));
+                        CreateLanguagesShadow(provider),
+                        CreateRepositoryEnvelopeSource(provider)))));
 
         // Session 124 (S1), amended by Session 125 (S2). The Profile-only GraphQL
         // transport shares the existing profile named client, so a GraphQL
@@ -172,12 +185,11 @@ public static class ProfilePipelineServiceCollectionExtensions
         // package (docs/architecture/public-profile-runtime-collection.md
         // §§18-19).
         //
-        // Exactly one component resolves it: the S2 languages shadow, and only
-        // when that shadow is enabled. With the default configuration
-        // CreateLanguagesShadow returns null, nothing in the production
-        // collection path resolves this registration, and no collector takes
-        // the dependency in either case — the shadow observes, it never supplies
-        // a surface.
+        // At most one component resolves it per execution: the S2 languages
+        // shadow, or — Session 127, and taking precedence over it — the S3
+        // authoritative repository envelope source. With the default
+        // configuration both factories return null and nothing in the production
+        // collection path resolves this registration at all.
         services.AddScoped<IGitHubGraphQlTransport>(
             provider => new GitHubGraphQlTransport(CreateGitHubClient(provider)));
 
@@ -242,15 +254,41 @@ public static class ProfilePipelineServiceCollectionExtensions
     // When it is enabled the shadow observes and nothing more. It never supplies
     // the languages surface, produces no DataAvailability and cannot change the
     // collection result (§18.1, §18.7).
+    //
+    // Session 127 adds one precedence rule and no new policy: the authoritative
+    // envelope supersedes the shadow. When the envelope is enabled it already
+    // supplies the languages surface, so a shadow comparing GraphQL against
+    // GraphQL would observe nothing and would cost a second POST per
+    // repository. Precedence is resolved here, once, rather than per repository.
     private static IGitHubGraphQlLanguagesShadow? CreateLanguagesShadow(
         IServiceProvider provider) =>
-        provider
+        !IsRepositoryEnvelopeEnabled(provider)
+        && provider
             .GetRequiredService<IOptions<ProfileGraphQlShadowOptions>>()
             .Value
             .LanguagesShadowEnabled
                 ? new GitHubGraphQlLanguagesShadow(
                     provider.GetRequiredService<IGitHubGraphQlTransport>())
                 : null;
+
+    // Session 127 (S3). Returns null unless the authoritative envelope is
+    // explicitly enabled, and null is what makes the default path identical to
+    // Session 099: the composition then constructs the same collectors it always
+    // did, no GraphQL request can be issued at all, and the REST repository
+    // metadata and languages requests happen exactly as they do today.
+    private static IGitHubGraphQlRepositoryEnvelopeSource? CreateRepositoryEnvelopeSource(
+        IServiceProvider provider) =>
+        IsRepositoryEnvelopeEnabled(provider)
+            ? new GitHubGraphQlRepositoryEnvelopeSource(
+                provider.GetRequiredService<IGitHubGraphQlTransport>(),
+                provider.GetRequiredService<TimeProvider>())
+            : null;
+
+    private static bool IsRepositoryEnvelopeEnabled(IServiceProvider provider) =>
+        provider
+            .GetRequiredService<IOptions<ProfileGraphQlHybridOptions>>()
+            .Value
+            .RepositoryEnvelopeEnabled;
 
     // The one place the profile GitHub client is created, so every profile
     // request — profile metadata, repository manifest and per-repository
