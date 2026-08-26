@@ -5,6 +5,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
@@ -210,13 +211,35 @@ public sealed class ProfileRuntimeBenchmarkHarness(ITestOutputHelper output)
     // Internal (not private) so Session 130's real-profile validation harness can
     // reuse the EXACT same production composition rather than building a second
     // one — one composition, two observers.
-    internal static ServiceProvider BuildBenchmarkProvider()
+    //
+    // Session 131 adds the optional repository-concurrency (R) argument. It is
+    // supplied through the SAME external configuration key production would use
+    // (`ProfileGuardrails:Collection:MaxRepositoryConcurrency`), not through a
+    // test-only backdoor, so an R1-vs-R2 measurement exercises exactly the
+    // wiring a deployment would. Omitting it keeps R=1.
+    internal static ServiceProvider BuildBenchmarkProvider(
+        int? maxRepositoryConcurrency = null)
     {
         ServiceCollection services = new();
 
         services.AddSingleton<TimeProvider>(TimeProvider.System);
         services.AddScoped<RepositoryAnalysisRunner>();
-        services.AddProfilePipeline();
+
+        IConfiguration? configuration =
+            maxRepositoryConcurrency is null
+                ? null
+                : new ConfigurationBuilder()
+                    .AddInMemoryCollection(
+                    [
+                        new KeyValuePair<string, string?>(
+                            $"{ProfileCollectionOptions.ConfigurationSectionName}"
+                            + $":{nameof(ProfileCollectionOptions.MaxRepositoryConcurrency)}",
+                            maxRepositoryConcurrency.Value.ToString(
+                                CultureInfo.InvariantCulture)),
+                    ])
+                    .Build();
+
+        services.AddProfilePipeline(configuration);
 
         services.AddScoped<IGitHubProfileSnapshotCollector>(
             provider => GitHubProfileSnapshotOrchestrator.CreateDefault(

@@ -112,8 +112,14 @@ public sealed class TelemetryRepositoryAnalysisRunner(
         RepositoryAnalysis analysis;
 
         // Session 120: the same anonymous sampling on the analysis side. Analyze
-        // is synchronous, so this interval is pure CPU and never overlaps the
-        // collection interval measured above.
+        // is synchronous, so one repository's analysis interval is pure CPU and
+        // never overlaps its own collection interval.
+        //
+        // Session 131: it may overlap a DIFFERENT repository's collection once
+        // repository concurrency R > 1, so these intervals are no longer
+        // pairwise disjoint across repositories. That is why
+        // ProfileExecutionTelemetry.PipelineWorkOutsideRepositoriesElapsed
+        // reports null instead of a subtracted remainder in that case.
         long startedAt = Stopwatch.GetTimestamp();
 
         try

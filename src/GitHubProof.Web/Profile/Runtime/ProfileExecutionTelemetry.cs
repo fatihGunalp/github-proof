@@ -170,21 +170,31 @@ public sealed class ProfileExecutionTelemetry
     // bookkeeping, final eligibility, cross-repository evidence, pattern
     // promotion, representative selection, composition and report projection.
     //
-    // The subtraction is sound because the two aggregated intervals are pairwise
-    // disjoint and fully contained in the pipeline interval:
-    // ProfileRepositoryAnalysisOrchestrator drives repositories with a plain
-    // foreach + await, the decorators wrap the only two call sites it uses, and
-    // the Profile path introduces no concurrency at all. The clamp below is a
-    // defensive floor that this sequential model cannot reach.
-    public TimeSpan PipelineWorkOutsideRepositoriesElapsed
+    // The subtraction is only sound while the two aggregated intervals are
+    // pairwise disjoint and fully contained in the pipeline interval, which
+    // holds when repositories are driven sequentially.
+    //
+    // Session 131 made that conditional: with repository concurrency R > 1 the
+    // per-repository intervals OVERLAP each other and their sum can exceed the
+    // wall-clock pipeline interval, so the remainder stops being a duration at
+    // all. It is null in that case rather than a clamped zero, because a
+    // reported "0 ms" would be read as "no pipeline work outside repositories"
+    // — a measurement §9.2 explicitly exists to keep honest, since production
+    // guard values are chosen from it.
+    public TimeSpan? PipelineWorkOutsideRepositoriesElapsed
     {
         get
         {
             lock (durationGate)
             {
-                TimeSpan remainder = PipelineElapsed - collectionTotal - analysisTotal;
+                TimeSpan accounted = collectionTotal + analysisTotal;
 
-                return remainder < TimeSpan.Zero ? TimeSpan.Zero : remainder;
+                if (accounted > PipelineElapsed)
+                {
+                    return null;
+                }
+
+                return PipelineElapsed - accounted;
             }
         }
     }
@@ -550,7 +560,7 @@ public sealed class ProfileExecutionTelemetry
             + $"RepositoryCollection={{{Format(collection)}}} "
             + $"RepositoryAnalysis={{{Format(analysis)}}} "
             + $"PipelineOutsideRepositoriesMs="
-            + $"{(long)PipelineWorkOutsideRepositoriesElapsed.TotalMilliseconds} "
+            + $"{FormatOutsideRepositories(PipelineWorkOutsideRepositoriesElapsed)} "
             + $"RateLimitBuckets={{{Format(rateLimit)}}} "
             + $"UnrecordedRateLimitObservations={unrecorded} "
             + $"Status={Status} "
@@ -617,6 +627,15 @@ public sealed class ProfileExecutionTelemetry
         value is null
             ? "unobserved"
             : value.Value.ToString(CultureInfo.InvariantCulture);
+
+    // "undefined" rather than a number when repository concurrency made the
+    // per-repository intervals overlap, so the log cannot be misread as
+    // "no pipeline work outside repositories".
+    private static string FormatOutsideRepositories(TimeSpan? elapsed) =>
+        elapsed is null
+            ? "undefined"
+            : ((long)elapsed.Value.TotalMilliseconds)
+                .ToString(CultureInfo.InvariantCulture);
 }
 
 // Anonymous per-repository duration aggregate. It deliberately carries counts

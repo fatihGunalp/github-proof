@@ -86,6 +86,24 @@ public static class ProfilePipelineServiceCollectionExtensions
                 + "unset or both be greater than zero.")
             .ValidateOnStart();
 
+        // Session 131 — the R dimension. Separate from the admission options
+        // above, which own U. Default 1 keeps the sequential collection path.
+        OptionsBuilder<ProfileCollectionOptions> collectionOptions =
+            services.AddOptions<ProfileCollectionOptions>();
+
+        if (configuration is not null)
+        {
+            collectionOptions.Bind(
+                configuration.GetSection(
+                    ProfileCollectionOptions.ConfigurationSectionName));
+        }
+
+        collectionOptions
+            .Validate(
+                options => options.MaxRepositoryConcurrency > 0,
+                "Profile repository concurrency must be greater than zero.")
+            .ValidateOnStart();
+
         OptionsBuilder<ProfileGitHubBudgetProtectionOptions> budgetOptions =
             services.AddOptions<ProfileGitHubBudgetProtectionOptions>();
 
@@ -204,7 +222,12 @@ public static class ProfilePipelineServiceCollectionExtensions
             provider => new ProfileRepositoryAnalysisOrchestrator(
                 provider.GetRequiredService<IProfileRepositorySnapshotSource>(),
                 provider.GetRequiredService<IRepositoryAnalysisRunner>(),
-                provider.GetRequiredService<AnalysisAdmissionPolicy>()));
+                provider.GetRequiredService<AnalysisAdmissionPolicy>(),
+                analysisIdFactory: null,
+                provider
+                    .GetRequiredService<IOptions<ProfileCollectionOptions>>()
+                    .Value
+                    .MaxRepositoryConcurrency));
 
         services.AddScoped(
             provider => new RepositoryEligibilityPolicy(

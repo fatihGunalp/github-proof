@@ -1,13 +1,37 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-26 (Session 130)
+**Last Updated:** 2026-08-26 (Session 131)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** NONE.
-- **Last Session:** 130 — Milestone B Pre-Production Real Profile Validation —
+- **Active Session:** 131 — Profile Repository Concurrency and Capacity —
+  branch `session/131-profile-repository-concurrency-capacity`, session base
+  `cc76c75`, route Opus / high. Verdict **R2-PERFORMANCE-INSUFFICIENT** — technical R2/U2 gate PASS, but the dense-profile product latency gate FAILS because **127.667 s > 60 s**. Bounded
+  repository concurrency (**R**) added as an externally configurable,
+  **DEFAULT-OFF (R=1)** seam in `ProfileRepositoryAnalysisOrchestrator`, plus
+  the measurement proving it: dense profile **254.634 s → 127.667 s (1.99×)**
+  at R=2 with the **same 662 requests** and an identical §6 profile-level
+  fingerprint, and **U2/R2** running two different profiles at once with
+  isolated telemetry and no provider distress (no `Retry-After`, no primary or
+  secondary limit event, zero GraphQL requests). Two measurement rounds in one
+  window did drive the lowest observed core `remaining` to **773/5000**, and a
+  pre-flight `/rate_limit` probe disagreed with the in-run headers — both
+  recorded as §10.4 reserve-design inputs.
+  **U needed no code at all** — `ProfileAdmissionOptions` already exposes it.
+  §8 authorized this once §9 measurement existed (Session 122 REST-R3 proved
+  the removable request set is 0), and §10.5 already calls the concurrency
+  numbers provisional, so **no canonical change was required**. Closure review
+  **PASS WITH FINDINGS**; the MEDIUM §8 finding (the first implementation used
+  the fan-out shape §8 names, defended by a code comment) was closed by
+  **rewriting the concurrent path as a fixed pool of R workers over a shared
+  queue** rather than by asking for a contract reading in its own favour. Build
+  0 warnings, **2312/2312**. **Nothing is enabled**: R and U both still default
+  to 1 and no configuration file sets either. **CLOSED / awaiting final
+  integration** — commit is user-owned and still pending.
+  Detail: [`sessions/2026-08-26-131-profile-repository-concurrency-capacity.md`](./sessions/2026-08-26-131-profile-repository-concurrency-capacity.md)
+- **Previous Session:** 130 — Milestone B Pre-Production Real Profile Validation —
   **B-PREPROD-READY-WITH-FINDINGS**. Branch
   `session/130-milestone-b-real-profile-validation`, base `4075e9a`, route
   Opus / high. First opened the same day and initially returned
@@ -138,9 +162,8 @@ carries product, domain or architecture truth.
   owns a transport-feasibility verdict only and adopts nothing; Session 129 owns
   a default-off identity-transport consolidation only — it changes which requests
   are issued, never what any value means.
-- **Last integrated commit on `main`:** `4075e9a` (Session 129). Session 130
-  changed only test-only files (two accessibility keywords + one new
-  test-only validation harness) and has no commit yet.
+- **Last integrated commit on `main`:** `cc76c75` (Session 130). Session 131 is
+  the active session on its own branch and has no commit yet.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -420,20 +443,30 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-Session 130 (Milestone B real-profile validation) closed
-**B-PREPROD-READY-WITH-FINDINGS**: real validation across six public
-profiles found no blocker, and its recommendation is **GO TO PRODUCTION
-RUNTIME DECISIONS**. Its own test-file changes (two accessibility keywords +
-one new opt-in-disabled live-validation harness) are user-owned and still
-pending commit. **The immediate next action is the Profile Production
-Runtime Decision session** (D-1 execution deadline, D-2 request/reserve
-protection, D-3 run-time provider-limit behaviour, D-5 credential strategy —
-see the Open Runtime Decisions table below), which Session 130 was
-explicitly scoped as the precondition for and does not itself decide.
+Session 131 closed **R2-PERFORMANCE-INSUFFICIENT** (technical R2/U2 PASS; product latency gate FAIL) and its commit is user-owned and
+still pending. **The immediate next action is the Profile Production Runtime
+Decision session** (D-1 execution deadline, D-2 request/reserve protection,
+D-3 run-time provider-limit behaviour, D-5 credential strategy — see the Open
+Runtime Decisions table below). Sessions 130 and 131 were both scoped as
+inputs to it and neither decides any production value.
 
-Session 129 is closed and integrated as `4075e9a`. **No production, beta,
-default-on or live-A/B approval exists for any GraphQL switch.** The remaining
-queue (unblocked by GraphQL, not gated on Session 130):
+**Two Session 131 items belong to that session, not to a new optimization
+session:**
+
+- **Whether to enable R=2 and/or U=2 at all**, and with what reserve. Session
+  131 measured the cost but selected nothing: R does **not** change request
+  count (662 at R1 and R2 alike), so R affects only request *rate*
+  (156 → 311 /min on the dense profile) and never the reserve arithmetic; **U** and
+  profile shape are what govern the reserve (one dense profile = 662
+  requests, a dense+medium U2 pair = 792 measured, a dense+dense pair ≈ 1324
+  projected, never observed).
+- **R>2 / U>2 remain untested and unproposed.** Session 131 stopped at its own
+  stop rule; raising either needs an explicit architecture-owner decision.
+
+Session 130 is integrated as `cc76c75`. **No production, beta, default-on or
+live-A/B approval exists for any GraphQL switch**, and none exists for any
+concurrency value either — R and U both still default to 1. The remaining
+queue (unblocked by GraphQL, not gated on Sessions 130/131):
 
 - **The DecisionBounded surfaces stay REST.** Commits, pull requests and
   releases each lack a published REST ordering contract (or, for pull requests, a

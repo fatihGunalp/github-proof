@@ -103,12 +103,18 @@ public sealed class ProfileRuntimeInstrumentationTests
         ProfileDurationDistribution collection = telemetry.RepositoryCollection;
         ProfileDurationDistribution analysis = telemetry.RepositoryAnalysis;
 
+        // Session 131: this runs at the default repository concurrency (R=1),
+        // where the per-repository intervals cannot overlap, so the derived
+        // remainder is still a real duration. It is null only under R>1.
+        TimeSpan outsideRepositories = Assert.NotNull(
+            telemetry.PipelineWorkOutsideRepositoriesElapsed);
+
         foreach (TimeSpan value in new[]
         {
             telemetry.Duration,
             telemetry.DiscoveryElapsed,
             telemetry.PipelineElapsed,
-            telemetry.PipelineWorkOutsideRepositoriesElapsed,
+            outsideRepositories,
             collection.Total,
             collection.Minimum,
             collection.Maximum,
@@ -165,20 +171,28 @@ public sealed class ProfileRuntimeInstrumentationTests
             telemetry.PipelineWorkOutsideRepositoriesElapsed);
     }
 
-    // Mutation-oriented: if a future change ever let the sampled intervals
-    // escape the pipeline interval, the remainder must clamp rather than report
-    // a negative stage duration.
+    // Mutation-oriented: when the sampled intervals exceed the pipeline
+    // interval the remainder is not a duration at all, and must not be reported
+    // as one.
+    //
+    // Session 131 changed this from a clamp-to-zero to null. Under repository
+    // concurrency R > 1 the per-repository intervals overlap and their sum
+    // routinely exceeds wall clock, so a clamped "0 ms" would have been a
+    // routine, silent, and wrong reading of "no pipeline work outside
+    // repositories" — precisely the measurement §9.2 exists to keep honest.
     [Fact]
-    public void PipelineRemainder_ClampsInsteadOfReportingNegativeTime()
+    public void PipelineRemainder_IsUndefinedWhenIntervalsExceedThePipeline()
     {
         ProfileExecutionTelemetry telemetry = new();
 
         telemetry.RecordPipelineElapsed(TimeSpan.FromMilliseconds(10));
         telemetry.RecordRepositoryCollectionElapsed(TimeSpan.FromMilliseconds(999));
 
-        Assert.Equal(
-            TimeSpan.Zero,
-            telemetry.PipelineWorkOutsideRepositoriesElapsed);
+        Assert.Null(telemetry.PipelineWorkOutsideRepositoriesElapsed);
+        Assert.Contains(
+            "PipelineOutsideRepositoriesMs=undefined",
+            telemetry.ToLogMessage(),
+            StringComparison.Ordinal);
     }
 
     [Fact]
