@@ -526,6 +526,117 @@ This contract records the requirement only. It does not implement, design or
 authorize queueing, distributed coordination, background job infrastructure or
 any other such mechanism.
 
+### 10.1.1 Milestone B first-user latency and launch-burst contract
+
+Milestone B adds a product/runtime gate on top of the bounded
+concurrent-profile-execution policy.
+
+The beta objective is **not** to prove arbitrary horizontal scale. It is to make
+the first public Profile Proof experience usable and safe when real users arrive,
+including an unexpectedly large launch burst.
+
+#### Dense-profile latency gate
+
+For the production-candidate configuration used to close Milestone B, the
+designated dense-profile validation scenario must complete end-to-end analysis
+in **<= 60 seconds**.
+
+This is a **product acceptance target**, not evidence semantics and not a claim
+that every GitHub profile or every provider/network condition is guaranteed to
+finish within 60 seconds.
+
+A performance change used to reach this target must still satisfy §§6–8:
+
+- no repository sampling;
+- no hidden top-N;
+- no evidence omission;
+- no approximate profile semantics;
+- no change in deterministic report truth;
+- no provider/system failure converted into evidence.
+
+A technically safe optimization that leaves the dense reference scenario above
+60 seconds does not by itself close the Milestone B product-latency gate.
+
+Session 131 established exactly that distinction: bounded repository concurrency
+R=2 was semantically safe and approximately halved the measured dense-profile
+runtime, but the measured approximately 128-second result remains insufficient
+for this gate.
+
+#### Launch-burst gate
+
+Milestone B must safely handle **unexpected arrival bursts**.
+
+The validation set must include at least:
+
+~~~text
+10 simultaneous arrivals
+50 simultaneous arrivals
+100 simultaneous arrivals
+~~~
+
+These are **arrival counts**, not required simultaneous-analysis counts.
+
+The runtime may execute substantially fewer profile analyses concurrently,
+provided that:
+
+- active profile executions remain bounded;
+- GitHub request pressure remains provider-safe;
+- arrivals above execution capacity receive an explicit capacity/retry outcome;
+- the application does not crash under burst arrival;
+- requests do not remain silently or indefinitely pending;
+- primary-budget protection uses live observed response-header state;
+- secondary-limit / `Retry-After` behaviour remains operational and bounded;
+- rate-limit reset information is handled as operational runtime state;
+- no capacity rejection, timeout, rate limit or provider failure becomes
+  developer/profile truth.
+
+The purpose of the burst test is therefore:
+
+> prove that GitHub Proof can **control demand safely** when more users arrive
+> than it can actively analyze at the same instant.
+
+Milestone B does **not** require all 10, 50 or 100 arrivals to execute
+simultaneously.
+
+Milestone B also does **not** require a durable queue or background-job system.
+If such infrastructure is introduced later, it requires its own explicit
+runtime contract.
+
+#### User-visible processing and capacity state
+
+A successfully admitted long-running profile analysis must not present an
+unexplained blank wait.
+
+A user whose analysis cannot currently be admitted must also not receive an
+ambiguous failure.
+
+Presentation must distinguish, at minimum, between:
+
+- analysis accepted / processing;
+- temporary execution-capacity unavailability;
+- provider-budget/rate-limit availability where applicable;
+- terminal success or failure.
+
+These are operational presentation states only. They may not become evidence or
+introduce judgments about the developer.
+
+#### Post-B scale boundary
+
+The following are deliberately deferred from the Milestone B runtime exit
+contract:
+
+- mandatory GitHub authentication;
+- GitHub App user-access / installation-token budget distribution;
+- persistent cache and analysis-history reuse;
+- durable background jobs;
+- durable/distributed queues;
+- distributed workers;
+- sustained 100+ simultaneous profile analyses;
+- full 1000-user-scale architecture.
+
+Those mechanisms may become appropriate after real beta demand is observed.
+Their absence is not itself a Milestone B failure.
+
 ### 10.2 Live runtime result boundary (Session 107)
 
 The future live Web/runtime result has exactly this semantic shape:

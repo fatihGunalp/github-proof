@@ -46,6 +46,16 @@ Milestone B clarification:
 - P10 Profile Web Flow is not part of Stage 7.
 - P10 is an additional deployment/presentation dependency for the public
   Profile Proof Beta release.
+- Milestone B public-beta runtime acceptance additionally requires the
+  first-user / launch-burst gates owned canonically by
+  `docs/roadmap/deployment-milestones.md`: dense-profile target **<= 60 s**,
+  explicit processing/capacity UX and safe handling of unexpected launch
+  bursts, validated with at least **10, 50 and 100 simultaneous arrivals**.
+- GitHub App/auth-based budget distribution, persistent cache/history,
+  background jobs/queues, sustained 100+ simultaneous analyses and full
+  1000-user-scale architecture are later scaling concerns, not Stage 7
+  capability scope and not Milestone B exit
+  requirements.
 
 ---
 

@@ -224,6 +224,57 @@ Bu public GitHub profilinde hangi teknik üretim örüntüleri tekrar tekrar gö
 
 ## Production Gate
 
+### First-User Experience and Launch-Burst Contract
+
+Milestone B is not a sustained 100/1000-user scaling milestone. Its runtime
+objective is narrower and user-facing:
+
+> A first-time visitor must be able to submit a public GitHub profile, understand
+> that analysis is progressing, and receive a meaningful evidence-first result
+> within a product-acceptable wait. An unexpected launch burst must not crash the
+> system, silently stall requests, exhaust GitHub provider capacity blindly, or
+> produce misleading profile truth.
+
+Required for Milestone B:
+
+- the designated dense-profile validation scenario completes in **<= 60 seconds**
+  under the production-candidate runtime configuration;
+- analysis must not leave the user on an unexplained blank or pending state;
+- launch-burst behaviour must be validated with at least **10, 50 and 100
+  simultaneous arrivals**;
+- 10, 50 or 100 simultaneous arrivals do **not** require 10, 50 or 100 analyses
+  to execute simultaneously;
+- active profile-analysis concurrency may remain deliberately bounded;
+- arrivals above active execution capacity must receive an explicit
+  capacity/retry state;
+- excess arrivals must not crash the application or remain silently or
+  indefinitely pending;
+- GitHub primary-budget reserve, reset behaviour and secondary-limit protection
+  must prevent burst traffic from exhausting provider capacity blindly;
+- provider/system capacity failure remains operational truth only and must never
+  become profile evidence, a negative developer statement, `Missing`, a score,
+  warning, limitation, pattern or report claim.
+
+The launch-burst gate proves **controlled arrival handling**, not arbitrary
+simultaneous analysis throughput.
+
+The following are **not Milestone B exit requirements** and must not delay the
+Profile Proof public beta solely for future scale:
+
+- mandatory GitHub Sign-In;
+- GitHub App user/installation-token architecture;
+- per-user distributed GitHub API budgets;
+- persistent result cache;
+- analysis history;
+- background jobs;
+- durable/distributed queues;
+- distributed worker scaling;
+- sustained **100+ simultaneous analyses**;
+- full **1000-user-scale architecture**.
+
+Those belong to later product/scaling work after the first public Profile Proof
+experience is validated by real usage.
+
 - Stage 7 / P3–P9 COMPLETE,
 - P10 Profile Web Flow COMPLETE,
 - unsupported profile claim = 0,
