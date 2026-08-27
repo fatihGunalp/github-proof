@@ -698,6 +698,14 @@ GitHub outbound linki, yeni endpoint veya ayrı analysis flow değildir. Typed
 Profile report Description taşımadığı için açıklama gösterilmez, türetilmez
 veya fetch edilmez; bu açık **Starting Point Description Contract Gap**'idir.
 
+> **STALE — bkz. `p10-presentation-language-contract.md` §8.6.1 / §8.6.1a /
+> §8.6.1b.** Yukarıdaki iki cümle P10-I4/I6-A anındaki hâli tarif eder ve
+> güncel presentation truth değildir. Session 111 STEP 3 Description gap'ini
+> kapattı (§8.6.1a); Session 136 §8.6.1b'yi ekleyerek pattern →
+> başlangıç-noktası ilişkisini yetkilendirdi ve Session 137 onu render etti.
+> Öğe artık dört öğe taşır. Presentation truth'un tek
+> sahibi presentation-language contract'ıdır ve şekli burada tekrar edilmez.
+
 Kapsam: yalnız `Profile.cshtml`'e bounded composition eklemesi (canonical
 sırada iki yeni partial çağrısı); iki yeni dar `_Profile*.cshtml` partial'ı
 (`WhyThisConclusion` ve `RepositoryDrillDown` bölümleri, her biri kendi typed

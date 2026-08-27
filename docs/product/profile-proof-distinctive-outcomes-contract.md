@@ -17,6 +17,17 @@ information priority
   or capability classification changed; Outcome 4 remains **PARTIALLY
   SUPPORTED** because the authorized presentation is not implemented yet. No
   contract version change (§10).
+- 2026-08-27 / Session 137 — capability classification only. The presentation
+  §8.6.1b authorized is now implemented and independently reviewed in Web:
+  the Starting Point item renders the pattern relationship from
+  `RepresentativeRepository.PatternSupports` identities, so **Outcome 4 moves
+  from `PARTIALLY SUPPORTED` to `SUPPORTED NOW`** (§9), and the sentences that
+  recorded the absent presentation are corrected. The **outcome set, priority
+  (`SUPPORTING`), acceptance criteria, moat statement and first-read order are
+  unchanged**, and the **Starting Point Prioritization Contract Gap stays
+  open** — naming the repeated result a repository was selected for is a
+  relationship, not a ranking. §10's version triggers do not include a
+  capability classification, so no contract version change.
 
 ---
 
@@ -564,12 +575,13 @@ Kullanıcı nötr bir başlangıç repository'si ve oradan doğrudan Repository 
 analizine geçiş alır.
 
 Seçim canonical olarak pattern-scoped'dur: her tekrar eden pattern için ayrı ve
-yalnız o pattern'in kendi kanıtıyla hesaplanır. **Ancak mevcut Web yüzeyi bu
-pattern ilişkisini göstermez** — başlangıç noktası yalnız repository kimliği,
-GitHub'ın kendi description'ı ve analiz eylemiyle sunulur. Dolayısıyla seçimi
-distinctive kılan bağ bugün kullanıcıya görünür değildir; bunu görünür kılmak
-bu contract'ın sonraki UI/UX session'a devrettiği ana iştir (bkz. UI
-CONSEQUENCE ve §9).
+yalnız o pattern'in kendi kanıtıyla hesaplanır. **Session 137 itibarıyla bu
+pattern ilişkisi Web'de görünürdür**: başlangıç noktası öğesi repository
+kimliği, seçildiği tekrar eden sonuç(lar), GitHub'ın kendi description'ı ve
+analiz eylemini taşır (`p10-presentation-language-contract.md` §8.6.1 /
+§8.6.1b). Dolayısıyla seçimi distinctive kılan bağ artık kullanıcıya
+ulaşmaktadır; ilişki hiçbir zaman "en iyi/önerilen repository" veya kalite
+sıralaması anlamına çevrilemez.
 
 **EXAMPLE**
 
@@ -583,7 +595,7 @@ CONSEQUENCE ve §9).
 bağımsızlık), §3.3 (boş pattern seti);
 `public-profile-evidence-product-contract.md` §13;
 `public-profile-evidence-report-contract.md` §10;
-`p10-presentation-language-contract.md` §8.6.1-§8.6.1a.
+`p10-presentation-language-contract.md` §8.6.1-§8.6.1b.
 
 **REQUIRED OBSERVABLE EVIDENCE**
 
@@ -665,8 +677,8 @@ sınırlı sayıdaki öğe stable bir presentation örneğidir; önem sırası d
 
 **UI CONSEQUENCE**
 
-**Birinci ve en yüksek öncelikli gereksinim:** sonraki UI/UX çalışması şu
-ilişkiyi görünür kılmalıdır:
+**Birinci ve en yüksek öncelikli gereksinimdi ve Session 137'de karşılandı:**
+kullanıcı yüzeyi şu ilişkiyi görünür kılar:
 
 ~~~text
 tekrar eden pattern
@@ -679,13 +691,13 @@ repo'dan başla" önerisinden ayrışmaz. İlişki görünür kılınırken **en
 güçlü**, **önerilen** veya **kalite sıralaması** anlamına çevrilemez; gösterilecek
 olan yalnız hangi tekrar eden pattern için hangi repository'nin seçildiğidir.
 
-**Bu gereksinimin canonical statüsü:** mevcut Web yüzeyi pattern →
-başlangıç-repository ilişkisini göstermiyor ve bu eksiklik **bugün hiçbir
-canonical doküman tarafından kayıtlı bir gap olarak tutulmuyor**. Görünür
-kılınması `p10-presentation-language-contract.md` §8.6.1'in explicit bir
-presentation-contract amendment'ini gerektirir; o bölüm başlangıç noktası
-öğesinin **"renders exactly"** üç öğesini (repository kimliği, GitHub
-description'ı, analiz eylemi) kilitlemektedir.
+**Bu gereksinimin canonical statüsü (Session 137 itibarıyla KARŞILANDI):**
+gereksinim, Session 136'nın `p10-presentation-language-contract.md` §8.6.1
+amendment'i (yeni §8.6.1b, "renders exactly" üç öğeden dört öğeye çıkarıldı)
+ve Session 137'nin bunu render eden Web implementasyonuyla kapanmıştır.
+İlişki yalnız `RepresentativeRepository.PatternSupports` kimliklerinden
+okunur; Representative Support Evidence Trace ilk okumaya girmez, hiçbir sayı
+gösterilmez ve seçim mekaniği açığa çıkmaz.
 
 Bu gereksinim §8.6.1a'da kayıtlı **Starting Point Prioritization Contract
 Gap** ile **karıştırılmamalıdır**: o gap canonical seçim üzerinde bir
@@ -809,20 +821,16 @@ Hedeflenmeyen ilk tepki: "dashboard güzel", "skorum yüksek", "AI güzel
    eksiklik gibi okunmaz. Evidence surface'in kendisi daraldıysa bu sınır aynı
    sayfadan erişilebilir olmalıdır; ancak ilk okumaya liderlik etmesi zorunlu
    değildir.
-7. **Başlangıç noktasının pattern bağı henüz görünmüyor.** Mevcut Web yüzeyi,
-   bir başlangıç repository'sinin hangi tekrar eden pattern'e ait olduğunu
-   göstermiyor. Bu bir gelecek gereksinimidir, mevcut yetenek beyanı değildir:
-   sonraki UI/UX session'ının kapatması gereken ana boşluk budur (Outcome 4 UI
-   CONSEQUENCE ve §9). Kapatılırken bağ, "en iyi/önerilen repository" veya
-   kalite sıralaması anlamına çevrilemez.
+7. **Başlangıç noktasının pattern bağı görünürdür.** Başlangıç
+   repository'sinin hangi tekrar eden sonuç(lar) için seçildiği ilk okumada
+   okunabilir. Bağ, "en iyi/önerilen repository" veya kalite sıralaması
+   anlamına çevrilemez ve hiçbir sayı taşıyamaz.
 
-   **Session 136 durumu (cross-reference).** Bu gereksinimin presentation
-   authorization'ı artık mevcuttur:
-   `p10-presentation-language-contract.md` §8.6.1b Starting Point öğesinin
-   "renders exactly" şeklini dört öğeye çıkarır ve ilişkinin EN/TR copy'sini
-   kilitler; ranking yasağı aynen korunur ve Starting Point Prioritization
-   Contract Gap açık kalır. Web bunu henüz render etmediği için gereksinim
-   **kullanıcı yüzeyinde hâlâ açıktır**; kapanması implementation işidir.
+   **Durum (cross-reference).** Presentation authorization Session 136'da
+   verilmiştir (`p10-presentation-language-contract.md` §8.6.1b: "renders
+   exactly" dört öğe, kilitli EN/TR copy, korunan ranking yasağı, açık kalan
+   Starting Point Prioritization Contract Gap) ve Session 137 bunu Web'de
+   render etmiştir. Gereksinim **kullanıcı yüzeyinde kapanmıştır**.
 
 ### 8.2 Supporting repository breadth kararı
 
@@ -917,7 +925,7 @@ Daha ince bir ayrım istenirse bu ayrı bir owner kararıdır.
 
 ### Outcome 4 — Pattern-Scoped Starting Point
 
-**PARTIALLY SUPPORTED.**
+**SUPPORTED NOW** (Session 137; `PARTIALLY SUPPORTED` at Session 135).
 
 Semantic/model capability mevcut: seçim politikası domain'de var
 (`RepresentativeRepositorySelectionPolicy`), seçim deterministik ve
@@ -927,25 +935,28 @@ activity/popularity veya herhangi bir ranking katılmıyor, ve
 Web başlangıç noktası yüzeyi canonical sırayı koruyan bounded bir presentation
 örneği ve repository başına Repository Proof eylemi sunuyor.
 
-**Distinctive user-visible sonuç ise bugün teslim edilmiyor.**
-`RepresentativePatternSupport` Web'in hiçbir yerinde render edilmiyor;
-başlangıç noktası yüzeyi yalnız repository kimliği, GitHub'ın kendi
-description'ı ve analiz eylemini gösteriyor. Kullanıcı hangi tekrar eden
-pattern için hangi repository'nin seçildiğini göremediği için, outcome'u
-distinctive kılan pattern-scoping kullanıcı tarafından algılanamıyor.
+**Distinctive user-visible sonuç Session 137'de teslim edilmiştir.** Başlangıç
+noktası öğesi artık repository kimliğinin hemen ardından, seçildiği tekrar
+eden sonuç(lar)ı adıyla taşır; etiketler mevcut literal dil kimliği ve §8.4.8
+Working Style eşlemesinden gelir, bir öğenin bütün `PatternSupports` kayıtları
+canonical sırada ve capsiz render edilir. Kullanıcı böylece hangi tekrar eden
+sonuç için hangi repository'nin seçildiğini kanıt katmanını açmadan görebilir.
 
-Sınıflandırma bu yüzden standart anlamıyla `PARTIALLY SUPPORTED`'dır: model
-capability var, distinctive user-visible result henüz yok. Kapatılması gereken
-iş UI CONSEQUENCE'ta tanımlıdır ve yeni bir seçim semantiği gerektirmez.
+Sınıflandırma bu yüzden `SUPPORTED NOW`'dır: model capability zaten vardı,
+distinctive user-visible result artık teslim edilmiştir. Teslimin sınırları
+kayıtlıdır: ilişki yalnız `PatternSupports` **kimliklerinden** okunur —
+Representative Support Evidence Trace ilk okumaya girmez — hiçbir sayı
+gösterilmez, seçim/promotion mekaniği açığa çıkmaz ve ilişki bir ranking,
+öneri veya kalite iddiası değildir. `SUPPORTING` priority ve
+`p10 §8.6.1a` Starting Point Prioritization Contract Gap değişmemiştir.
 
-**Session 136 cross-reference.** Bu bölümün kaydettiği "bu eksiklik hiçbir
-canonical doküman tarafından kayıtlı bir gap olarak tutulmuyor" ve "görünür
-kılınması p10 §8.6.1'in explicit bir amendment'ini gerektirir" tespitleri
-karşılanmıştır: Session 136 o amendment'i yapmıştır
-(`p10-presentation-language-contract.md` §8.6.1b). Yetenek sınıflandırması
-**değişmez** — authorization teslim değildir; `RepresentativePatternSupport`
-Web'de hâlâ render edilmediği için Outcome 4 `PARTIALLY SUPPORTED` kalır ve
-yalnız implementation ile `SUPPORTED NOW` olabilir.
+**Kapanış izi (Session 136 → 137).** Session 135 bu eksikliğin hiçbir canonical
+dokümanda kayıtlı olmadığını ve görünür kılınmasının p10 §8.6.1'de explicit bir
+amendment gerektirdiğini kaydetmişti. Session 136 o amendment'i yaptı
+(`p10-presentation-language-contract.md` §8.6.1b) — authorization tek başına
+teslim sayılmadı ve sınıflandırma o session'da `PARTIALLY SUPPORTED` bırakıldı.
+Session 137 ilişkiyi Web'de render etti ve bağımsız review'den geçirdi;
+sınıflandırma ancak bu teslimle `SUPPORTED NOW` oldu.
 
 ### Reddedilen aday — Evidence convergence
 

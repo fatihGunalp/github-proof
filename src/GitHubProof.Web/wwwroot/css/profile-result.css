@@ -249,6 +249,22 @@
     padding: var(--space-5) var(--space-5) var(--space-6);
 }
 
+/* Session 137 / G-3: the Why affordance keeps its canonical position below the
+   first-read block and stays collapsed, but is easier to notice there. The
+   lever is SEPARATION ONLY: extra space above the card detaches it from the
+   first-read stack so it reads as the next step rather than as more of the
+   same list. Its border, background and type weight stay exactly as the other
+   evidence-layer cards have them.
+
+   A stronger border was considered and rejected: p10 §8.8.3 forbids any other
+   level taking visual priority over Meaning and the two recurring-result
+   cards, and those cards sit at --border-subtle, so raising Why to
+   --border-default would have made L3 the most emphasised card after Meaning.
+   Spacing changes grouping without changing rank. */
+.profile-result__report > .profile-result__section--why {
+    margin-top: var(--space-4);
+}
+
 .profile-result__card-heading {
     display: flex;
     align-items: flex-start;
@@ -386,13 +402,26 @@
     content: "";
 }
 
-.profile-result__technical-focus-footer {
-    margin: var(--space-5) 0 0;
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border-subtle);
+/* Session 137 / G-2: the quiet recurrence lead-in now introduces the one
+   canonical technology list instead of trailing a duplicate of it. */
+.profile-result__technical-focus-lead-in {
+    margin: 0 0 var(--space-3);
     color: var(--fg-tertiary);
     font-size: var(--font-size-small);
     line-height: var(--line-height-small);
+}
+
+/* Session 137 / p10 8.6.1b: the pattern relationship is quiet supporting text
+   under the repository identity -- never a badge, chip, emphasis or ranking
+   marker. It wraps naturally and is deliberately NOT line-clamped: a
+   repository can represent several patterns, and clamping or capping them
+   would remove semantic content the contract requires to be complete. */
+.profile-result__starting-point-relationship {
+    margin: 0;
+    color: var(--fg-tertiary);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    overflow-wrap: break-word;
 }
 
 .profile-result__section--starting-point .profile-result__repository-list {

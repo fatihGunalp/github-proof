@@ -20,6 +20,15 @@
     only — never generated, translated or derived). Razor's default @-encoding
     renders it as plain text; it is never passed through Html.Raw and never
     turned into a link.
+
+    Session 137 / p10 §8.6.1b: each presented item also names the repeated
+    result(s) it was selected for, from the already-projected
+    item.PatternSupports identities only. The Representative Support Evidence
+    Trace (SupportingEvidenceReferences / SupportingObservationKeys) stays in
+    the evidence layer and never reaches this first-read surface. Every support
+    renders, in canonical order — no cap, sort, filter or first-pattern
+    shortcut — and the line is quiet supporting text, never a badge, chip,
+    count, ranking marker or "recommended" claim.
 *@
 @{
     if (Model.Section.SectionKey != ProfileReportSectionKey.RepresentativeRepositories)
@@ -60,6 +69,12 @@
                     <span class="profile-result__starting-point-identity">
                         @item.Repository.FullName
                     </span>
+
+                    <p class="profile-result__starting-point-relationship">
+                        @ProfileText.GetStartingPointPatternRelationship(
+                            item.PatternSupports,
+                            Text.Culture)
+                    </p>
 
                     <p class="profile-result__starting-point-description">
                         @(description is not null

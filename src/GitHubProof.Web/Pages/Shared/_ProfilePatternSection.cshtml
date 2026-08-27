@@ -58,6 +58,19 @@
         </h2>
     </div>
 
+    @* Session 137 / G-2: the quiet §8.7.6 recurrence lead-in now introduces
+       the one canonical list instead of being followed by a second rendering
+       of the same identities. Technical Focus only — the Working Style
+       Recurrence Lead-In Contract Gap stays open and §8.4.8's card shape is
+       unchanged. *@
+    @if (Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas
+        && Model.Items.Count > 0)
+    {
+        <p class="profile-result__technical-focus-lead-in">
+            @ProfileText.GetRecurringTechnologiesLeadIn(Text.Culture)
+        </p>
+    }
+
     @if (Model.Items.Count > 0)
     {
         <ul class="profile-result__pattern-list">
@@ -91,15 +104,6 @@
     {
         <p class="profile-result__section-empty">
             @ProfileText.GetEmptySectionMessage(Model.SectionKey, Text.Culture)
-        </p>
-    }
-
-    @if (Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas
-        && Model.Items.Count > 0)
-    {
-        <p class="profile-result__technical-focus-footer">
-            @ProfileText.GetRecurringTechnologiesLeadIn(Text.Culture):
-            @string.Join(", ", Model.Items.Select(item => item.Pattern.PatternKey))
         </p>
     }
 </section>

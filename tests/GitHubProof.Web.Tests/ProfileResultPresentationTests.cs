@@ -249,7 +249,39 @@ public sealed class ProfileResultPresentationTests
         Assert.DoesNotContain(".Skip(", content, StringComparison.Ordinal);
         Assert.DoesNotContain(".OrderBy(", content, StringComparison.Ordinal);
         Assert.DoesNotContain(".OrderByDescending(", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("<p", content[..populatedListEnd], StringComparison.Ordinal);
+        // Session 137 / G-2 keeps this guard but sharpens its mechanism. The
+        // populated branch now legitimately carries ONE paragraph: the quiet
+        // Technical Focus recurrence lead-in, which is gated to
+        // TechnicalFocusAreas and therefore never renders on the Working Style
+        // card. What must stay absent is a per-item explanation inside the
+        // list itself, so that is now asserted directly.
+        int listStart = content.IndexOf(
+            "<ul class=\"profile-result__pattern-list\">",
+            StringComparison.Ordinal);
+        int listEnd = content.IndexOf("</ul>", StringComparison.Ordinal);
+
+        Assert.True(listStart >= 0 && listEnd > listStart);
+        Assert.DoesNotContain("<p", content[listStart..listEnd], StringComparison.Ordinal);
+
+        string populatedRegion = content[..populatedListEnd];
+
+        Assert.Equal(1, CountOccurrences(populatedRegion, "<p"));
+        Assert.Contains(
+            "<p class=\"profile-result__technical-focus-lead-in\">",
+            populatedRegion,
+            StringComparison.Ordinal);
+
+        int technicalFocusGate = content.IndexOf(
+            "Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas",
+            StringComparison.Ordinal);
+
+        Assert.True(
+            technicalFocusGate >= 0
+            && technicalFocusGate < content.IndexOf(
+                "profile-result__technical-focus-lead-in",
+                StringComparison.Ordinal),
+            "The recurrence lead-in must stay gated to TechnicalFocusAreas.");
+
         Assert.Contains(
             ".profile-result__section--engineering-practices .profile-result__pattern-item::before",
             css,
@@ -264,7 +296,39 @@ public sealed class ProfileResultPresentationTests
 
         Assert.Contains("GetWorkTypeCardHeading", content, StringComparison.Ordinal);
         Assert.Contains("GetRecurringTechnologiesLeadIn", content, StringComparison.Ordinal);
-        Assert.Contains("Model.Items.Select(item => item.Pattern.PatternKey)", content, StringComparison.Ordinal);
+
+        // Session 137 / G-2: the recurrence lead-in introduces ONE canonical
+        // list. The former trailing paragraph that re-rendered the same
+        // identities from Model.Items is gone, so a technical identity appears
+        // exactly once in this card.
+        Assert.DoesNotContain(
+            "Model.Items.Select(item => item.Pattern.PatternKey)",
+            content,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("technical-focus-footer", content, StringComparison.Ordinal);
+        Assert.Contains("profile-result__technical-focus-lead-in", content, StringComparison.Ordinal);
+        Assert.Equal(
+            1,
+            CountOccurrences(content, "GetRecurringTechnologiesLeadIn"));
+
+        // The lead-in precedes the one canonical list; the card no longer
+        // closes with a second rendering of the same values.
+        int leadIn = content.IndexOf(
+            "profile-result__technical-focus-lead-in",
+            StringComparison.Ordinal);
+        int list = content.IndexOf(
+            "profile-result__pattern-list",
+            StringComparison.Ordinal);
+
+        Assert.True(leadIn >= 0 && list > leadIn);
+
+        // Working Style is untouched: no recurrence lead-in is added there
+        // while the Working Style Recurrence Lead-In Contract Gap is open.
+        Assert.Contains(
+            "Model.SectionKey == ProfileReportSectionKey.TechnicalFocusAreas",
+            content,
+            StringComparison.Ordinal);
+
         Assert.DoesNotContain("ProjectType", content, StringComparison.Ordinal);
         Assert.DoesNotContain("Repository.Description", content, StringComparison.Ordinal);
         Assert.DoesNotContain(".OrderBy(", content, StringComparison.Ordinal);
@@ -478,7 +542,15 @@ public sealed class ProfileResultPresentationTests
 
         Assert.Contains("Model.Descriptions.FindDescription(item.Repository)", content, StringComparison.Ordinal);
         Assert.Contains("GetStartingPointDescriptionFallback", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("PatternSupports", content, StringComparison.Ordinal);
+
+        // Session 137 / p10 8.6.1b supersedes the earlier "no PatternSupports
+        // at all" restriction: the pattern relationship now renders, but only
+        // from the PatternSupports IDENTITIES via the dedicated localizer
+        // method. The Representative Support Evidence Trace stays out.
+        Assert.Contains("item.PatternSupports", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("SupportingEvidenceReferences", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("SupportingObservationKeys", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("EvidenceKey", content, StringComparison.Ordinal);
         Assert.DoesNotContain("Eligibility", content, StringComparison.Ordinal);
         Assert.DoesNotContain("Score", content, StringComparison.Ordinal);
         Assert.DoesNotContain("Status", content, StringComparison.Ordinal);
@@ -542,8 +614,21 @@ public sealed class ProfileResultPresentationTests
             content,
             "_ProfilePatternSection",
             "report.TechnicalFocusAreas");
+        int engineeringPractice = RequireSingleCall(
+            content,
+            "_ProfilePatternSection",
+            "report.EngineeringPracticePatterns");
+        int startingPoint = RequireSingleCall(content, "_ProfileStartingPoint");
 
-        Assert.True(meaning < warnings && warnings < technicalFocus);
+        // Session 137 / G-4: the operational note stays in first read and
+        // inside the primary column, but no longer interrupts
+        // Meaning -> recurring results. It is subordinate: after both pattern
+        // cards, still before the evidence layer.
+        Assert.True(meaning < technicalFocus);
+        Assert.True(technicalFocus < engineeringPractice);
+        Assert.True(engineeringPractice < warnings);
+        Assert.True(warnings < startingPoint);
+        Assert.Contains("profile-first-read__primary", content, StringComparison.Ordinal);
         Assert.Contains("<aside", content, StringComparison.Ordinal);
         Assert.DoesNotContain("<h2 class=\"profile-result__notice-title\">", content, StringComparison.Ordinal);
         Assert.Contains("GetWarningLabel", content, StringComparison.Ordinal);
@@ -656,7 +741,8 @@ public sealed class ProfileResultPresentationTests
         [
             "<a ",
             "href=",
-            "PatternSupports",
+            "SupportingEvidenceReferences",
+            "SupportingObservationKeys",
             "AnalysisReference",
             "Eligibility",
             "\"best\"",
@@ -1156,6 +1242,204 @@ public sealed class ProfileResultPresentationTests
                     || value == "none",
                 $"profile-result.css must not generate content, but found: content: {value};");
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Session 137 - p10 8.6.1b Starting Point pattern relationship,
+    // G-3 Why affordance perceptibility.
+    // ------------------------------------------------------------------
+
+    [Fact]
+    public void Starting_point_names_the_repeated_result_between_identity_and_description()
+    {
+        string content = StripRazorComments(
+            ReadWebFile("Pages", "Shared", "_ProfileStartingPoint.cshtml"));
+
+        int identity = content.IndexOf(
+            "profile-result__starting-point-identity",
+            StringComparison.Ordinal);
+        int relationship = content.IndexOf(
+            "profile-result__starting-point-relationship",
+            StringComparison.Ordinal);
+        int description = content.IndexOf(
+            "profile-result__starting-point-description",
+            StringComparison.Ordinal);
+        int action = content.IndexOf("<form", StringComparison.Ordinal);
+
+        Assert.True(identity >= 0);
+        Assert.True(identity < relationship);
+        Assert.True(relationship < description);
+        Assert.True(description < action);
+
+        Assert.Contains(
+            "ProfileText.GetStartingPointPatternRelationship(",
+            content,
+            StringComparison.Ordinal);
+        Assert.Contains("item.PatternSupports", content, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Starting_point_relationship_renders_every_support_with_no_cap_or_reordering()
+    {
+        string content = StripRazorComments(
+            ReadWebFile("Pages", "Shared", "_ProfileStartingPoint.cshtml"));
+
+        int call = content.IndexOf(
+            "ProfileText.GetStartingPointPatternRelationship(",
+            StringComparison.Ordinal);
+
+        Assert.True(call >= 0);
+
+        // The whole collection is handed to the localizer: no inline Take,
+        // First, OrderBy, Where or index access could introduce a hidden
+        // first-pattern-only bound in Razor.
+        string call_region = content[call..content.IndexOf(')', call)];
+
+        Assert.DoesNotContain(".Take(", call_region, StringComparison.Ordinal);
+        Assert.DoesNotContain(".First", call_region, StringComparison.Ordinal);
+        Assert.DoesNotContain(".OrderBy(", call_region, StringComparison.Ordinal);
+        Assert.DoesNotContain(".Where(", call_region, StringComparison.Ordinal);
+        Assert.DoesNotContain("[0]", call_region, StringComparison.Ordinal);
+        Assert.DoesNotContain(".Count", call_region, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Starting_point_relationship_is_quiet_text_not_a_badge_or_clamped_content()
+    {
+        string css = ReadWebCssFile("profile-result.css");
+        string rule = RequireCssRule(css, ".profile-result__starting-point-relationship {");
+
+        // Quiet supporting text on existing semantic tokens.
+        Assert.Contains("var(--fg-tertiary)", rule, StringComparison.Ordinal);
+        Assert.Contains("var(--font-size-small)", rule, StringComparison.Ordinal);
+
+        // A repository can represent several patterns. Wrapping is allowed;
+        // clamping, capping or ellipsis would remove semantic content.
+        Assert.Contains("overflow-wrap: break-word", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("line-clamp", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("text-overflow", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("white-space: nowrap", rule, StringComparison.Ordinal);
+
+        // Not a badge/chip: no pill background, border or radius treatment.
+        Assert.DoesNotContain("background", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("border", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("font-weight", rule, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Why_affordance_gains_prominence_without_changing_its_disclosure_or_order()
+    {
+        string page = StripRazorComments(ReadWebFile("Pages", "Profile.cshtml"));
+        string partial = StripRazorComments(
+            ReadWebFile("Pages", "Shared", "_ProfileWhyThisView.cshtml"));
+        string css = ReadWebCssFile("profile-result.css");
+
+        // Still exactly one Why control, still native and collapsed by default.
+        Assert.Equal(1, CountOccurrences(page, "_ProfileWhyThisView"));
+        Assert.Contains("<details", partial, StringComparison.Ordinal);
+        Assert.Contains("<summary", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("<details open", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain(" open>", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("open=", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("aria-expanded", partial, StringComparison.Ordinal);
+        Assert.DoesNotContain("<script", partial, StringComparison.Ordinal);
+
+        // Canonical order is unchanged: Starting Point still precedes Why.
+        Assert.True(
+            RequireSingleCall(page, "_ProfileStartingPoint")
+            < RequireSingleCall(page, "_ProfileWhyThisView"));
+
+        // Prominence comes from SEPARATION only, using an existing spacing
+        // token. p10 §8.8.3 forbids any other level taking visual priority
+        // over Meaning and the two recurring-result cards, so the Why card may
+        // not gain border, background, gradient, animation or weight emphasis
+        // that the L2 cards do not have.
+        string rule = RequireCssRule(
+            css,
+            ".profile-result__report > .profile-result__section--why {");
+
+        Assert.Contains("margin-top:", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("border", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("background", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("font-weight", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("animation", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("gradient", rule, StringComparison.Ordinal);
+        Assert.DoesNotContain("transform", rule, StringComparison.Ordinal);
+
+        // L2 >= L3 invariant: the recurring-result cards and the Why card
+        // share one card treatment, declared together in the same grouped
+        // rule. Nothing later may raise Why above them.
+        string sharedCard = RequireCssRule(
+            css,
+            ".profile-first-read__patterns > .profile-result__section,");
+
+        Assert.Contains(
+            ".profile-result__report > .profile-result__section--why",
+            sharedCard,
+            StringComparison.Ordinal);
+        Assert.Contains("var(--border-subtle)", sharedCard, StringComparison.Ordinal);
+
+        // Meaning keeps the dominant treatment, so L1 still leads.
+        string meaningRule = RequireCssRule(
+            css,
+            ".profile-first-read__primary > .profile-result__meaning {");
+
+        Assert.Contains("var(--accent-primary)", meaningRule, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Starting_point_relationship_localizer_never_reads_the_evidence_trace()
+    {
+        // Behavioural tests prove today's output; this guards the method body
+        // so a later edit cannot quietly pull the Representative Support
+        // Evidence Trace into a first-read surface (p10 §8.6.1b).
+        string source = ReadWebFile("Localization", "ProfileWebPresentationLocalizer.cs");
+        int start = source.IndexOf(
+            "public string GetStartingPointPatternRelationship(",
+            StringComparison.Ordinal);
+
+        Assert.True(start >= 0, "The Starting Point relationship method was not found.");
+
+        int next = source.IndexOf("    public ", start + 1, StringComparison.Ordinal);
+        string body = next > start ? source[start..next] : source[start..];
+
+        string[] forbidden =
+        [
+            "SupportingEvidenceReferences",
+            "SupportingObservationKeys",
+            "EvidenceKey",
+            "AnalysisReference",
+            "IndependentSupportingRepositories",
+            "SupportingRepositories",
+            ".Take(",
+            ".Skip(",
+            ".OrderBy(",
+            ".Where(",
+            ".Reverse("
+        ];
+
+        foreach (string term in forbidden)
+        {
+            Assert.DoesNotContain(term, body, StringComparison.Ordinal);
+        }
+
+        // Only the two identity fields participate.
+        Assert.Contains("support.PatternFamily", body, StringComparison.Ordinal);
+        Assert.Contains("support.PatternKey", body, StringComparison.Ordinal);
+    }
+
+    private static int CountOccurrences(string content, string value)
+    {
+        int count = 0;
+        int index = content.IndexOf(value, StringComparison.Ordinal);
+
+        while (index >= 0)
+        {
+            count++;
+            index = content.IndexOf(value, index + value.Length, StringComparison.Ordinal);
+        }
+
+        return count;
     }
 
     private static string RequireCssRule(string css, string selector)

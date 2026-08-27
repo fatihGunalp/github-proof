@@ -9,7 +9,10 @@
     P10-I3/P10-I4/P10-I5 result boundary, rendered from the POST handler. Renders the
     already-projected typed ProfileReport in canonical experience order:
     Meaning -> Visible technical direction -> Working style
-    -> Starting point (first read), then What is this based on? -> Limitations -> Repository evidence
+    -> Starting point (first read), then What is this based on?
+    -> Limitations -> Repository evidence. Operational observation notes are
+    not part of that canonical order: they are a subordinate status notice
+    composed after the two recurring-result cards (p10 §8.8.4, plan §13.13)
     (progressively disclosed evidence layer, P10-I4). Selecting a repository
     POSTs its Repository.Url as GitHubTarget to the existing "/" Index entry
     and runs a fresh Repository Proof analysis there; nothing is embedded here.
@@ -134,6 +137,24 @@
                         "_ProfileMeaning",
                         meaning)
 
+                    <div class="profile-first-read__patterns">
+                        @await Html.PartialAsync(
+                            "_ProfilePatternSection",
+                            report.TechnicalFocusAreas)
+
+                        @await Html.PartialAsync(
+                            "_ProfilePatternSection",
+                            report.EngineeringPracticePatterns)
+                    </div>
+
+                    @* Session 137 / G-4: operational observation notes stay in
+                       first read but subordinate, after the recurring-result
+                       cards, so they no longer interrupt Meaning -> recurring
+                       results (p10 §8.8.4/§8.8.6 CASE D). They remain a status
+                       notice, never a numbered report section, never attached
+                       to an individual pattern or repository, and never
+                       converted into analysis truth. The Partial notice above
+                       the report body is unchanged. *@
                     @if (report.Warnings.Count > 0)
                     {
                         <aside class="profile-result__notice profile-result__notice--warning">
@@ -148,16 +169,6 @@
                             </ul>
                         </aside>
                     }
-
-                    <div class="profile-first-read__patterns">
-                        @await Html.PartialAsync(
-                            "_ProfilePatternSection",
-                            report.TechnicalFocusAreas)
-
-                        @await Html.PartialAsync(
-                            "_ProfilePatternSection",
-                            report.EngineeringPracticePatterns)
-                    </div>
                 </div>
 
                 @await Html.PartialAsync(

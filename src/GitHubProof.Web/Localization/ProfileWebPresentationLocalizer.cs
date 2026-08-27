@@ -1,6 +1,7 @@
 using GitHubProof.Application.Profile.Report;
 using GitHubProof.Domain.Profile;
 using GitHubProof.Domain.Profile.Enums;
+using GitHubProof.Domain.Profile.Models;
 
 namespace GitHubProof.Web.Localization;
 
@@ -416,6 +417,70 @@ public sealed class ProfileWebPresentationLocalizer
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
             ? "GitHub'da kısa bir açıklama bulunmuyor."
             : "No short description is provided on GitHub.";
+
+    // Session 137 / p10 §8.6.1b: the Starting Point pattern relationship. It
+    // reads ONLY the already-projected PatternSupports identities
+    // (PatternFamily + PatternKey) that the partial already holds. It never
+    // touches SupportingEvidenceReferences/SupportingObservationKeys — that
+    // Representative Support Evidence Trace belongs to the evidence layer,
+    // never to first read — and it never exposes selection or promotion
+    // mechanics, a count or an ordering claim. Every support is rendered in
+    // its existing canonical order: no cap, sort, filter or first-pattern
+    // shortcut, because any of those would invent a hidden top-N.
+    public string GetStartingPointPatternRelationship(
+        IReadOnlyList<RepresentativePatternSupport> patternSupports,
+        string? culture)
+    {
+        ArgumentNullException.ThrowIfNull(patternSupports);
+
+        if (patternSupports.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "A representative repository must carry at least one represented pattern.");
+        }
+
+        bool isTurkish =
+            WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish;
+
+        List<string> labels = new(patternSupports.Count);
+
+        foreach (RepresentativePatternSupport support in patternSupports)
+        {
+            ArgumentNullException.ThrowIfNull(support);
+
+            labels.Add(support.PatternFamily switch
+            {
+                // The literal GitHub language identity, never translated.
+                ProfilePatternFamily.TechnicalFocus => GetPatternLabel(
+                    support.PatternFamily,
+                    support.PatternKey,
+                    culture),
+                // The concise §8.4.8 Working Style label, never the raw key.
+                ProfilePatternFamily.EngineeringPractice => GetWorkingStyleLabel(
+                    support.PatternKey,
+                    culture),
+                // ProblemArea is Unsupported in V1 and has no active Web
+                // presentation mapping. Failing loudly is the contract; a
+                // fallback label or a silent omission is not.
+                _ => throw new InvalidOperationException(
+                    $"Profile pattern family '{support.PatternFamily}' has no active "
+                    + "Starting Point relationship mapping.")
+            });
+        }
+
+        string joined = JoinMeaningLabels(labels, isTurkish);
+
+        // Singular/plural is grammatical agreement only. No number is
+        // rendered, and the labels themselves are identities the first-read
+        // pattern cards already show.
+        return (labels.Count == 1, isTurkish) switch
+        {
+            (true, true) => $"Bu tekrar eden sonuç için başlangıç noktası: {joined}",
+            (true, false) => $"Starting point for this recurring result: {joined}",
+            (false, true) => $"Bu tekrar eden sonuçlar için başlangıç noktası: {joined}",
+            (false, false) => $"Starting point for these recurring results: {joined}"
+        };
+    }
 
     public string GetRepositoryActionLabel(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish

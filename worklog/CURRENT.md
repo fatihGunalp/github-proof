@@ -1,12 +1,65 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-27 (Session 136)
+**Last Updated:** 2026-08-27 (Session 137)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 136 — Profile First-Read UI/UX Contract — branch
+- **Active Session:** 137 — Profile First-Read UI Implementation — branch
+  `session/137-profile-first-read-ui-implementation`, session base `7038159`
+  (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
+  **PARTIAL — closure accepted by the architecture owner**.
+  Bounded Web presentation implementation of the Session 136 contract; **no
+  Domain, Application, Infrastructure, architecture-contract or runtime
+  configuration change, and no live provider call**. Four slices, all PASS:
+  **(A)** the Starting Point item now renders the recurring pattern →
+  repository relationship (p10 §8.6.1b) from `RepresentativeRepository.
+  PatternSupports` **identities only**, through one narrow localizer method —
+  `SupportingEvidenceReferences`/`SupportingObservationKeys` never reach first
+  read, every support renders in canonical order with no cap or reordering, and
+  the singular/plural copy is grammatical agreement carrying no number;
+  **(B)** G-2 closed — the quiet `Recurring technologies` lead-in moved above
+  the one canonical list and the duplicate trailing `PatternKey` paragraph is
+  gone, so a technical identity appears exactly once; **(C)** G-3 closed by
+  **spacing only** — a stronger border was implemented then reverted in the
+  review pass because it made the L3 Why card outrank the L2 recurring-result
+  cards that §8.8.3 protects, and an **L2 ≥ L3 invariant test** now guards it;
+  **(D)** G-4 closed — the operational observation notes moved below both
+  recurring-result cards, still FIRST READ but subordinate, with the Partial
+  notice untouched. **Outcome 4 moved `PARTIALLY SUPPORTED` → `SUPPORTED NOW`**
+  in `profile-proof-distinctive-outcomes-contract.md`, only after independent
+  verification of the full §8.6.1b delivery; the outcome set stays exactly
+  four, priority stays `SUPPORTING`, moat/acceptance criteria/first-read order
+  unchanged, evidence convergence still NOT SUPPORTED, and the **Starting Point
+  Prioritization Contract Gap stays open** — a relationship is not a ranking.
+  Independent review **PASS WITH FINDINGS** (BLOCKER 0, HIGH 1, MEDIUM 2,
+  LOW 3); **all six closed in a same-session correction pass**, and a second
+  round returned PASS WITH FINDINGS (BLOCKER 0, HIGH 0, MEDIUM 0, LOW 1) whose
+  single LOW was also closed. Build 0 warnings, full suite **2339/2339**.
+  **Architecture-owner human visual review: 880px PASS; 390px PASS for G-1 and
+  G-2 with no horizontal overflow and correct relationship wrapping; G-3
+  PARTIAL on mobile** — the three Starting Point cards push the Why summary
+  roughly two viewport heights below the fold. **No source change was made for
+  it:** the only §8.8.9-authorized lever (per-item spacing) is worth ~60px
+  against a ~1600px offset, and every lever with enough magnitude breaks a
+  locked rule — canonical DOM order, §8.7.6's mobile natural flow, the §8.6.1a
+  bound, §8.6.1b completeness or §8.6.2's collapsed-by-default. **The architecture owner
+  ACCEPTED G-3 mobile PARTIAL as a known presentation gap**: p10 §8.7.6 is not
+  amended in this session, and no mobile nested scroll, carousel, reordered Why,
+  duplicate affordance or other workaround was introduced. **G-1, G-2 and G-4
+  are CLOSED; G-3 stays PARTIAL** (PASS desktop). The remaining gap is
+  **presentation hierarchy only — not correctness, traceability, evidence or
+  Outcome 4 capability**: the Why disclosure is present, collapsed, in canonical
+  order with locked copy on mobile too, and all three Starting Point
+  repositories render complete. **Outcome 4 remains SUPPORTED NOW**; responsive
+  result is **PASS WITH KNOWN MOBILE HIERARCHY GAP**; session lifecycle is
+  **PARTIAL, closure accepted**. **No Milestone B completion is claimed.** The
+  gap is recorded in worklog as the *Mobile First-Read Affordance Hierarchy
+  Gap* and is deliberately **not** registered as a canonical p10 gap — that
+  would be a separate owner decision. `artifacts/` untouched.
+  Detail: [`sessions/2026-08-27-137-profile-first-read-ui-implementation.md`](./sessions/2026-08-27-137-profile-first-read-ui-implementation.md)
+- **Previous Session:** 136 — Profile First-Read UI/UX Contract — branch
   `session/136-profile-first-read-ux-contract`, session base `82569fa`
   (`main`/`origin/main`/`HEAD` verified equal), route Opus / high, **DOCS**.
   Product UX / presentation-contract session; **no Razor, CSS, JavaScript, C#,
@@ -302,10 +355,10 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `82569fa` — `main` == `origin/main` ==
-  `HEAD` verified equal at Session 136 start. Session 134's production-candidate
-  configuration and Session 135's distinctive-outcomes contract are both
-  integrated at that commit; Session 136's own work is not yet integrated.
+- **Last remote-verified `main`:** `7038159` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 137 start. Session 136's first-read
+  information-depth contract is integrated at that commit; Session 137's own
+  work is not yet integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -622,21 +675,27 @@ D-2 budget premise is unchanged.
 `main` as `82569fa`.** It changed no production, domain, application, web, test
 or configuration code; the runtime queue below is unaffected by it.
 
-**Session 136 has now consumed that contract** and produced the Profile
-first-read presentation decision as a bounded p10 extension. It changed no
-production, domain, application, web, test or configuration code either; the
-runtime queue below is unaffected by both sessions.
+**Session 136 produced the Profile first-read presentation decision as a
+bounded p10 extension, and Session 137 implemented it.** Session 137 changed
+Web presentation, Web tests and two docs cross-references only; it touched no
+Domain, Application, Infrastructure, architecture contract or runtime
+configuration, so the runtime queue below is unaffected by all three sessions.
 
 Two independent next steps are now available, and the architecture owner
 chooses the order:
 
-1. **A bounded Profile Web implementation session** that renders the §8.6.1b
-   relationship line in `_ProfileStartingPoint.cshtml` +
-   `ProfileWebPresentationLocalizer` and applies G-2/G-3/G-4. That session is
-   bound by p10 §8.8.9 and is **not** authorized to introduce a new evidence
-   rule, threshold, taxonomy, limitation identity, availability state, count or
-   ranking; those stay with their existing owners.
-2. **The Milestone B runtime path below**, which neither session touched.
+1. **A separately authorized owner decision on the Mobile First-Read Affordance
+   Hierarchy Gap**, if and when it is wanted. The narrowest candidate remains
+   p10 §8.7.6's `returning to natural flow at the single-column breakpoint`
+   sentence: retaining the bounded rail height and its existing internal scroll
+   at mobile would keep all three presented repositories present, complete and
+   reachable while letting the Why affordance rise into the first read. This is
+   **not** queued work — Session 137 is closed as PARTIAL with the gap
+   accepted. Any follow-up Web session stays bound by p10 §8.8.9 and may **not**
+   introduce a new evidence rule, threshold, taxonomy, limitation identity,
+   availability state, count or ranking, nor close any gap p10 holds open.
+2. **The Milestone B runtime path below**, which none of these sessions
+   touched.
 
 ---
 

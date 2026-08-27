@@ -609,6 +609,174 @@ public sealed class ProfileWebPresentationLocalizerTests
             parameter => Assert.Equal("DeveloperPublicEvidenceProfile", parameter.ParameterType.Name));
     }
 
+    // --- Session 137 / p10 8.6.1b Starting Point pattern relationship ---
+
+    [Fact]
+    public void Starting_point_relationship_uses_the_literal_language_identity_in_both_cultures()
+    {
+        IReadOnlyList<RepresentativePatternSupport> supports =
+            [Support(ProfilePatternFamily.TechnicalFocus, "C#")];
+
+        Assert.Equal(
+            "Starting point for this recurring result: C#",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
+        Assert.Equal(
+            "Bu tekrar eden sonuç için başlangıç noktası: C#",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Starting_point_relationship_uses_the_concise_working_style_label_in_both_cultures()
+    {
+        IReadOnlyList<RepresentativePatternSupport> supports =
+        [
+            Support(
+                ProfilePatternFamily.EngineeringPractice,
+                ProfilePatternPromotionPolicy.AutomatedTestingPatternKey)
+        ];
+
+        // The concise §8.4.8 Working Style label, never the raw canonical key.
+        Assert.Equal(
+            "Starting point for this recurring result: Automated testing",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
+        Assert.Equal(
+            "Bu tekrar eden sonuç için başlangıç noktası: Otomatik test kullanımı",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Starting_point_relationship_renders_every_support_in_canonical_order_with_plural_copy()
+    {
+        IReadOnlyList<RepresentativePatternSupport> supports =
+        [
+            Support(ProfilePatternFamily.TechnicalFocus, "C#"),
+            Support(ProfilePatternFamily.TechnicalFocus, "TypeScript"),
+            Support(
+                ProfilePatternFamily.EngineeringPractice,
+                ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey),
+            Support(
+                ProfilePatternFamily.EngineeringPractice,
+                ProfilePatternPromotionPolicy.DocumentationPatternKey)
+        ];
+
+        // Every support appears, in the collection's existing order, joined by
+        // the existing locale-aware rule. No cap, sort, filter or
+        // first-pattern shortcut.
+        Assert.Equal(
+            "Starting point for these recurring results: "
+            + "C#, TypeScript, Automated integration checks, and Documentation",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
+        Assert.Equal(
+            "Bu tekrar eden sonuçlar için başlangıç noktası: "
+            + "C#, TypeScript, Otomatik kontrol süreçleri ve Dokümantasyon",
+            localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
+    }
+
+    [Fact]
+    public void Starting_point_relationship_switches_grammatical_number_without_rendering_a_count()
+    {
+        IReadOnlyList<RepresentativePatternSupport> single =
+            [Support(ProfilePatternFamily.TechnicalFocus, "Go")];
+        IReadOnlyList<RepresentativePatternSupport> multiple =
+        [
+            Support(ProfilePatternFamily.TechnicalFocus, "Go"),
+            Support(ProfilePatternFamily.TechnicalFocus, "Rust")
+        ];
+
+        foreach (string culture in new[] { WebCulture.English, WebCulture.Turkish })
+        {
+            string one = localizer.GetStartingPointPatternRelationship(single, culture);
+            string many = localizer.GetStartingPointPatternRelationship(multiple, culture);
+
+            Assert.NotEqual(one, many);
+
+            // Grammatical agreement only: no digit, ratio, counter or
+            // "2 patterns"-style quantity reaches this first-read surface.
+            Assert.False(one.Any(char.IsDigit), one);
+            Assert.False(many.Any(char.IsDigit), many);
+        }
+    }
+
+    [Fact]
+    public void Starting_point_relationship_fails_loudly_for_problem_area_and_unknown_practice()
+    {
+        // ProblemArea is Unsupported in V1 and has no active Web presentation
+        // mapping: no fallback label, no silent omission.
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetStartingPointPatternRelationship(
+                [Support(ProfilePatternFamily.ProblemArea, "problem-area-key")],
+                WebCulture.English));
+
+        // An unknown EngineeringPractice identity is a contract violation, not
+        // a display-text fallback.
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetStartingPointPatternRelationship(
+                [Support(ProfilePatternFamily.EngineeringPractice, "invented-capability")],
+                WebCulture.English));
+
+        // An empty support collection can only mean broken upstream truth.
+        Assert.Throws<InvalidOperationException>(() =>
+            localizer.GetStartingPointPatternRelationship([], WebCulture.English));
+
+        Assert.Throws<ArgumentNullException>(() =>
+            localizer.GetStartingPointPatternRelationship(null!, WebCulture.English));
+    }
+
+    [Fact]
+    public void Starting_point_relationship_falls_back_to_English_for_an_unsupported_culture()
+    {
+        Assert.Equal(
+            "Starting point for this recurring result: C#",
+            localizer.GetStartingPointPatternRelationship(
+                [Support(ProfilePatternFamily.TechnicalFocus, "C#")],
+                "de-DE"));
+    }
+
+    [Fact]
+    public void Starting_point_relationship_never_claims_ranking_quality_or_capability()
+    {
+        string[] forbidden =
+        [
+            "best", "top", "strongest", "recommended", "featured", "primary",
+            "highest", "quality", "score", "rank", "senior", "junior",
+            "skilled", "expert", "experienced", "capability", "confidence"
+        ];
+
+        IReadOnlyList<RepresentativePatternSupport> supports =
+        [
+            Support(ProfilePatternFamily.TechnicalFocus, "C#"),
+            Support(
+                ProfilePatternFamily.EngineeringPractice,
+                ProfilePatternPromotionPolicy.ReleaseUsagePatternKey)
+        ];
+
+        foreach (string culture in new[] { WebCulture.English, WebCulture.Turkish })
+        {
+            string rendered = localizer
+                .GetStartingPointPatternRelationship(supports, culture)
+                .ToLowerInvariant();
+
+            foreach (string word in forbidden)
+            {
+                Assert.DoesNotContain(word, rendered, StringComparison.Ordinal);
+            }
+        }
+    }
+
+    private static RepresentativePatternSupport Support(
+        ProfilePatternFamily family,
+        string patternKey)
+    {
+        RepeatedProfilePattern pattern = CreatePattern(family, patternKey);
+        ProfileRepositoryReference repository = pattern.IndependentSupportingRepositories[0];
+
+        return new RepresentativePatternSupport(
+            pattern,
+            repository,
+            pattern.SupportingObservations[0].EvidenceReferences
+                .Where(reference => reference.Repository == repository));
+    }
+
     private static ProfileReportSection<PatternReportItem> MeaningSection(
         ProfileReportSectionKey section,
         ProfilePatternFamily family,
