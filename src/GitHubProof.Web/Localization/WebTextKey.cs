@@ -48,5 +48,18 @@ public enum WebTextKey
     ProfileUnsupportedTitle,
     ProfileCompositionFailedTitle,
     AnalyzeSomethingElse,
-    ReportPreviewTitle
+    ReportPreviewTitle,
+
+    // Live analysis progress — stage labels (p10 §8.3.2) and stage-state tokens
+    // (p10 §8.3.3). The label describes the work; the state is a separate token.
+    ProgressRepositoryTargetValidated,
+    ProgressRepositoryPublicDataRead,
+    ProgressRepositoryTracesAnalyzed,
+    ProgressRepositoryProofPrepared,
+    ProgressProfileTargetValidated,
+    ProgressProfilePublicSurfaceRead,
+    ProgressProfileEvidenceExamined,
+    ProgressStatePending,
+    ProgressStateActive,
+    ProgressStateCompleted
 }

@@ -6,7 +6,64 @@ carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 138 — Unified Live Analysis Progress Contract — branch
+- **Active Session:** 139 — Live Analysis Progress Web Implementation — branch
+  `session/139-live-analysis-progress-web-implementation`, session base `3173bb9`
+  (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
+  **PASS WITH FINDINGS — implementation, tests and independent review complete;
+  integration is user-owned**.
+  Implements the Session 138 contract in **`GitHubProof.Web` only** — no Domain,
+  Application, Infrastructure, package, config, appsettings or canonical-docs
+  change, and the synchronous analysis POST is untouched. New
+  `src/GitHubProof.Web/Progress/`: a process-local singleton
+  `AnalysisProgressRegistry` handing out `AnalysisProgressRun` handles that
+  publish **immutable coherent snapshots** — `completed` is always exactly the
+  stages preceding `active`, `active == null` only at the mandatory terminal
+  snapshot, `CompleteCurrentStage()` past terminal throws, cap **64** refuses
+  registration only, TTL **10 min** backstop, every value a constant. New
+  read-only Razor Page **`GET /analysis-progress?run=<token>`**: known →
+  `{known,target,active,completed}`; unknown valid UUID → `{known:false}`;
+  missing/malformed → **HTTP 400, empty body**; every response
+  `Cache-Control: no-store`; no ETag/conditional; GET only; never writes the
+  registry. **`IndexModel`** registers a repository run once the classifier
+  resolves a repository route (never on the profile redirect); **`ProfileModel`**
+  registers a profile run after re-classification and **before** the admission
+  lease; both hold it in a `using` released on every path. Stage-completion
+  publication points: repository 1–3 in `LiveRepositoryReportService`, 4 in
+  `IndexModel` after `Project()`; profile 1 in `ProfileModel` on lease grant, 2
+  in `LiveProfileReportService` on a successful snapshot, 3 in `ProfileModel` on
+  `HasComposedProfile` — **`Partial` reaches stage 3 `COMPLETED`** as terminal
+  success. **Client** (`analysis-progress.js`) rewritten: per-form
+  duplicate-submit/reset kept for every `[data-analysis-form]`, but token
+  generation (`crypto.randomUUID` before a valid submit → hidden
+  `AnalysisProgressToken` field) and polling only for the
+  `[data-analysis-progress]` landing form — the two Profile drill-down forms stay
+  **progress-free** (contract §8, p10 §8.6.5). Constant `setInterval(2000)`,
+  immediate first poll, initial-unknown limit **5**, transport-failure limit
+  **3** (HTTP 400 counts here), pause on `document.hidden` / resume on
+  `visibilitychange`, `pageshow` → reset to `PENDING`; **known-then-lost keeps
+  the last snapshot** and never reverts to indeterminate (§15); no
+  `EventSource`/`WebSocket`/SignalR/streaming. `_GitHubInput.cshtml` renders
+  **both** stage lists server-side (4 Repository + 3 Profile, localized, PENDING,
+  hidden until the server reports kind); the status region narrows to an ordinary
+  stage list plus one live-region child that keeps
+  `role=status`/`aria-live=polite`/`aria-atomic=true` and carries the canonical
+  indeterminate sentence before the first snapshot, the active stage label
+  during, nothing on terminal; the existing indeterminate indicator and
+  reduced-motion are unchanged. **10 new `WebTextKey`s** carry the exact p10
+  §8.3.2–§8.3.3 EN/TR copy (TR labels are the locked verbal nouns).
+  `AnalysisProgressContractTests` loses only its `setInterval`/`fetch(`
+  exclusions (superseded by §10) and keeps the `aria-atomic` guard. Validation:
+  Web **631/631** (+46 new), solution **2385/2385**, build 0 warnings,
+  `git diff --check` clean; live smoke confirmed the endpoint contract and a real
+  run at stage-1-complete / stage-2-active. **Independent review** (forked cold
+  context, Sonnet / high) returned **PASS WITH FINDINGS** (BLOCKER 0, HIGH 0,
+  MEDIUM 0, LOW 1 + 2 NIT); all three closed this session — client streak
+  counters now cross-reset per §13's literal "consecutive", `LastUpdatedUtc`
+  moved to a volatile tick read for the lock-free backstop sweep, and a
+  duplicated test exclusion collapsed — with affected tests + diff check rerun.
+  **No Milestone B completion is claimed.** `artifacts/` untouched.
+  Detail: [`sessions/2026-08-27-139-live-analysis-progress-web-implementation.md`](./sessions/2026-08-27-139-live-analysis-progress-web-implementation.md)
+- **Previous Session:** 138 — Unified Live Analysis Progress Contract — branch
   `session/138-unified-live-analysis-progress-contract`, session base `03df70f`
   (`main`/`origin/main`/`HEAD` verified equal), route Opus / high, **DOCS**.
   Contract/architecture decision session; **no Razor, CSS, JavaScript, C#,
@@ -444,10 +501,11 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `03df70f` — `main` == `origin/main` ==
-  `HEAD` verified equal at Session 138 start. Session 137's first-read UI
-  implementation is integrated at that commit; Session 138's own work is not
-  yet integrated.
+- **Last remote-verified `main`:** `3173bb9` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 139 start. Session 138's live analysis
+  progress **contract** is integrated at that commit; Session 139's Web
+  **implementation** of it is on branch
+  `session/139-live-analysis-progress-web-implementation`, not yet integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -774,26 +832,19 @@ configuration, so the runtime queue below is unaffected by all three sessions.
 production, domain, application, web, test or configuration code, so the runtime
 queue below is unaffected by it too.
 
-Three independent next steps are now available, and the architecture owner
-chooses the order:
+**Session 139 implemented that contract in `GitHubProof.Web` only** —
+implementation, focused tests and independent review are complete (Web 631/631,
+solution 2385/2385, build 0 warnings; review **PASS WITH FINDINGS**, all three
+LOW/NIT closed this session). It changed no Domain, Application, Infrastructure,
+package, config, appsettings or canonical-docs code, and the synchronous analysis
+POST is untouched, so the runtime queue below is unaffected by it too.
+**Immediate next action is user-owned:** review the Session 139 diff and, if
+accepted, commit `feat(web): add truthful live analysis progress` and integrate
+the branch. An authenticated live smoke (`GITHUB_TOKEN` set) would close the one
+recorded gap — full stage progression to the terminal snapshot observed live.
 
-0. **Session 139 — Live Analysis Progress implementation. READY.** Bounded to
-   `GitHubProof.Web` only. It implements exactly what
-   `docs/architecture/live-analysis-progress-runtime-contract.md` and p10
-   §8.3.1–§8.3.6 authorize: the 4 Repository / 3 Profile stage identities in
-   their locked order, `PENDING → ACTIVE → COMPLETED`, the read-only
-   `GET /analysis-progress?run=<token>` Razor Page handler, the ephemeral run
-   registry, the client-generated UUID correlation token, the locked EN/TR copy
-   through `WebPresentationLocalizer`, the narrowed single-sentence live region
-   and the BFCache reset. It **makes no architecture decision** — if something
-   is ambiguous, it stops rather than choosing. It must also update
-   `tests/GitHubProof.Web.Tests/AnalysisProgressContractTests.cs`, where exactly
-   two assertions are superseded: the `setInterval` and `fetch(` exclusions.
-   The `EventSource` and `WebSocket` exclusions must **stay**, and so must
-   `Assert.Contains("aria-atomic=\"true\"", ...)` — it is a file-level
-   substring check that still passes under the new DOM, because p10 §8.3.5
-   keeps all three attributes on the narrowed live region, and it is the only
-   automated guard for that.
+The other independent next steps remain available, and the architecture owner
+chooses the order:
 
 1. **A separately authorized owner decision on the Mobile First-Read Affordance
    Hierarchy Gap**, if and when it is wanted. The narrowest candidate remains

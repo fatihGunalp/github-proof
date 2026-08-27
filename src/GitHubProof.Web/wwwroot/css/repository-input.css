@@ -76,13 +76,82 @@
 
 .analysis-progress {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: var(--space-3);
     color: var(--fg-secondary);
 }
 
 .analysis-progress[hidden] {
+    display: none;
+}
+
+/* Ordinary content, not a live region (p10 §8.3.5). */
+.analysis-progress__stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+    max-width: 28rem;
+}
+
+.analysis-progress__stages[hidden] {
+    display: none;
+}
+
+.analysis-progress__stage {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-small);
+}
+
+.analysis-progress__stage-glyph {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-subtle);
+    border-radius: 50%;
+    color: var(--fg-secondary);
+}
+
+.analysis-progress__stage[data-state="active"] .analysis-progress__stage-glyph {
+    border-color: var(--fg-secondary);
+}
+
+.analysis-progress__stage[data-state="completed"] .analysis-progress__stage-glyph {
+    border-color: var(--fg-secondary);
+}
+
+/* A checkmark is authorized for COMPLETED and only for COMPLETED
+   (p10 §8.3.3). Decorative — the state name itself is exposed as text. */
+.analysis-progress__stage[data-state="completed"] .analysis-progress__stage-glyph::before {
+    content: "\2713";
+}
+
+.analysis-progress__stage-label {
+    flex: 1 1 auto;
+}
+
+.analysis-progress__stage[data-state="pending"] .analysis-progress__stage-label {
+    color: var(--fg-tertiary);
+}
+
+.analysis-progress__stage-state {
+    flex: 0 0 auto;
+    color: var(--fg-tertiary);
+}
+
+/* Exactly one state token renders per stage; the state is never conveyed by
+   colour alone (p10 §8.3.3). */
+.analysis-progress__stage[data-state="pending"] [data-state-token]:not([data-state-token="pending"]),
+.analysis-progress__stage[data-state="active"] [data-state-token]:not([data-state-token="active"]),
+.analysis-progress__stage[data-state="completed"] [data-state-token]:not([data-state-token="completed"]) {
     display: none;
 }
 
@@ -96,7 +165,7 @@
     animation: analysis-progress-spin 0.8s linear infinite;
 }
 
-.analysis-progress__message {
+.analysis-progress__live {
     margin: 0;
     font-size: var(--font-size-small);
 }

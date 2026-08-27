@@ -1,10 +1,38 @@
 @model GitHubInputModel
 
+@*
+    Session 138 live analysis progress (live-analysis-progress-runtime-contract.md,
+    p10 §8.3.1–§8.3.6). Only this landing form carries a correlation token and
+    receives polling; the Profile drill-down forms deliberately stay
+    progress-free (§8, p10 §8.6.5). Both stage lists are rendered here,
+    server-side, fully localized and in PENDING state, and stay hidden until the
+    server reports which one applies — so every string is Web-owned and the
+    transport carries no copy.
+*@
+
+@{
+    (string stage, WebTextKey label)[] repositoryStages =
+    {
+        ("repository-target-validated", WebTextKey.ProgressRepositoryTargetValidated),
+        ("repository-public-data-read", WebTextKey.ProgressRepositoryPublicDataRead),
+        ("repository-traces-analyzed", WebTextKey.ProgressRepositoryTracesAnalyzed),
+        ("repository-proof-prepared", WebTextKey.ProgressRepositoryProofPrepared)
+    };
+
+    (string stage, WebTextKey label)[] profileStages =
+    {
+        ("profile-target-validated", WebTextKey.ProgressProfileTargetValidated),
+        ("profile-public-surface-read", WebTextKey.ProgressProfilePublicSurfaceRead),
+        ("profile-evidence-examined", WebTextKey.ProgressProfileEvidenceExamined)
+    };
+}
+
 <form
     class="repository-input"
     method="post"
     asp-page="/Index"
     data-analysis-form
+    data-analysis-progress
     data-submitting="false"
     aria-busy="false">
 
@@ -52,12 +80,49 @@
     <div
         class="analysis-progress"
         data-analysis-status
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
         hidden>
+
+        @foreach (var (kind, stages) in new[]
+        {
+            ("repository", repositoryStages),
+            ("profile", profileStages)
+        })
+        {
+            <ol
+                class="analysis-progress__stages"
+                data-analysis-stages="@kind"
+                hidden>
+                @foreach (var (stage, label) in stages)
+                {
+                    <li
+                        class="analysis-progress__stage"
+                        data-stage="@stage"
+                        data-state="pending">
+                        <span class="analysis-progress__stage-glyph" aria-hidden="true"></span>
+                        <span class="analysis-progress__stage-label">@Text.Get(label)</span>
+                        <span class="analysis-progress__stage-state">
+                            <span data-state-token="pending">@Text.Get(WebTextKey.ProgressStatePending)</span>
+                            <span data-state-token="active">@Text.Get(WebTextKey.ProgressStateActive)</span>
+                            <span data-state-token="completed">@Text.Get(WebTextKey.ProgressStateCompleted)</span>
+                        </span>
+                    </li>
+                }
+            </ol>
+        }
+
         <span class="analysis-progress__indicator" aria-hidden="true"></span>
-        <p class="analysis-progress__message">
+
+        @* The one polite, atomic live region. It carries exactly one sentence:
+           the canonical indeterminate sentence until the first server snapshot,
+           then the active stage label (p10 §8.3.5–§8.3.6). Narrowed to this
+           child rather than removed — it keeps the three attributes it has
+           today. *@
+        <p
+            class="analysis-progress__live"
+            data-analysis-live
+            role="status"
+            aria-live="polite"
+            aria-atomic="true">
             @Text.Get(WebTextKey.ProcessingRequest)
         </p>
     </div>

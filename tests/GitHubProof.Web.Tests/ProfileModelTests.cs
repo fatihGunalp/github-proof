@@ -14,6 +14,7 @@ using GitHubProof.Web.Localization;
 using GitHubProof.Web.Pages;
 using GitHubProof.Web.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using GitHubProof.Web.Progress;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
@@ -440,7 +441,8 @@ public sealed class ProfileModelTests
                 deadlineFactory: new ExpiredDeadlineFactory()),
             Version,
             new WebPresentationLocalizer(),
-            DisabledProfileExecutionAdmissionGuard.Instance)
+            DisabledProfileExecutionAdmissionGuard.Instance,
+            new AnalysisProgressRegistry(TimeProvider.System))
         {
             PageContext = new PageContext
             {
@@ -474,7 +476,8 @@ public sealed class ProfileModelTests
                 deadlineFactory: deadlineFactory),
             Version,
             new WebPresentationLocalizer(),
-            DisabledProfileExecutionAdmissionGuard.Instance)
+            DisabledProfileExecutionAdmissionGuard.Instance,
+            new AnalysisProgressRegistry(TimeProvider.System))
         {
             PageContext = CreatePageContext(),
             GitHubTarget = Identity
@@ -586,7 +589,8 @@ public sealed class ProfileModelTests
                 CreateRealPipeline()),
             Version,
             new WebPresentationLocalizer(),
-            DisabledProfileExecutionAdmissionGuard.Instance)
+            DisabledProfileExecutionAdmissionGuard.Instance,
+            new AnalysisProgressRegistry(TimeProvider.System))
         {
             PageContext = CreatePageContext(),
             GitHubTarget = Identity
@@ -679,6 +683,116 @@ public sealed class ProfileModelTests
         Assert.DoesNotContain("temporarily busy", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }
 
+    // live-analysis-progress-runtime-contract.md §5, §7.1, §8, §9, §9.1.
+    [Fact]
+    public async Task OnPostAsync_WithAProfileTargetAndToken_RunsThreeStagesAndReleasesTheRun()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        Guid token = Guid.NewGuid();
+        AnalysisProgressSnapshot? observedDuringCollection = null;
+
+        ProgressObservingProfileCollector collector = new(
+            CreateSuccessfulSnapshotResult(),
+            () => registry.TryGetSnapshot(token, out AnalysisProgressSnapshot snapshot)
+                ? observedDuringCollection = snapshot
+                : null);
+
+        ProfileModel model = CreateModelWithRegistry(collector, registry);
+        model.GitHubTarget = Identity;
+        model.AnalysisProgressToken = token.ToString("D");
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        // Stage 1 completes on the lease being granted, before the provider
+        // phase (§5), so a poll during CollectAsync sees stage 2 ACTIVE.
+        Assert.NotNull(observedDuringCollection);
+        Assert.Equal(
+            "profile-public-surface-read",
+            observedDuringCollection!.ActiveStage);
+        Assert.Equal(
+            new[] { "profile-target-validated" },
+            observedDuringCollection.CompletedStages);
+
+        Assert.True(model.HasComposedProfile);
+        Assert.False(registry.TryGetSnapshot(token, out _));
+    }
+
+    [Fact]
+    public async Task LiveProfileReportService_WithAPartialProfile_CompletesStageTwoAndLeavesStageThreeActiveForTheTerminalCommit()
+    {
+        // Partial is a terminal success (§9.1): the service advances a partial
+        // run exactly as a full one — stage 2 completed on the snapshot, stage 3
+        // active — and ProfileModel then commits stage 3 as the terminal
+        // snapshot because HasComposedProfile is true.
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        AnalysisProgressRun run = registry.TryBegin(
+            Guid.NewGuid(),
+            AnalysisProgressTargetKind.Profile)!;
+        run.CompleteCurrentStage(); // stage 1, as ProfileModel does on lease grant
+
+        FakeProfileSnapshotCollector collector =
+            new(CreateSuccessfulSnapshotResult(isRepositoryManifestComplete: false));
+        LiveProfileReportService service = new(collector, CreateRealPipeline());
+
+        LiveProfileAnalysisResult result = await service.AnalyzeAsync(
+            Identity,
+            Version,
+            CancellationToken.None,
+            run);
+
+        Assert.True(result.IsSuccessful);
+        Assert.Equal(
+            ProfileCompositionStatus.Partial,
+            result.PipelineResult!.Status);
+        Assert.Equal("profile-evidence-examined", run.CurrentSnapshot.ActiveStage);
+        Assert.Equal(
+            new[] { "profile-target-validated", "profile-public-surface-read" },
+            run.CurrentSnapshot.CompletedStages);
+
+        run.CompleteCurrentStage();
+        Assert.Null(run.CurrentSnapshot.ActiveStage);
+        Assert.Equal(3, run.CurrentSnapshot.CompletedStages.Count);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenAdmissionRejects_ReleasesTheRunWithoutAdvancingStageOne()
+    {
+        ProfileExecutionAdmissionGuard guard = CreateAdmissionGuard(
+            new ProfileAdmissionOptions
+            {
+                GlobalConcurrency = 1,
+                SameProfileConcurrency = 1
+            });
+        using ProfileAdmissionLease active = guard.TryAcquire("hubot", null);
+
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        Guid token = Guid.NewGuid();
+        ThrowingProfileSnapshotCollector collector = new();
+        ProfileModel model = CreateModelWithRegistry(collector, registry, guard);
+        model.PageContext = CreatePageContext();
+        model.GitHubTarget = Identity;
+        model.AnalysisProgressToken = token.ToString("D");
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(StatusCodes.Status503ServiceUnavailable, model.Response.StatusCode);
+        Assert.False(registry.TryGetSnapshot(token, out _));
+    }
+
+    [Fact]
+    public async Task OnPostAsync_ForANonProfileShape_RegistersNothing()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        ThrowingProfileSnapshotCollector collector = new();
+        ProfileModel model = CreateModelWithRegistry(collector, registry);
+        model.GitHubTarget = "https://github.com/owner/repository";
+        model.AnalysisProgressToken = Guid.NewGuid().ToString("D");
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(0, registry.Count);
+    }
+
     private static ProfileModel CreateModel(
         IGitHubProfileSnapshotCollector collector,
         IProfileExecutionAdmissionGuard? admissionGuard = null) =>
@@ -686,7 +800,19 @@ public sealed class ProfileModelTests
             new LiveProfileReportService(collector, CreateRealPipeline()),
             Version,
             new WebPresentationLocalizer(),
-            admissionGuard ?? DisabledProfileExecutionAdmissionGuard.Instance);
+            admissionGuard ?? DisabledProfileExecutionAdmissionGuard.Instance,
+            new AnalysisProgressRegistry(TimeProvider.System));
+
+    private static ProfileModel CreateModelWithRegistry(
+        IGitHubProfileSnapshotCollector collector,
+        AnalysisProgressRegistry registry,
+        IProfileExecutionAdmissionGuard? admissionGuard = null) =>
+        new(
+            new LiveProfileReportService(collector, CreateRealPipeline()),
+            Version,
+            new WebPresentationLocalizer(),
+            admissionGuard ?? DisabledProfileExecutionAdmissionGuard.Instance,
+            registry);
 
     private static ProfileExecutionAdmissionGuard CreateAdmissionGuard(
         ProfileAdmissionOptions options) =>
@@ -757,6 +883,24 @@ public sealed class ProfileModelTests
 
             progress?.ResolveProfileAvailability(result.ProfileAvailability);
 
+            return Task.FromResult(result);
+        }
+    }
+
+    // Runs `observe` once, inside CollectAsync, so a test can inspect the live
+    // progress snapshot at the exact point the provider phase is executing.
+    private sealed class ProgressObservingProfileCollector(
+        GitHubProfileSnapshotResult result,
+        Func<AnalysisProgressSnapshot?> observe)
+        : IGitHubProfileSnapshotCollector
+    {
+        public Task<GitHubProfileSnapshotResult> CollectAsync(
+            string profile,
+            CancellationToken cancellationToken = default,
+            GitHubProfileSnapshotProgress? progress = null)
+        {
+            observe();
+            progress?.ResolveProfileAvailability(result.ProfileAvailability);
             return Task.FromResult(result);
         }
     }

@@ -7,6 +7,7 @@ using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Localization;
 using GitHubProof.Web.Profile;
+using GitHubProof.Web.Progress;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,12 @@ builder.Services.AddWebExperienceLocalization();
 
 builder.Services.AddSingleton<TimeProvider>(
     TimeProvider.System);
+
+// Process-local, ephemeral live analysis progress registry
+// (docs/architecture/live-analysis-progress-runtime-contract.md §12). Singleton
+// by contract: one registry per process, not persisted, not shared between
+// instances. Registry pressure degrades only the progress enhancement.
+builder.Services.AddSingleton<AnalysisProgressRegistry>();
 
 builder.Services.AddSingleton<AnalysisVersion>(
     // Session 099 / Session 098 contract: AnalyzerVersion owns snapshot

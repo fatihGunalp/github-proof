@@ -9,6 +9,7 @@ using GitHubProof.Web.Entry;
 using GitHubProof.Web.Localization;
 using GitHubProof.Web.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using GitHubProof.Web.Progress;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Globalization;
@@ -35,12 +36,14 @@ public sealed class ProfileModel : PageModel
     private readonly AnalysisVersion analysisVersion;
     private readonly WebPresentationLocalizer text;
     private readonly IProfileExecutionAdmissionGuard admissionGuard;
+    private readonly AnalysisProgressRegistry analysisProgress;
 
     public ProfileModel(
         LiveProfileReportService profileReportService,
         AnalysisVersion analysisVersion,
         WebPresentationLocalizer text,
-        IProfileExecutionAdmissionGuard admissionGuard)
+        IProfileExecutionAdmissionGuard admissionGuard,
+        AnalysisProgressRegistry analysisProgress)
     {
         this.profileReportService = profileReportService
             ?? throw new ArgumentNullException(nameof(profileReportService));
@@ -50,12 +53,19 @@ public sealed class ProfileModel : PageModel
             ?? throw new ArgumentNullException(nameof(text));
         this.admissionGuard = admissionGuard
             ?? throw new ArgumentNullException(nameof(admissionGuard));
+        this.analysisProgress = analysisProgress
+            ?? throw new ArgumentNullException(nameof(analysisProgress));
     }
 
     // Re-posted by the landing's preserve-method redirect, under the same
     // field name the unified entry uses.
     [BindProperty]
     public string GitHubTarget { get; set; } = string.Empty;
+
+    // The client-generated correlation token, re-posted from the landing form
+    // through the 307 hop (live-analysis-progress-runtime-contract.md §8).
+    [BindProperty]
+    public string? AnalysisProgressToken { get; set; }
 
     public string? Identity { get; private set; }
 
@@ -113,6 +123,15 @@ public sealed class ProfileModel : PageModel
 
         Identity = route.Value;
 
+        // Registration happens once the value is re-classified as a profile and
+        // BEFORE the admission lease, so stage 1 can complete on the lease being
+        // granted (§8). A null handle simply disables progress. The `using`
+        // releases the entry on every path, including admission rejection,
+        // thrown faults and cancellation (§9).
+        using AnalysisProgressRun? progress = analysisProgress.TryBegin(
+            AnalysisProgressToken,
+            AnalysisProgressTargetKind.Profile);
+
         // The canonical parser owns normalization. Its login is used only as
         // the operational same-profile key; the raw accepted identity still
         // travels to the collector as before.
@@ -127,10 +146,16 @@ public sealed class ProfileModel : PageModel
             return Page();
         }
 
+        // Stage 1 `profile-target-validated`: re-classified as a profile,
+        // GitHubProfileHandle.Parse accepted it, and the admission lease was
+        // granted (§5).
+        progress?.CompleteCurrentStage();
+
         LiveProfileAnalysisResult result = await profileReportService.AnalyzeAsync(
             Identity,
             analysisVersion,
-            cancellationToken);
+            cancellationToken,
+            progress);
 
         if (!result.IsSuccessful)
         {
@@ -165,6 +190,16 @@ public sealed class ProfileModel : PageModel
                 "A successful live profile result must contain a pipeline result.");
 
         ApplyPipelineResult(pipelineResult);
+
+        // Stage 3 `profile-evidence-examined`: ProfilePipeline.RunAsync has
+        // returned a composed result (§5). A `Partial` composition is a
+        // terminal success — HasComposedProfile is true — so stage 3 reaches
+        // COMPLETED normally (§9.1). This publishes the mandatory terminal
+        // snapshot before the `using` releases the entry.
+        if (HasComposedProfile)
+        {
+            progress?.CompleteCurrentStage();
+        }
 
         return Page();
     }

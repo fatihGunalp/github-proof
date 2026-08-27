@@ -51,7 +51,17 @@ public sealed class WebPresentationLocalizer
             [WebTextKey.ProfileUnsupportedTitle] = "This profile is not supported",
             [WebTextKey.ProfileCompositionFailedTitle] = "The profile view could not be completed",
             [WebTextKey.AnalyzeSomethingElse] = "Analyze something else",
-            [WebTextKey.ReportPreviewTitle] = "Repository Report Preview"
+            [WebTextKey.ReportPreviewTitle] = "Repository Report Preview",
+            [WebTextKey.ProgressRepositoryTargetValidated] = "Validating the GitHub target",
+            [WebTextKey.ProgressRepositoryPublicDataRead] = "Reading public GitHub data",
+            [WebTextKey.ProgressRepositoryTracesAnalyzed] = "Analyzing traces",
+            [WebTextKey.ProgressRepositoryProofPrepared] = "Preparing the Repository Proof",
+            [WebTextKey.ProgressProfileTargetValidated] = "Validating the GitHub profile",
+            [WebTextKey.ProgressProfilePublicSurfaceRead] = "Reading the public repositories",
+            [WebTextKey.ProgressProfileEvidenceExamined] = "Examining repository evidence and recurring traces",
+            [WebTextKey.ProgressStatePending] = "Pending",
+            [WebTextKey.ProgressStateActive] = "In progress",
+            [WebTextKey.ProgressStateCompleted] = "Completed"
         };
 
     private static readonly IReadOnlyDictionary<WebTextKey, string> Turkish =
@@ -103,7 +113,17 @@ public sealed class WebPresentationLocalizer
             [WebTextKey.ProfileUnsupportedTitle] = "Bu profil desteklenmiyor",
             [WebTextKey.ProfileCompositionFailedTitle] = "Profil görünümü tamamlanamadı",
             [WebTextKey.AnalyzeSomethingElse] = "Başka bir GitHub hedefini analiz et",
-            [WebTextKey.ReportPreviewTitle] = "Repository Raporu Önizlemesi"
+            [WebTextKey.ReportPreviewTitle] = "Repository Raporu Önizlemesi",
+            [WebTextKey.ProgressRepositoryTargetValidated] = "GitHub hedefinin doğrulanması",
+            [WebTextKey.ProgressRepositoryPublicDataRead] = "Herkese açık GitHub verilerinin okunması",
+            [WebTextKey.ProgressRepositoryTracesAnalyzed] = "İzlerin analiz edilmesi",
+            [WebTextKey.ProgressRepositoryProofPrepared] = "Repository Proof'un hazırlanması",
+            [WebTextKey.ProgressProfileTargetValidated] = "GitHub profilinin doğrulanması",
+            [WebTextKey.ProgressProfilePublicSurfaceRead] = "Herkese açık repository'lerin okunması",
+            [WebTextKey.ProgressProfileEvidenceExamined] = "Repository kanıtlarının ve tekrar eden izlerin incelenmesi",
+            [WebTextKey.ProgressStatePending] = "Bekliyor",
+            [WebTextKey.ProgressStateActive] = "Sürüyor",
+            [WebTextKey.ProgressStateCompleted] = "Tamamlandı"
         };
 
     public string Culture =>

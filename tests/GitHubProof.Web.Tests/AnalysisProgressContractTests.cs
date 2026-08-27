@@ -34,10 +34,16 @@ public sealed class AnalysisProgressContractTests
         Assert.DoesNotContain("target.disabled", content, StringComparison.Ordinal);
         Assert.DoesNotContain("target.value =", content, StringComparison.Ordinal);
         Assert.DoesNotContain("removeAttribute(\"name\")", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("setInterval", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("fetch(", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("EventSource", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("WebSocket", content, StringComparison.Ordinal);
+
+        // Session 139 supersedes the pre-138 `setInterval` and `fetch(`
+        // exclusions: constant-interval polling of the read-only JSON endpoint
+        // is exactly the selected transport
+        // (live-analysis-progress-runtime-contract.md §10). The streaming
+        // transports stay prohibited (§17).
+        Assert.DoesNotContain("EventSource", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("WebSocket", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("text/event-stream", content, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("signalr", content, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

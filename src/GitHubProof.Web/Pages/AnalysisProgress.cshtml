@@ -1,0 +1,9 @@
+@page "/analysis-progress"
+@model GitHubProof.Web.Pages.AnalysisProgressModel
+@*
+    Read-only observation of an in-flight analysis run
+    (live-analysis-progress-runtime-contract.md §10.4). The GET handler writes
+    the entire response — a small JSON body, or HTTP 400 with no body for a
+    missing/malformed `run` value — so this view template is intentionally
+    empty and is never rendered.
+*@

@@ -4,6 +4,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Domain.Profile.Models;
 using GitHubProof.Infrastructure.GitHub.Profile;
 using GitHubProof.Web.Profile.Runtime;
+using GitHubProof.Web.Progress;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace GitHubProof.Web.Profile;
@@ -49,10 +50,18 @@ public sealed class LiveProfileReportService
     // and never part of LiveProfileAnalysisResult.
     public ProfileExecutionTelemetry? LastExecutionTelemetry { get; private set; }
 
+    // `analysisProgress`, when supplied by ProfileModel, is advanced once here —
+    // stage 2 `profile-public-surface-read`, on a successful snapshot
+    // (live-analysis-progress-runtime-contract.md §5). Stage 1 (lease granted)
+    // and stage 3 / terminal (composed result) are ProfileModel's. A null
+    // handle leaves this method's behavior, result and failure delivery
+    // untouched. It is unrelated to the internal GitHubProfileSnapshotProgress
+    // carrier below, which owns availability-vs-cancellation ordering.
     public async Task<LiveProfileAnalysisResult> AnalyzeAsync(
         string profileIdentity,
         AnalysisVersion version,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        AnalysisProgressRun? analysisProgress = null)
     {
         ArgumentNullException.ThrowIfNull(version);
 
@@ -167,6 +176,12 @@ public sealed class LiveProfileReportService
                     progress.ProfileAvailability,
                     cancellationToken);
             }
+
+            // Stage 2 `profile-public-surface-read`: CollectAsync has returned a
+            // successful snapshot — profile metadata and the public repository
+            // manifest (§5). The deadline checks above own every earlier exit,
+            // so this point is only reached on the success path.
+            analysisProgress?.CompleteCurrentStage();
 
             telemetry.RecordRepositoriesDiscovered(
                 snapshot.Repositories.Repositories.Count);

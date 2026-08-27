@@ -5,6 +5,7 @@ using GitHubProof.Domain.Analysis.ValueObjects;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Entry;
 using GitHubProof.Web.Localization;
+using GitHubProof.Web.Progress;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,11 +16,13 @@ public sealed class IndexModel : PageModel
     private readonly LiveRepositoryReportService reportService;
     private readonly AnalysisVersion analysisVersion;
     private readonly WebPresentationLocalizer text;
+    private readonly AnalysisProgressRegistry analysisProgress;
 
     public IndexModel(
         LiveRepositoryReportService reportService,
         AnalysisVersion analysisVersion,
-        WebPresentationLocalizer text)
+        WebPresentationLocalizer text,
+        AnalysisProgressRegistry analysisProgress)
     {
         this.reportService = reportService
             ?? throw new ArgumentNullException(nameof(reportService));
@@ -27,10 +30,19 @@ public sealed class IndexModel : PageModel
             ?? throw new ArgumentNullException(nameof(analysisVersion));
         this.text = text
             ?? throw new ArgumentNullException(nameof(text));
+        this.analysisProgress = analysisProgress
+            ?? throw new ArgumentNullException(nameof(analysisProgress));
     }
 
     [BindProperty]
     public string GitHubTarget { get; set; } = string.Empty;
+
+    // The client-generated correlation token (crypto.randomUUID) for live
+    // progress, carried as a hidden field on the landing form only. Never an
+    // analysis identifier; never reaches Domain, Application or Infrastructure
+    // (live-analysis-progress-runtime-contract.md §8).
+    [BindProperty]
+    public string? AnalysisProgressToken { get; set; }
 
     public RepositoryReport? Report { get; private set; }
 
@@ -58,17 +70,29 @@ public sealed class IndexModel : PageModel
             // Preserve-method (307) so the identity travels in the re-posted
             // form body and profile analysis stays a POST: a GET of /profile
             // — refresh, back, prefetch, crawler, link preview — must never
-            // start a live collection.
+            // start a live collection. The progress token, if any, travels in
+            // that same re-posted body; ProfileModel — never this model —
+            // registers the profile run (§8).
             return RedirectToPagePreserveMethod("/Profile");
         }
 
+        // Registration happens once the classifier has resolved a repository
+        // route — the earliest point the flow is committed to analyzing (§8).
+        // A null handle (no token, malformed token, duplicate, or cap
+        // exhausted) simply disables progress; the analysis is untouched.
+        using AnalysisProgressRun? progress = analysisProgress.TryBegin(
+            AnalysisProgressToken,
+            AnalysisProgressTargetKind.Repository);
+
         return await AnalyzeRepositoryAsync(
             route.Value,
+            progress,
             cancellationToken);
     }
 
     private async Task<IActionResult> AnalyzeRepositoryAsync(
         string repositoryUrl,
+        AnalysisProgressRun? progress,
         CancellationToken cancellationToken)
     {
         LiveRepositoryAnalysisResult result;
@@ -79,7 +103,8 @@ public sealed class IndexModel : PageModel
                 repositoryUrl,
                 analysisVersion,
                 Guid.NewGuid(),
-                cancellationToken);
+                cancellationToken,
+                progress);
         }
         catch (ArgumentException exception)
             when (exception.ParamName is "repositoryUrl" or "value")
@@ -105,6 +130,12 @@ public sealed class IndexModel : PageModel
         Report = reportService.Project(
             analysis,
             locale: WebCulture.Resolve(PageContext?.HttpContext));
+
+        // Stage 4 `repository-proof-prepared`: the projector has returned. This
+        // publishes the mandatory coherent terminal snapshot — every stage
+        // completed, no active stage (§7.1) — before the `using` releases the
+        // entry.
+        progress?.CompleteCurrentStage();
 
         return Page();
     }

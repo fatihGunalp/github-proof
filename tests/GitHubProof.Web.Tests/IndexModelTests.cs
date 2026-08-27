@@ -7,6 +7,7 @@ using GitHubProof.Infrastructure.GitHub;
 using GitHubProof.Web.Analysis;
 using GitHubProof.Web.Localization;
 using GitHubProof.Web.Pages;
+using GitHubProof.Web.Progress;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
@@ -229,7 +230,8 @@ public sealed class IndexModelTests
     }
 
     private static IndexModel CreateModel(
-        IGitHubRepositorySnapshotCollector collector)
+        IGitHubRepositorySnapshotCollector collector,
+        AnalysisProgressRegistry? analysisProgress = null)
     {
         LiveRepositoryReportService service =
             new(
@@ -242,7 +244,117 @@ public sealed class IndexModelTests
         return new IndexModel(
             service,
             Version,
-            new WebPresentationLocalizer());
+            new WebPresentationLocalizer(),
+            analysisProgress ?? new AnalysisProgressRegistry(TimeProvider.System));
+    }
+
+    // live-analysis-progress-runtime-contract.md §4, §7.1, §8, §9.
+    [Fact]
+    public async Task OnPostAsync_WithARepositoryTargetAndToken_RegistersARunObservableMidFlightThenReleasesIt()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        Guid token = Guid.NewGuid();
+        AnalysisProgressSnapshot? observedDuringCollection = null;
+
+        ProgressObservingCollector collector = new(
+            CreateSuccessfulSnapshotResult(),
+            () => registry.TryGetSnapshot(token, out AnalysisProgressSnapshot snapshot)
+                ? observedDuringCollection = snapshot
+                : null);
+
+        IndexModel model = CreateModel(collector, registry);
+        model.GitHubTarget = RepositoryUrl;
+        model.AnalysisProgressToken = token.ToString("D");
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        // Stage 1 completed right after Parse, before the provider phase, so a
+        // poll during CollectAsync sees stage 2 ACTIVE (§4).
+        Assert.NotNull(observedDuringCollection);
+        Assert.Equal(
+            "repository-public-data-read",
+            observedDuringCollection!.ActiveStage);
+        Assert.Equal(
+            new[] { "repository-target-validated" },
+            observedDuringCollection.CompletedStages);
+
+        // Released on completion (§9): a later poll is `known:false`.
+        Assert.False(registry.TryGetSnapshot(token, out _));
+        Assert.NotNull(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithNoToken_RegistersNothing()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        FakeSnapshotCollector collector = new(CreateSuccessfulSnapshotResult());
+        IndexModel model = CreateModel(collector, registry);
+        model.GitHubTarget = RepositoryUrl;
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(0, registry.Count);
+        Assert.NotNull(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithAMalformedToken_RegistersNothingAndStillAnalyzes()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        FakeSnapshotCollector collector = new(CreateSuccessfulSnapshotResult());
+        IndexModel model = CreateModel(collector, registry);
+        model.GitHubTarget = RepositoryUrl;
+        model.AnalysisProgressToken = "not-a-uuid";
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal(0, registry.Count);
+        Assert.NotNull(model.Report);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WithAProfileShapeAndToken_DoesNotRegisterARepositoryRun()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        FakeSnapshotCollector collector = new(CreateSuccessfulSnapshotResult());
+        IndexModel model = CreateModel(collector, registry);
+        model.GitHubTarget = "octocat";
+        model.AnalysisProgressToken = Guid.NewGuid().ToString("D");
+
+        object action = await model.OnPostAsync(CancellationToken.None);
+
+        Assert.IsType<RedirectToPageResult>(action);
+        // ProfileModel — never IndexModel — registers the profile run (§8).
+        Assert.Equal(0, registry.Count);
+    }
+
+    [Fact]
+    public async Task OnPostAsync_WhenRepositoryCollectionFails_ReleasesTheRunWithoutAdvancingPastStageTwo()
+    {
+        AnalysisProgressRegistry registry = new(TimeProvider.System);
+        Guid token = Guid.NewGuid();
+        AnalysisProgressSnapshot? observed = null;
+
+        ProgressObservingCollector collector = new(
+            new GitHubRepositorySnapshotResult(
+                snapshot: null,
+                DataAvailability.Unavailable(
+                    "metadata",
+                    DataAvailabilityStatus.RateLimited,
+                    "GitHub API rate limit.")),
+            () => registry.TryGetSnapshot(token, out AnalysisProgressSnapshot snapshot)
+                ? observed = snapshot
+                : null);
+
+        IndexModel model = CreateModel(collector, registry);
+        model.GitHubTarget = RepositoryUrl;
+        model.AnalysisProgressToken = token.ToString("D");
+
+        await model.OnPostAsync(CancellationToken.None);
+
+        Assert.Equal("repository-public-data-read", observed!.ActiveStage);
+        Assert.False(registry.TryGetSnapshot(token, out _));
+        Assert.NotNull(model.ErrorMessage);
     }
 
     private static GitHubRepositorySnapshotResult
@@ -306,5 +418,21 @@ public sealed class IndexModelTests
     {
         public override DateTimeOffset GetUtcNow() =>
             utcNow;
+    }
+
+    // Runs `observe` once, inside CollectAsync, so a test can inspect the live
+    // progress snapshot at the exact point the provider phase is executing.
+    private sealed class ProgressObservingCollector(
+        GitHubRepositorySnapshotResult result,
+        Func<AnalysisProgressSnapshot?> observe)
+        : IGitHubRepositorySnapshotCollector
+    {
+        public Task<GitHubRepositorySnapshotResult> CollectAsync(
+            string repositoryUrl,
+            CancellationToken cancellationToken = default)
+        {
+            observe();
+            return Task.FromResult(result);
+        }
     }
 }
