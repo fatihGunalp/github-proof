@@ -557,17 +557,193 @@ neleri içerir` may list:
 | Analyzing traces | İzler analiz ediliyor |
 | Preparing the view | Görünüm hazırlanıyor |
 
-These lines describe the general analysis, not individually tracked runtime
-states. They never receive completed/active/pending labels, progress position,
-percentage, ETA or checkmarks without a future telemetry contract that proves
-those states. No SSE, SignalR, polling, streaming response or new backend
-progress telemetry is introduced. Existing `ProfileExecutionTelemetry` is
-completion/observation telemetry, not a live UI progress source.
+This indeterminate state stays **canonical**. It is what the visitor sees
+whenever live stage state is unavailable for any reason, and it needs no error
+surface of its own when that happens.
 
-The form/container exposes `aria-busy`; visible copy uses a polite atomic
-`role=status` live region; duplicate submit is blocked without disabling
-`GitHubTarget` out of form serialization; BFCache/back restoration clears
-stale state; and motion respects `prefers-reduced-motion`.
+The form/container exposes `aria-busy`; duplicate submit is blocked without
+disabling `GitHubTarget` out of form serialization; BFCache/back restoration
+clears stale state; and motion respects `prefers-reduced-motion`.
+
+### 8.3.1 Session 138 amendment — live stage state
+
+Before Session 138 this section additionally read that the analysis-description
+lines "describe the general analysis, not individually tracked runtime states",
+that they "never receive completed/active/pending labels ... without a future
+telemetry contract that proves those states", and that no SSE, SignalR,
+polling, streaming response or new backend progress telemetry was introduced.
+
+Session 138 is that contract. The runtime semantics — run identity, server
+state, transport, request lifecycle, terminal delivery, refresh/reconnect,
+security and update policy — are owned by
+`docs/architecture/live-analysis-progress-runtime-contract.md`. This section
+keeps ownership of the language and the visible shape only, and adds no runtime
+semantics of its own.
+
+Two conditions from the original prohibition survive unchanged and are
+strengthened here:
+
+- **A stage may carry a completed/active/pending state only if that state comes
+  from the server.** The client never advances, times, interpolates or animates
+  a stage it has not been told is in that state.
+- **`ProfileExecutionTelemetry` remains completion/observation telemetry, not a
+  live UI progress source.** Its counters may not be rendered, transported or
+  reworded into user-facing progress.
+
+The neutral `What this analysis includes` explanation above remains available
+unchanged as a *description*. It is a separate thing from the stage list below
+and it never acquires stage state.
+
+The two are **mutually exclusive in one view**: three of its **English** lines
+are also stage labels (§8.3.2), so rendering both would show the same sentence
+twice, once with state and once without. The Turkish columns no longer coincide
+— the stage labels are verbal nouns, the description lines present-continuous
+(§8.3.2) — but the rule is the same in both languages, because two lists
+describing the same phases is duplication regardless of wording. When the stage
+list renders, the description list does not.
+
+### 8.3.2 Locked stage copy
+
+The stage identities and their order are the runtime contract's §4 and §5. The
+copy for each is locked here. The label describes the work; the **state** is
+carried by the state token (§8.3.3), never by the label, so one label serves all
+three states.
+
+Repository Proof — four stages, in order:
+
+| Stage identity | English | Turkish |
+|---|---|---|
+| `repository-target-validated` | Validating the GitHub target | GitHub hedefinin doğrulanması |
+| `repository-public-data-read` | Reading public GitHub data | Herkese açık GitHub verilerinin okunması |
+| `repository-traces-analyzed` | Analyzing traces | İzlerin analiz edilmesi |
+| `repository-proof-prepared` | Preparing the Repository Proof | Repository Proof'un hazırlanması |
+
+Profile Proof — three stages, in order:
+
+| Stage identity | English | Turkish |
+|---|---|---|
+| `profile-target-validated` | Validating the GitHub profile | GitHub profilinin doğrulanması |
+| `profile-public-surface-read` | Reading the public repositories | Herkese açık repository'lerin okunması |
+| `profile-evidence-examined` | Examining repository evidence and recurring traces | Repository kanıtlarının ve tekrar eden izlerin incelenmesi |
+
+The Turkish labels are deliberately **verbal nouns** (`doğrulanması`), not the
+present-continuous `doğrulanıyor` used by the description list above. A stage
+label must serve all three states, and Turkish `-iyor` is a finite verb: pairing
+it with a state token would produce `GitHub hedefi doğrulanıyor · Tamamlandı` —
+"is being validated · Completed" — which contradicts itself. English gerund
+phrases carry no such tense, so the EN column needs no equivalent change. This
+is why the TR stage labels differ from the TR description lines even where the
+EN ones coincide; the two lists never render together anyway (§8.3.1).
+
+`Trace` and `Evidence` are used in their §7 Core Concept sense. No stage label
+may name an analyzer, an evaluator, a rule version, a policy, a signal key, an
+evidence key, a collector or any other internal.
+
+`profile-evidence-examined` describes one bounded phase in which both repository
+evidence and recurring traces are worked on. It is deliberately **not** worded
+as two sequential claims, and it never says traces were *found*: a valid run may
+promote no pattern at all, and the wording stays true for a `Supported + empty`
+outcome.
+
+Every stage label carries only EN/TR copy from `WebPresentationLocalizer`
+(§8.2). No progress string may originate in JavaScript or in a transport
+payload.
+
+### 8.3.3 Stage state presentation
+
+Exactly three states, matching the runtime contract's §7 state machine:
+
+| State | English | Turkish |
+|---|---|---|
+| `PENDING` | Pending | Bekliyor |
+| `ACTIVE` | In progress | Sürüyor |
+| `COMPLETED` | Completed | Tamamlandı |
+
+- State must never be conveyed by colour alone. Each stage renders a state
+  token, and the state name above is exposed to assistive technology as text;
+  decorative glyphs are `aria-hidden`.
+- **A checkmark glyph is authorized for `COMPLETED`**, and this section is its
+  only owner. The pre-Session-138 prohibition on checkmarks meant a checkmark
+  not backed by server state; a `COMPLETED` state that came from the server is
+  exactly what it was protecting against being faked. `ACTIVE` and `PENDING`
+  glyphs carry no completion meaning. No glyph may appear on a stage whose state
+  the server has not reported.
+- There is no visible failure, cancelled or skipped state. A run that ends
+  before reaching a stage leaves it `PENDING`, and the terminal outcome arrives
+  as the result or error page that replaces the whole view.
+- Stage completion describes a **phase finishing**, never the completeness of
+  the result. The stage list must never carry the words partial, incomplete,
+  complete, failed or any other completeness vocabulary — a `Partial` profile is
+  a terminal success and its own notice already owns that truth.
+
+### 8.3.4 Percentage, ETA and the activity indicator
+
+Percentage and ETA remain **PROHIBITED**, now on measured evidence rather than
+absence of a contract: no percentage, no progress-bar fill fraction, no
+remaining-time estimate, no elapsed-time figure, no count and no denominator.
+Repository count is not a valid denominator, and stage progress is not time
+progress. The evidence is in the runtime contract §11.
+
+The existing indeterminate indicator is retained beside the stage list and means
+exactly one thing:
+
+~~~text
+"analysis is still active"    NOT    "this fraction is done"
+~~~
+
+It has no determinate fill state and continues to respect
+`prefers-reduced-motion`.
+
+### 8.3.5 Shape
+
+The stage list renders **inline**, in the existing analysis-status region below
+the unified input. A modal or a full-screen overlay is not authorized: the whole
+progress view is replaced by the result or error page when the analysis request
+returns, so a modal buys no exit behavior; duplicate submit is already prevented
+by form state; and a modal invites a cancel affordance that
+`live-analysis-progress-runtime-contract.md` §14 does not authorize.
+
+Both stage lists are present in the landing markup, fully localized and in
+`PENDING` state, and stay hidden until the server reports which one applies.
+This keeps every string server-owned and keeps the transport free of copy.
+
+The status region's shape changes, and this is the authorized change. Today the
+whole region carries `role="status" aria-live="polite" aria-atomic="true"`,
+which would re-announce every stage on every update. The target shape is:
+
+~~~text
+analysis status region        container; no live-region role
+  stage list                  ordinary content, all stages, visible
+  live region                 role=status aria-live=polite aria-atomic=true
+                              exactly one sentence: the active stage label
+~~~
+
+The live region keeps the same three attributes it has today; it is narrowed to
+a single-sentence child rather than removed. The form keeps `aria-busy`.
+`p10-web-profile-flow-implementation-plan.md` records the pre-Session-138
+delivered shape and is accurate as such; it does not constrain this one.
+
+### 8.3.6 Announcement policy
+
+- The visible stage list is ordinary content, not a live region.
+- One polite, atomic live region carries exactly one sentence. Until the first
+  server snapshot arrives it carries the canonical indeterminate sentence
+  (`GitHub Proof is processing your request…` / `GitHub Proof isteğinizi
+  işliyor…`), exactly as it does today; from the first snapshot on it carries
+  the label of the currently active stage. If no snapshot ever arrives it keeps
+  the indeterminate sentence and nothing is ever announced for progress.
+- It changes at most once per stage transition — at most four times per run,
+  plus the one switch away from the indeterminate sentence.
+- When the run reports its terminal snapshot — every stage completed and no
+  active stage — the live region **does not change**. It keeps the last stage
+  label it announced. Nothing is announced for "finished": the result page is
+  about to replace the whole view and is itself the announcement, and a final
+  sentence would be a fifth announcement for a state the visitor sees for at
+  most one poll.
+- Poll ticks, unchanged snapshots, the activity indicator, counts and transport
+  state are **never** announced.
+- `aria-busy` on the form remains the coarse busy signal, and BFCache/back
+  restoration resets every stage to `PENDING` and re-hides the region.
 
 ## 8.4 P10-I3 Meaning Layer Deterministic Synthesis Contract
 
@@ -1189,7 +1365,10 @@ Binding rules:
   existence (§8.6.6).
 - The existing analysis-progress script may be reused through the existing
   `data-analysis-form` / `data-analysis-submit` hooks for duplicate-submit
-  prevention. That script is not modified, and no per-row visible processing
+  prevention. That script is not modified by this section — Session 138 does
+  authorize Session 139 to modify it, but only for the landing form: the
+  drill-down forms emit no correlation token, register no run and keep exactly
+  the behavior described here. No per-row visible processing
   region is introduced by P10-I4.
 
 ### 8.6.6 Row Status Mapping

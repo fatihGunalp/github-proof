@@ -23,6 +23,11 @@
 > §27 no longer models current analysis as completed/active/pending stages;
 > the current runtime supports a truthful accessible indeterminate processing
 > state only. Light/Dark/System theme semantics are unchanged.
+> **Session 138 supersedes the analysis-progress sentence in this banner: see
+> §27.1.** Completed/active/pending stage state is now authorized within the
+> bounds of `docs/architecture/live-analysis-progress-runtime-contract.md` and
+> `p10-presentation-language-contract.md` §8.3.1–§8.3.6, and the indeterminate
+> state remains the canonical fallback.
 
 > **Amended:** 2026-08-21 / Session 102 — açık kullanıcı kararı. §25 landing
 > boundary is now one collapsed native `details` / `summary` disclosure with
@@ -1510,6 +1515,10 @@ Card stack yerine list-first yaklaşım tercih edilir.
 
 # 27. Analysis Progress
 
+> **Bu bölüm Session 138 ile kısmen supersede edilmiştir. Önce §27.1 okunmalıdır.**
+> Aşağıdaki gövde Session 138 öncesi durumu kaydeder; live stage state ve
+> read-only bounded polling ile ilgili yasakları artık §27.1 belirler.
+
 Current runtime, Repository/Profile analysis'i tek synchronous POST request'i
 içinde çalıştırır ve UI'a live backend stage telemetry sağlamaz. Bu nedenle
 current `AnalysisProgress` component'i truthful indeterminate state'tir.
@@ -1552,6 +1561,36 @@ serialization'dan çıkaracak biçimde disabled yapılmaz. Relevant form/contain
 `aria-busy="true"`; visible status `role="status"`, `aria-live="polite"`,
 `aria-atomic="true"` taşır. Back/BFCache restore stale state'i temizler.
 Motion `prefers-reduced-motion` ile kapatılabilir.
+
+## 27.1 Session 138 amendment
+
+Yukarıdaki metin Session 138 öncesi runtime'ı tarif eder ve o kısmı artık
+canonical değildir. Session 138, "runtime telemetry bunu kanıtlamadıkça"
+koşulunu karşılayan sözleşmeyi üretti:
+
+- runtime semantics (run identity, server state, transport, request lifecycle,
+  terminal delivery, refresh/reconnect, security, update policy) →
+  `docs/architecture/live-analysis-progress-runtime-contract.md`,
+- language, stage copy, stage state presentation, shape ve announcement policy →
+  `p10-presentation-language-contract.md` §8.3.1–§8.3.6.
+
+Bu iki owner'ın izin verdiği ölçüde ve **yalnız** o ölçüde:
+
+- `completed` / `active` / `pending` stage state render edilebilir — state
+  daima server'dan gelir, client hiçbir stage'i kendi ilerletmez,
+- read-only bounded polling kullanılabilir.
+
+Değişmeyen yasaklar: percentage, ETA, progress position, denominator, count,
+sahte AI narration, SSE, SignalR, WebSocket, streaming response, ve
+`ProfileExecutionTelemetry`'nin live UI progress source olarak kullanılması.
+
+Yukarıdaki `checkmark` yasağı **server'dan gelmeyen** bir checkmark'ı
+kastediyordu; `COMPLETED` state'i için checkmark glyph'inin tek sahibi p10
+**§8.3.3**'tür.
+
+`aria-atomic="true"` taşıyan live region, §8.3.6 gereği yalnız **tek cümlelik**
+aktif-stage anonsunu taşır; görünür stage listesi live region'ın içinde
+değildir. Bu component'in görsel/DOM şekli §8.3.5'in sorumluluğundadır.
 
 ---
 

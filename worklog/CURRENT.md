@@ -1,12 +1,101 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-27 (Session 137)
+**Last Updated:** 2026-08-27 (Session 138)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 137 — Profile First-Read UI Implementation — branch
+- **Active Session:** 138 — Unified Live Analysis Progress Contract — branch
+  `session/138-unified-live-analysis-progress-contract`, session base `03df70f`
+  (`main`/`origin/main`/`HEAD` verified equal), route Opus / high, **DOCS**.
+  Contract/architecture decision session; **no Razor, CSS, JavaScript, C#,
+  domain, application, infrastructure, test or runtime-configuration change**.
+  Answers how both analysis flows may show truthful live progress. **Source
+  audit decided the shape, not a preselected transport:** both flows are one
+  synchronous POST whose response *is* the result page, so live progress can
+  only come from a second read-only channel. **Selected: the POST keeps running
+  the analysis and delivering every terminal outcome; a read-only
+  `GET /analysis-progress?run=<token>` observes an in-memory ephemeral run
+  registry, polled at a constant 2 s interval.** No background job, queue, persistence,
+  SSE, SignalR or streaming; nothing is detached from its request.
+  **Repository gets 4 stages, Profile 3** — every publication point inside
+  `GitHubProof.Web`, because `ProfilePipeline.RunAsync` is one opaque interval
+  with no interface seam and the metadata boundary is internal to the snapshot
+  orchestrator. The owner's five-stage Profile mock is therefore **not
+  achievable** without a progress seam inside `ProfilePipeline` (Application)
+  **plus interface seams on two Domain policies**, recorded as a deferred owner
+  decision. States are `PENDING → ACTIVE → COMPLETED` only — no `FAILED`,
+  because the POST response already delivers every ending, and **`Partial` is a
+  terminal success that reaches `COMPLETED`**. **Percentage and ETA PROHIBITED
+  on measured evidence** (R3 112.209 s / R4 70.888 s / R5 55.557 s at a constant
+  662 requests — wall-clock tracks scheduling, not work units); per-repository
+  events, `N of M` and a bare growing count all rejected with reasons. **Cancel
+  NOT AUTHORIZED**; UI stays **inline**, not a modal. Ownership split two ways:
+  runtime semantics to a new `docs/architecture/live-analysis-progress-runtime-contract.md`,
+  language and shape to p10 §8.3.1–§8.3.6. Independent review in a forked cold
+  context returned **FAIL** (BLOCKER 1, HIGH 1, MEDIUM 4, LOW 4) — the BLOCKER
+  was three further canonical owners of the same prohibition this session had
+  missed (`github-proof-ui-system-light-dark-v1.md` §27, `github-proof-design-principles-v1.md`
+  §7.3, the P10-I2A acceptance list); **all ten findings closed in a
+  same-session correction pass**. Later rounds found the position in seven places
+  across **five** documents — two of them top-of-file banners, and
+  `github-proof-milestone-b-p7-ux-working-direction.md` §22 carrying a stale
+  *permission* for SSE rather than a stale prohibition — and all seven are now
+  amended in place. A **second closure round returned PASS WITH FINDINGS** (BLOCKER 0,
+  HIGH 0, MEDIUM 0, LOW 2) confirming all ten CLOSED; both new LOWs — a drifted
+  checkmark prohibition across the four lists, and a stale registry-security
+  rationale after registration moved before the admission lease — were also
+  closed. The stage sets, state machine, transport and ownership split never
+  changed across either pass. An **architecture-owner precision correction** then
+  closed four more findings without reopening any decision: the transport table's
+  "survives an off-process move" row was a category error (that is a
+  **state/store** property, and this polling implementation is itself
+  process-local) and the `SignalR: package required` cell was **not
+  source-proven and wrong** — the Web csproj declares no `PackageReference` at
+  all — so the cost is narrowed to a vendored JS client plus a hub route;
+  `Cache-Control: no-store` is now required on every progress response with
+  `ETag`/conditional semantics prohibited (nothing in the codebase used
+  `Cache-Control` before, so this is a new rule, not an existing convention);
+  **all six bounded runtime values are locked exactly** — poll 2000 ms, unknown
+  retry 5, transport-failure stop 3, TTL 10 min, cap 64, **none configurable**;
+  and **observable atomicity is LOCKED** — one transition publishes one coherent
+  snapshot, `completed` is always exactly the stages preceding `active`, and a
+  `null` active is authorized only at terminal. A **final forked cold-context
+  review returned PASS WITH FINDINGS** (BLOCKER 0, HIGH 0, MEDIUM 5, LOW 2, seven) with
+  every focus area verified against source; **all seven closed**, two of which
+  would genuinely have stopped an implementer — the terminal snapshot was
+  optional, and a malformed `run` token had no defined response (now HTTP 400,
+  empty body). Also corrected: an unsound TTL justification, and two Domain
+  policies misattributed to Application in §5.1. A **final closure review** over
+  the corrected tree then returned **PASS WITH FINDINGS** (BLOCKER 0, HIGH 0,
+  MEDIUM 3, LOW 4 — seven) with **no false factual claim** found in the
+  contract; all seven closed. The three that mattered: a `known:false` arriving
+  after a known response had two incompatible renderings (now locked — keep the
+  last snapshot, never hide the stage list); both amended product documents
+  still carried a top-of-file Session 101 banner asserting the superseded
+  position; and this worklog had wrongly told Session 139 it could change the
+  `aria-atomic="true"` assertion, which p10 §8.3.5 in fact still requires.
+  A **ratification round** (BLOCKER 0, HIGH 0, MEDIUM 4, LOW 4) then found four
+  pieces of reconciliation debt the previous fixes had themselves created, one
+  genuine gap — no owner said what the live region carries before the first
+  snapshot, now locked in p10 §8.3.6 as the canonical indeterminate sentence —
+  and **one real copy defect this session introduced**: every locked Turkish
+  stage label was present-continuous, so `GitHub hedefi doğrulanıyor ·
+  Tamamlandı` read "is being validated · Completed". All seven TR labels were
+  relocked as verbal nouns (`GitHub hedefinin doğrulanması`); EN unchanged. A
+  **closure confirmation round** (BLOCKER 0, HIGH 0, MEDIUM 1, LOW 5) verified
+  all eight closed and the Turkish independently sound, and found one last
+  ownerless decision: three elements carry `data-analysis-form` — the landing
+  input and the two Profile drill-down forms, which post a hidden `GitHubTarget`
+  to `/Index` and do start real Repository Proof runs — and
+  `analysis-progress.js` binds to all three. Now locked: **only the landing form
+  carries a token**; the drill-down forms stay progress-free, per p10 §8.6.5's
+  existing no-per-row-processing rule. **Session 139 is READY**, bounded to Web
+  only, and selects no runtime value, copy or rendering of its own.
+  **No Milestone B completion is claimed.** `artifacts/` untouched.
+  Detail: [`sessions/2026-08-27-138-unified-live-analysis-progress-contract.md`](./sessions/2026-08-27-138-unified-live-analysis-progress-contract.md)
+- **Previous Session:** 137 — Profile First-Read UI Implementation — branch
   `session/137-profile-first-read-ui-implementation`, session base `7038159`
   (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
   **PARTIAL — closure accepted by the architecture owner**.
@@ -59,7 +148,7 @@ carries product, domain or architecture truth.
   Gap* and is deliberately **not** registered as a canonical p10 gap — that
   would be a separate owner decision. `artifacts/` untouched.
   Detail: [`sessions/2026-08-27-137-profile-first-read-ui-implementation.md`](./sessions/2026-08-27-137-profile-first-read-ui-implementation.md)
-- **Previous Session:** 136 — Profile First-Read UI/UX Contract — branch
+- **Earlier Session:** 136 — Profile First-Read UI/UX Contract — branch
   `session/136-profile-first-read-ux-contract`, session base `82569fa`
   (`main`/`origin/main`/`HEAD` verified equal), route Opus / high, **DOCS**.
   Product UX / presentation-contract session; **no Razor, CSS, JavaScript, C#,
@@ -101,7 +190,7 @@ carries product, domain or architecture truth.
   the two additions and the gap map never changed across those rounds.
   `artifacts/` untouched.
   Detail: [`sessions/2026-08-27-136-profile-first-read-ux-contract.md`](./sessions/2026-08-27-136-profile-first-read-ux-contract.md)
-- **Previous Session:** 135 — Profile Proof Distinctive Outcomes Product
+- **Earlier Session:** 135 — Profile Proof Distinctive Outcomes Product
   Contract — branch
   `session/135-profile-proof-distinctive-outcomes-contract`, session base
   `9c4c90d` (`main`/`origin/main`/`HEAD` verified equal), route Opus / high,
@@ -355,10 +444,10 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `7038159` — `main` == `origin/main` ==
-  `HEAD` verified equal at Session 137 start. Session 136's first-read
-  information-depth contract is integrated at that commit; Session 137's own
-  work is not yet integrated.
+- **Last remote-verified `main`:** `03df70f` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 138 start. Session 137's first-read UI
+  implementation is integrated at that commit; Session 138's own work is not
+  yet integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -681,8 +770,30 @@ Web presentation, Web tests and two docs cross-references only; it touched no
 Domain, Application, Infrastructure, architecture contract or runtime
 configuration, so the runtime queue below is unaffected by all three sessions.
 
-Two independent next steps are now available, and the architecture owner
+**Session 138 locked the live analysis progress contract.** It changed no
+production, domain, application, web, test or configuration code, so the runtime
+queue below is unaffected by it too.
+
+Three independent next steps are now available, and the architecture owner
 chooses the order:
+
+0. **Session 139 — Live Analysis Progress implementation. READY.** Bounded to
+   `GitHubProof.Web` only. It implements exactly what
+   `docs/architecture/live-analysis-progress-runtime-contract.md` and p10
+   §8.3.1–§8.3.6 authorize: the 4 Repository / 3 Profile stage identities in
+   their locked order, `PENDING → ACTIVE → COMPLETED`, the read-only
+   `GET /analysis-progress?run=<token>` Razor Page handler, the ephemeral run
+   registry, the client-generated UUID correlation token, the locked EN/TR copy
+   through `WebPresentationLocalizer`, the narrowed single-sentence live region
+   and the BFCache reset. It **makes no architecture decision** — if something
+   is ambiguous, it stops rather than choosing. It must also update
+   `tests/GitHubProof.Web.Tests/AnalysisProgressContractTests.cs`, where exactly
+   two assertions are superseded: the `setInterval` and `fetch(` exclusions.
+   The `EventSource` and `WebSocket` exclusions must **stay**, and so must
+   `Assert.Contains("aria-atomic=\"true\"", ...)` — it is a file-level
+   substring check that still passes under the new DOM, because p10 §8.3.5
+   keeps all three attributes on the narrowed live region, and it is the only
+   automated guard for that.
 
 1. **A separately authorized owner decision on the Mobile First-Read Affordance
    Hierarchy Gap**, if and when it is wanted. The narrowest candidate remains
@@ -696,6 +807,16 @@ chooses the order:
    availability state, count or ranking, nor close any gap p10 holds open.
 2. **The Milestone B runtime path below**, which none of these sessions
    touched.
+
+Deferred by Session 138, recorded as owner decisions and **not** queued: a
+`profile-identity-read` stage (needs an Infrastructure publication point on
+`GitHubProfileSnapshotProgress`); splitting `profile-evidence-examined` into
+repository-evidence and recurring-trace phases (needs an Application progress
+seam inside `ProfilePipeline` plus interface seams for the composer and the two
+policies — this is what the five-stage Profile mock would cost); explicit user
+cancellation; and anything that must survive a restart or a second instance.
+The capacity-state half of `public-profile-runtime-collection.md` §10.1.1's
+user-visible presentation requirement also stays open.
 
 ---
 

@@ -20,6 +20,12 @@
 > indeterminate state, not a telemetry-backed completed/active/pending stage
 > tracker. The accessibility and localization sections now carry the shared
 > P10-I2A Web foundation contract.
+> **Session 138 supersedes the analysis-progress sentence in this banner: see
+> §7.3's Session 138 note.** Completed/active/pending stage state is now
+> authorized within the bounds of
+> `docs/architecture/live-analysis-progress-runtime-contract.md` and
+> `p10-presentation-language-contract.md` §8.3.1–§8.3.6, and the indeterminate
+> state remains the canonical fallback.
 
 > **Amended:** 2026-08-21 / Session 102 — açık kullanıcı kararı. Landing
 > boundary composition is now one collapsed native `details` / `summary`
@@ -856,6 +862,10 @@ flow'una dönüştürmez.
 
 ## 7.3 Analysis Progress
 
+> **Session 138 notu bölümün sonundadır ve önce okunmalıdır.** Aşağıdaki
+> `Mevcut synchronous POST runtime backend stage telemetry üretmediği için`
+> premisi artık güncel değildir.
+
 Amaç uygulamanın request üzerinde çalıştığını derhal ve dürüstçe
 göstermektir. Mevcut synchronous POST runtime backend stage telemetry
 üretmediği için UI indeterminate kalır.
@@ -895,6 +905,19 @@ Understanding your engineering style...
 ```
 
 Bunlar ürün contract'ını yanlış temsil eder.
+
+**Session 138 notu.** Yukarıdaki *"Mevcut synchronous POST runtime backend stage
+telemetry üretmediği için UI indeterminate kalır"* premisi artık güncel
+değildir. Session 138, bu bölümün `runtime telemetry açıkça kanıtlamadıkça`
+koşulunu karşılayan sözleşmeyi üretti:
+`docs/architecture/live-analysis-progress-runtime-contract.md` (runtime
+semantics) ve `p10-presentation-language-contract.md` §8.3.1–§8.3.6 (language ve
+shape). Yalnız o iki owner'ın authorize ettiği kadarıyla completed/active/pending
+stage state ve read-only bounded polling serbesttir; percentage, ETA, progress
+position, SSE, SignalR ve streaming response yasak kalır, ve indeterminate state
+her koşulda canonical fallback'tir. Yukarıdaki `checkmark` yasağı
+**server'dan gelmeyen** bir checkmark'ı kastediyordu; `COMPLETED` state'i için
+checkmark glyph'inin tek sahibi artık p10 §8.3.3'tür.
 
 ---
 

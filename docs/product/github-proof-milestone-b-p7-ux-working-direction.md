@@ -535,10 +535,18 @@ Native CSS / design tokens
 +
 Minimal vanilla JavaScript
 +
-SSE gerektiğinde analysis progress / streaming
+SSE gerektiğinde analysis progress / streaming   [Session 138: SUPERSEDED]
 +
 Blazor yalnız interaction complexity gerçekten gerektirdiğinde
 ```
+
+**Session 138 notu.** Yukarıdaki `SSE gerektiğinde analysis progress /
+streaming` satırı artık geçerli değildir. Live analysis progress'in canonical
+owner'ı `docs/architecture/live-analysis-progress-runtime-contract.md`'dir ve
+§17 SSE, WebSocket, SignalR, long-polling ve HTTP streaming'i açıkça yasaklar;
+seçilen taşıma read-only bounded polling'dir. Bu, stale bir *yasak* değil stale
+bir *izindir* — yani SSE'yi gerekçelendirmek için alıntılanabilecek tek yerdi ve
+bu nedenle burada kapatılmıştır.
 
 Ana prensip:
 

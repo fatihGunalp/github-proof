@@ -524,6 +524,15 @@ Kapsam:
   polling, streaming response veya sırf UI için yeni backend progress
   telemetry. Existing `ProfileExecutionTelemetry` live progress source değildir.
 
+Bu madde P10-I2A'nın **delivered shape**'ini kaydeder ve o hâliyle doğrudur.
+Session 138 sonrasında completed/active/pending stage ve read-only bounded
+polling, `docs/architecture/live-analysis-progress-runtime-contract.md` ile
+`p10-presentation-language-contract.md` §8.3.1–§8.3.6'nın authorize ettiği
+ölçüde serbesttir; bu satır o iki owner'ı daraltmaz. Percentage, ETA, SSE,
+SignalR ve streaming response yasak kalır. Yukarıdaki `checkmark` yasağı
+server'dan gelmeyen bir checkmark'ı kastediyordu; `COMPLETED` glyph'inin tek
+sahibi p10 §8.3.3'tür.
+
 Language utility transient bir Repository/Profile POST result üzerinde
 değiştirildiğinde yeni culture persist edilir; GitHub analizi sessizce yeniden
 çalıştırılmaz ve cache/persistence icat edilmez. Kullanıcı localized landing'e
