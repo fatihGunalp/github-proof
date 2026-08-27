@@ -1,47 +1,76 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-27 (Session 134)
+**Last Updated:** 2026-08-27 (Session 135)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 134 — Milestone B Production-Candidate Runtime
+- **Active Session:** 135 — Profile Proof Distinctive Outcomes Product
+  Contract — branch
+  `session/135-profile-proof-distinctive-outcomes-contract`, session base
+  `9c4c90d` (`main`/`origin/main`/`HEAD` verified equal), route Opus / high,
+  **DOCS**. Product/architecture-level decision session; **no production,
+  domain, application, web, test or config change**. Locks the canonical
+  answer to “why GitHub Proof instead of GitHub + a generic AI” at outcome
+  level in a new canonical owner,
+  `docs/product/profile-proof-distinctive-outcomes-contract.md`: four accepted
+  outcomes (**CORE** cross-repository recurring evidence, **CORE** traceable
+  conclusion-to-repository evidence chain, **CORE** declared evidence surface
+  and its boundary, **SUPPORTING** pattern-scoped starting point), the canonical
+  moat statement, and a first-read information-priority contract that is
+  deliberately **not** a layout. Verification ran in two layers — canonical/
+  domain/application semantics **and** the Web/user-visible projection — giving:
+  Outcome 1 **SUPPORTED NOW**; Outcome 2 **SUPPORTED NOW** with a fresh-run
+  qualification (the last hop is a fresh Repository Proof run, not a frozen
+  replay of the analysis instance that produced the profile result); Outcome 3
+  **SUPPORTED NOW** with its already-recorded evidence-surface taxonomy
+  limitation; Outcome 4 **PARTIALLY SUPPORTED** — `RepresentativePatternSupport`
+  is never rendered in Web, so the pattern relationship that makes the starting
+  point distinctive does not reach the user today. A **same-session correction
+  pass** closed **3 HIGH / 3 MEDIUM / 4 LOW** review findings (outcome set
+  unchanged). **Evidence convergence is REJECTED — NOT SUPPORTED**: it would
+  require new domain semantics and a new `PatternRuleVersion`, so it is left
+  as an explicit owner decision instead of being invented. Score, technology
+  lists, activity ranking, AI prose, `ProblemArea` and `RoleEvidenceAlignment`
+  are also rejected as distinctive outcomes. **No new threshold, taxonomy,
+  limitation identity, availability state or user-facing copy was created** —
+  recurrence stays owned by patterns §5, and coverage is worded **declared**,
+  never “complete”, because the repository manifest carries a declared
+  collection bound. Edits to `product-positioning.md` §9 and
+  `public-profile-evidence-product-contract.md` §4 are cross-reference only.
+  A **final closure review then ran in a forked cold context** and returned
+  **PASS WITH FINDINGS** (BLOCKER 0, HIGH 0, MEDIUM 1, LOW 3), confirming all
+  ten earlier findings CLOSED and the four-outcome model ACCEPTED; a second
+  correction pass closed **F-N1** (Outcome 4's requirement was wrongly attributed
+  to the **Starting Point Prioritization Contract Gap**, which is about ranking
+  — the pattern relationship is **not** a recorded canonical gap and needs a
+  p10 §8.6.1 amendment), plus **F-N2/F-N3/F-N4**. The earlier author-context
+  review was never recorded as independent (`AGENTS.md` §6 / `agents/06` §7).
+  **Session 135 closure is READY FOR ARCHITECTURE OWNER RATIFICATION**, not
+  self-marked PASS. `artifacts/` remains untouched.
+  Detail: [`sessions/2026-08-27-135-profile-proof-distinctive-outcomes-contract.md`](./sessions/2026-08-27-135-profile-proof-distinctive-outcomes-contract.md)
+- **Previous Session:** 134 — Milestone B Production-Candidate Runtime
   Configuration + Exit Validation — branch
   `session/134-milestone-b-production-candidate-runtime`, session base
-  `53991ac` (`main`/`origin/main`/`HEAD` verified equal before branching),
-  route Sonnet / high, **PARTIAL** — independent closure review
-  **PASS WITH FINDINGS** (critical findings **NONE**; findings were
-  worklog/record-accuracy only, corrected in this same-session pass), and the
-  configuration implementation itself is **technically accepted**. The session
-  is scored **PARTIAL**, not PASS, because authenticated live validation was
-  an explicit part of the Session 134 objective and could not run
-  (`GITHUB_TOKEN` unavailable). Wires the Session 133-accepted
-  R5 candidate into a real production configuration file,
+  `53991ac`, route Sonnet / high, **PARTIAL** — independent closure review
+  **PASS WITH FINDINGS** (critical findings **NONE**), and the configuration
+  implementation itself is **technically accepted**. Wires the Session
+  133-accepted R5 candidate into
   `src/GitHubProof.Web/appsettings.Production.json`
   (`ProfileGuardrails:Collection:MaxRepositoryConcurrency = 5`) — the first
-  `appsettings*.json` this repository has ever had; none existed before. U and
-  the two GraphQL flags are left unset because their existing default already
-  **is** the production-candidate value. Proven deterministically through the
-  real ASP.NET Core file-loading path (not an in-memory double): resolves to 5
-  under `Production`, stays at the source default 1 under `Development` (no
-  masking either direction), and reaches the real production orchestrator
-  composition end to end — 7 admitted repositories, max observed concurrency
-  exactly 5, all 7 still produce a result (no repository-count cap). No
-  production/domain/application/infrastructure source changed; the C# default
-  (`1`) is untouched. Full regression **2327/2327** (568 + 5 new tests), build
-  0 warnings, `git diff --check` PASS — no production/domain/application/
-  infrastructure source tracked-modified; only `worklog/CURRENT.md` and
-  `worklog/INDEX.md` are tracked-modified, by this same worklog-only
-  correction pass. **Authenticated live validation is BLOCKED**
-  (`GITHUB_TOKEN` unset in both available shells; presence-only checked, never
-  printed) — the dense-latency and burst gates were **not** re-measured this
-  session. **Milestone B closure is NOT CLAIMED**: VPS deployment, remote
-  production verification, production telemetry/monitoring infrastructure and
-  a multi-user smoke specifically under R5 all remain open and outside this
-  session's scope. Provider floor, execution deadline, credential strategy,
-  visitor rate-limit/trusted-proxy topology, R>5, U>1 and GraphQL enablement
-  were **not** touched or decided. `artifacts/` remains untouched.
+  `appsettings*.json` this repository has ever had. U and both GraphQL flags
+  stay unset because their existing default already **is** the
+  production-candidate value; the C# default (`1`) is untouched. Proven
+  through the real ASP.NET Core file-loading path (5 under `Production`, 1
+  under `Development`) and the real production orchestrator composition
+  end to end, with the real `dotnet publish` artifact verified to carry the
+  file. Regression **2327/2327**, build 0 warnings. Scored **PARTIAL**, not
+  PASS, solely because authenticated live validation — an explicit part of the
+  Session 134 objective — is **BLOCKED** (`GITHUB_TOKEN` unavailable), so the
+  dense-latency and burst gates were not re-measured. **Milestone B closure is
+  NOT CLAIMED**: VPS deployment, remote production verification, production
+  telemetry/monitoring and a multi-user smoke under R5 all remain open.
   Detail: [`sessions/2026-08-27-134-milestone-b-production-candidate-runtime.md`](./sessions/2026-08-27-134-milestone-b-production-candidate-runtime.md)
 - **Previous Session:** 133 — Milestone B Runtime Gates — branch
   `session/133-milestone-b-runtime-gates`, session base `37b8ec2`, route
@@ -248,6 +277,26 @@ carries product, domain or architecture truth.
   `docs/roadmap/deployment-milestones.md` §3 counts P10 COMPLETE as an *input*
   to Milestone B; §4 reserves milestone COMPLETE for production deploy + smoke
   + remote production verification. None of that has happened.
+- **Profile Proof distinctive-outcome semantics: LOCKED** (Session 135).
+  `docs/product/profile-proof-distinctive-outcomes-contract.md` is now the
+  canonical owner of which Profile Proof results must be structurally more
+  valuable than GitHub's own UI or a generic AI reading of the same profile,
+  of the product moat statement, and of first-read information priority — the
+  last constraining, not replacing, `public-profile-evidence-product-contract.md`
+  §25, which remains owner of the general Profile first-read questions. Three
+  **CORE** outcomes are **SUPPORTED NOW** (Outcome 2 with a fresh-run
+  qualification, Outcome 3 with its recorded evidence-surface taxonomy
+  limitation); the one **SUPPORTING** outcome, pattern-scoped starting point, is
+  **PARTIALLY SUPPORTED**. **Evidence convergence is NOT SUPPORTED** and left as
+  an owner decision. This is a docs contract only — it changed no capability.
+  **Main handoff to the later Profile UI/UX session:** make the
+  `recurring pattern → selected starting-point repository` relationship visible,
+  without turning it into a best/recommended/quality ranking. That work is
+  **not** a recorded canonical gap today and requires an explicit
+  `p10-presentation-language-contract.md` §8.6.1 amendment, whose "renders
+  exactly" list currently locks the starting-point item to three fields; it must
+  not be confused with the §8.6.1a **Starting Point Prioritization Contract
+  Gap**, which concerns ranking. That session has not started.
 - **Repository Proof first-read visual alignment: COMPLETE for this bounded
   slice.** Repository Proof already shared the design system; the one concrete
   canonical violation was first-read score dominance. The score card left the
@@ -517,6 +566,26 @@ coupling is now closed: §18.2 keeps profile metadata on REST precisely so the
 D-2 budget premise is unchanged.
 
 ## Exact Next Action
+
+**Session 135 is complete as a docs contract, all review findings from both
+review rounds are closed, and its closure is READY FOR ARCHITECTURE OWNER
+RATIFICATION.** It changed no production, domain, application, web, test
+or configuration code; the runtime queue below is unaffected by it.
+
+Two independent next steps are now available, and the architecture owner
+chooses the order:
+
+1. **The architecture owner's final closure decision on Session 135** — the
+   forked cold-context closure review returned PASS WITH FINDINGS and every
+   finding is now closed, so the contract is ready for ratification — then a
+   bounded Profile first-read UI/UX session that consumes
+   `docs/product/profile-proof-distinctive-outcomes-contract.md` §5 and §8 as
+   its input. That UI/UX session is **not** authorized to introduce a new
+   evidence rule, threshold, taxonomy, limitation identity or availability
+   state; those stay with their existing owners.
+2. **The Milestone B runtime path below**, which Session 135 did not touch.
+
+---
 
 **Session 133 is independently closed** (review **PASS WITH FINDINGS**, critical
 findings **NONE**), and **R5 is ACCEPTED as the Milestone B production-candidate

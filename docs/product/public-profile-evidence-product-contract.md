@@ -27,6 +27,14 @@
   `Deferred`; the two states may not be collapsed. Empty results may still
   never be presented as "problem area bulunamadı" or any negative developer
   conclusion. No evidence rule and no contract version changed
+- 2026-08-27 / Session 135 — §4 contract-ownership cross-reference only:
+  records that Profile Proof distinctive-outcome semantics (which results must
+  be structurally more valuable than GitHub's own UI or a generic AI reading of
+  the same profile), the product moat statement and the first-read
+  information-priority contract are owned by
+  `docs/product/profile-proof-distinctive-outcomes-contract.md`. No product
+  requirement was added, removed, weakened or reinterpreted; no evidence rule
+  and no contract version changed
 
 
 ## 1. Ürün Tanımı
@@ -167,6 +175,14 @@ Rapor özellikle şu soruları cevaplamalıdır:
 5. İncelemeye hangi repository'lerden başlamak daha anlamlı?
 6. Teknik görüşmede hangi public kanıtlar ayrıca doğrulanabilir?
 7. Hangi sonuçlar public evidence yetersizliği nedeniyle üretilemedi?
+
+Bu değer önerisinin bir alt sorusu — bu sonuçlardan hangilerinin GitHub'ın
+kendi arayüzü veya generic bir AI okuması karşısında yapısal olarak ayrışmak
+zorunda olduğu, ürünün canonical moat ifadesi ve ilk okuma bilgi önceliği —
+ayrı bir canonical contract tarafından sahiplenilir:
+`docs/product/profile-proof-distinctive-outcomes-contract.md`. O contract bu
+bölümdeki ürün gereksinimlerini değiştirmez; yalnız hangilerinin distinctive
+outcome sayıldığını ve nasıl önceliklendirileceğini kilitler.
 
 ---
 

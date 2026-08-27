@@ -336,6 +336,7 @@ semantiğini değiştirmez, tekrar etmez veya geçersiz kılmaz.
 | Puanlama, status ve rapor sözleşmesi | `docs/product/scoring-and-report-contract.md` |
 | Rapor bilgi mimarisi | `docs/product/report-information-architecture.md` |
 | Profile-level evidence truth | `docs/product/public-profile-evidence-product-contract.md` |
+| Profile Proof distinctive outcome semantiği ve first-read bilgi önceliği | `docs/product/profile-proof-distinctive-outcomes-contract.md` |
 | Job evidence alignment | `docs/product/job-evidence-alignment-product-contract.md` |
 | Repository evidence ladder ve mimari semantik | `docs/architecture/` |
 | Capability development sırası | `docs/roadmap/mvp-phases.md` |
