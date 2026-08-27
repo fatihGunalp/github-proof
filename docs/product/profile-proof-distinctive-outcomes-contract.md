@@ -7,6 +7,16 @@ information priority
 **Session:** 135
 **Locked:** 2026-08-27
 **Production Code:** NOT IN SCOPE
+**Amendment History:**
+- 2026-08-27 / Session 136 — cross-reference only. Records that the
+  presentation authorization this contract asked for now exists:
+  `docs/product/p10-presentation-language-contract.md` §8.6.1b authorizes the
+  Starting Point surface to render the pattern → starting-point relationship,
+  and its new §8.8 locks the Profile first-read information-depth contract. No
+  outcome, priority, acceptance criterion, moat statement, first-read priority
+  or capability classification changed; Outcome 4 remains **PARTIALLY
+  SUPPORTED** because the authorized presentation is not implemented yet. No
+  contract version change (§10).
 
 ---
 
@@ -806,6 +816,14 @@ Hedeflenmeyen ilk tepki: "dashboard güzel", "skorum yüksek", "AI güzel
    CONSEQUENCE ve §9). Kapatılırken bağ, "en iyi/önerilen repository" veya
    kalite sıralaması anlamına çevrilemez.
 
+   **Session 136 durumu (cross-reference).** Bu gereksinimin presentation
+   authorization'ı artık mevcuttur:
+   `p10-presentation-language-contract.md` §8.6.1b Starting Point öğesinin
+   "renders exactly" şeklini dört öğeye çıkarır ve ilişkinin EN/TR copy'sini
+   kilitler; ranking yasağı aynen korunur ve Starting Point Prioritization
+   Contract Gap açık kalır. Web bunu henüz render etmediği için gereksinim
+   **kullanıcı yüzeyinde hâlâ açıktır**; kapanması implementation işidir.
+
 ### 8.2 Supporting repository breadth kararı
 
 Breadth **ilişki olarak** ilk okumada zorunludur (madde 2), **kimlik olarak**
@@ -919,6 +937,15 @@ distinctive kılan pattern-scoping kullanıcı tarafından algılanamıyor.
 Sınıflandırma bu yüzden standart anlamıyla `PARTIALLY SUPPORTED`'dır: model
 capability var, distinctive user-visible result henüz yok. Kapatılması gereken
 iş UI CONSEQUENCE'ta tanımlıdır ve yeni bir seçim semantiği gerektirmez.
+
+**Session 136 cross-reference.** Bu bölümün kaydettiği "bu eksiklik hiçbir
+canonical doküman tarafından kayıtlı bir gap olarak tutulmuyor" ve "görünür
+kılınması p10 §8.6.1'in explicit bir amendment'ini gerektirir" tespitleri
+karşılanmıştır: Session 136 o amendment'i yapmıştır
+(`p10-presentation-language-contract.md` §8.6.1b). Yetenek sınıflandırması
+**değişmez** — authorization teslim değildir; `RepresentativePatternSupport`
+Web'de hâlâ render edilmediği için Outcome 4 `PARTIALLY SUPPORTED` kalır ve
+yalnız implementation ile `SUPPORTED NOW` olabilir.
 
 ### Reddedilen aday — Evidence convergence
 

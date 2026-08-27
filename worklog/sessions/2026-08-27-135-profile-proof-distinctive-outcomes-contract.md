@@ -345,6 +345,23 @@ SESSION 135 CLOSURE: READY FOR ARCHITECTURE OWNER RATIFICATION
 
 Final closure kararı architecture owner'a aittir.
 
+### Architecture-Owner Ratification / Integration (appended)
+
+Yukarıdaki review kaydı olduğu gibi korunmuştur; bu blok yalnız sonradan
+gerçekleşen closure kararını ekler.
+
+~~~text
+Architecture-owner closure decision: PASS
+Contract:                            ratified
+Integrated commit:                   82569faaf51dda2a69f24888e2eddde3c661df55
+~~~
+
+Session 135'in DOCS lifecycle değeri değişmez; PASS burada docs-only işin
+lifecycle etiketi değil, architecture owner'ın closure kararıdır. Review
+bulguları, review authority tespiti ve capability sınıflandırmaları
+(Outcome 4 `PARTIALLY SUPPORTED` dâhil) aynen geçerlidir; ratification onları
+değiştirmez.
+
 ## Problems
 
 ~~~text
@@ -421,10 +438,10 @@ Suggested commit:
 docs(profile): lock Profile Proof distinctive outcomes contract
 
 Commit:
-PENDING — user-owned unless explicitly requested
+82569faaf51dda2a69f24888e2eddde3c661df55 — user-owned, integrated into `main`
 
 Push:
-PENDING — user-owned unless explicitly requested
+DONE — `main` == `origin/main` == `82569fa` verified at Session 136 start
 ~~~
 
 ---

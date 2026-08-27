@@ -199,6 +199,28 @@ and it is visually bounded to ~2 lines via CSS line-clamp without semantic
 truncation. The max-3 presentation bound, deterministic order and desktop-
 scroll/mobile-natural-flow behavior from STEP 2 are unchanged.
 
+**Amended:** 2026-08-27 / Session 136 — Profile first-read information depth.
+Two bounded additions, no upstream semantic change. (1) §8.6.1 / new §8.6.1b:
+the Starting Point item's locked "renders exactly" shape grows from three
+elements to four, so that the canonical pattern → starting-point relationship
+becomes user-visible. The relationship is read only from the already-projected
+`RepresentativeRepository.PatternSupports` identities (family + pattern key)
+that Web already holds and never rendered; no new evidence, taxonomy,
+selection semantics, count, ordering or importance claim is introduced, and
+the **Starting Point Prioritization Contract Gap** stays open and unchanged —
+showing which repeated result a repository was selected for is not a ranking.
+(2) New §8.8 locks the Profile first-read information-depth contract: which
+information is FIRST READ, which is PROGRESSIVE DISCLOSURE and which is DEEP
+EVIDENCE, the semantic-level ladder behind the already-locked section order,
+first-read behavior for the empty/partial/warning boundary cases, and the
+implementation-input boundary for the future Razor/CSS work. §8.8 consumes —
+and does not restate or replace — the first-read *question* set owned by
+`docs/product/public-profile-evidence-product-contract.md` §25 and the
+outcome-level first-read *priority* owned by
+`docs/product/profile-proof-distinctive-outcomes-contract.md` §8. No section,
+availability state, canonical report ordering, evidence rule, pattern rule or
+inference prohibition was added, removed or weakened.
+
 ------------------------------------------------------------------------
 
 # 1. Purpose
@@ -913,9 +935,11 @@ read surface. For every canonical representative item, in existing report
 order, it renders exactly:
 
 1. the literal canonical repository identity;
-2. one short description line, sourced only from GitHub's own provider-returned
+2. the pattern relationship line naming the repeated result(s) this repository
+   was selected for (§8.6.1b);
+3. one short description line, sourced only from GitHub's own provider-returned
    repository Description (§8.6.1a);
-3. the existing localized Repository Proof action (`Analyze this repository` /
+4. the existing localized Repository Proof action (`Analyze this repository` /
    `Bu repository'yi analiz et`).
 
 The action reuses the existing repository-analysis form contract: a POST to
@@ -975,6 +999,81 @@ mutated by this bound; every item remains in the full typed report. A true
 importance/priority ordering over the canonical selection remains a separate,
 unauthorized design decision: **Starting Point Prioritization Contract Gap**
 (narrowed to presentation-bound-only by this amendment).
+
+#### 8.6.1b Starting Point Pattern Relationship (Session 136)
+
+The canonical representative-repository rule already selects **one repository
+per repeated pattern** and only then groups equal repository references
+(`docs/architecture/public-profile-representative-repositories.md` §3, §8).
+Until this amendment, Web rendered the grouped result but never the grouping
+key, so the selection reached the reader as a bare repository suggestion. This
+subsection makes that existing relationship visible. It is a presentation
+amendment only: no selection semantics, candidate rule, tie-break, ordering or
+evidence rule changes, and none is restated here.
+
+**CONSUMED, NOT OWNED.** The selection rule stays owned by
+`public-profile-representative-repositories.md`; this document renders its
+result.
+
+**Source.** The relationship is read only from the already-projected
+`RepresentativeRepository.PatternSupports` collection that the Starting Point
+partial already receives — specifically each support's `PatternFamily` and
+`PatternKey`, in that collection's existing canonical order. No new field,
+lookup, pipeline path or GitHub request is introduced.
+`RepresentativePatternSupport.SupportingEvidenceReferences` is **not** read
+here: evidence references belong to the evidence layer, never to first read.
+
+**Labels.** Each represented pattern renders through its existing localized
+label with no new mapping: `TechnicalFocus` uses its literal language identity
+(§8.4.5's literal-identity rule) and `EngineeringPractice` uses the concise
+§8.4.8 Working Style label — the same labels the two first-read pattern cards
+and the §8.6.3 Why questions already show. An unknown canonical identity is a
+presentation contract violation, never a fallback label.
+
+Those two families are the whole authorized scope. `ProfilePatternFamily`
+carries a third value, `ProblemArea`, which has no active Web presentation
+mapping because `ProblemAreaPatterns` is `Unsupported` in V1
+(`docs/architecture/public-profile-evidence-patterns.md` §9, product contract
+§24). A `ProblemArea` support reaching this surface is a contract violation
+that must fail loudly; no label, placeholder or silent omission may be invented
+for it here, and this subsection does not authorize rendering that family.
+
+**Completeness.** Every entry in that item's `PatternSupports` is rendered, in
+its existing order, joined by the §8.4.5 locale-aware join. There is no cap,
+reorder, filter or "first pattern only" shortcut inside an item. The §8.6.1a
+max-3 bound applies to presented **repositories** and is untouched by this
+subsection.
+
+**Locked EN/TR copy.** Selection is keyed only by whether the item represents
+one or more than one pattern, plus the selected request culture:
+
+| Condition | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| one represented pattern (`{0}` = its localized label) | Starting point for this recurring result: {0} | Bu tekrar eden sonuç için başlangıç noktası: {0} |
+| more than one represented pattern (`{0}` = joined localized labels) | Starting point for these recurring results: {0} | Bu tekrar eden sonuçlar için başlangıç noktası: {0} |
+
+This copy lives in its own narrow, explicitly named
+`ProfileWebPresentationLocalizer` method under the §8.6.7 keying rule. No new
+analysis, Domain or Application semantic identity, enum or value is created to
+key it.
+
+The singular/plural pair is **grammatical agreement, not a count**. It renders
+no number, and the pattern labels it names are identities that the first-read
+pattern cards already render. The broad first-read no-count constraint
+(`profile-proof-distinctive-outcomes-contract.md` §8.2/§8.3) is therefore
+satisfied, and this line remains subject to it: neither the supporting-
+repository count nor any other counter may be added to it.
+
+**Prohibitions.** This line must never be rendered or reworded as best, top,
+strongest, highest-quality, most important, most professional, recommended,
+featured, primary or curated; never imply an order of importance among the
+presented repositories or among the patterns inside one item; never carry a
+count, score, percentage, star, fork, language share, activity or confidence
+field; never expose promotion or selection mechanics, thresholds, rule/policy
+versions, evidence keys or observation keys; and never be turned into a claim
+about the person. The **Starting Point Prioritization Contract Gap** (§8.6.1a)
+remains open: naming which repeated result a repository was selected for is a
+relationship, not a priority ordering, and does not authorize closing that gap.
 
 ### 8.6.2 Progressive Disclosure Shape
 
@@ -1356,7 +1455,10 @@ every item, uncapped and unreordered. The narrowed Starting Point
 Prioritization Contract Gap remains active. Each presented item's short
 description is now the real GitHub-provided repository Description (§8.6.1a),
 never a name-derived or fetched substitute, visually bounded to ~2 lines
-without semantic truncation.
+without semantic truncation. Each presented item also carries the §8.6.1b
+pattern relationship line naming the repeated result(s) it was selected for;
+it is quiet supporting text on the card, never a badge, tag cloud, count or
+emphasis treatment, and it never reads as a priority or quality marker.
 
 The non-empty Why and Repository Evidence native disclosures remain closed by
 default. Their summary may contain a fixed localized visitor-facing one-line
@@ -1370,6 +1472,270 @@ including when empty, under the Empty Limitations Presentation Contract Gap.
 The mockup's Share action likewise remains absent under the Shareable Profile
 URL Contract Gap; no disabled/dead control is a substitute for a real share
 flow.
+
+## 8.8 Profile First-Read Information Depth Contract (Session 136)
+
+### 8.8.1 Purpose and Ownership
+
+This section is the normative owner of one question only:
+
+> When a visitor sees a successful Profile Proof result for the first time,
+> which information must be perceptible before any scroll, disclosure or
+> repository action — and which information must deliberately wait?
+
+It adds no analysis semantics and creates no second owner:
+
+```text
+public-profile-evidence-product-contract.md §25
+    owns WHICH QUESTIONS the first layer must let a reader answer
+
+profile-proof-distinctive-outcomes-contract.md §8
+    owns WHICH DISTINCTIVE VALUE must be perceptible inside that frame,
+    and the broad first-read no-count constraint
+
+this section (§8.8)
+    owns AT WHAT DEPTH each kind of information is presented,
+    and what the boundary cases do in first read
+
+§8.4 / §8.5 / §8.6 / §8.7
+    own the concrete surfaces, section behavior and exact copy
+```
+
+Neither §25's question set nor §8's outcome priority is restated, narrowed or
+overridden here. Where this section and an existing §8.4–§8.7 surface rule
+disagree, the surface rule wins and the disagreement is a defect in this
+section.
+
+### 8.8.2 First-Read Goal
+
+The first read must make an invisible relationship visible. A visitor who has
+already seen this GitHub account on github.com must learn something the
+account's own surface does not show: that specific observable traces **recur
+across separate repositories**, that this is what the result is built from,
+that the reasoning can be checked, and that the statement is about public
+evidence rather than about the person. Density is not the goal; a visitor who
+understands less but understands it correctly has had a better first read than
+one who is shown everything.
+
+**Required understanding — at most five, in this order of necessity:**
+
+1. This GitHub shows things that repeat across different repositories, and
+   here is what repeats.
+2. This is not a reading of one repository.
+3. This describes public evidence under stated rules; it is not a judgment of
+   the person.
+4. I can find out why the product says this.
+5. If I want to look further myself, there is a neutral place to start.
+
+The order is `profile-proof-distinctive-outcomes-contract.md` §8.1's locked
+prominence order (its items 1–5), carried over unchanged rather than
+re-derived.
+
+This list is **derived, not original**: it is the presentation-depth reading of
+the question set owned by `public-profile-evidence-product-contract.md` §25 and
+the outcome-level first-read priority owned by
+`profile-proof-distinctive-outcomes-contract.md` §8.1. It creates no new
+first-read requirement. If either owner changes, that owner wins and this list
+is restated to follow it — a divergence here is a defect in this section, never
+a competing requirement.
+
+Nothing else is required in first read. Anything else that appears there must
+earn its place against these five.
+
+### 8.8.3 Semantic Levels
+
+The first read has five semantic levels. A level is a **depth of meaning**, not
+a DOM position and not a visual coordinate:
+
+```text
+L1  MEANING            what this GitHub collectively shows
+L2  RECURRING RESULTS  which technical direction and which working methods repeat
+L3  WHY AFFORDANCE     that the reasoning is inspectable
+L4  STARTING POINT     a neutral, pattern-scoped place to begin
+L5  EVIDENCE BOUNDARY  what was looked at and what limits the reading
+```
+
+Two rules bind this ladder:
+
+- **Level is not position.** The canonical section order stays exactly as
+  §8.6.1 and the canonical report order
+  (`docs/architecture/public-profile-evidence-report-contract.md` §7) lock it,
+  which places Starting Point before the Why disclosure. That is not a
+  conflict: L3 is the *affordance* — the visible fact that a why path exists —
+  and the affordance may sit after L4 in reading order while still outranking
+  it in semantic weight. The why *content* is not first read at all (§8.8.4).
+- **L1 and L2 may not be outranked.** No other level may take visual or
+  semantic priority over Meaning and the two recurring-result cards, and no new
+  surface may be introduced that does. This restates, at presentation depth,
+  the priority already owned by
+  `profile-proof-distinctive-outcomes-contract.md` §8.1.
+
+The ladder ranks **report content**, so exactly two existing non-report
+surfaces sit outside it and are not L1/L2 competitors: the identity header
+(§8.7.1) and the P10-I5 status area. Their position is a truthfulness
+requirement, not a priority claim — a result the reader must know is partial
+has to say so before the reader starts reading it, and the page's `h1` is the
+identity the result is about. Within that, the Partial notice is the single
+status surface that may precede Meaning; warnings remain subordinate under
+§8.8.4 and never take that position. Nothing else may be added to this
+exception.
+
+### 8.8.4 Information Depth Classification
+
+Exactly one depth per information type. `FIRST READ` = perceptible with no
+interaction; `PROGRESSIVE DISCLOSURE` = one deliberate expansion on this page;
+`DEEP EVIDENCE` = reached by leaving this page for a Repository Proof run.
+
+| Information | Depth | Binding surface rule |
+|---|---|---|
+| Accepted profile identity, canonical GitHub identity, scope line | FIRST READ | §8.7.1 |
+| Profile meaning narrative (L1) | FIRST READ | §8.4.9 |
+| Recurring technical direction — labels (L2) | FIRST READ | §8.4.5 literal-identity rule, §8.7.6 |
+| Recurring working methods — labels (L2) | FIRST READ | §8.4.8 |
+| The recurrence relationship itself ("appears again across different repositories") | FIRST READ | §8.4.9, §8.7.6 lead-in |
+| Supporting repository identities | PROGRESSIVE DISCLOSURE | §8.6.3, §8.4.7 |
+| Supporting repository count, or any count | NEVER RENDERED | §8.6.9, §8.4.7, distinctive-outcomes §8.2 |
+| "Why" affordance — that an explanation exists (L3) | FIRST READ | §8.6.2 summary and its one-line description |
+| "Why" explanation content | PROGRESSIVE DISCLOSURE | §8.6.2, §8.6.3 |
+| Starting-point repository identity (L4) | FIRST READ | §8.6.1 |
+| Starting-point pattern relationship | FIRST READ | §8.6.1b |
+| Starting-point GitHub description | FIRST READ, subordinate | §8.6.1a |
+| Repository eligibility status rows | PROGRESSIVE DISCLOSURE | §8.6.5, §8.6.6 |
+| That a declared repository surface exists and is inspectable (L5) | FIRST READ | §8.6.2 summary and its one-line description |
+| Limitations (L5) | FIRST READ, subordinate | §8.5, report contract §7 position 7 |
+| Warnings — operational notes | FIRST READ, subordinate | P10-I5; plan §13.13 |
+| Partial-result notice | FIRST READ, leading the status area | P10-I5 |
+| Signal / concrete file / workflow / release evidence | DEEP EVIDENCE | §8.6.4, §8.6.5 |
+| Evidence keys, observation keys, rule/policy versions, analysis identifiers | NEVER RENDERED | §8.6.4, §8.6.9 |
+| Score, ranking, percentage, badge, activity feed, language share, repository totals | NEVER RENDERED | §8.4.7, §8.6.9, product contract §15/§18 |
+
+"Subordinate" means present in first read but never competing with L1/L2 for
+attention: quieter heading weight, no emphasis treatment, and never placed
+between Meaning and its own two recurring-result cards.
+
+### 8.8.5 Recurrence Without Counts
+
+Recurrence is the product's central first-read claim and it must be perceived
+**as a relationship expressed in language**, never as a quantity. The only
+authorized carriers are:
+
+- the Meaning paragraphs, which state that the named items recur across
+  different repositories (§8.4.9);
+- the quiet `Recurring technologies` / `Tekrar eden teknolojiler` lead-in on
+  the technical card (§8.7.6);
+- the §8.6.1b starting-point relationship line, which names repeated results;
+- the §8.6.7 Why reasons, once disclosed.
+
+A number is never a substitute for any of these, and none of them may be
+strengthened into a magnitude, frequency, ratio, "strongly/weakly recurring"
+axis or a comparison between items.
+
+**Recorded gap — Working Style recurrence asymmetry.** The technical card
+carries a recurrence lead-in; the Working Style card (§8.4.8) renders bare
+noun-phrase rows, so on that card the recurrence relationship reaches the
+reader only through Meaning. Meaning is always rendered, so this is not a
+correctness defect and Outcome 1 remains supported. Giving the practice card a
+symmetric quiet lead-in would change §8.4.8's locked card shape and is
+therefore **not authorized here**: **Working Style Recurrence Lead-In Contract
+Gap**.
+
+### 8.8.6 Boundary Behavior in First Read
+
+Four cases, kept structurally distinct. Collapsing any two of them is a
+contract violation.
+
+**CASE A — repeated patterns exist.** Meaning leads with what recurs; the two
+recurring-result cards follow; Starting Point carries its §8.6.1b relationship;
+the Why and Repository-evidence affordances are visible and closed.
+
+**CASE B — no promoted pattern, evidence surface otherwise valid.** This is a
+valid analytical outcome, not a negative result and not a limitation. First
+read leads with the locked Meaning absence paragraphs (§8.4.4/§8.4.9), each
+section states its own §8.5 `Supported + empty` outcome, and `Limitations` may
+legitimately be empty. Nothing on the page may read as "nothing found", "no
+skills", a deficit, an error state or an invitation to try a better profile. No
+empty-state illustration, retry prompt or encouragement copy is introduced.
+
+**Recorded gap — empty-result first-read repetition.** In this case the reader
+receives the same absence statement several times in a row (Meaning's two
+paragraphs, then each section's own §8.5 line, then an empty Limitations card).
+§8.5 calls this repetition deliberate so that a canonical section never fails
+to report its own result, and the empty Limitations card is held open as the
+**Empty Limitations Presentation Contract Gap**. Reducing the repetition would
+require amending §8.5 and is **not authorized here**: **Empty-Result First-Read
+Repetition Contract Gap**.
+
+**CASE C — evidence surface incomplete or narrowed.** Distinct from CASE B and
+never merged into it. The truthful Partial notice leads the status area above
+the report body, and the canonical `Limitations` items carry the narrowing.
+This says the *view* is bounded; it never says the person's work is bounded.
+
+**CASE D — provider / system / operational warning.** Warnings stay operational
+notes about this run and are never converted into evidence, negative evidence,
+a missing-capability claim or profile truth. They remain subordinate in first
+read (§8.8.4) and are never presented as a numbered report section (plan
+§13.13). A warning never suppresses, qualifies or annotates an individual
+pattern, conclusion or repository row.
+
+### 8.8.7 Generic-AI Differentiation Requirement
+
+Every element admitted to first read must survive this test, and an element
+that cannot answer the fourth column does not belong there:
+
+| First-read element | A generic AI can | GitHub Proof adds | The visitor perceives it because |
+|---|---|---|---|
+| Meaning narrative | produce a fluent summary of the profile | only items promoted by a versioned repetition rule ever appear | every profile-level sentence is phrased as recurrence across different repositories, never as a one-off observation |
+| Recurring-result cards | list technologies and practices | a bounded set whose membership condition is repetition, not salience | the cards carry only promoted items, under a recurrence lead-in and recurrence-worded Meaning |
+| Why affordance | invent a plausible-sounding justification | the justification is the same production input that produced the result | a visible, permanent path exists before it is opened, and opening it names literal supporting repositories |
+| Starting point | recommend a repository by popularity or name recognition | a pattern-scoped selection computed only from that pattern's own evidence | §8.6.1b names the repeated result the repository was selected for |
+| Evidence boundary | add a cautious hedge sentence | an auditable declared surface in which non-contributing repositories still appear | the always-present scope sentence in first read, and an inspectable unfiltered repository list behind one disclosure |
+
+### 8.8.8 Anti-Goals
+
+The Profile first read must never be organized as, or drift toward, any of:
+dashboard-first, metric-first, score-first, repository-list-first,
+AI-summary-first, activity-first, language-percentage-first, or
+person-judgment-first.
+
+"Show everything above the fold" is explicitly rejected as a goal. Adding a
+surface to first read is a cost paid by L1 and L2, and must be justified
+against §8.8.2's five required understandings.
+
+### 8.8.9 Implementation Input Boundary
+
+A future Razor/CSS/Web session working from this section **MAY**:
+
+- render the §8.6.1b starting-point pattern relationship from
+  `RepresentativeRepository.PatternSupports` using the locked copy;
+- adjust semantic and visual prominence inside the depths of §8.8.4 — in
+  particular, make the Why and Repository-evidence affordances more clearly
+  perceptible in first read, and keep subordinate surfaces subordinate;
+- remove presentation redundancy that renders the same canonical information
+  twice on one surface;
+- refine heading weight, grouping and spacing within the §8.7.6 visual
+  sequence, which is unchanged by this section.
+
+It **MAY NOT**:
+
+- invent evidence, counts, ranking, priority ordering, scores, confidence or
+  magnitude;
+- infer developer quality, role, seniority, capability, employability or
+  authorship;
+- add a fifth distinctive outcome, evidence convergence, role alignment, CV
+  alignment, candidate scoring, HR ranking or skill verification;
+- expose analyzer internals (evidence/observation keys, rule or policy
+  versions, thresholds, promotion or selection mechanics, analysis identifiers);
+- collapse `Supported + empty`, `Unsupported`, `Deferred`, a limitation and an
+  operational warning into one another;
+- reorder canonical report sections, or cap, filter, sort or group a canonical
+  collection beyond the bounds already locked in §8.6.1a;
+- close, narrow or work around any gap this document holds open — including
+  the Starting Point Prioritization, Working Style Recurrence Lead-In,
+  Empty-Result First-Read Repetition, Empty Limitations, Project-Type
+  Presentation, Recency, Shareable Profile URL and Social Preview gaps.
+
+Anything not authorized above requires an amendment to the owning contract
+before implementation, not an implementation decision.
 
 ------------------------------------------------------------------------
 

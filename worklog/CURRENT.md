@@ -1,12 +1,54 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-27 (Session 135)
+**Last Updated:** 2026-08-27 (Session 136)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 135 — Profile Proof Distinctive Outcomes Product
+- **Active Session:** 136 — Profile First-Read UI/UX Contract — branch
+  `session/136-profile-first-read-ux-contract`, session base `82569fa`
+  (`main`/`origin/main`/`HEAD` verified equal), route Opus / high, **DOCS**.
+  Product UX / presentation-contract session; **no Razor, CSS, JavaScript, C#,
+  domain, application, infrastructure, test or config change**. Answers what a
+  visitor must understand in the first 5–10 seconds of a successful Profile
+  result. **Ownership decision: extend `p10-presentation-language-contract.md`
+  minimally; no new document**, because §25 already owns the first-read
+  question set, Session 135 §8 owns outcome-level first-read priority, and
+  presentation depth is p10's own concern — a new owner would have duplicated
+  normative truth. Two additions: **§8.6.1 / new §8.6.1b** raises the Starting
+  Point item's locked "renders exactly" shape from three elements to four so
+  the canonical **pattern → starting-point relationship** finally becomes
+  user-visible, rendered only from the already-projected
+  `RepresentativeRepository.PatternSupports` identities, with locked EN/TR copy
+  and an explicit ranking prohibition (the **Starting Point Prioritization
+  Contract Gap stays open**); and **new §8.8** locks the first-read information
+  depth contract — the five required understandings, an L1–L5 semantic ladder
+  that is explicitly **not** a DOM order, a per-information-type FIRST READ /
+  PROGRESSIVE DISCLOSURE / DEEP EVIDENCE / NEVER RENDERED classification,
+  boundary behavior for the four cases, the generic-AI differentiation test and
+  the implementation-input boundary. The apparent Session 135 §8.1 vs p10
+  §8.6.1 ordering conflict resolves without a STOP: Session 135 constrains the
+  why-path and the starting point only **relative to Meaning** and leaves
+  concrete section order to p10, and L3 splits into a first-read *affordance*
+  and a disclosed *content*. **No new outcome, evidence rule, threshold,
+  taxonomy, limitation identity, availability state, count, ranking or score**
+  was introduced; edits to the Session 135 contract are cross-reference only
+  and **Outcome 4 remains PARTIALLY SUPPORTED** — authorization is not
+  delivery. Audit of the delivered Web produced a current first-read map and
+  six classified gaps (G-1 contract half closed here, implementation half open;
+  G-2 duplicated technology list; G-3 why-affordance prominence; G-4 warning
+  placement; G-5 and G-6 recorded as new named contract gaps, deliberately not
+  closed). **Independent review ran twice in a forked cold context and returned
+  PASS WITH FINDINGS both times (BLOCKER 0, HIGH 0)**; the first round's
+  1 MEDIUM / 3 LOW and the second round's 1 MEDIUM / 2 LOW were all closed in
+  bounded same-session correction passes — derived-list precedence and owner
+  order, a wrong binding-rule attribution, the status-area/L1-L2 tension, the
+  `ProblemArea` family scope, and worklog record consistency. The outcome set,
+  the two additions and the gap map never changed across those rounds.
+  `artifacts/` untouched.
+  Detail: [`sessions/2026-08-27-136-profile-first-read-ux-contract.md`](./sessions/2026-08-27-136-profile-first-read-ux-contract.md)
+- **Previous Session:** 135 — Profile Proof Distinctive Outcomes Product
   Contract — branch
   `session/135-profile-proof-distinctive-outcomes-contract`, session base
   `9c4c90d` (`main`/`origin/main`/`HEAD` verified equal), route Opus / high,
@@ -47,8 +89,9 @@ carries product, domain or architecture truth.
   — the pattern relationship is **not** a recorded canonical gap and needs a
   p10 §8.6.1 amendment), plus **F-N2/F-N3/F-N4**. The earlier author-context
   review was never recorded as independent (`AGENTS.md` §6 / `agents/06` §7).
-  **Session 135 closure is READY FOR ARCHITECTURE OWNER RATIFICATION**, not
-  self-marked PASS. `artifacts/` remains untouched.
+  **Session 135 closure: architecture-owner decision PASS.** The contract is
+  ratified and integrated into `main` as
+  `82569faaf51dda2a69f24888e2eddde3c661df55`. `artifacts/` remains untouched.
   Detail: [`sessions/2026-08-27-135-profile-proof-distinctive-outcomes-contract.md`](./sessions/2026-08-27-135-profile-proof-distinctive-outcomes-contract.md)
 - **Previous Session:** 134 — Milestone B Production-Candidate Runtime
   Configuration + Exit Validation — branch
@@ -259,10 +302,10 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `53991ac` — `main` == `origin/main` == `HEAD`
-  verified equal at Session 134 start. (Session 133's Milestone B first-user
-  and launch-burst gates were integrated into `main` between Session 133 and
-  Session 134; Session 134's own work is not yet integrated.)
+- **Last remote-verified `main`:** `82569fa` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 136 start. Session 134's production-candidate
+  configuration and Session 135's distinctive-outcomes contract are both
+  integrated at that commit; Session 136's own work is not yet integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -544,6 +587,14 @@ Session 118 from canonical ownership: four are prohibitions being honoured, one
 is required behaviour being sustained, one is an unauthorized future design.
 None is unfinished required P10 implementation.
 
+Session 136 added two more, both recorded in p10 and deliberately left open:
+**Working Style Recurrence Lead-In** (§8.8.5 — closing it would change §8.4.8's
+locked card shape) and **Empty-Result First-Read Repetition** (§8.8.6 — closing
+it would require amending §8.5's deliberate-repetition rule). Session 136 also
+**closed the contract half** of the Starting Point pattern-relationship gap via
+§8.6.1b; its implementation half is open and is *not* the Starting Point
+Prioritization gap, which remains untouched.
+
 ## Open Runtime Decisions — for the Profile Production Runtime Decision session
 
 | Decision | State at Session 120 exit |
@@ -567,23 +618,25 @@ D-2 budget premise is unchanged.
 
 ## Exact Next Action
 
-**Session 135 is complete as a docs contract, all review findings from both
-review rounds are closed, and its closure is READY FOR ARCHITECTURE OWNER
-RATIFICATION.** It changed no production, domain, application, web, test
+**Session 135 is closed: architecture-owner decision PASS, integrated into
+`main` as `82569fa`.** It changed no production, domain, application, web, test
 or configuration code; the runtime queue below is unaffected by it.
+
+**Session 136 has now consumed that contract** and produced the Profile
+first-read presentation decision as a bounded p10 extension. It changed no
+production, domain, application, web, test or configuration code either; the
+runtime queue below is unaffected by both sessions.
 
 Two independent next steps are now available, and the architecture owner
 chooses the order:
 
-1. **The architecture owner's final closure decision on Session 135** — the
-   forked cold-context closure review returned PASS WITH FINDINGS and every
-   finding is now closed, so the contract is ready for ratification — then a
-   bounded Profile first-read UI/UX session that consumes
-   `docs/product/profile-proof-distinctive-outcomes-contract.md` §5 and §8 as
-   its input. That UI/UX session is **not** authorized to introduce a new
-   evidence rule, threshold, taxonomy, limitation identity or availability
-   state; those stay with their existing owners.
-2. **The Milestone B runtime path below**, which Session 135 did not touch.
+1. **A bounded Profile Web implementation session** that renders the §8.6.1b
+   relationship line in `_ProfileStartingPoint.cshtml` +
+   `ProfileWebPresentationLocalizer` and applies G-2/G-3/G-4. That session is
+   bound by p10 §8.8.9 and is **not** authorized to introduce a new evidence
+   rule, threshold, taxonomy, limitation identity, availability state, count or
+   ranking; those stay with their existing owners.
+2. **The Milestone B runtime path below**, which neither session touched.
 
 ---
 
