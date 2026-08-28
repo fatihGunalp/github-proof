@@ -647,8 +647,17 @@ public sealed class RepositoryReportShellTests
             content,
             StringComparison.Ordinal);
 
+        // Session 141 (contract 14 §20): what is rendered is decided by
+        // canonical warning/limitation identity. The previous
+        // Distinct(StringComparer.Ordinal) over localized messages made
+        // presentation text the input to a semantic decision and is gone.
         Assert.Contains(
-            ".Distinct(StringComparer.Ordinal)",
+            "RepositoryReportNotesPresentation.Create(Model)",
+            content,
+            StringComparison.Ordinal);
+
+        Assert.DoesNotContain(
+            "Distinct(StringComparer.Ordinal)",
             content,
             StringComparison.Ordinal);
     }

@@ -39,7 +39,7 @@ public sealed record RepositoryReport(
     RepositoryReportScoreSummary ScoreSummary,
     RepositoryReportSection<SignalPresentation> SignalDetails,
     IReadOnlyList<RepositoryReportWarning> Warnings,
-    IReadOnlyList<string> Limitations,
+    IReadOnlyList<RepositoryReportLimitation> Limitations,
     RepositoryReportDisclaimer Disclaimer);
 
 public sealed record RepositoryReportSection<T>(
@@ -120,12 +120,25 @@ public sealed record RepositoryReportScoreSummary(
     ScoreCalculationMethod CalculationMethod,
     IReadOnlyList<RepositoryReportCategory> Categories);
 
+// Session 141 (contract 14 §20): PresentationKey is the canonical identity of
+// what this warning says. Presentation may collapse repeats by that identity;
+// it may never infer identity from the localized Message. Code stays the
+// per-occurrence canonical identity and is unchanged.
 public sealed record RepositoryReportWarning(
     string Code,
     WarningSeverity Severity,
+    string PresentationKey,
     string Message,
     IReadOnlyList<string> RelatedDataKeys,
     IReadOnlyList<string> RelatedSignals);
+
+// Session 141 (contract 14 §20): the canonical limitation key travels with its
+// localized message, so presentation can reason about limitation identity
+// without parsing text. The underlying canonical LimitationKeys collection is
+// unchanged — this only stops discarding the key during projection.
+public sealed record RepositoryReportLimitation(
+    string Key,
+    string Message);
 
 public sealed record RepositoryReportDisclaimer(
     string SectionKey,

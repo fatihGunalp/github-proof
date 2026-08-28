@@ -142,16 +142,13 @@
     color: var(--fg-tertiary);
 }
 
-.analysis-progress__stage-state {
-    flex: 0 0 auto;
-    color: var(--fg-tertiary);
-}
-
-/* Exactly one state token renders per stage; the state is never conveyed by
-   colour alone (p10 §8.3.3). */
-.analysis-progress__stage[data-state="pending"] [data-state-token]:not([data-state-token="pending"]),
-.analysis-progress__stage[data-state="active"] [data-state-token]:not([data-state-token="active"]),
-.analysis-progress__stage[data-state="completed"] [data-state-token]:not([data-state-token="completed"]) {
+/* Exactly one sentence renders per stage, and it is the one written for the
+   stage's current state. The state therefore stays readable as text and is
+   never conveyed by colour or by the decorative glyph alone (Session 141
+   contract 02; the glyph stays aria-hidden). */
+.analysis-progress__stage[data-state="pending"] [data-stage-label]:not([data-stage-label="pending"]),
+.analysis-progress__stage[data-state="active"] [data-stage-label]:not([data-stage-label="active"]),
+.analysis-progress__stage[data-state="completed"] [data-stage-label]:not([data-stage-label="completed"]) {
     display: none;
 }
 

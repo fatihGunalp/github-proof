@@ -15,15 +15,12 @@ public sealed class ProfileWebPresentationLocalizerTests
 
     private readonly ProfileWebPresentationLocalizer localizer = new();
 
+    // Session 141 (contract 03): the header fixes identity and no longer
+    // carries an identity-context caption. What it keeps is the canonical
+    // GitHub external action and its accessible name, both unchanged.
     [Fact]
     public void Profile_identity_header_copy_is_localized_and_deterministic()
     {
-        Assert.Equal(
-            "View of public GitHub work",
-            localizer.GetProfileIdentityContext(WebCulture.English));
-        Assert.Equal(
-            "Herkese açık GitHub çalışmalarının görünümü",
-            localizer.GetProfileIdentityContext(WebCulture.Turkish));
         Assert.Equal(
             "Open on GitHub",
             localizer.GetOpenProfileOnGitHubLabel(WebCulture.English));
@@ -38,8 +35,8 @@ public sealed class ProfileWebPresentationLocalizerTests
             localizer.GetOpenProfileOnGitHubAccessibleName("octocat", WebCulture.Turkish));
 
         Assert.Equal(
-            localizer.GetProfileIdentityContext(WebCulture.English),
-            localizer.GetProfileIdentityContext(WebCulture.English));
+            localizer.GetOpenProfileOnGitHubLabel(WebCulture.English),
+            localizer.GetOpenProfileOnGitHubLabel(WebCulture.English));
     }
 
     [Fact]
@@ -91,25 +88,25 @@ public sealed class ProfileWebPresentationLocalizerTests
             "Tekrar eden teknolojiler",
             localizer.GetRecurringTechnologiesLeadIn(WebCulture.Turkish));
         Assert.Equal(
-            "Each observation is explained with the repositories that support it.",
+            "See which repositories each statement is based on.",
             localizer.GetWhyDisclosureDescription(WebCulture.English));
         Assert.Equal(
-            "Gözlemler hangi repository'lere dayandığıyla birlikte açıklanır.",
+            "Buradaki ifadelerin hangi repository'lere dayandığını görebilirsiniz.",
             localizer.GetWhyDisclosureDescription(WebCulture.Turkish));
         Assert.Equal(
-            "The public repositories examined for this view appear here.",
+            "See the public repositories examined in this analysis.",
             localizer.GetRepositoryEvidenceDisclosureDescription(WebCulture.English));
         Assert.Equal(
-            "İncelenen herkese açık repository'ler burada görülür.",
+            "Analizde incelenen public repository'leri burada görebilirsiniz.",
             localizer.GetRepositoryEvidenceDisclosureDescription(WebCulture.Turkish));
     }
 
     [Theory]
-    [InlineData(ProfileReportSectionKey.TechnicalFocusAreas, "Visible technical direction", "Görünen teknik yön")]
+    [InlineData(ProfileReportSectionKey.TechnicalFocusAreas, "Technical direction", "Teknik yön")]
     [InlineData(ProfileReportSectionKey.EngineeringPracticePatterns, "Working style", "Çalışma biçimi")]
     [InlineData(ProfileReportSectionKey.RepresentativeRepositories, "Starting point", "Başlangıç noktası")]
     [InlineData(ProfileReportSectionKey.WhyThisConclusion, "What is this based on?", "Bunu neye dayanarak söylüyoruz?")]
-    [InlineData(ProfileReportSectionKey.Limitations, "Limits of this view", "Bu görünümün sınırları")]
+    [InlineData(ProfileReportSectionKey.Limitations, "Limits of this analysis", "Bu analizin sınırları")]
     public void Required_profile_section_labels_are_keyed_by_canonical_identity(
         ProfileReportSectionKey section,
         string english,
@@ -202,13 +199,20 @@ public sealed class ProfileWebPresentationLocalizerTests
                 practicePatterns),
             WebCulture.Turkish);
 
-        Assert.StartsWith(MeaningIdentity, english.TechnicalNarrative, StringComparison.Ordinal);
-        Assert.StartsWith(MeaningIdentity, turkish.TechnicalNarrative, StringComparison.Ordinal);
+        // Session 141 (contract 04): the accepted identity still leads Meaning
+        // whenever a technical direction recurs. When none does, the approved
+        // copy states the absence instead of attaching the username to it.
+        if (technicalPatterns.Length > 0)
+        {
+            Assert.StartsWith(MeaningIdentity, english.TechnicalNarrative, StringComparison.Ordinal);
+            Assert.StartsWith(MeaningIdentity, turkish.TechnicalNarrative, StringComparison.Ordinal);
+        }
+
         Assert.Equal(
-            "This summary is based only on traces visible in public GitHub work under the current analysis rules.",
+            "This summary is based only on traces visible in public GitHub work.",
             english.Provenance);
         Assert.Equal(
-            "Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.",
+            "Bu anlatım yalnızca public GitHub çalışmalarında görülebilen izlere dayanıyor.",
             turkish.Provenance);
 
         foreach (string technicalPattern in technicalPatterns)
@@ -221,19 +225,23 @@ public sealed class ProfileWebPresentationLocalizerTests
         {
             if (technicalPatterns.Length > 0)
             {
-                Assert.Contains("more limited visible traces", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("tekrar eden belirgin bir yöntem görünmüyor", turkish.PracticeNarrative, StringComparison.Ordinal);
+                Assert.Contains("No clear working method recurs", english.PracticeNarrative, StringComparison.Ordinal);
+                Assert.Contains("tekrar eden belirgin bir çalışma biçimi görünmüyor", turkish.PracticeNarrative, StringComparison.Ordinal);
             }
             else
             {
-                Assert.Contains("limited traces", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("sınırlı izi", turkish.PracticeNarrative, StringComparison.Ordinal);
+                // Variant D: the second paragraph must not repeat the absence
+                // the first paragraph already stated.
+                Assert.Contains("No additional recurring working method", english.PracticeNarrative, StringComparison.Ordinal);
+                Assert.Contains("ek bir tekrar görünmüyor", turkish.PracticeNarrative, StringComparison.Ordinal);
+                Assert.NotEqual(english.TechnicalNarrative, english.PracticeNarrative);
+                Assert.NotEqual(turkish.TechnicalNarrative, turkish.PracticeNarrative);
             }
         }
         else
         {
-            Assert.Contains("appears across multiple repositories", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("birden fazla repository'de görülüyor", turkish.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("recur across multiple repositories", english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("birden fazla repository'de tekrar görülüyor", turkish.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -348,7 +356,7 @@ public sealed class ProfileWebPresentationLocalizerTests
         Assert.Equal(expectedTechnicalNarrative, meaning.TechnicalNarrative);
         Assert.Equal(expectedPracticeNarrative, meaning.PracticeNarrative);
         Assert.Equal(
-            "Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.",
+            "Bu anlatım yalnızca public GitHub çalışmalarında görülebilen izlere dayanıyor.",
             meaning.Provenance);
     }
 
@@ -359,8 +367,8 @@ public sealed class ProfileWebPresentationLocalizerTests
             "fatihGunalp",
             new[] { "C#" },
             Array.Empty<string>(),
-            "fatihGunalp GitHub çalışmalarında C# farklı repository'lerde tekrar karşımıza çıkıyor. Bu nedenle C# profil boyunca görünür olan tekrar eden teknik çalışma alanı.",
-            "Çalışma biçiminde ise repository'ler arasında aynı şekilde tekrar eden belirgin bir yöntem görünmüyor. Yani bu GitHub teknik yön konusunda daha fazla şey gösterirken, çalışmaların nasıl yürütüldüğü konusunda daha sınırlı iz sunuyor."
+            "fatihGunalp GitHub çalışmalarında C# farklı repository'lerde tekrar ediyor.",
+            "Repository'ler arasında tekrar eden belirgin bir çalışma biçimi görünmüyor."
         ];
         yield return
         [
@@ -372,16 +380,16 @@ public sealed class ProfileWebPresentationLocalizerTests
                 ProfilePatternPromotionPolicy.ContinuousIntegrationPatternKey,
                 ProfilePatternPromotionPolicy.DocumentationPatternKey
             },
-            "yusuftalhaklc GitHub çalışmalarında C#, Go, HTML, Java, Kotlin ve Python farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
-            "Çalışma biçiminde de bazı ortak yöntemler tekrar ediyor. Otomatik test kullanımı, otomatik kontrol süreçleri ve dokümantasyon birden fazla repository'de görülüyor. Yani bu GitHub yalnızca hangi teknolojilerle çalışıldığını değil; çalışmaların nasıl yürütüldüğüne ilişkin yöntemlerin de farklı çalışmalarda tekrarlandığını gösteriyor."
+            "yusuftalhaklc GitHub çalışmalarında C#, Go, HTML, Java, Kotlin ve Python farklı repository'lerde tekrar ediyor.",
+            "Otomatik test kullanımı, otomatik kontrol süreçleri ve dokümantasyon gibi çalışma biçimleri de birden fazla repository'de tekrar görülüyor."
         ];
         yield return
         [
             "irmakcosar",
             new[] { "C#", "HTML" },
             Array.Empty<string>(),
-            "irmakcosar GitHub çalışmalarında C# ve HTML farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
-            "Çalışma biçiminde ise repository'ler arasında aynı şekilde tekrar eden belirgin bir yöntem görünmüyor. Yani bu GitHub teknik yön konusunda daha fazla şey gösterirken, çalışmaların nasıl yürütüldüğü konusunda daha sınırlı iz sunuyor."
+            "irmakcosar GitHub çalışmalarında C# ve HTML farklı repository'lerde tekrar ediyor.",
+            "Repository'ler arasında tekrar eden belirgin bir çalışma biçimi görünmüyor."
         ];
     }
 
@@ -411,12 +419,12 @@ public sealed class ProfileWebPresentationLocalizerTests
             WebCulture.English);
 
         Assert.Equal(
-            "fatihGunalp's GitHub work shows C#, .NET, ASP.NET Core, and F# recurring across different repositories. The profile shows technical work spanning more than one technology.",
+            "fatihGunalp's GitHub work shows C#, .NET, ASP.NET Core, and F# recurring across different repositories.",
             meaning.TechnicalNarrative);
 
         string[] labels =
         [
-            "Pull request workflow",
+            "pull request workflow",
             "automated testing",
             "automated integration checks",
             "documentation",
@@ -434,10 +442,15 @@ public sealed class ProfileWebPresentationLocalizerTests
 
         Assert.DoesNotContain("tests that check", meaning.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("in other words", meaning.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(2, meaning.TechnicalNarrative.Split(". ", StringSplitOptions.None).Length);
-        Assert.Equal(3, meaning.PracticeNarrative.Split(". ", StringSplitOptions.None).Length);
-        Assert.True(meaning.TechnicalNarrative.Length < 300);
-        Assert.True(meaning.PracticeNarrative.Length < 700);
+        // Session 141 (contract 04): one sentence each, roughly half the
+        // previous length. Each paragraph ends with its single full stop and
+        // contains no sentence break before it.
+        Assert.EndsWith(".", meaning.TechnicalNarrative, StringComparison.Ordinal);
+        Assert.EndsWith(".", meaning.PracticeNarrative, StringComparison.Ordinal);
+        Assert.DoesNotContain(". ", meaning.TechnicalNarrative, StringComparison.Ordinal);
+        Assert.DoesNotContain(". ", meaning.PracticeNarrative, StringComparison.Ordinal);
+        Assert.True(meaning.TechnicalNarrative.Length < 150);
+        Assert.True(meaning.PracticeNarrative.Length < 250);
     }
 
     [Fact]
@@ -497,11 +510,11 @@ public sealed class ProfileWebPresentationLocalizerTests
             WebCulture.Turkish);
 
         Assert.Equal(
-            "mrtkhrmn3 GitHub çalışmalarında C#, Java ve TypeScript farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
+            "mrtkhrmn3 GitHub çalışmalarında C#, Java ve TypeScript farklı repository'lerde tekrar ediyor.",
             meaning.TechnicalNarrative);
         Assert.Contains("Otomatik test kullanımı", meaning.PracticeNarrative, StringComparison.Ordinal);
         Assert.Contains("pull request ile değişiklik akışı", meaning.PracticeNarrative, StringComparison.Ordinal);
-        Assert.Contains("yöntemlerin de farklı çalışmalarda tekrarlandığını", meaning.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains("birden fazla repository'de tekrar görülüyor", meaning.PracticeNarrative, StringComparison.Ordinal);
 
         Assert.StartsWith("mrtkhrmn3", meaning.TechnicalNarrative, StringComparison.Ordinal);
 
@@ -557,9 +570,12 @@ public sealed class ProfileWebPresentationLocalizerTests
                 [practicePattern]),
             WebCulture.Turkish);
 
-        Assert.Contains(expectedEnglishLabel, english.PracticeNarrative, StringComparison.Ordinal);
+        // The canonical label reaches the sentence unchanged apart from the
+        // pre-existing sentence-position lowercasing of its first letter, which
+        // is grammar, not a different label.
+        Assert.Contains(expectedEnglishLabel, english.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("across multiple repositories", english.PracticeNarrative, StringComparison.Ordinal);
-        Assert.Contains(expectedTurkishLabel, turkish.PracticeNarrative, StringComparison.Ordinal);
+        Assert.Contains(expectedTurkishLabel, turkish.PracticeNarrative, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("birden fazla repository'de", turkish.PracticeNarrative, StringComparison.Ordinal);
 
         string combined = english.PracticeNarrative + turkish.PracticeNarrative;
@@ -618,10 +634,10 @@ public sealed class ProfileWebPresentationLocalizerTests
             [Support(ProfilePatternFamily.TechnicalFocus, "C#")];
 
         Assert.Equal(
-            "Starting point for this recurring result: C#",
+            "Starting point for C#",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
         Assert.Equal(
-            "Bu tekrar eden sonuç için başlangıç noktası: C#",
+            "C# için başlangıç noktası",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
     }
 
@@ -637,15 +653,15 @@ public sealed class ProfileWebPresentationLocalizerTests
 
         // The concise §8.4.8 Working Style label, never the raw canonical key.
         Assert.Equal(
-            "Starting point for this recurring result: Automated testing",
+            "Starting point for Automated testing",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
         Assert.Equal(
-            "Bu tekrar eden sonuç için başlangıç noktası: Otomatik test kullanımı",
+            "Otomatik test kullanımı için başlangıç noktası",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
     }
 
     [Fact]
-    public void Starting_point_relationship_renders_every_support_in_canonical_order_with_plural_copy()
+    public void Starting_point_relationship_renders_every_support_in_canonical_order()
     {
         IReadOnlyList<RepresentativePatternSupport> supports =
         [
@@ -663,17 +679,20 @@ public sealed class ProfileWebPresentationLocalizerTests
         // the existing locale-aware rule. No cap, sort, filter or
         // first-pattern shortcut.
         Assert.Equal(
-            "Starting point for these recurring results: "
+            "Starting point for "
             + "C#, TypeScript, Automated integration checks, and Documentation",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.English));
         Assert.Equal(
-            "Bu tekrar eden sonuçlar için başlangıç noktası: "
-            + "C#, TypeScript, Otomatik kontrol süreçleri ve Dokümantasyon",
+            "C#, TypeScript, Otomatik kontrol süreçleri ve Dokümantasyon"
+            + " için başlangıç noktası",
             localizer.GetStartingPointPatternRelationship(supports, WebCulture.Turkish));
     }
 
+    // Session 141 (contract 07) removed the internal "recurring result" phrase,
+    // so the relationship no longer needs a singular/plural split. What it must
+    // still never do is render a quantity.
     [Fact]
-    public void Starting_point_relationship_switches_grammatical_number_without_rendering_a_count()
+    public void Starting_point_relationship_never_renders_a_count()
     {
         IReadOnlyList<RepresentativePatternSupport> single =
             [Support(ProfilePatternFamily.TechnicalFocus, "Go")];
@@ -726,7 +745,7 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Starting_point_relationship_falls_back_to_English_for_an_unsupported_culture()
     {
         Assert.Equal(
-            "Starting point for this recurring result: C#",
+            "Starting point for C#",
             localizer.GetStartingPointPatternRelationship(
                 [Support(ProfilePatternFamily.TechnicalFocus, "C#")],
                 "de-DE"));
@@ -835,20 +854,20 @@ public sealed class ProfileWebPresentationLocalizerTests
     [Theory]
     [InlineData(
         ProfileReportSectionKey.TechnicalFocusAreas,
-        "The visible public evidence did not establish a repeated technical direction under the current analysis rules.",
-        "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı.")]
+        "No clear technical direction recurs across the public repositories.",
+        "Public repository'ler arasında tekrar eden belirgin bir teknik yön görünmüyor.")]
     [InlineData(
         ProfileReportSectionKey.EngineeringPracticePatterns,
-        "No recurring working method is visible across the current public work.",
+        "No clear working method recurs across the public repositories.",
         "Farklı çalışmalarda tekrar eden belirgin bir yöntem görünmüyor.")]
     [InlineData(
         ProfileReportSectionKey.RepresentativeRepositories,
-        "No starting-point repository was selected from the current visible public evidence.",
-        "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.")]
+        "No starting point is visible right now.",
+        "Şu anda bir başlangıç noktası görünmüyor.")]
     [InlineData(
         ProfileReportSectionKey.Limitations,
-        "No limits were recorded for this profile view.",
-        "Bu profil görünümü için bir sınır kaydedilmedi.")]
+        "No additional limitations are visible for this analysis.",
+        "Bu analiz için ek bir sınırlama görünmüyor.")]
     public void Supported_empty_section_copy_is_locked_EN_TR(
         ProfileReportSectionKey section,
         string english,
@@ -892,12 +911,12 @@ public sealed class ProfileWebPresentationLocalizerTests
     [Theory]
     [InlineData(
         ProfileReportSectionKey.WhyThisConclusion,
-        "The public GitHub work did not provide a recurring conclusion to explain.",
-        "Herkese açık GitHub çalışmaları, açıklanacak tekrar eden bir sonuç ortaya koymadı.")]
+        "There is no recurring trace to explain here.",
+        "Burada açıklanacak tekrar eden bir iz yok.")]
     [InlineData(
         ProfileReportSectionKey.RepositoryDrillDown,
-        "The visible public evidence contains no public repository to inspect.",
-        "Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor.")]
+        "No public repository is available to inspect in this analysis.",
+        "Bu analizde incelenebilecek bir public repository görünmüyor.")]
     public void Supported_empty_copy_is_locked_for_the_two_P10I4_sections(
         ProfileReportSectionKey section,
         string english,
@@ -910,20 +929,20 @@ public sealed class ProfileWebPresentationLocalizerTests
     [Theory]
     [InlineData(
         RepositoryEligibilityStatus.Contributing,
-        "Contributed evidence to this view",
-        "Bu görünüme kanıt sağladı")]
+        "Contributed evidence to the profile analysis",
+        "Profil analizine kanıt sağladı")]
     [InlineData(
         RepositoryEligibilityStatus.Restricted,
-        "Contributed evidence to this view with restrictions",
-        "Bu görünüme kısıtlamalarla kanıt sağladı")]
+        "Contributed evidence to the profile analysis with some restrictions",
+        "Profil analizine bazı kısıtlamalarla kanıt sağladı")]
     [InlineData(
         RepositoryEligibilityStatus.NonContributing,
-        "Did not contribute evidence to this view",
-        "Bu görünüme kanıt sağlamadı")]
+        "Did not contribute evidence to the profile analysis",
+        "Profil analizine kanıt sağlamadı")]
     [InlineData(
         RepositoryEligibilityStatus.Undetermined,
-        "Its contribution to this view could not be determined",
-        "Bu görünüme katkısı belirlenemedi")]
+        "It could not be determined whether this repository contributed evidence to the profile analysis.",
+        "Profil analizine kanıt sağlayıp sağlamadığı belirlenemedi")]
     public void Repository_status_copy_is_locked_and_exhaustive(
         RepositoryEligibilityStatus status,
         string english,
@@ -944,10 +963,10 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Why_supporting_repositories_lead_in_is_locked_EN_TR()
     {
         Assert.Equal(
-            "Supporting repositories",
+            "Repositories where it appears",
             localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.English));
         Assert.Equal(
-            "Destekleyen repository'ler",
+            "Görüldüğü repository'ler",
             localizer.GetWhySupportingRepositoriesLeadIn(WebCulture.Turkish));
     }
 
@@ -957,15 +976,15 @@ public sealed class ProfileWebPresentationLocalizerTests
         "C#",
         "Why is C# here?",
         "C# neden burada?",
-        "recurring technical directions",
-        "tekrar eden teknik yönlerinden biri")]
+        "Because C# appears across multiple repositories.",
+        "Çünkü C# birden fazla repository'de tekrar görülüyor.")]
     [InlineData(
         ProfilePatternFamily.EngineeringPractice,
         ProfilePatternPromotionPolicy.AutomatedTestingPatternKey,
         "Why is Automated testing here?",
         "Otomatik test kullanımı neden burada?",
-        "recurring ways of working",
-        "çalışma biçiminde tekrar eden yöntemlerden biri")]
+        "Because Automated testing appears across multiple repositories.",
+        "Çünkü Otomatik test kullanımı birden fazla repository'de tekrar görülüyor.")]
     public void Why_translates_canonical_trace_into_a_visitor_question_and_bounded_reason(
         ProfilePatternFamily family,
         string patternKey,
@@ -1010,10 +1029,10 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Repository_fresh_analysis_lead_in_is_locked_EN_TR()
     {
         Assert.Equal(
-            "Selecting a repository runs a fresh Repository Proof analysis.",
+            "Selecting a repository starts a new Repository Proof analysis.",
             localizer.GetRepositoryFreshAnalysisLeadIn(WebCulture.English));
         Assert.Equal(
-            "Bir repository seçmek yeni bir Repository Proof analizi başlatır.",
+            "Bir repository seçtiğinizde yeni bir Repository Proof analizi başlar.",
             localizer.GetRepositoryFreshAnalysisLeadIn(WebCulture.Turkish));
     }
 
@@ -1021,10 +1040,10 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Repository_action_visible_label_is_locked_EN_TR()
     {
         Assert.Equal(
-            "Analyze this repository",
+            "View Repository Proof",
             localizer.GetRepositoryActionLabel(WebCulture.English));
         Assert.Equal(
-            "Bu repository'yi analiz et",
+            "Repository Proof'u gör",
             localizer.GetRepositoryActionLabel(WebCulture.Turkish));
     }
 
@@ -1032,10 +1051,10 @@ public sealed class ProfileWebPresentationLocalizerTests
     public void Repository_action_accessible_name_substitutes_the_literal_full_name()
     {
         Assert.Equal(
-            "Analyze repository octocat/Hello-World",
+            "View Repository Proof for octocat/Hello-World",
             localizer.GetRepositoryActionAccessibleName("octocat/Hello-World", WebCulture.English));
         Assert.Equal(
-            "octocat/Hello-World repository'sini analiz et",
+            "octocat/Hello-World için Repository Proof'u gör",
             localizer.GetRepositoryActionAccessibleName("octocat/Hello-World", WebCulture.Turkish));
     }
 
@@ -1055,19 +1074,19 @@ public sealed class ProfileWebPresentationLocalizerTests
         string? culture)
     {
         Assert.Equal(
-            "Contributed evidence to this view",
+            "Contributed evidence to the profile analysis",
             localizer.GetRepositoryStatusLabel(RepositoryEligibilityStatus.Contributing, culture));
         Assert.Equal(
-            "Supporting repositories",
+            "Repositories where it appears",
             localizer.GetWhySupportingRepositoriesLeadIn(culture));
         Assert.Equal(
-            "Selecting a repository runs a fresh Repository Proof analysis.",
+            "Selecting a repository starts a new Repository Proof analysis.",
             localizer.GetRepositoryFreshAnalysisLeadIn(culture));
         Assert.Equal(
-            "Analyze this repository",
+            "View Repository Proof",
             localizer.GetRepositoryActionLabel(culture));
         Assert.Equal(
-            "Analyze repository octocat",
+            "View Repository Proof for octocat",
             localizer.GetRepositoryActionAccessibleName("octocat", culture));
     }
 }

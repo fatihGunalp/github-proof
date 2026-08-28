@@ -56,7 +56,6 @@ public sealed class ProfileResultPresentationTests
         Assert.Contains("class=\"profile-result__identity\"", content, StringComparison.Ordinal);
         Assert.Contains("@Model.Identity", content, StringComparison.Ordinal);
         Assert.Contains("@Model.ProfileUrlDisplay", content, StringComparison.Ordinal);
-        Assert.Contains("GetProfileIdentityContext", content, StringComparison.Ordinal);
         Assert.Contains("href=\"@Model.ProfileUrl\"", content, StringComparison.Ordinal);
         Assert.Contains("GetOpenProfileOnGitHubLabel", content, StringComparison.Ordinal);
         Assert.Contains("GetOpenProfileOnGitHubAccessibleName", content, StringComparison.Ordinal);
@@ -67,7 +66,12 @@ public sealed class ProfileResultPresentationTests
         Assert.Contains("UiIcon.Github", content, StringComparison.Ordinal);
         Assert.Contains("class=\"profile-result__back\"", content, StringComparison.Ordinal);
         Assert.DoesNotContain("profile-result__eyebrow", content, StringComparison.Ordinal);
-        Assert.DoesNotContain("WebTextKey.ProfileView", content, StringComparison.Ordinal);
+
+        // Session 141 (contract 03): the header fixes identity and does not
+        // comment, so the identity-context caption is gone. (The WebTextKey it
+        // used no longer exists, so only the markup hooks are asserted here.)
+        Assert.DoesNotContain("GetProfileIdentityContext", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("profile-result__identity-context", content, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -644,7 +648,16 @@ public sealed class ProfileResultPresentationTests
         Assert.Contains("ProfileReportSectionAvailability.Supported", content, StringComparison.Ordinal);
         Assert.Contains("foreach (ProfileLimitation limitation in report.Limitations.Items)", content, StringComparison.Ordinal);
         Assert.Contains("GetLimitationLabel", content, StringComparison.Ordinal);
-        Assert.Contains("GetEmptySectionMessage", content, StringComparison.Ordinal);
+
+        // Session 141 (contract 10 §7): an empty canonical Limitations
+        // collection renders no section at all, rather than a heading over a
+        // "nothing was recorded" sentence. The Supported-section guard is
+        // unchanged and still runs before the render decision.
+        Assert.Contains("@if (report.Limitations.Items.Count > 0)", content, StringComparison.Ordinal);
+
+        // Limitations was the page's only Supported-but-empty surface, so no
+        // empty-state copy is reached from Profile.cshtml at all any more.
+        Assert.DoesNotContain("GetEmptySectionMessage", content, StringComparison.Ordinal);
 
         Assert.DoesNotContain("ExecutionAvailability", content, StringComparison.Ordinal);
         Assert.DoesNotContain("Admission", content, StringComparison.Ordinal);

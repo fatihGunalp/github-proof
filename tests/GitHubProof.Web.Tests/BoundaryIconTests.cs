@@ -22,13 +22,13 @@ public sealed class BoundaryDisclosureTests
         WebPresentationLocalizer text = new();
 
         Assert.Equal(
-            "GitHub Proof doesn't rank developers or judge seniority, AI authorship, or hiring.",
+            "GitHub Proof does not evaluate you; it only shows traces visible in public GitHub work.",
             text.Get(WebTextKey.BoundariesSummary, WebCulture.English));
         Assert.Equal(
             "View boundaries →",
             text.Get(WebTextKey.BoundariesDisclosureLabel, WebCulture.English));
         Assert.Equal(
-            "GitHub Proof geliştiricileri puanlamaz; kıdem, AI yazarlığı veya işe alım hükmü vermez.",
+            "GitHub Proof sizi değerlendirmez; yalnızca public GitHub'da görülebilen izleri gösterir.",
             text.Get(WebTextKey.BoundariesSummary, WebCulture.Turkish));
         Assert.Equal(
             "Sınırları gör →",

@@ -6,22 +6,22 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
 
   <data name="report.section.identity" xml:space="preserve"><value>Analiz kaynağı</value></data>
-  <data name="report.section.proves" xml:space="preserve"><value>Güçlü Kanıtlar</value></data>
-  <data name="report.section.weakens" xml:space="preserve"><value>Zayıf Noktalar</value></data>
+  <data name="report.section.proves" xml:space="preserve"><value>Bu repository neyi kanıtlıyor?</value></data>
+  <data name="report.section.weakens" xml:space="preserve"><value>Kanıtı ne zayıflatıyor?</value></data>
   <data name="report.section.do-first" xml:space="preserve"><value>Önce bunları yap</value></data>
-  <data name="report.section.uncertainty" xml:space="preserve"><value>Belirsizlik</value></data>
-  <data name="report.section.categories-score" xml:space="preserve"><value>Kategori özeti</value></data>
-  <data name="report.section.signal-details" xml:space="preserve"><value>Sinyal ayrıntıları</value></data>
-  <data name="report.section.disclaimer" xml:space="preserve"><value>Bu rapor ne iddia etmez?</value></data>
+  <data name="report.section.uncertainty" xml:space="preserve"><value>Dikkate alınması gerekenler</value></data>
+  <data name="report.section.categories-score" xml:space="preserve"><value>Kategoriler ve skor</value></data>
+  <data name="report.section.signal-details" xml:space="preserve"><value>Kanıt ayrıntıları</value></data>
+  <data name="report.section.disclaimer" xml:space="preserve"><value>Bu analiz neyi söylemez?</value></data>
 
-  <data name="analysis-status.Completed" xml:space="preserve"><value>Tamamlandı</value></data>
-  <data name="analysis-status.Partial" xml:space="preserve"><value>Kısmi</value></data>
-  <data name="analysis-status.InsufficientData" xml:space="preserve"><value>Yetersiz veri</value></data>
-  <data name="analysis-status.Failed" xml:space="preserve"><value>Başarısız</value></data>
+  <data name="analysis-status.Completed" xml:space="preserve"><value>Analiz tamamlandı</value></data>
+  <data name="analysis-status.Partial" xml:space="preserve"><value>Bazı veriler eksik</value></data>
+  <data name="analysis-status.InsufficientData" xml:space="preserve"><value>Yeterli veri bulunamadı</value></data>
+  <data name="analysis-status.Failed" xml:space="preserve"><value>Analiz tamamlanamadı</value></data>
 
-  <data name="category-status.Completed" xml:space="preserve"><value>Tamamlandı</value></data>
-  <data name="category-status.Partial" xml:space="preserve"><value>Kısmi</value></data>
-  <data name="category-status.InsufficientData" xml:space="preserve"><value>Yetersiz veri</value></data>
+  <data name="category-status.Completed" xml:space="preserve"><value>Sonuç var</value></data>
+  <data name="category-status.Partial" xml:space="preserve"><value>Bazı veriler eksik</value></data>
+  <data name="category-status.InsufficientData" xml:space="preserve"><value>Yeterli veri yok</value></data>
   <data name="category-status.NotEvaluated" xml:space="preserve"><value>Değerlendirilmedi</value></data>
 
   <data name="effort.Low" xml:space="preserve"><value>Düşük</value></data>
@@ -29,42 +29,42 @@
   <data name="effort.High" xml:space="preserve"><value>Yüksek</value></data>
   <data name="effort.Unknown" xml:space="preserve"><value>Tahmin edilmedi</value></data>
 
-  <data name="score.label.limited-visible-evidence" xml:space="preserve"><value>Sınırlı görünür kanıt</value></data>
-  <data name="score.label.basic-visible-evidence" xml:space="preserve"><value>Temel görünür kanıt</value></data>
-  <data name="score.label.developing-visible-evidence" xml:space="preserve"><value>Gelişen görünür kanıt</value></data>
-  <data name="score.label.strong-visible-evidence" xml:space="preserve"><value>Güçlü görünür kanıt</value></data>
-  <data name="score.label.very-strong-visible-evidence" xml:space="preserve"><value>Çok güçlü görünür kanıt</value></data>
+  <data name="score.label.limited-visible-evidence" xml:space="preserve"><value>Sınırlı kanıt</value></data>
+  <data name="score.label.basic-visible-evidence" xml:space="preserve"><value>Temel kanıt</value></data>
+  <data name="score.label.developing-visible-evidence" xml:space="preserve"><value>Gelişen kanıt</value></data>
+  <data name="score.label.strong-visible-evidence" xml:space="preserve"><value>Güçlü kanıt</value></data>
+  <data name="score.label.very-strong-visible-evidence" xml:space="preserve"><value>Çok güçlü kanıt</value></data>
 
-  <data name="action.improve.repository.readme.exists" xml:space="preserve"><value>Repository düzeyinde README ekle</value></data>
+  <data name="action.improve.repository.readme.exists" xml:space="preserve"><value>Repository'ye README ekle</value></data>
   <data name="action.improve.repository.description.present" xml:space="preserve"><value>Repository açıklamasını netleştir</value></data>
-  <data name="action.improve.repository.license.present" xml:space="preserve"><value>Lisans bilgisini görünür hale getir</value></data>
+  <data name="action.improve.repository.license.present" xml:space="preserve"><value>Lisans bilgisini görünür kıl</value></data>
   <data name="action.improve.documentation.installation-guide" xml:space="preserve"><value>Kurulum sürecini belgele</value></data>
   <data name="action.improve.documentation.usage-or-demo" xml:space="preserve"><value>Kullanım örneği veya demo ekle</value></data>
   <data name="action.improve.process.commit-history" xml:space="preserve"><value>Artımlı commit izini koru</value></data>
-  <data name="action.improve.process.commit-distribution" xml:space="preserve"><value>Geliştirme ilerlemesini zamana yayılmış biçimde görünür kıl</value></data>
+  <data name="action.improve.process.commit-distribution" xml:space="preserve"><value>Commit geçmişinde geliştirme ilerlemesini görünür kıl</value></data>
   <data name="action.improve.process.issue-usage" xml:space="preserve"><value>Anlamlı iş takibi için issue kullan</value></data>
   <data name="action.improve.process.pull-request-usage" xml:space="preserve"><value>İncelenebilir değişiklikler için pull request kullan</value></data>
-  <data name="action.improve.process.release-usage" xml:space="preserve"><value>Anlamlı bir release veya sürüm tag'i yayımla</value></data>
+  <data name="action.improve.process.release-usage" xml:space="preserve"><value>Anlamlı bir release veya tag yayımla</value></data>
   <data name="action.improve.validation.test-structure" xml:space="preserve"><value>Görünür otomatik testler ekle</value></data>
   <data name="action.improve.validation.continuous-integration" xml:space="preserve"><value>Sürekli entegrasyon ekle</value></data>
-  <data name="action.improve.portfolio.topics" xml:space="preserve"><value>Odaklı GitHub topic'leri ekle</value></data>
+  <data name="action.improve.portfolio.topics" xml:space="preserve"><value>İlgili GitHub topic'leri ekle</value></data>
   <data name="action.improve.portfolio.homepage-or-live-demo" xml:space="preserve"><value>Homepage veya canlı demo ekle</value></data>
 
-  <data name="warning.snapshot.collection-partial" xml:space="preserve"><value>Bazı repository verileri yalnız kısmen toplandı. Etkilenen kanıtları bu sınırla birlikte yorumlayın.</value></data>
-  <data name="warning.signal.not-applicable" xml:space="preserve"><value>Bir veya daha fazla sinyal bu repository için uygulanabilir değil ve uygulanabilir skor hesabının dışında tutuluyor.</value></data>
-  <data name="warning.signal.unavailable-evidence" xml:space="preserve"><value>Bir veya daha fazla sinyal için gerekli kanıta erişilemedi. Bu durum kanıtın eksik olmasıyla aynı değildir.</value></data>
-  <data name="warning.signal.requires-human-review" xml:space="preserve"><value>Bir veya daha fazla sinyal deterministik sonuca varmadan önce insan incelemesi gerektiriyor.</value></data>
+  <data name="warning.snapshot.collection-partial" xml:space="preserve"><value>Bazı repository verileri yalnızca kısmen alınabildi. Bu nedenle ilgili kanıtlar eksik olabilir.</value></data>
+  <data name="warning.signal.not-applicable" xml:space="preserve"><value>Bazı sinyaller bu repository için geçerli değil; bu nedenle skor hesabına dahil edilmiyor.</value></data>
+  <data name="warning.signal.unavailable-evidence" xml:space="preserve"><value>Bazı sinyaller için gerekli veriye erişilemedi. Bu, kanıtın eksik olduğu anlamına gelmez.</value></data>
+  <data name="warning.signal.requires-human-review" xml:space="preserve"><value>Bazı sinyaller için kesin bir sonuç vermeden önce insan incelemesi gerekiyor.</value></data>
   <data name="warning.repository.archived" xml:space="preserve"><value>Bu repository arşivlenmiş durumda.</value></data>
   <data name="warning.repository.fork" xml:space="preserve"><value>Bu repository bir fork.</value></data>
   <data name="warning.repository.template" xml:space="preserve"><value>Bu repository template olarak işaretlenmiş.</value></data>
 
   <data name="limitation.snapshot.collection-partial" xml:space="preserve"><value>Snapshot bir veya daha fazla veri toplama uyarısı içeriyor; bazı kanıtlar eksik olabilir.</value></data>
-  <data name="limitation.analysis.unavailable-evidence" xml:space="preserve"><value>Bazı sinyaller gerekli kanıta erişilemediği için değerlendirilemedi.</value></data>
-  <data name="limitation.analysis.requires-human-review" xml:space="preserve"><value>Bazı mevcut kanıtlar deterministik sonucu desteklemediği için insan incelemesi gerekiyor.</value></data>
+  <data name="limitation.analysis.unavailable-evidence" xml:space="preserve"><value>Bazı sinyaller için gerekli veriye erişilemediği için değerlendirilemedi.</value></data>
+  <data name="limitation.analysis.requires-human-review" xml:space="preserve"><value>Bazı kanıtlar tek başına kesin bir sonuç vermeye yetmediği için insan incelemesi gerekiyor.</value></data>
   <data name="limitation.analysis.not-applicable-signals" xml:space="preserve"><value>Bazı sinyaller bu repository için uygulanabilir olmadığı için kapsam dışında bırakıldı.</value></data>
-  <data name="limitation.repository.archived" xml:space="preserve"><value>Repository'nin arşivlenmiş olması mevcut geliştirme etkinliğinin nasıl yorumlanacağını etkileyebilir.</value></data>
-  <data name="limitation.repository.fork" xml:space="preserve"><value>Fork durumu, görünür repository kanıtının bir bölümünün upstream projeden gelmiş olabileceği anlamına gelir.</value></data>
-  <data name="limitation.repository.template" xml:space="preserve"><value>Template durumu, görünür repository yapısının bir bölümünün yeniden kullanılabilir başlangıç içeriği olabileceği anlamına gelir.</value></data>
+  <data name="limitation.repository.archived" xml:space="preserve"><value>Repository'nin arşivlenmiş olması güncel geliştirme etkinliğini yorumlarken dikkate alınmalı.</value></data>
+  <data name="limitation.repository.fork" xml:space="preserve"><value>Bu repository bir fork olduğu için bazı görünür izler upstream projeden geliyor olabilir.</value></data>
+  <data name="limitation.repository.template" xml:space="preserve"><value>Repository template olduğu için bazı görünür yapılar hazır başlangıç içeriğinden geliyor olabilir.</value></data>
 
-  <data name="disclaimer.product-boundary.v1" xml:space="preserve"><value>GitHub Proof analiz edilen repository snapshot'ında görünür olan kanıtı değerlendirir. Geliştirici kıdemi, işe alınabilirlik, yazarlık, özgünlük, AI kullanımı veya genel geliştirici kalitesi hakkında çıkarım yapmaz.</value></data>
+  <data name="disclaimer.product-boundary.v1" xml:space="preserve"><value>GitHub Proof yalnızca analiz sırasında repository'de görülebilen kanıtlara bakar. Geliştiricinin kıdemi, işe alınabilirliği, yazarlığı, özgünlüğü, AI kullanımı veya genel kalitesi hakkında çıkarım yapmaz.</value></data>
 </root>

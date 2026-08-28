@@ -16,35 +16,13 @@ public sealed class RepositoryReportLocalizer
         RepositoryReportSectionKeys.CanonicalOrder.ToHashSet(StringComparer.Ordinal);
 
     private static readonly HashSet<string> KnownScoreLabelKeys =
-    [
-        "score.label.limited-visible-evidence",
-        "score.label.basic-visible-evidence",
-        "score.label.developing-visible-evidence",
-        "score.label.strong-visible-evidence",
-        "score.label.very-strong-visible-evidence"
-    ];
+        RepositoryReportScoreLabelKeys.All.ToHashSet(StringComparer.Ordinal);
 
     private static readonly HashSet<string> KnownWarningKeys =
-    [
-        "warning.snapshot.collection-partial",
-        "warning.signal.not-applicable",
-        "warning.signal.unavailable-evidence",
-        "warning.signal.requires-human-review",
-        "warning.repository.archived",
-        "warning.repository.fork",
-        "warning.repository.template"
-    ];
+        RepositoryReportWarningKeys.All.ToHashSet(StringComparer.Ordinal);
 
     private static readonly HashSet<string> KnownLimitationKeys =
-    [
-        "limitation.snapshot.collection-partial",
-        "limitation.analysis.unavailable-evidence",
-        "limitation.analysis.requires-human-review",
-        "limitation.analysis.not-applicable-signals",
-        "limitation.repository.archived",
-        "limitation.repository.fork",
-        "limitation.repository.template"
-    ];
+        RepositoryReportLimitationKeys.All.ToHashSet(StringComparer.Ordinal);
 
     private static readonly HashSet<string> KnownActionKeys =
     [

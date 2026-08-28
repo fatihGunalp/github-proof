@@ -56,12 +56,31 @@
                             </p>
                         }
 
+                        @* Session 141 (contract 16 §5/§6/§14): each paragraph
+                           keeps its existing content and its existing source;
+                           a quiet label only names the question it answers.
+                           Recommendation still renders exactly when the
+                           canonical status produced one. *@
+                        <p class="report-signal__field-label">
+                            @Text.Get(WebTextKey.SignalFieldWhatWeCheck)
+                        </p>
                         <p>@signal.Description</p>
+
+                        <p class="report-signal__field-label">
+                            @Text.Get(WebTextKey.SignalFieldWhatWeFound)
+                        </p>
                         <p>@signal.Explanation</p>
+
+                        <p class="report-signal__field-label">
+                            @Text.Get(WebTextKey.SignalFieldWhyItMatters)
+                        </p>
                         <p>@signal.WhyItMatters</p>
 
                         @if (!string.IsNullOrWhiteSpace(signal.Recommendation))
                         {
+                            <p class="report-signal__field-label">
+                                @Text.Get(WebTextKey.SignalFieldWhatYouCanDo)
+                            </p>
                             <p class="report-item__recommendation">
                                 @signal.Recommendation
                             </p>
@@ -69,6 +88,9 @@
 
                         @if (signal.Limitations.Count > 0)
                         {
+                            <p class="report-signal__field-label">
+                                @Text.Get(WebTextKey.SignalFieldLimit)
+                            </p>
                             <ul class="report-notes">
                                 @foreach (string limitation in signal.Limitations)
                                 {
@@ -77,8 +99,15 @@
                             </ul>
                         }
 
+                        @* Raw evidence stays canonical: Source, Value and
+                           Location are rendered exactly as the analyzer
+                           produced them (contract 16 §8). The label names the
+                           list; it never replaces or summarizes it. *@
                         @if (signal.Evidence.Count > 0)
                         {
+                            <p class="report-signal__field-label">
+                                @Text.Get(WebTextKey.SignalFieldEvidence)
+                            </p>
                             <ul class="report-evidence">
                                 @foreach (var evidence in signal.Evidence)
                                 {

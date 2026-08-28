@@ -6,22 +6,22 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
 
   <data name="report.section.identity" xml:space="preserve"><value>Analysis source</value></data>
-  <data name="report.section.proves" xml:space="preserve"><value>Strong Evidence</value></data>
-  <data name="report.section.weakens" xml:space="preserve"><value>Weak Points</value></data>
+  <data name="report.section.proves" xml:space="preserve"><value>What does this repository prove?</value></data>
+  <data name="report.section.weakens" xml:space="preserve"><value>What weakens the evidence?</value></data>
   <data name="report.section.do-first" xml:space="preserve"><value>Do these first</value></data>
-  <data name="report.section.uncertainty" xml:space="preserve"><value>Uncertainty</value></data>
-  <data name="report.section.categories-score" xml:space="preserve"><value>Category summary</value></data>
-  <data name="report.section.signal-details" xml:space="preserve"><value>Signal details</value></data>
-  <data name="report.section.disclaimer" xml:space="preserve"><value>What this report does not claim</value></data>
+  <data name="report.section.uncertainty" xml:space="preserve"><value>Things to keep in mind</value></data>
+  <data name="report.section.categories-score" xml:space="preserve"><value>Categories and score</value></data>
+  <data name="report.section.signal-details" xml:space="preserve"><value>Evidence details</value></data>
+  <data name="report.section.disclaimer" xml:space="preserve"><value>What this analysis does not claim</value></data>
 
-  <data name="analysis-status.Completed" xml:space="preserve"><value>Completed</value></data>
-  <data name="analysis-status.Partial" xml:space="preserve"><value>Partial</value></data>
-  <data name="analysis-status.InsufficientData" xml:space="preserve"><value>Insufficient data</value></data>
-  <data name="analysis-status.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="analysis-status.Completed" xml:space="preserve"><value>Analysis complete</value></data>
+  <data name="analysis-status.Partial" xml:space="preserve"><value>Some data is missing</value></data>
+  <data name="analysis-status.InsufficientData" xml:space="preserve"><value>Not enough data</value></data>
+  <data name="analysis-status.Failed" xml:space="preserve"><value>Analysis could not be completed</value></data>
 
-  <data name="category-status.Completed" xml:space="preserve"><value>Completed</value></data>
-  <data name="category-status.Partial" xml:space="preserve"><value>Partial</value></data>
-  <data name="category-status.InsufficientData" xml:space="preserve"><value>Insufficient data</value></data>
+  <data name="category-status.Completed" xml:space="preserve"><value>Result available</value></data>
+  <data name="category-status.Partial" xml:space="preserve"><value>Some data is missing</value></data>
+  <data name="category-status.InsufficientData" xml:space="preserve"><value>Not enough data</value></data>
   <data name="category-status.NotEvaluated" xml:space="preserve"><value>Not evaluated</value></data>
 
   <data name="effort.Low" xml:space="preserve"><value>Low</value></data>
@@ -29,42 +29,42 @@
   <data name="effort.High" xml:space="preserve"><value>High</value></data>
   <data name="effort.Unknown" xml:space="preserve"><value>Not estimated</value></data>
 
-  <data name="score.label.limited-visible-evidence" xml:space="preserve"><value>Limited visible evidence</value></data>
-  <data name="score.label.basic-visible-evidence" xml:space="preserve"><value>Basic visible evidence</value></data>
-  <data name="score.label.developing-visible-evidence" xml:space="preserve"><value>Developing visible evidence</value></data>
-  <data name="score.label.strong-visible-evidence" xml:space="preserve"><value>Strong visible evidence</value></data>
-  <data name="score.label.very-strong-visible-evidence" xml:space="preserve"><value>Very strong visible evidence</value></data>
+  <data name="score.label.limited-visible-evidence" xml:space="preserve"><value>Limited evidence</value></data>
+  <data name="score.label.basic-visible-evidence" xml:space="preserve"><value>Basic evidence</value></data>
+  <data name="score.label.developing-visible-evidence" xml:space="preserve"><value>Developing evidence</value></data>
+  <data name="score.label.strong-visible-evidence" xml:space="preserve"><value>Strong evidence</value></data>
+  <data name="score.label.very-strong-visible-evidence" xml:space="preserve"><value>Very strong evidence</value></data>
 
-  <data name="action.improve.repository.readme.exists" xml:space="preserve"><value>Add a repository-level README</value></data>
+  <data name="action.improve.repository.readme.exists" xml:space="preserve"><value>Add a README to the repository</value></data>
   <data name="action.improve.repository.description.present" xml:space="preserve"><value>Clarify the repository description</value></data>
-  <data name="action.improve.repository.license.present" xml:space="preserve"><value>Add clear licensing information</value></data>
+  <data name="action.improve.repository.license.present" xml:space="preserve"><value>Make licensing information visible</value></data>
   <data name="action.improve.documentation.installation-guide" xml:space="preserve"><value>Document installation</value></data>
   <data name="action.improve.documentation.usage-or-demo" xml:space="preserve"><value>Add a usage example or demo</value></data>
   <data name="action.improve.process.commit-history" xml:space="preserve"><value>Preserve an incremental commit trail</value></data>
   <data name="action.improve.process.commit-distribution" xml:space="preserve"><value>Make development progress visible over time</value></data>
   <data name="action.improve.process.issue-usage" xml:space="preserve"><value>Use issues for meaningful work tracking</value></data>
   <data name="action.improve.process.pull-request-usage" xml:space="preserve"><value>Use pull requests for reviewable changes</value></data>
-  <data name="action.improve.process.release-usage" xml:space="preserve"><value>Publish a meaningful release or version tag</value></data>
+  <data name="action.improve.process.release-usage" xml:space="preserve"><value>Publish a meaningful release or tag</value></data>
   <data name="action.improve.validation.test-structure" xml:space="preserve"><value>Add visible automated tests</value></data>
   <data name="action.improve.validation.continuous-integration" xml:space="preserve"><value>Add continuous integration</value></data>
-  <data name="action.improve.portfolio.topics" xml:space="preserve"><value>Add focused GitHub topics</value></data>
+  <data name="action.improve.portfolio.topics" xml:space="preserve"><value>Add relevant GitHub topics</value></data>
   <data name="action.improve.portfolio.homepage-or-live-demo" xml:space="preserve"><value>Add a homepage or live demo</value></data>
 
-  <data name="warning.snapshot.collection-partial" xml:space="preserve"><value>Some repository data was only partially collected. Treat affected evidence with caution.</value></data>
-  <data name="warning.signal.not-applicable" xml:space="preserve"><value>One or more signals do not apply to this repository and are excluded from applicable scoring.</value></data>
-  <data name="warning.signal.unavailable-evidence" xml:space="preserve"><value>Required evidence was unavailable for one or more signals. This is not the same as missing evidence.</value></data>
-  <data name="warning.signal.requires-human-review" xml:space="preserve"><value>One or more signals require human review before a deterministic conclusion can be made.</value></data>
+  <data name="warning.snapshot.collection-partial" xml:space="preserve"><value>Some repository data could only be collected partially, so related evidence may be incomplete.</value></data>
+  <data name="warning.signal.not-applicable" xml:space="preserve"><value>Some signals do not apply to this repository, so they are excluded from scoring.</value></data>
+  <data name="warning.signal.unavailable-evidence" xml:space="preserve"><value>Required data was unavailable for some signals. This does not mean the evidence is missing.</value></data>
+  <data name="warning.signal.requires-human-review" xml:space="preserve"><value>Some signals require human review before a definite result can be given.</value></data>
   <data name="warning.repository.archived" xml:space="preserve"><value>This repository is archived.</value></data>
   <data name="warning.repository.fork" xml:space="preserve"><value>This repository is a fork.</value></data>
   <data name="warning.repository.template" xml:space="preserve"><value>This repository is marked as a template.</value></data>
 
   <data name="limitation.snapshot.collection-partial" xml:space="preserve"><value>The snapshot contains one or more collection warnings, so some evidence may be incomplete.</value></data>
-  <data name="limitation.analysis.unavailable-evidence" xml:space="preserve"><value>Some signals could not be evaluated because required evidence was unavailable.</value></data>
-  <data name="limitation.analysis.requires-human-review" xml:space="preserve"><value>Some available evidence could not support a deterministic result and requires human review.</value></data>
+  <data name="limitation.analysis.unavailable-evidence" xml:space="preserve"><value>Some signals could not be evaluated because the required data was unavailable.</value></data>
+  <data name="limitation.analysis.requires-human-review" xml:space="preserve"><value>Some evidence is not enough on its own for a definite result and requires human review.</value></data>
   <data name="limitation.analysis.not-applicable-signals" xml:space="preserve"><value>Some signals were excluded because they do not apply to this repository.</value></data>
-  <data name="limitation.repository.archived" xml:space="preserve"><value>Archived repository state can affect how current development activity should be interpreted.</value></data>
-  <data name="limitation.repository.fork" xml:space="preserve"><value>Fork status means some visible repository evidence may originate from an upstream project.</value></data>
-  <data name="limitation.repository.template" xml:space="preserve"><value>Template status means some visible repository structure may be reusable starter content.</value></data>
+  <data name="limitation.repository.archived" xml:space="preserve"><value>The repository is archived, which should be considered when interpreting current development activity.</value></data>
+  <data name="limitation.repository.fork" xml:space="preserve"><value>Because this repository is a fork, some visible traces may come from the upstream project.</value></data>
+  <data name="limitation.repository.template" xml:space="preserve"><value>Because this repository is a template, some visible structure may come from reusable starter content.</value></data>
 
-  <data name="disclaimer.product-boundary.v1" xml:space="preserve"><value>GitHub Proof evaluates evidence visible in the analyzed repository snapshot. It does not infer developer seniority, employability, authorship, originality, AI usage, or overall developer quality.</value></data>
+  <data name="disclaimer.product-boundary.v1" xml:space="preserve"><value>GitHub Proof only looks at evidence visible in the repository during the analysis. It does not infer the developer's seniority, employability, authorship, originality, AI usage, or overall quality.</value></data>
 </root>

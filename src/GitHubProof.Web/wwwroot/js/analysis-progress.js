@@ -219,15 +219,15 @@
                     }
                 });
 
-                // The live region carries exactly the active stage label, read
-                // from the server-rendered markup — never a string built here.
-                // A terminal snapshot (active === null) leaves it unchanged
-                // (p10 §8.3.6).
+                // The live region carries exactly the active stage's sentence,
+                // read from the server-rendered markup — never a string built
+                // here. A terminal snapshot (active === null) leaves it
+                // unchanged (p10 §8.3.6).
                 if (live
                     && snapshot.active !== null
                     && snapshot.active !== announcedStage) {
                     const activeLabel = list.querySelector(
-                        `[data-stage="${snapshot.active}"] .analysis-progress__stage-label`);
+                        `[data-stage="${snapshot.active}"] [data-stage-label="active"]`);
 
                     if (activeLabel) {
                         live.textContent = activeLabel.textContent;

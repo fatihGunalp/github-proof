@@ -31,22 +31,24 @@
             ? Model.ScoreSummary.Label
             : Model.ScoreSummary.SectionTitle;
 
+    @* Session 141 (contract 12 §3, 15 §9): evidence strength comes from the
+       canonical ScoreBreakdown.LabelKey through one shared typed mapping. The
+       previous implementation searched the localized label for "Güçlü" /
+       "Strong", which made presentation copy a source of program behavior. *@
     bool strongEvidenceLabel =
-        scoreLabel.Contains(
-            "Güçlü",
-            StringComparison.OrdinalIgnoreCase)
-        || scoreLabel.Contains(
-            "Strong",
-            StringComparison.OrdinalIgnoreCase);
+        RepositoryReportScoreSemantics.IsStrongEvidenceLabelKey(
+            Model.ScoreSummary.LabelKey);
 
+    @* Analysis status and evidence summary stay two different things
+       (contract 12 §6): this sentence describes the evidence only. *@
     string statusSummary =
         Model.Identity.AnalysisStatus
             == GitHubProof.Domain.Analysis.Enums.AnalysisStatus.Partial
         && strongEvidenceLabel
         && Model.Weakens.Items.Count > 0
             ? isTurkish
-                ? "Güçlü, ancak bazı eksikler var."
-                : "Strong, with some gaps."
+                ? "Kanıtlar güçlü; ancak bazı eksikler var."
+                : "Evidence is strong, but some gaps remain."
             : scoreLabel;
 
     bool capturedToday =
@@ -62,10 +64,12 @@
                     ? "dd.MM.yyyy HH:mm"
                     : "yyyy-MM-dd HH:mm");
 
+    @* Contract 12 §7: label only. The timestamp source, both date formats and
+       the today/non-today branching above are deliberately unchanged. *@
     string reportGeneratedLabel =
         isTurkish
-            ? "Rapor oluşturulma:"
-            : "Report generated:";
+            ? "Oluşturuldu:"
+            : "Generated:";
 }
 
 <div class="report-identity-card">

@@ -4,36 +4,36 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
-  <data name="status.Strong" xml:space="preserve"><value>Strong</value></data>
-  <data name="status.Present" xml:space="preserve"><value>Present</value></data>
-  <data name="status.Partial" xml:space="preserve"><value>Partial</value></data>
-  <data name="status.Missing" xml:space="preserve"><value>Missing</value></data>
-  <data name="status.NotApplicable" xml:space="preserve"><value>Not applicable</value></data>
-  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Evidence unavailable</value></data>
+  <data name="status.Strong" xml:space="preserve"><value>Strong evidence</value></data>
+  <data name="status.Present" xml:space="preserve"><value>Evidence found</value></data>
+  <data name="status.Partial" xml:space="preserve"><value>Partial evidence</value></data>
+  <data name="status.Missing" xml:space="preserve"><value>No evidence found</value></data>
+  <data name="status.NotApplicable" xml:space="preserve"><value>Does not apply</value></data>
+  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Data unavailable</value></data>
   <data name="status.RequiresHumanReview" xml:space="preserve"><value>Human review required</value></data>
-  <data name="explanation.Strong" xml:space="preserve"><value>{0} has strong visible evidence.</value></data>
-  <data name="explanation.Present" xml:space="preserve"><value>{0} has visible evidence.</value></data>
-  <data name="explanation.Partial" xml:space="preserve"><value>{0} has partial visible evidence.</value></data>
-  <data name="explanation.Missing" xml:space="preserve"><value>No visible evidence was found for {0}.</value></data>
+  <data name="explanation.Strong" xml:space="preserve"><value>Strong evidence was found for {0}.</value></data>
+  <data name="explanation.Present" xml:space="preserve"><value>Evidence was found for {0}.</value></data>
+  <data name="explanation.Partial" xml:space="preserve"><value>Only part of the evidence for {0} is visible.</value></data>
+  <data name="explanation.Missing" xml:space="preserve"><value>No evidence was found for {0} in the inspected scope.</value></data>
   <data name="explanation.NotApplicable" xml:space="preserve"><value>{0} does not apply to this repository.</value></data>
-  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>{0} could not be evaluated because the required evidence was unavailable.</value></data>
-  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} needs human review before a conclusion can be made.</value></data>
-  <data name="limitation.Strong" xml:space="preserve"><value>This result only reflects evidence visible in the analyzed repository snapshot.</value></data>
+  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>{0} could not be evaluated because the required data was unavailable.</value></data>
+  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} requires human review before a definite result can be given.</value></data>
+  <data name="limitation.Strong" xml:space="preserve"><value>This result is based only on repository evidence visible during the analysis.</value></data>
   <data name="limitation.Present" xml:space="preserve"><value>This result confirms presence, not completeness, correctness, or quality.</value></data>
-  <data name="limitation.Partial" xml:space="preserve"><value>Only part of the expected evidence is visible.</value></data>
-  <data name="limitation.Missing" xml:space="preserve"><value>Missing means no qualifying evidence was found in the inspected scope.</value></data>
-  <data name="limitation.NotApplicable" xml:space="preserve"><value>This signal was excluded by its applicability rule.</value></data>
-  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>This is a collection limitation, not proof that the signal is missing.</value></data>
-  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>The available evidence cannot support a deterministic conclusion.</value></data>
+  <data name="limitation.Partial" xml:space="preserve"><value>Only part of the relevant evidence is visible.</value></data>
+  <data name="limitation.Missing" xml:space="preserve"><value>This only means that no evidence was found in the inspected scope.</value></data>
+  <data name="limitation.NotApplicable" xml:space="preserve"><value>This check does not apply to this repository.</value></data>
+  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>This is a data-access limitation; it does not mean the evidence is missing.</value></data>
+  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>The available evidence is not enough on its own for a definite result.</value></data>
   <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Documentation</value></data>
   <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Development Process</value></data>
   <data name="category.ValidationAndUsability" xml:space="preserve"><value>Validation</value></data>
   <data name="category.PortfolioPresentation" xml:space="preserve"><value>Portfolio Presentation</value></data>
-  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof evaluates visible repository evidence. It does not infer developer seniority, employability, authorship, originality, AI usage, or overall developer quality.</value></data>
+  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof only looks at evidence visible in the repository during the analysis. It does not infer the developer's seniority, employability, authorship, originality, AI usage, or overall quality.</value></data>
 
   <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>
   <data name="repository.readme.exists.description" xml:space="preserve"><value>Checks whether GitHub recognizes a README in the repository.</value></data>
-  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>A README gives reviewers an immediate entry point to the project.</value></data>
+  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>A README gives someone looking at the project for the first time a direct starting point.</value></data>
   <data name="repository.readme.exists.recommendation" xml:space="preserve"><value>Add a repository-level README that explains the project and how to explore it.</value></data>
   <data name="repository.description.present.title" xml:space="preserve"><value>Repository description</value></data>
   <data name="repository.description.present.description" xml:space="preserve"><value>Checks whether the GitHub repository description communicates a concise purpose.</value></data>

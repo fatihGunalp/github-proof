@@ -10,15 +10,10 @@ namespace GitHubProof.Web.Localization;
 public sealed class ProfileWebPresentationLocalizer
 {
     private const string EnglishMeaningProvenance =
-        "This summary is based only on traces visible in public GitHub work under the current analysis rules.";
+        "This summary is based only on traces visible in public GitHub work.";
 
     private const string TurkishMeaningProvenance =
-        "Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.";
-
-    public string GetProfileIdentityContext(string? culture) =>
-        WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "Herkese açık GitHub çalışmalarının görünümü"
-            : "View of public GitHub work";
+        "Bu anlatım yalnızca public GitHub çalışmalarında görülebilen izlere dayanıyor.";
 
     public string GetOpenProfileOnGitHubLabel(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
@@ -60,13 +55,13 @@ public sealed class ProfileWebPresentationLocalizer
 
     public string GetWhyDisclosureDescription(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "Gözlemler hangi repository'lere dayandığıyla birlikte açıklanır."
-            : "Each observation is explained with the repositories that support it.";
+            ? "Buradaki ifadelerin hangi repository'lere dayandığını görebilirsiniz."
+            : "See which repositories each statement is based on.";
 
     public string GetRepositoryEvidenceDisclosureDescription(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "İncelenen herkese açık repository'ler burada görülür."
-            : "The public repositories examined for this view appear here.";
+            ? "Analizde incelenen public repository'leri burada görebilirsiniz."
+            : "See the public repositories examined in this analysis.";
 
     public string GetSectionLabel(
         ProfileReportSectionKey section,
@@ -78,9 +73,9 @@ public sealed class ProfileWebPresentationLocalizer
             (ProfileReportSectionKey.PublicProfileSummary, WebCulture.Turkish) =>
                 "Bu GitHub ne anlatıyor?",
             (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.English) =>
-                "Visible technical direction",
+                "Technical direction",
             (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.Turkish) =>
-                "Görünen teknik yön",
+                "Teknik yön",
             (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.English) =>
                 "Working style",
             (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.Turkish) =>
@@ -94,9 +89,9 @@ public sealed class ProfileWebPresentationLocalizer
             (ProfileReportSectionKey.WhyThisConclusion, WebCulture.Turkish) =>
                 "Bunu neye dayanarak söylüyoruz?",
             (ProfileReportSectionKey.Limitations, WebCulture.English) =>
-                "Limits of this view",
+                "Limits of this analysis",
             (ProfileReportSectionKey.Limitations, WebCulture.Turkish) =>
-                "Bu görünümün sınırları",
+                "Bu analizin sınırları",
             (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.English) =>
                 "Repository evidence",
             (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.Turkish) =>
@@ -145,51 +140,56 @@ public sealed class ProfileWebPresentationLocalizer
         string practiceLabelsText = JoinMeaningLabels(practices, isTurkish);
         string practiceLabelsSentenceStart = StartSentence(practiceLabelsText);
 
+        // Session 141 (contract 04). The same four deterministic states, the
+        // same two paragraphs and the same provenance line — roughly half the
+        // words, and without restating one recurrence fact in a second
+        // sentence. Selection is still keyed only by whether each of the two
+        // canonical pattern sections has items; no new inference is added.
         return (technicalLabels.Count > 0, practices.Count > 0) switch
         {
+            // Variant A — technical direction and working style both recur.
             (true, true) => isTurkish
                 ? new ProfileMeaningPresentation(
-                    technicalLabels.Count == 1
-                        ? $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar karşımıza çıkıyor. Bu nedenle {technicalLabelsText} profil boyunca görünür olan tekrar eden teknik çalışma alanı."
-                        : $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
-                    $"Çalışma biçiminde de bazı ortak yöntemler tekrar ediyor. {practiceLabelsSentenceStart} birden fazla repository'de görülüyor. Yani bu GitHub yalnızca hangi teknolojilerle çalışıldığını değil; çalışmaların nasıl yürütüldüğüne ilişkin yöntemlerin de farklı çalışmalarda tekrarlandığını gösteriyor.",
+                    $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar ediyor.",
+                    $"{practiceLabelsSentenceStart} gibi çalışma biçimleri de birden fazla repository'de tekrar görülüyor.",
                     TurkishMeaningProvenance)
                 : new ProfileMeaningPresentation(
-                    technicalLabels.Count == 1
-                        ? $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories. This makes {technicalLabelsText} a recurring visible area of technical work across the profile."
-                        : $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories. The profile shows technical work spanning more than one technology.",
-                    $"Some ways of working recur as well. {practiceLabelsSentenceStart} appears across multiple repositories. This GitHub therefore shows not only which technologies recur, but also that ways of carrying out the work recur across different projects.",
+                    $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories.",
+                    $"Working methods such as {practiceLabelsText} also recur across multiple repositories.",
                     EnglishMeaningProvenance),
+
+            // Variant B — technical direction recurs, working style does not.
             (true, false) => isTurkish
                 ? new ProfileMeaningPresentation(
-                    technicalLabels.Count == 1
-                        ? $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar karşımıza çıkıyor. Bu nedenle {technicalLabelsText} profil boyunca görünür olan tekrar eden teknik çalışma alanı."
-                        : $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar karşımıza çıkıyor. Bu profil, tek bir teknolojiyle sınırlı olmayan farklı teknik çalışmalar gösteriyor.",
-                    "Çalışma biçiminde ise repository'ler arasında aynı şekilde tekrar eden belirgin bir yöntem görünmüyor. Yani bu GitHub teknik yön konusunda daha fazla şey gösterirken, çalışmaların nasıl yürütüldüğü konusunda daha sınırlı iz sunuyor.",
+                    $"{profileIdentity} GitHub çalışmalarında {technicalLabelsText} farklı repository'lerde tekrar ediyor.",
+                    "Repository'ler arasında tekrar eden belirgin bir çalışma biçimi görünmüyor.",
                     TurkishMeaningProvenance)
                 : new ProfileMeaningPresentation(
-                    technicalLabels.Count == 1
-                        ? $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories. This makes {technicalLabelsText} a recurring visible area of technical work across the profile."
-                        : $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories. The profile shows technical work spanning more than one technology.",
-                    "The repositories do not show one equally recurring way of working. This GitHub says more about recurring technical direction and offers more limited visible traces of how the work was carried out.",
+                    $"{profileIdentity}'s GitHub work shows {technicalLabelsText} recurring across different repositories.",
+                    "No clear working method recurs across the repositories.",
                     EnglishMeaningProvenance),
+
+            // Variant C — working style recurs, technical direction does not.
             (false, true) => isTurkish
                 ? new ProfileMeaningPresentation(
-                    $"{profileIdentity} GitHub çalışmalarında repository'ler arasında tekrar eden tek bir teknik yön şu anda görünür hâle gelmiyor.",
-                    $"Çalışma biçiminde ise bazı ortak yöntemler tekrar ediyor. {practiceLabelsSentenceStart} birden fazla repository'de görülüyor. Bu görünüm, tek bir teknik yönden çok çalışma yöntemlerinin farklı çalışmalarda tekrarlandığını gösteriyor.",
+                    "Repository'ler arasında tekrar eden belirgin bir teknik yön görünmüyor.",
+                    $"Buna karşılık {practiceLabelsText} gibi çalışma biçimleri birden fazla repository'de tekrar görülüyor.",
                     TurkishMeaningProvenance)
                 : new ProfileMeaningPresentation(
-                    $"{profileIdentity}'s GitHub work does not currently make one recurring technical direction visible across public repositories.",
-                    $"Some ways of working do recur. {practiceLabelsSentenceStart} appears across multiple repositories. This view shows recurring ways of carrying out the work more clearly than one technical direction.",
+                    "No clear technical direction recurs across the repositories.",
+                    $"Working methods such as {practiceLabelsText} do recur across multiple repositories.",
                     EnglishMeaningProvenance),
+
+            // Variant D — neither recurs. The second paragraph must not repeat
+            // the same absence, so it stays the shortest authorized fallback.
             _ => isTurkish
                 ? new ProfileMeaningPresentation(
-                    $"{profileIdentity} için herkese açık GitHub çalışmalarında şu anda repository'ler arasında tekrar eden belirgin bir teknik yön veya üretim pratiği görünmüyor.",
-                    "Çalışma biçiminde de repository'ler arasında tekrar eden belirgin bir yöntem görünmüyor. Bu yalnızca şu an görünür olan GitHub çalışmalarının sunduğu sınırlı izi anlatıyor.",
+                    "Public repository'ler arasında belirgin biçimde tekrar eden bir teknik yön veya çalışma biçimi görünmüyor.",
+                    "Çalışma biçimi için de ek bir tekrar görünmüyor.",
                     TurkishMeaningProvenance)
                 : new ProfileMeaningPresentation(
-                    $"{profileIdentity}'s GitHub work does not currently make a recurring technical direction or working practice visible across public repositories.",
-                    "No clearly recurring way of working is visible across the repositories either. This describes only the limited traces in the public GitHub work currently visible.",
+                    "No clear technical direction or working method recurs across the public repositories.",
+                    "No additional recurring working method is visible.",
                     EnglishMeaningProvenance)
         };
     }
@@ -291,29 +291,33 @@ public sealed class ProfileWebPresentationLocalizer
         (section, WebCulture.NormalizeOrEnglish(culture)) switch
         {
             (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.English) =>
-                "The visible public evidence did not establish a repeated technical direction under the current analysis rules.",
+                "No clear technical direction recurs across the public repositories.",
             (ProfileReportSectionKey.TechnicalFocusAreas, WebCulture.Turkish) =>
-                "Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı.",
+                "Public repository'ler arasında tekrar eden belirgin bir teknik yön görünmüyor.",
             (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.English) =>
-                "No recurring working method is visible across the current public work.",
+                "No clear working method recurs across the public repositories.",
             (ProfileReportSectionKey.EngineeringPracticePatterns, WebCulture.Turkish) =>
                 "Farklı çalışmalarda tekrar eden belirgin bir yöntem görünmüyor.",
             (ProfileReportSectionKey.RepresentativeRepositories, WebCulture.English) =>
-                "No starting-point repository was selected from the current visible public evidence.",
+                "No starting point is visible right now.",
             (ProfileReportSectionKey.RepresentativeRepositories, WebCulture.Turkish) =>
-                "Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi.",
+                "Şu anda bir başlangıç noktası görünmüyor.",
             (ProfileReportSectionKey.WhyThisConclusion, WebCulture.English) =>
-                "The public GitHub work did not provide a recurring conclusion to explain.",
+                "There is no recurring trace to explain here.",
             (ProfileReportSectionKey.WhyThisConclusion, WebCulture.Turkish) =>
-                "Herkese açık GitHub çalışmaları, açıklanacak tekrar eden bir sonuç ortaya koymadı.",
+                "Burada açıklanacak tekrar eden bir iz yok.",
             (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.English) =>
-                "The visible public evidence contains no public repository to inspect.",
+                "No public repository is available to inspect in this analysis.",
             (ProfileReportSectionKey.RepositoryDrillDown, WebCulture.Turkish) =>
-                "Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor.",
+                "Bu analizde incelenebilecek bir public repository görünmüyor.",
+            // Kept for the contract's exhaustiveness, but Session 141
+            // (contract 10 §7) prefers not rendering the Limitations section at
+            // all when the collection is empty, so this is no longer reached by
+            // the Profile page.
             (ProfileReportSectionKey.Limitations, WebCulture.English) =>
-                "No limits were recorded for this profile view.",
+                "No additional limitations are visible for this analysis.",
             (ProfileReportSectionKey.Limitations, WebCulture.Turkish) =>
-                "Bu profil görünümü için bir sınır kaydedilmedi.",
+                "Bu analiz için ek bir sınırlama görünmüyor.",
             _ => throw new InvalidOperationException(
                 $"Profile section '{section}' has no active Supported+empty presentation mapping.")
         };
@@ -327,21 +331,27 @@ public sealed class ProfileWebPresentationLocalizer
         (status, WebCulture.NormalizeOrEnglish(culture)) switch
         {
             (RepositoryEligibilityStatus.Contributing, WebCulture.English) =>
-                "Contributed evidence to this view",
+                "Contributed evidence to the profile analysis",
             (RepositoryEligibilityStatus.Contributing, WebCulture.Turkish) =>
-                "Bu görünüme kanıt sağladı",
+                "Profil analizine kanıt sağladı",
+            // Deliberately "with restrictions" and not "limited evidence": the
+            // canonical state says the contribution was restricted, never that
+            // the evidence quantity itself was small (contract 11 §5).
             (RepositoryEligibilityStatus.Restricted, WebCulture.English) =>
-                "Contributed evidence to this view with restrictions",
+                "Contributed evidence to the profile analysis with some restrictions",
             (RepositoryEligibilityStatus.Restricted, WebCulture.Turkish) =>
-                "Bu görünüme kısıtlamalarla kanıt sağladı",
+                "Profil analizine bazı kısıtlamalarla kanıt sağladı",
             (RepositoryEligibilityStatus.NonContributing, WebCulture.English) =>
-                "Did not contribute evidence to this view",
+                "Did not contribute evidence to the profile analysis",
             (RepositoryEligibilityStatus.NonContributing, WebCulture.Turkish) =>
-                "Bu görünüme kanıt sağlamadı",
+                "Profil analizine kanıt sağlamadı",
+            // Undetermined says only that the contribution could not be
+            // determined — never that data was missing or the repository
+            // failed (contract 11 §7).
             (RepositoryEligibilityStatus.Undetermined, WebCulture.English) =>
-                "Its contribution to this view could not be determined",
+                "It could not be determined whether this repository contributed evidence to the profile analysis.",
             (RepositoryEligibilityStatus.Undetermined, WebCulture.Turkish) =>
-                "Bu görünüme katkısı belirlenemedi",
+                "Profil analizine kanıt sağlayıp sağlamadığı belirlenemedi",
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 
@@ -352,8 +362,8 @@ public sealed class ProfileWebPresentationLocalizer
     // and no new analysis/Domain/Application identity is created to key them.
     public string GetWhySupportingRepositoriesLeadIn(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "Destekleyen repository'ler"
-            : "Supporting repositories";
+            ? "Görüldüğü repository'ler"
+            : "Repositories where it appears";
 
     public string GetWhyEntryQuestion(
         ProfilePatternFamily family,
@@ -375,16 +385,20 @@ public sealed class ProfileWebPresentationLocalizer
         string label = GetWhyLabel(family, patternKey, culture);
         bool isTurkish = WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish;
 
+        // Session 141 (contract 08): a short "Because …" reason. The two
+        // families keep separate mappings — the switch is still exhaustive over
+        // the family identity and still fails loudly for an unsupported one —
+        // even though the approved reason sentence is now the same for both.
         return (family, isTurkish) switch
         {
             (ProfilePatternFamily.TechnicalFocus, true) =>
-                $"{label} farklı herkese açık repository'lerde yeniden görüldüğü için profilin tekrar eden teknik yönlerinden biri olarak gösteriliyor.",
+                $"Çünkü {label} birden fazla repository'de tekrar görülüyor.",
             (ProfilePatternFamily.TechnicalFocus, false) =>
-                $"{label} appears again across different public repositories, so it is shown as one of the profile's recurring technical directions.",
+                $"Because {label} appears across multiple repositories.",
             (ProfilePatternFamily.EngineeringPractice, true) =>
-                $"{label} farklı herkese açık repository'lerde yeniden görüldüğü için çalışma biçiminde tekrar eden yöntemlerden biri olarak gösteriliyor.",
+                $"Çünkü {label} birden fazla repository'de tekrar görülüyor.",
             (ProfilePatternFamily.EngineeringPractice, false) =>
-                $"{label} appears again across different public repositories, so it is shown as one of the recurring ways of working.",
+                $"Because {label} appears across multiple repositories.",
             _ => throw new InvalidOperationException(
                 $"Profile pattern family '{family}' has no active Why presentation mapping.")
         };
@@ -406,8 +420,8 @@ public sealed class ProfileWebPresentationLocalizer
 
     public string GetRepositoryFreshAnalysisLeadIn(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "Bir repository seçmek yeni bir Repository Proof analizi başlatır."
-            : "Selecting a repository runs a fresh Repository Proof analysis.";
+            ? "Bir repository seçtiğinizde yeni bir Repository Proof analizi başlar."
+            : "Selecting a repository starts a new Repository Proof analysis.";
 
     // Session 111 STEP 3: the neutral empty-metadata statement used only when
     // GitHub itself returned no repository Description. It describes metadata
@@ -470,22 +484,24 @@ public sealed class ProfileWebPresentationLocalizer
 
         string joined = JoinMeaningLabels(labels, isTurkish);
 
-        // Singular/plural is grammatical agreement only. No number is
-        // rendered, and the labels themselves are identities the first-read
-        // pattern cards already show.
-        return (labels.Count == 1, isTurkish) switch
-        {
-            (true, true) => $"Bu tekrar eden sonuç için başlangıç noktası: {joined}",
-            (true, false) => $"Starting point for this recurring result: {joined}",
-            (false, true) => $"Bu tekrar eden sonuçlar için başlangıç noktası: {joined}",
-            (false, false) => $"Starting point for these recurring results: {joined}"
-        };
+        // Session 141 (contract 07): the relationship is stated directly
+        // through the pattern labels themselves, so the internal phrase
+        // "recurring result" leaves the user surface and the singular/plural
+        // split it forced is no longer needed. No number, ranking or
+        // recommendation is rendered, and the labels are identities the
+        // first-read pattern cards already show.
+        return isTurkish
+            ? $"{joined} için başlangıç noktası"
+            : $"Starting point for {joined}";
     }
 
+    // Contract 07 §"Repository Action" / 11 §8: Starting Point and Repository
+    // Evidence must show the same action language, because both start the same
+    // fresh Repository Proof analysis.
     public string GetRepositoryActionLabel(string? culture) =>
         WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? "Bu repository'yi analiz et"
-            : "Analyze this repository";
+            ? "Repository Proof'u gör"
+            : "View Repository Proof";
 
     // Repository FullName is data, substituted into the locked format; it is
     // never translated.
@@ -496,8 +512,8 @@ public sealed class ProfileWebPresentationLocalizer
         ArgumentException.ThrowIfNullOrWhiteSpace(repositoryFullName);
 
         return WebCulture.NormalizeOrEnglish(culture) == WebCulture.Turkish
-            ? $"{repositoryFullName} repository'sini analiz et"
-            : $"Analyze repository {repositoryFullName}";
+            ? $"{repositoryFullName} için Repository Proof'u gör"
+            : $"View Repository Proof for {repositoryFullName}";
     }
 
     public string GetPatternLabel(
@@ -576,13 +592,15 @@ public sealed class ProfileWebPresentationLocalizer
         (code, WebCulture.NormalizeOrEnglish(culture)) switch
         {
             (ProfileLimitationCode.LimitedIndependentEvidenceSurface, WebCulture.English) =>
-                "The public profile contains a limited independent evidence surface.",
+                "There are limited traces available to evaluate in the public GitHub work.",
             (ProfileLimitationCode.LimitedIndependentEvidenceSurface, WebCulture.Turkish) =>
-                "Herkese açık profil sınırlı bir bağımsız kanıt yüzeyi içeriyor.",
+                "Public GitHub'da değerlendirilebilecek izler sınırlı.",
+            // "Incomplete" and "unavailable" stay two separate conditions; they
+            // are never collapsed into one stronger claim (contract 10 §6).
             (ProfileLimitationCode.PartialEvidenceSurface, WebCulture.English) =>
-                "Some public repository evidence was incomplete or unavailable.",
+                "Some public repository data was incomplete or unavailable.",
             (ProfileLimitationCode.PartialEvidenceSurface, WebCulture.Turkish) =>
-                "Bazı herkese açık repository kanıtları eksik veya erişilemezdi.",
+                "Bazı public repository verileri eksik veya erişilemez durumdaydı.",
             _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
         };
 
@@ -597,20 +615,30 @@ public sealed class ProfileWebPresentationLocalizer
         {
             ProfileWarningCode.RepositoryEvidenceUnavailable =>
                 isTurkish
-                    ? "Bazı repository kanıtlarına erişilemedi."
-                    : "Some repository evidence was unavailable.",
+                    ? "Bazı repository verilerine erişilemedi."
+                    : "Some repository data was unavailable.",
             ProfileWarningCode.RepositoryEvidenceRateLimited =>
                 isTurkish
-                    ? "GitHub hız sınırı bazı repository kanıtlarını sınırladı."
-                    : "GitHub rate limiting constrained some repository evidence.",
+                    ? "GitHub hız sınırı nedeniyle bazı repository verilerine erişilemedi."
+                    : "GitHub rate limiting prevented access to some repository data.",
             ProfileWarningCode.RepositoryAnalysisFailed =>
                 isTurkish
                     ? "Bazı repository analizleri tamamlanamadı."
                     : "Some repository analyses could not be completed.",
+            // Contract 10 §3 asked for the internal "eligibility" wording to go,
+            // but required the replacement to stay semantically equivalent to
+            // the canonical state. Its suggested "enough data could not be
+            // obtained" is a stronger claim than the state supports: an
+            // Undetermined eligibility also arises from
+            // EligibilityReason.IndependenceUndetermined, where the analysis
+            // itself succeeded and only the fork/template lineage stayed
+            // inconclusive. This wording drops "eligibility" while asserting
+            // exactly what the state asserts, and matches the row-status copy
+            // for the same canonical state (contract 11 §7).
             ProfileWarningCode.RepositoryEligibilityUndetermined =>
                 isTurkish
-                    ? "Bazı repository'lerin uygunluğu belirlenemedi."
-                    : "Eligibility could not be determined for some repositories.",
+                    ? "Bazı repository'lerin analize kanıt sağlayıp sağlamadığı belirlenemedi."
+                    : "It could not be determined whether some repositories contributed evidence to the analysis.",
             _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
         };
     }

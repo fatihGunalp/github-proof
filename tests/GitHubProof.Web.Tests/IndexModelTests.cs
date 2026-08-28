@@ -196,8 +196,12 @@ public sealed class IndexModelTests
         Assert.Equal(1, collector.CallCount);
     }
 
+    // Session 141 (contract 10 §11): GITHUB_TOKEN is operator/configuration
+    // language and must not reach ordinary end-user error copy. The visitor is
+    // told what happened and what they can do; the rate-limit cause itself is
+    // unchanged.
     [Fact]
-    public async Task OnPostAsync_WhenRateLimited_ExplainsOptionalTokenPath()
+    public async Task OnPostAsync_WhenRateLimited_ExplainsTheLimitWithoutOperatorConfiguration()
     {
         DataAvailability unavailable =
             DataAvailability.Unavailable(
@@ -222,10 +226,13 @@ public sealed class IndexModelTests
 
         Assert.IsType<PageResult>(action);
         Assert.Null(model.Report);
-        Assert.Contains(
+        Assert.Equal(
+            "GitHub's rate limit was reached. Try again later.",
+            model.ErrorMessage);
+        Assert.DoesNotContain(
             "GITHUB_TOKEN",
             model.ErrorMessage!,
-            StringComparison.Ordinal);
+            StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, collector.CallCount);
     }
 

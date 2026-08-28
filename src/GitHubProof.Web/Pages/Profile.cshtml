@@ -61,14 +61,15 @@
                     @Model.Identity
                 </h1>
 
+                @* Session 141 (contract 03): the header fixes identity and does
+                   not comment. The former "View of public GitHub work" line
+                   carried no information beyond the username and URL already
+                   shown, and stepped into Meaning's job. *@
                 @if (Model.ProfileUrl is not null
                     && Model.ProfileUrlDisplay is not null)
                 {
                     <p class="profile-result__profile-url">
                         @Model.ProfileUrlDisplay
-                    </p>
-                    <p class="profile-result__identity-context">
-                        @ProfileText.GetProfileIdentityContext(Text.Culture)
                     </p>
                 }
             </div>
@@ -189,21 +190,27 @@
                     "The Profile limitations presentation requires the canonical Supported Limitations section.");
             }
 
-            <section class="profile-result__section profile-result__limitations">
-                <div class="profile-result__card-heading">
-                    <span class="profile-result__icon-tile" aria-hidden="true">
-                        @await Html.PartialAsync("_UiIcon", UiIcon.Info)
-                    </span>
+            @* Session 141 (contract 10 §7): when the canonical Limitations
+               collection is empty the section is not rendered at all, rather
+               than rendering a heading over a "nothing was recorded" sentence.
+               This is a presentation decision only — the canonical Limitations
+               section, its availability and its items are untouched, and the
+               Supported-section guard above still runs on every result. *@
+            @if (report.Limitations.Items.Count > 0)
+            {
+                <section class="profile-result__section profile-result__limitations">
+                    <div class="profile-result__card-heading">
+                        <span class="profile-result__icon-tile" aria-hidden="true">
+                            @await Html.PartialAsync("_UiIcon", UiIcon.Info)
+                        </span>
 
-                    <h2 class="profile-result__section-title">
-                        @ProfileText.GetSectionLabel(
-                            ProfileReportSectionKey.Limitations,
-                            Text.Culture)
-                    </h2>
-                </div>
+                        <h2 class="profile-result__section-title">
+                            @ProfileText.GetSectionLabel(
+                                ProfileReportSectionKey.Limitations,
+                                Text.Culture)
+                        </h2>
+                    </div>
 
-                @if (report.Limitations.Items.Count > 0)
-                {
                     <ul class="profile-result__limitation-list">
                         @foreach (ProfileLimitation limitation in report.Limitations.Items)
                         {
@@ -214,16 +221,8 @@
                             </li>
                         }
                     </ul>
-                }
-                else
-                {
-                    <p class="profile-result__section-empty">
-                        @ProfileText.GetEmptySectionMessage(
-                            ProfileReportSectionKey.Limitations,
-                            Text.Culture)
-                    </p>
-                }
-            </section>
+                </section>
+            }
 
             @await Html.PartialAsync(
                 "_ProfileRepositoryEvidence",

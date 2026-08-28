@@ -155,27 +155,63 @@ public sealed class AnalysisProgressClientContractTests
         Assert.DoesNotContain("dialog", content, StringComparison.OrdinalIgnoreCase);
     }
 
+    // Session 141 (contract 02): each stage renders one sentence per canonical
+    // state instead of one label plus a separate state token, so the state
+    // stays readable as text without producing the prohibited
+    // "workflow noun · Completed" combination.
     [Fact]
-    public void Landing_form_stage_labels_and_state_tokens_come_only_from_the_localizer()
+    public void Landing_form_stage_copy_comes_only_from_the_localizer_and_covers_all_three_states()
     {
         string content = LandingInput();
 
         foreach (string key in new[]
         {
-            "ProgressRepositoryTargetValidated",
-            "ProgressProfileEvidenceExamined",
-            "ProgressStatePending",
-            "ProgressStateActive",
-            "ProgressStateCompleted"
+            "ProgressRepositoryTargetPending",
+            "ProgressRepositoryTargetActive",
+            "ProgressRepositoryTargetCompleted",
+            "ProgressProfileTracesPending",
+            "ProgressProfileTracesActive",
+            "ProgressProfileTracesCompleted"
         })
         {
             Assert.Contains($"WebTextKey.{key}", content, StringComparison.Ordinal);
         }
 
-        // No progress copy is a literal string in the markup — every label and
-        // state token is a WebTextKey lookup (p10 §8.3.2).
+        // One shared stage template renders all three states, so every one of
+        // the seven canonical stages gets all three sentences.
+        Assert.Equal(1, CountOccurrences(content, "data-stage-label=\"pending\""));
+        Assert.Equal(1, CountOccurrences(content, "data-stage-label=\"active\""));
+        Assert.Equal(1, CountOccurrences(content, "data-stage-label=\"completed\""));
+
+        // All 7 canonical stages x 3 states are declared in the two stage
+        // tables the template loops over.
+        Assert.Equal(21, CountOccurrences(content, "WebTextKey.Progress"));
+
+        // The separate technical state token is gone. (Only the markup hook is
+        // asserted: the ProgressState* text keys no longer exist, so naming
+        // them here would be a compile error rather than a test failure.)
+        Assert.DoesNotContain("data-state-token", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("analysis-progress__stage-state", content, StringComparison.Ordinal);
+
+        // No progress copy is a literal string in the markup — every sentence
+        // is a WebTextKey lookup, so the transport still carries no copy.
         Assert.DoesNotContain("Validating the GitHub", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("Checking the repository", content, StringComparison.Ordinal);
         Assert.DoesNotContain("In progress<", content, StringComparison.Ordinal);
+    }
+
+    private static int CountOccurrences(string content, string value)
+    {
+        int count = 0;
+        int index = content.IndexOf(value, StringComparison.Ordinal);
+
+        while (index >= 0)
+        {
+            count++;
+            index = content.IndexOf(value, index + value.Length, StringComparison.Ordinal);
+        }
+
+        return count;
     }
 
     [Theory]

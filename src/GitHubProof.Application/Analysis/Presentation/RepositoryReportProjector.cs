@@ -119,6 +119,7 @@ public sealed class RepositoryReportProjector
                     new RepositoryReportWarning(
                         warning.Code,
                         warning.Severity,
+                        warning.PresentationKey,
                         _reportLocalizer.GetWarning(
                             warning.PresentationKey,
                             resolvedLocale),
@@ -126,12 +127,14 @@ public sealed class RepositoryReportProjector
                         warning.RelatedSignals))
                 .ToArray();
 
-        IReadOnlyList<string> limitations =
+        IReadOnlyList<RepositoryReportLimitation> limitations =
             analysis.LimitationKeys
                 .Select(key =>
-                    _reportLocalizer.GetLimitation(
+                    new RepositoryReportLimitation(
                         key,
-                        resolvedLocale))
+                        _reportLocalizer.GetLimitation(
+                            key,
+                            resolvedLocale)))
                 .ToArray();
 
         RepositoryReportDisclaimer disclaimer =

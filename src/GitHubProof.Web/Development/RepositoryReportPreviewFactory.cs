@@ -47,7 +47,7 @@ public static class RepositoryReportPreviewFactory
             false,
             "C#",
             AnalysisStatus.Partial,
-            L(tr, "Partial", "Kısmi"),
+            L(tr, "Some data is missing", "Bazı veriler eksik"),
             "0.1.0",
             "2026.08.16",
             1);
@@ -172,8 +172,8 @@ public static class RepositoryReportPreviewFactory
                 StatusLabel(tr, SignalStatus.NotApplicable),
                 L(
                     tr,
-                    "This signal does not apply to this repository.",
-                    "Bu sinyal bu repository için uygulanabilir değil."),
+                    "Issue usage does not apply to this repository.",
+                    "Issue kullanımı bu repository için geçerli değil."),
                 evidence),
 
             new RepositoryReportUncertainty(
@@ -183,8 +183,8 @@ public static class RepositoryReportPreviewFactory
                 StatusLabel(tr, SignalStatus.UnavailableEvidence),
                 L(
                     tr,
-                    "The required evidence was unavailable.",
-                    "Gerekli kanıta erişilemedi."),
+                    "Live demo could not be evaluated because the required data was unavailable.",
+                    "Gerekli veriye erişilemediği için Canlı demo değerlendirilemedi."),
                 evidence),
 
             new RepositoryReportUncertainty(
@@ -194,8 +194,8 @@ public static class RepositoryReportPreviewFactory
                 StatusLabel(tr, SignalStatus.RequiresHumanReview),
                 L(
                     tr,
-                    "Human review is required before a deterministic conclusion.",
-                    "Deterministik sonuçtan önce insan incelemesi gerekiyor."),
+                    "CI review requires human review before a definite result can be given.",
+                    "CI incelemesi için kesin bir sonuç vermeden önce insan incelemesi gerekiyor."),
                 evidence)
         ];
 
@@ -205,7 +205,7 @@ public static class RepositoryReportPreviewFactory
                 AnalysisCategory.RepositoryUnderstandability,
                 L(tr, "Documentation", "Dokümantasyon"),
                 CategoryStatus.Completed,
-                L(tr, "Completed", "Tamamlandı"),
+                L(tr, "Result available", "Sonuç var"),
                 20,
                 27,
                 74),
@@ -214,7 +214,7 @@ public static class RepositoryReportPreviewFactory
                 AnalysisCategory.DevelopmentProcessVisibility,
                 L(tr, "Development Process", "Geliştirme Süreci"),
                 CategoryStatus.Completed,
-                L(tr, "Completed", "Tamamlandı"),
+                L(tr, "Result available", "Sonuç var"),
                 26,
                 32,
                 81),
@@ -223,7 +223,7 @@ public static class RepositoryReportPreviewFactory
                 AnalysisCategory.ValidationAndUsability,
                 L(tr, "Validation", "Doğrulama"),
                 CategoryStatus.Partial,
-                L(tr, "Partial", "Kısmi"),
+                L(tr, "Some data is missing", "Bazı veriler eksik"),
                 10,
                 18,
                 56),
@@ -232,7 +232,7 @@ public static class RepositoryReportPreviewFactory
                 AnalysisCategory.PortfolioPresentation,
                 L(tr, "Portfolio Presentation", "Portföy Sunumu"),
                 CategoryStatus.Partial,
-                L(tr, "Partial", "Kısmi"),
+                L(tr, "Some data is missing", "Bazı veriler eksik"),
                 7,
                 14,
                 50)
@@ -240,12 +240,12 @@ public static class RepositoryReportPreviewFactory
 
         RepositoryReportScoreSummary score = new(
             RepositoryReportSectionKeys.CategoriesAndScore,
-            L(tr, "Category summary", "Kategori özeti"),
+            L(tr, "Categories and score", "Kategoriler ve skor"),
             63,
             86,
             73,
-            "score.label.strong-visible-evidence",
-            L(tr, "Strong visible evidence", "Güçlü görünür kanıt"),
+            RepositoryReportScoreLabelKeys.StrongEvidence,
+            L(tr, "Strong evidence", "Güçlü kanıt"),
             ScoreCalculationMethod.RawApplicableScoreNormalization,
             categories);
 
@@ -327,38 +327,43 @@ public static class RepositoryReportPreviewFactory
             new(
                 "preview.unavailable-evidence",
                 WarningSeverity.Warning,
+                RepositoryReportWarningKeys.SignalUnavailableEvidence,
                 L(
                     tr,
-                    "Some required evidence was unavailable.",
-                    "Bazı gerekli kanıtlara erişilemedi."),
+                    "Required data was unavailable for some signals. This does not mean the evidence is missing.",
+                    "Bazı sinyaller için gerekli veriye erişilemedi. Bu, kanıtın eksik olduğu anlamına gelmez."),
                 [],
                 ["portfolio.homepage-or-live-demo"])
         ];
 
-        IReadOnlyList<string> limitations =
+        IReadOnlyList<RepositoryReportLimitation> limitations =
         [
-            L(
-                tr,
-                "Some signals contain explicit uncertainty.",
-                "Bazı sinyaller açık belirsizlik içeriyor."),
+            new(
+                RepositoryReportLimitationKeys.AnalysisUnavailableEvidence,
+                L(
+                    tr,
+                    "Some signals could not be evaluated because the required data was unavailable.",
+                    "Bazı sinyaller için gerekli veriye erişilemediği için değerlendirilemedi.")),
 
-            L(
-                tr,
-                "This preview is static and does not perform repository analysis.",
-                "Bu önizleme statiktir ve repository analizi çalıştırmaz.")
+            new(
+                "preview.limitation.static",
+                L(
+                    tr,
+                    "This preview is static and does not perform repository analysis.",
+                    "Bu önizleme statiktir ve repository analizi çalıştırmaz."))
         ];
 
         RepositoryReportDisclaimer disclaimer = new(
             RepositoryReportSectionKeys.Disclaimer,
             L(
                 tr,
-                "What this report does not claim",
-                "Bu rapor ne iddia etmez?"),
+                "What this analysis does not claim",
+                "Bu analiz neyi söylemez?"),
             1,
             L(
                 tr,
-                "GitHub Proof evaluates visible repository evidence. It does not infer developer seniority, employability, authorship, originality, AI usage, or overall developer quality.",
-                "GitHub Proof görünür repository kanıtını değerlendirir. Geliştirici kıdemi, işe alınabilirlik, yazarlık, özgünlük, AI kullanımı veya genel geliştirici kalitesi hakkında çıkarım yapmaz."));
+                "GitHub Proof only looks at evidence visible in the repository during the analysis. It does not infer the developer's seniority, employability, authorship, originality, AI usage, or overall quality.",
+                "GitHub Proof yalnızca analiz sırasında repository'de görülebilen kanıtlara bakar. Geliştiricinin kıdemi, işe alınabilirliği, yazarlığı, özgünlüğü, AI kullanımı veya genel kalitesi hakkında çıkarım yapmaz."));
 
         return new RepositoryReport(
             normalizedLocale,
@@ -368,15 +373,15 @@ public static class RepositoryReportPreviewFactory
                 RepositoryReportSectionKeys.Proves,
                 L(
                     tr,
-                    "Strong Evidence",
-                    "Güçlü Kanıtlar"),
+                    "What does this repository prove?",
+                    "Bu repository neyi kanıtlıyor?"),
                 proves),
             new(
                 RepositoryReportSectionKeys.Weakens,
                 L(
                     tr,
-                    "Weak Points",
-                    "Zayıf Noktalar"),
+                    "What weakens the evidence?",
+                    "Kanıtı ne zayıflatıyor?"),
                 weakens),
             new(
                 RepositoryReportSectionKeys.DoFirst,
@@ -384,12 +389,12 @@ public static class RepositoryReportPreviewFactory
                 actions),
             new(
                 RepositoryReportSectionKeys.Uncertainty,
-                L(tr, "Uncertainty", "Belirsizlik"),
+                L(tr, "Things to keep in mind", "Dikkate alınması gerekenler"),
                 uncertainty),
             score,
             new(
                 RepositoryReportSectionKeys.SignalDetails,
-                L(tr, "Signal details", "Sinyal ayrıntıları"),
+                L(tr, "Evidence details", "Kanıt ayrıntıları"),
                 signals),
             warnings,
             limitations,
@@ -500,22 +505,22 @@ public static class RepositoryReportPreviewFactory
         status switch
         {
             SignalStatus.Strong =>
-                L(tr, "Strong", "Güçlü"),
+                L(tr, "Strong evidence", "Güçlü kanıt"),
 
             SignalStatus.Present =>
-                L(tr, "Present", "Mevcut"),
+                L(tr, "Evidence found", "Kanıt var"),
 
             SignalStatus.Partial =>
-                L(tr, "Partial", "Kısmi"),
+                L(tr, "Partial evidence", "Kısmi kanıt"),
 
             SignalStatus.Missing =>
-                L(tr, "Missing", "Eksik"),
+                L(tr, "No evidence found", "Kanıt bulunamadı"),
 
             SignalStatus.NotApplicable =>
-                L(tr, "Not applicable", "Uygulanamaz"),
+                L(tr, "Does not apply", "Geçerli değil"),
 
             SignalStatus.UnavailableEvidence =>
-                L(tr, "Evidence unavailable", "Kanıta erişilemiyor"),
+                L(tr, "Data unavailable", "Veriye erişilemedi"),
 
             SignalStatus.RequiresHumanReview =>
                 L(tr, "Human review required", "İnsan incelemesi gerekli"),

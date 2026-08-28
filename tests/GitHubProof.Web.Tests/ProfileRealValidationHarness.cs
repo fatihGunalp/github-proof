@@ -441,8 +441,6 @@ public sealed class ProfileRealValidationHarness(ITestOutputHelper output)
         {
             // Fixed boilerplate captions — always rendered regardless of this
             // profile's data, included for completeness.
-            Add(surfaces, culture, "ProfileIdentityContext",
-                localizer.GetProfileIdentityContext(culture));
             Add(surfaces, culture, "OpenProfileOnGitHubLabel",
                 localizer.GetOpenProfileOnGitHubLabel(culture));
             Add(surfaces, culture, "WorkTypeCardHeading",

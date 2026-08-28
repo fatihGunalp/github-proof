@@ -33,10 +33,10 @@ public sealed class WebPresentationLocalizerTests
         WebPresentationLocalizer localizer = new();
 
         Assert.Equal(
-            "GitHub Proof is processing your request…",
+            "Starting the analysis…",
             localizer.Get(WebTextKey.ProcessingRequest, WebCulture.English));
         Assert.Equal(
-            "GitHub Proof isteğinizi işliyor…",
+            "Analiz başlıyor…",
             localizer.Get(WebTextKey.ProcessingRequest, WebCulture.Turkish));
     }
 

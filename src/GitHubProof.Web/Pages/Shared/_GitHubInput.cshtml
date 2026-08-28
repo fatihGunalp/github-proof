@@ -10,20 +10,51 @@
     transport carries no copy.
 *@
 
+@*
+    Session 141 (contract 02): each stage carries one sentence per canonical
+    state instead of one workflow-noun label plus a separate state token, so
+    the copy describes the work being done and the state reads naturally in
+    both languages. The stage identities, their order and the three runtime
+    states are unchanged, and every sentence is still server-rendered and
+    localized here — the transport still carries no copy.
+*@
 @{
-    (string stage, WebTextKey label)[] repositoryStages =
+    (string stage, WebTextKey pending, WebTextKey active, WebTextKey completed)[]
+        repositoryStages =
     {
-        ("repository-target-validated", WebTextKey.ProgressRepositoryTargetValidated),
-        ("repository-public-data-read", WebTextKey.ProgressRepositoryPublicDataRead),
-        ("repository-traces-analyzed", WebTextKey.ProgressRepositoryTracesAnalyzed),
-        ("repository-proof-prepared", WebTextKey.ProgressRepositoryProofPrepared)
+        ("repository-target-validated",
+            WebTextKey.ProgressRepositoryTargetPending,
+            WebTextKey.ProgressRepositoryTargetActive,
+            WebTextKey.ProgressRepositoryTargetCompleted),
+        ("repository-public-data-read",
+            WebTextKey.ProgressRepositoryDataPending,
+            WebTextKey.ProgressRepositoryDataActive,
+            WebTextKey.ProgressRepositoryDataCompleted),
+        ("repository-traces-analyzed",
+            WebTextKey.ProgressRepositoryTracesPending,
+            WebTextKey.ProgressRepositoryTracesActive,
+            WebTextKey.ProgressRepositoryTracesCompleted),
+        ("repository-proof-prepared",
+            WebTextKey.ProgressRepositoryProofPending,
+            WebTextKey.ProgressRepositoryProofActive,
+            WebTextKey.ProgressRepositoryProofCompleted)
     };
 
-    (string stage, WebTextKey label)[] profileStages =
+    (string stage, WebTextKey pending, WebTextKey active, WebTextKey completed)[]
+        profileStages =
     {
-        ("profile-target-validated", WebTextKey.ProgressProfileTargetValidated),
-        ("profile-public-surface-read", WebTextKey.ProgressProfilePublicSurfaceRead),
-        ("profile-evidence-examined", WebTextKey.ProgressProfileEvidenceExamined)
+        ("profile-target-validated",
+            WebTextKey.ProgressProfileTargetPending,
+            WebTextKey.ProgressProfileTargetActive,
+            WebTextKey.ProgressProfileTargetCompleted),
+        ("profile-public-surface-read",
+            WebTextKey.ProgressProfileRepositoriesPending,
+            WebTextKey.ProgressProfileRepositoriesActive,
+            WebTextKey.ProgressProfileRepositoriesCompleted),
+        ("profile-evidence-examined",
+            WebTextKey.ProgressProfileTracesPending,
+            WebTextKey.ProgressProfileTracesActive,
+            WebTextKey.ProgressProfileTracesCompleted)
     };
 }
 
@@ -92,18 +123,17 @@
                 class="analysis-progress__stages"
                 data-analysis-stages="@kind"
                 hidden>
-                @foreach (var (stage, label) in stages)
+                @foreach (var (stage, pending, active, completed) in stages)
                 {
                     <li
                         class="analysis-progress__stage"
                         data-stage="@stage"
                         data-state="pending">
                         <span class="analysis-progress__stage-glyph" aria-hidden="true"></span>
-                        <span class="analysis-progress__stage-label">@Text.Get(label)</span>
-                        <span class="analysis-progress__stage-state">
-                            <span data-state-token="pending">@Text.Get(WebTextKey.ProgressStatePending)</span>
-                            <span data-state-token="active">@Text.Get(WebTextKey.ProgressStateActive)</span>
-                            <span data-state-token="completed">@Text.Get(WebTextKey.ProgressStateCompleted)</span>
+                        <span class="analysis-progress__stage-label">
+                            <span data-stage-label="pending">@Text.Get(pending)</span>
+                            <span data-stage-label="active">@Text.Get(active)</span>
+                            <span data-stage-label="completed">@Text.Get(completed)</span>
                         </span>
                     </li>
                 }

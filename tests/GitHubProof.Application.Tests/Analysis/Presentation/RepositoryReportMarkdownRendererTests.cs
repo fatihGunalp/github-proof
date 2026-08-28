@@ -714,6 +714,7 @@ public sealed class RepositoryReportMarkdownRendererTests
                     new RepositoryReportWarning(
                         "signal.unavailable.portfolio.homepage-or-live-demo",
                         WarningSeverity.Warning,
+                        RepositoryReportWarningKeys.SignalUnavailableEvidence,
                         turkish
                             ? "Bazı gerekli kanıtlara erişilemedi."
                             : "Some required evidence was unavailable.",
@@ -722,13 +723,15 @@ public sealed class RepositoryReportMarkdownRendererTests
                 ]
                 : [];
 
-        IReadOnlyList<string> limitations =
+        IReadOnlyList<RepositoryReportLimitation> limitations =
             includeOptionalCollections
                 ?
                 [
-                    turkish
-                        ? "Bazı sinyaller açık belirsizlik içeriyor."
-                        : "Some signals contain explicit uncertainty."
+                    new RepositoryReportLimitation(
+                        RepositoryReportLimitationKeys.AnalysisUnavailableEvidence,
+                        turkish
+                            ? "Bazı sinyaller açık belirsizlik içeriyor."
+                            : "Some signals contain explicit uncertainty.")
                 ]
                 : [];
 

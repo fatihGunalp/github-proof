@@ -22,10 +22,10 @@ public sealed class SignalPresentationLocalizerTests
 
         Assert.Equal("en", english.Locale);
         Assert.Equal("Repository description", english.Title);
-        Assert.Equal("Missing", english.StatusLabel);
+        Assert.Equal("No evidence found", english.StatusLabel);
         Assert.Equal("tr", turkish.Locale);
         Assert.Equal("Repository açıklaması", turkish.Title);
-        Assert.Equal("Eksik", turkish.StatusLabel);
+        Assert.Equal("Kanıt bulunamadı", turkish.StatusLabel);
         Assert.NotEqual(english.Explanation, turkish.Explanation);
         Assert.NotEqual(english.Recommendation, turkish.Recommendation);
     }

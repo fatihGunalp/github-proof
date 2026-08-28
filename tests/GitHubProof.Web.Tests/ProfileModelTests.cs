@@ -370,7 +370,7 @@ public sealed class ProfileModelTests
 
         Assert.False(model.HasComposedProfile);
         Assert.Equal(
-            "Profile evidence is unavailable",
+            "Profile unavailable",
             model.ErrorTitle);
         Assert.Contains("temporarily limited", model.ErrorMessage!, StringComparison.Ordinal);
         Assert.DoesNotContain("GITHUB_TOKEN", model.ErrorMessage!, StringComparison.Ordinal);
@@ -397,7 +397,7 @@ public sealed class ProfileModelTests
 
         await model.OnPostAsync(CancellationToken.None);
 
-        Assert.Equal("Profil kanıtına erişilemiyor", model.ErrorTitle);
+        Assert.Equal("Profile erişilemiyor", model.ErrorTitle);
         Assert.Contains("geçici olarak sınırladı", model.ErrorMessage!, StringComparison.Ordinal);
     }
 
@@ -421,7 +421,7 @@ public sealed class ProfileModelTests
         await model.OnPostAsync(CancellationToken.None);
 
         Assert.False(model.HasComposedProfile);
-        Assert.Equal("Profile evidence is unavailable", model.ErrorTitle);
+        Assert.Equal("Profile unavailable", model.ErrorTitle);
         Assert.NotNull(model.ErrorMessage);
         Assert.DoesNotContain(
             unavailable.Reason!,
@@ -632,10 +632,10 @@ public sealed class ProfileModelTests
 
     [Theory]
     [InlineData(DataAvailabilityStatus.NotApplicable, "This profile is not supported")]
-    [InlineData(DataAvailabilityStatus.Forbidden, "Profile evidence is unavailable")]
-    [InlineData(DataAvailabilityStatus.Unavailable, "Profile evidence is unavailable")]
-    [InlineData(DataAvailabilityStatus.Failed, "Profile evidence is unavailable")]
-    [InlineData(DataAvailabilityStatus.NotRequested, "Profile evidence is unavailable")]
+    [InlineData(DataAvailabilityStatus.Forbidden, "Profile unavailable")]
+    [InlineData(DataAvailabilityStatus.Unavailable, "Profile unavailable")]
+    [InlineData(DataAvailabilityStatus.Failed, "Profile unavailable")]
+    [InlineData(DataAvailabilityStatus.NotRequested, "Profile unavailable")]
     public async Task OnPostAsync_WithTypedProfileAvailability_UsesBoundedCopyWithoutRawReason(
         DataAvailabilityStatus status,
         string expectedTitle)
@@ -677,8 +677,8 @@ public sealed class ProfileModelTests
         Assert.False(model.HasComposedProfile);
         Assert.False(model.IsPartialProfile);
         Assert.Null(model.Report);
-        Assert.Equal("The profile view could not be completed", model.ErrorTitle);
-        Assert.Contains("compose a profile", model.ErrorMessage!, StringComparison.Ordinal);
+        Assert.Equal("Profile analysis could not be completed", model.ErrorTitle);
+        Assert.Contains("build a profile analysis", model.ErrorMessage!, StringComparison.Ordinal);
         Assert.DoesNotContain("too long", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("temporarily busy", model.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
     }

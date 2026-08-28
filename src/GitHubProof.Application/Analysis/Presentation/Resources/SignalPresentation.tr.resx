@@ -4,36 +4,36 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
-  <data name="status.Strong" xml:space="preserve"><value>Güçlü</value></data>
-  <data name="status.Present" xml:space="preserve"><value>Mevcut</value></data>
-  <data name="status.Partial" xml:space="preserve"><value>Kısmi</value></data>
-  <data name="status.Missing" xml:space="preserve"><value>Eksik</value></data>
-  <data name="status.NotApplicable" xml:space="preserve"><value>Uygulanamaz</value></data>
-  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Kanıta erişilemiyor</value></data>
+  <data name="status.Strong" xml:space="preserve"><value>Güçlü kanıt</value></data>
+  <data name="status.Present" xml:space="preserve"><value>Kanıt var</value></data>
+  <data name="status.Partial" xml:space="preserve"><value>Kısmi kanıt</value></data>
+  <data name="status.Missing" xml:space="preserve"><value>Kanıt bulunamadı</value></data>
+  <data name="status.NotApplicable" xml:space="preserve"><value>Geçerli değil</value></data>
+  <data name="status.UnavailableEvidence" xml:space="preserve"><value>Veriye erişilemedi</value></data>
   <data name="status.RequiresHumanReview" xml:space="preserve"><value>İnsan incelemesi gerekli</value></data>
-  <data name="explanation.Strong" xml:space="preserve"><value>{0} için güçlü ve görünür kanıt var.</value></data>
-  <data name="explanation.Present" xml:space="preserve"><value>{0} için görünür kanıt var.</value></data>
-  <data name="explanation.Partial" xml:space="preserve"><value>{0} için kısmi görünür kanıt var.</value></data>
-  <data name="explanation.Missing" xml:space="preserve"><value>{0} için görünür kanıt bulunamadı.</value></data>
-  <data name="explanation.NotApplicable" xml:space="preserve"><value>{0} bu repository için uygulanabilir değil.</value></data>
-  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>Gerekli kanıta erişilemediği için {0} değerlendirilemedi.</value></data>
-  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} hakkında sonuca varmadan önce insan incelemesi gerekiyor.</value></data>
-  <data name="limitation.Strong" xml:space="preserve"><value>Bu sonuç yalnız analiz edilen repository snapshot'ında görünür olan kanıtı yansıtır.</value></data>
+  <data name="explanation.Strong" xml:space="preserve"><value>{0} için güçlü kanıt bulundu.</value></data>
+  <data name="explanation.Present" xml:space="preserve"><value>{0} için kanıt bulundu.</value></data>
+  <data name="explanation.Partial" xml:space="preserve"><value>{0} için kanıtın yalnızca bir bölümü görünüyor.</value></data>
+  <data name="explanation.Missing" xml:space="preserve"><value>İncelenen kapsamda {0} için kanıt bulunamadı.</value></data>
+  <data name="explanation.NotApplicable" xml:space="preserve"><value>{0} bu repository için geçerli değil.</value></data>
+  <data name="explanation.UnavailableEvidence" xml:space="preserve"><value>Gerekli veriye erişilemediği için {0} değerlendirilemedi.</value></data>
+  <data name="explanation.RequiresHumanReview" xml:space="preserve"><value>{0} için kesin bir sonuç vermeden önce insan incelemesi gerekiyor.</value></data>
+  <data name="limitation.Strong" xml:space="preserve"><value>Bu sonuç yalnızca analiz sırasında görülebilen repository kanıtına dayanır.</value></data>
   <data name="limitation.Present" xml:space="preserve"><value>Bu sonuç varlığı doğrular; bütünlük, doğruluk veya kaliteyi doğrulamaz.</value></data>
-  <data name="limitation.Partial" xml:space="preserve"><value>Beklenen kanıtın yalnız bir bölümü görünür.</value></data>
-  <data name="limitation.Missing" xml:space="preserve"><value>Eksik, incelenen kapsamda niteleyici kanıt bulunmadığı anlamına gelir.</value></data>
-  <data name="limitation.NotApplicable" xml:space="preserve"><value>Bu sinyal uygulanabilirlik kuralı nedeniyle kapsam dışında kaldı.</value></data>
-  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>Bu bir veri toplama sınırıdır; sinyalin eksik olduğunu kanıtlamaz.</value></data>
-  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>Mevcut kanıt deterministik bir sonucu desteklemiyor.</value></data>
+  <data name="limitation.Partial" xml:space="preserve"><value>İlgili kanıtın yalnızca bir bölümü görünür.</value></data>
+  <data name="limitation.Missing" xml:space="preserve"><value>Bu durum yalnızca incelenen kapsamda kanıt bulunamadığını gösterir.</value></data>
+  <data name="limitation.NotApplicable" xml:space="preserve"><value>Bu kontrol bu repository için geçerli değil.</value></data>
+  <data name="limitation.UnavailableEvidence" xml:space="preserve"><value>Bu bir veri erişimi sınırıdır; kanıtın eksik olduğu anlamına gelmez.</value></data>
+  <data name="limitation.RequiresHumanReview" xml:space="preserve"><value>Mevcut kanıt tek başına kesin bir sonuç vermeye yetmiyor.</value></data>
   <data name="category.RepositoryUnderstandability" xml:space="preserve"><value>Dokümantasyon</value></data>
   <data name="category.DevelopmentProcessVisibility" xml:space="preserve"><value>Geliştirme Süreci</value></data>
   <data name="category.ValidationAndUsability" xml:space="preserve"><value>Doğrulama</value></data>
   <data name="category.PortfolioPresentation" xml:space="preserve"><value>Portföy Sunumu</value></data>
-  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof repository üzerinde görünür olan kanıtı değerlendirir. Geliştirici kıdemi, işe alınabilirlik, yazarlık, özgünlük, AI kullanımı veya genel geliştirici kalitesi hakkında çıkarım yapmaz.</value></data>
+  <data name="disclaimer.product-boundary" xml:space="preserve"><value>GitHub Proof yalnızca analiz sırasında repository'de görülebilen kanıtlara bakar. Geliştiricinin kıdemi, işe alınabilirliği, yazarlığı, özgünlüğü, AI kullanımı veya genel kalitesi hakkında çıkarım yapmaz.</value></data>
 
   <data name="repository.readme.exists.title" xml:space="preserve"><value>README</value></data>
   <data name="repository.readme.exists.description" xml:space="preserve"><value>GitHub'ın repository içinde bir README tanıyıp tanımadığını kontrol eder.</value></data>
-  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>README, değerlendirene projeyi anlamak için doğrudan bir giriş noktası verir.</value></data>
+  <data name="repository.readme.exists.whyItMatters" xml:space="preserve"><value>README, projeyi ilk kez inceleyen biri için doğrudan bir başlangıç noktası sağlar.</value></data>
   <data name="repository.readme.exists.recommendation" xml:space="preserve"><value>Projeyi ve nasıl inceleneceğini anlatan repository düzeyinde bir README ekleyin.</value></data>
   <data name="repository.description.present.title" xml:space="preserve"><value>Repository açıklaması</value></data>
   <data name="repository.description.present.description" xml:space="preserve"><value>GitHub repository açıklamasının proje amacını kısa biçimde aktarıp aktarmadığını kontrol eder.</value></data>

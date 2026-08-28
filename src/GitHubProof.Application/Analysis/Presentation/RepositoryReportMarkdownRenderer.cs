@@ -218,7 +218,7 @@ public sealed class RepositoryReportMarkdownRenderer
         StringBuilder builder,
         RepositoryReportSection<RepositoryReportUncertainty> section,
         IReadOnlyList<RepositoryReportWarning> warnings,
-        IReadOnlyList<string> limitations)
+        IReadOnlyList<RepositoryReportLimitation> limitations)
     {
         AppendSectionHeading(builder, section.Title);
 
@@ -246,9 +246,9 @@ public sealed class RepositoryReportMarkdownRenderer
             AppendBlankLine(builder);
         }
 
-        foreach (string limitation in limitations)
+        foreach (RepositoryReportLimitation limitation in limitations)
         {
-            AppendLine(builder, $"- {limitation}");
+            AppendLine(builder, $"- {limitation.Message}");
         }
 
         if (limitations.Count > 0)

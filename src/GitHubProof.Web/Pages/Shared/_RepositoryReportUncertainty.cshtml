@@ -1,16 +1,15 @@
 @model RepositoryReport
 
+@*
+    Session 141 (contract 14 §20): what is rendered here is decided by canonical
+    warning/limitation identity, never by comparing localized message text.
+*@
 @{
-    string[] warningMessages =
-        Model.Warnings
-            .Select(warning => warning.Message)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
+    RepositoryReportNotesModel notes =
+        RepositoryReportNotesPresentation.Create(Model);
 
-    string[] limitationMessages =
-        Model.Limitations
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
+    IReadOnlyList<string> warningMessages = notes.Warnings;
+    IReadOnlyList<string> limitationMessages = notes.Limitations;
 }
 
 <details class="report-uncertainty">
@@ -73,7 +72,7 @@
                         </div>
                     }
 
-                    @if (warningMessages.Length > 0)
+                    @if (warningMessages.Count > 0)
                     {
                         <ul class="report-notes">
                             @foreach (string message in warningMessages)
@@ -83,7 +82,7 @@
                         </ul>
                     }
 
-                    @if (limitationMessages.Length > 0)
+                    @if (limitationMessages.Count > 0)
                     {
                         <ul class="report-notes">
                             @foreach (string message in limitationMessages)

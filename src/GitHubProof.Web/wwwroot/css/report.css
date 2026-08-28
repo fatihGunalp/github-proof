@@ -1053,6 +1053,16 @@
     font-size: var(--font-size-small);
 }
 
+/* Session 141 (contract 16 §6): a quiet label naming what the paragraph
+   beneath it answers. Subordinate to the content it introduces — it adds no
+   meaning of its own. */
+.report-signal__field-label {
+    margin-bottom: var(--space-1);
+    color: var(--fg-tertiary);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+}
+
 .report-disclaimer {
     color: var(--fg-tertiary);
     font-size: var(--font-size-small);

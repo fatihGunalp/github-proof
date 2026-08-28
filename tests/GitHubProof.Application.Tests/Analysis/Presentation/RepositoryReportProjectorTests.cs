@@ -125,11 +125,11 @@ public sealed class RepositoryReportProjectorTests
             turkish.SectionOrder);
 
         Assert.Equal(
-            "Strong Evidence",
+            "What does this repository prove?",
             english.Proves.Title);
 
         Assert.Equal(
-            "Güçlü Kanıtlar",
+            "Bu repository neyi kanıtlıyor?",
             turkish.Proves.Title);
 
         Assert.Equal(
@@ -425,33 +425,57 @@ public sealed class RepositoryReportProjectorTests
             english.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
+        // Session 141 (contract 17 §2/§7): the six exclusions all survive. The
+        // approved wording scopes the whole list to the developer once
+        // ("the developer's seniority, employability, … or overall quality"),
+        // so the overall-quality exclusion stays person-level rather than
+        // becoming a claim about the repository.
         Assert.Contains(
-            "overall developer quality",
+            "overall quality",
             english.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
+        Assert.Contains(
+            "developer",
+            english.Disclaimer.Text,
+            StringComparison.OrdinalIgnoreCase);
+
+        // The Turkish exclusions carry the possessive suffix that agrees with
+        // "Geliştiricinin", which softens the final consonant
+        // (yazarlık -> yazarlığı, özgünlük -> özgünlüğü). The assertions match
+        // the inflected forms the approved copy actually uses.
         Assert.Contains(
             "kıdemi",
             turkish.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
         Assert.Contains(
-            "işe alınabilirlik",
+            "işe alınabilirliği",
             turkish.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
         Assert.Contains(
-            "yazarlık",
+            "yazarlığı",
             turkish.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
         Assert.Contains(
-            "özgünlük",
+            "özgünlüğü",
             turkish.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
 
         Assert.Contains(
             "AI kullanımı",
+            turkish.Disclaimer.Text,
+            StringComparison.OrdinalIgnoreCase);
+
+        Assert.Contains(
+            "genel kalitesi",
+            turkish.Disclaimer.Text,
+            StringComparison.OrdinalIgnoreCase);
+
+        Assert.Contains(
+            "Geliştiricinin",
             turkish.Disclaimer.Text,
             StringComparison.OrdinalIgnoreCase);
     }
