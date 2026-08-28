@@ -12,6 +12,38 @@
 
     const controllers = [];
 
+    const languageForm = document.querySelector("[data-language-form]");
+
+    // A single source of analysis-busy truth: the landing progress form's own
+    // existing submitting state (p10 §8.1). No new flag.
+    const landingAnalysisActive = () =>
+        Array.from(forms).some(candidate =>
+            candidate.hasAttribute("data-analysis-progress")
+            && candidate.dataset.submitting === "true");
+
+    // While an analysis is in flight the EN/TR controls become inert and
+    // perceivably disabled — accessibly (aria-disabled) and for the keyboard
+    // (removed from the tab order) as well as the pointer. Restored on reset.
+    const setLanguageControlsLocked = locked => {
+        if (!languageForm) {
+            return;
+        }
+
+        languageForm.toggleAttribute("data-analysis-locked", locked);
+
+        languageForm
+            .querySelectorAll("button[name=\"Culture\"]")
+            .forEach(choice => {
+                if (locked) {
+                    choice.setAttribute("aria-disabled", "true");
+                    choice.setAttribute("tabindex", "-1");
+                } else {
+                    choice.removeAttribute("aria-disabled");
+                    choice.removeAttribute("tabindex");
+                }
+            });
+    };
+
     const reset = form => {
         form.dataset.submitting = "false";
         form.setAttribute("aria-busy", "false");
@@ -32,6 +64,12 @@
 
         if (status) {
             status.hidden = true;
+        }
+
+        // Only the landing progress form owns the language lock; a drill-down
+        // form's reset never re-enables EN/TR on its own.
+        if (form.hasAttribute("data-analysis-progress")) {
+            setLanguageControlsLocked(false);
         }
     };
 
@@ -86,7 +124,22 @@
             // failure the form submits without a token, no run is registered,
             // and the visitor gets the canonical indeterminate state (§8, §6).
             progress?.start();
+
+            // Protect this in-flight synchronous analysis from being abandoned
+            // by a language navigation (p10 §8.1).
+            if (form.hasAttribute("data-analysis-progress")) {
+                setLanguageControlsLocked(true);
+            }
         });
+    });
+
+    // Keyboard (Enter/Space on a focused choice) and pointer both reach the
+    // form through its submit event; blocking it here stops navigation to
+    // /Language and the culture-cookie POST while a landing analysis is active.
+    languageForm?.addEventListener("submit", event => {
+        if (landingAnalysisActive()) {
+            event.preventDefault();
+        }
     });
 
     function createProgressController(form) {

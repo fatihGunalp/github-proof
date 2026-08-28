@@ -71,6 +71,19 @@
     color: var(--border-default);
 }
 
+/* While the landing analysis is in flight the EN/TR control is inert
+   (analysis-progress.js sets data-analysis-locked). The choices are a
+   genuinely inactive UI component here — no navigation, no culture change —
+   so the dimmed state carries no contrast requirement (WCAG 1.4.3). */
+.language-selector[data-analysis-locked] {
+    opacity: 0.5;
+}
+
+.language-selector[data-analysis-locked] .language-selector__choice {
+    pointer-events: none;
+    cursor: default;
+}
+
 .theme-toggle {
     display: inline-flex;
     width: 2.5rem;

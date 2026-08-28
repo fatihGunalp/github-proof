@@ -1,12 +1,45 @@
 # GitHub Proof — Current Development State
 
-**Last Updated:** 2026-08-27 (Session 138)
+**Last Updated:** 2026-08-28 (Session 140)
 **Source of Truth:** `docs/`. This file is operational memory only — it never
 carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 139 — Live Analysis Progress Web Implementation — branch
+- **Active Session:** 140 — Prevent Language Switch From Cancelling Active
+  Analysis — branch `session/140-language-switch-analysis-guard`, session base
+  `d4963ac` (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
+  **PASS — implementation, tests and independent review complete; integration is
+  user-owned**.
+  One live-smoke UX fix from Session 139: while the landing analysis form is
+  actively submitting its synchronous POST, clicking header EN/TR used to POST
+  `/Language`, persist culture and redirect to `/Index`, abandoning the
+  in-flight analysis. Now `analysis-progress.js` reads that form's **existing**
+  `data-analysis-progress` + `data-submitting` state (no second busy flag): on
+  landing-form submit it locks the `EN|TR` `<form data-language-form>` —
+  `data-analysis-locked` on the form, `aria-disabled="true"` + `tabindex="-1"`
+  on `button[name="Culture"]`, `aria-pressed` (current selection) kept — and a
+  `submit` listener on that form `preventDefault()`s while
+  `landingAnalysisActive()`, covering a pointer click and Enter/Space alike and
+  stopping the culture-cookie POST. `reset()` (per-form and `pageshow`/BFCache)
+  restores it; lock and restore are both gated on `data-analysis-progress`, so a
+  Profile drill-down submit never touches EN/TR. `site.css` styles the locked
+  state inert (`opacity`, `pointer-events: none`) — a genuinely inactive
+  component, WCAG 1.4.3 contrast-exempt. Theme control unaffected. **p10 §8.1**
+  gained one owning-paragraph clarification (task-authorized): during an active
+  analysis the EN|TR control is inert, reuses the form's submitting state as the
+  single busy signal, and restores on the existing reset/BFCache path — no
+  translate/restart/persist; idle and completed-result behavior unchanged. No
+  Domain/Application/Infrastructure, package, config, appsettings change;
+  synchronous POST and Session 138/139 progress semantics untouched; no new
+  copy. +10 focused tests. Validation: Web **641/641**, solution **2395/2395**,
+  build 0 warnings, `git diff --check` clean; live browser verification
+  confirmed idle / active-locked / pageshow-restored / theme-unaffected.
+  **Independent review** (forked cold context, Sonnet / high) returned **PASS**
+  — BLOCKER 0, HIGH 0, MEDIUM 0, LOW 0, no findings; Web 641/641 re-verified.
+  **No Milestone B completion is claimed.** `artifacts/` untouched.
+  Detail: [`sessions/2026-08-28-140-language-switch-analysis-guard.md`](./sessions/2026-08-28-140-language-switch-analysis-guard.md)
+- **Previous Session:** 139 — Live Analysis Progress Web Implementation — branch
   `session/139-live-analysis-progress-web-implementation`, session base `3173bb9`
   (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
   **PASS WITH FINDINGS — implementation, tests and independent review complete;
@@ -501,11 +534,12 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `3173bb9` — `main` == `origin/main` ==
-  `HEAD` verified equal at Session 139 start. Session 138's live analysis
-  progress **contract** is integrated at that commit; Session 139's Web
-  **implementation** of it is on branch
-  `session/139-live-analysis-progress-web-implementation`, not yet integrated.
+- **Last remote-verified `main`:** `d4963ac` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 140 start. Session 139's live analysis
+  progress Web **implementation** is integrated there as
+  `feat(web): add truthful live analysis progress`. Session 140's language-guard
+  fix is on branch `session/140-language-switch-analysis-guard`, not yet
+  integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
 
 ## Position
@@ -832,16 +866,23 @@ configuration, so the runtime queue below is unaffected by all three sessions.
 production, domain, application, web, test or configuration code, so the runtime
 queue below is unaffected by it too.
 
-**Session 139 implemented that contract in `GitHubProof.Web` only** —
-implementation, focused tests and independent review are complete (Web 631/631,
-solution 2385/2385, build 0 warnings; review **PASS WITH FINDINGS**, all three
-LOW/NIT closed this session). It changed no Domain, Application, Infrastructure,
-package, config, appsettings or canonical-docs code, and the synchronous analysis
-POST is untouched, so the runtime queue below is unaffected by it too.
-**Immediate next action is user-owned:** review the Session 139 diff and, if
-accepted, commit `feat(web): add truthful live analysis progress` and integrate
-the branch. An authenticated live smoke (`GITHUB_TOKEN` set) would close the one
-recorded gap — full stage progression to the terminal snapshot observed live.
+**Session 139 implemented that contract in `GitHubProof.Web` only** and is
+integrated as `d4963ac` (`feat(web): add truthful live analysis progress`).
+Review was PASS WITH FINDINGS, all closed. An authenticated live smoke
+(`GITHUB_TOKEN` set) would close the one recorded gap — full stage progression
+to the terminal snapshot observed live.
+
+**Session 140 fixed one live-smoke UX defect** in `GitHubProof.Web` (+ a
+one-paragraph p10 §8.1 clarification, task-authorized): the header EN/TR control
+is now inert while the landing analysis form is actively submitting, so a
+language click can no longer abandon the in-flight synchronous analysis. It
+reuses the existing `data-submitting` state as the single busy signal; no new
+flag, no synchronous-POST change, no progress-semantics change. Implementation,
++10 tests, live browser verification and independent review are done (Web
+641/641, solution 2395/2395, build 0 warnings, `git diff --check` clean; review
+**PASS**, no findings). **Immediate next action is user-owned:** review the
+Session 140 diff and, if accepted, commit
+`fix(web): protect active analysis from language navigation` and integrate.
 
 The other independent next steps remain available, and the architecture owner
 chooses the order:

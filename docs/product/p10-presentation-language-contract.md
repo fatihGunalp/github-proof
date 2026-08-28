@@ -512,6 +512,15 @@ reruns GitHub analysis, and navigates to the localized landing. The last
 safely; a new analysis begins only after an explicit Analyze submission. No
 result cache or persistence is introduced by P10-I2A.
 
+While the landing analysis form is actively submitting a synchronous analysis
+POST (its existing submitting / `aria-busy` state, §8.3), the `EN | TR` control
+is inert: it initiates no navigation and no culture change, so a language click
+cannot abandon the in-flight analysis. It reuses that form's own submitting
+state as the single busy signal, is perceivably and accessibly disabled for that
+window, and returns to normal on the existing reset / BFCache-restore path. This
+does not translate, restart or persist the running analysis. Once the page is no
+longer analyzing, the behavior above is unchanged.
+
 ## 8.2 Whole-Web Presentation Ownership
 
 Selected request culture owns all user-facing Web presentation, including:

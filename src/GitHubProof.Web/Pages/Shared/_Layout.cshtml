@@ -67,10 +67,16 @@
             </a>
 
             <div class="site-utilities">
+                @* data-language-form lets analysis-progress.js make EN/TR inert
+                   while the landing analysis form is actively submitting a
+                   synchronous POST, so a language change cannot abandon the
+                   in-flight analysis (p10 §8.1). It reads that form's existing
+                   submitting state — no second source of analysis-busy truth. *@
                 <form
                     class="language-selector"
                     method="post"
                     asp-page="/Language"
+                    data-language-form
                     aria-label="@Text.Get(WebTextKey.LanguageSelectorLabel)">
                     <button
                         class="language-selector__choice"
