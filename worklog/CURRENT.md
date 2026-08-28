@@ -6,7 +6,95 @@ carries product, domain or architecture truth.
 
 ## Now
 
-- **Active Session:** 140 — Prevent Language Switch From Cancelling Active
+- **Active Session:** 142 — Canonical Presentation Contract Alignment — branch
+  `session/141-human-language-copy` (shared with Session 141 by user decision;
+  the two separate cleanly by path — `src/` + `tests/` = 141, `docs/` +
+  `worklog/` = 142), session base `1268671`, route Opus / high, **DOCS**.
+  **Documentation-only alignment: no code, test, runtime, configuration,
+  dependency or localization-resource change** — proven by file mtime (the
+  newest `src/`/`tests/` write predates every file this session touched) and
+  confirmed by an unchanged build (0 warnings) and suite (**2453/2453**).
+  Realigns the two canonical contracts Session 141 deliberately left stale.
+  **`p10-presentation-language-contract.md`**: a new header amendment block,
+  plus in-place supersession records in §8 (dictionary), §8.3, §8.3.1, §8.3.2,
+  §8.3.3, §8.3.6, §8.4.4, §8.4.9, §8.5, §8.6.1b, §8.6.6, §8.6.7, §8.7.1,
+  §8.7.6, §8.8.6 and §11, and two new subsections — **§8.2.1** ("presentation
+  text is never a source of program behavior", the rule behind Session 141's
+  two refactors) and **§8.5.1** (the empty-`Limitations` presentation
+  exception). Every superseded table and sentence is **retained as labelled
+  history**, never deleted, and no document is left with two conflicting
+  "current" rules — §8.4.9, which called itself the active Meaning rule, gained
+  an explicit precedence statement deferring wording to §8.4.4.
+  **`public-profile-evidence-report-contract.md` §6.5**: the single sentence
+  "Omission is never permitted for a `Supported` section on the grounds that
+  its content is empty" is replaced by an explicit split — **canonical
+  omission stays PROHIBITED** (section, availability and items always survive
+  in the typed report) while **presentation omission of an empty container is
+  PERMITTED**, per section, only under a named product sanction; a sanction
+  table now lists `ProblemAreaPatterns`, `RoleEvidenceAlignment` and
+  `Limitations`-when-empty. The **Empty Limitations Presentation Contract Gap
+  is CLOSED**. Three canonical positions changed, all presentation-only: a
+  separate `Bekliyor/Sürüyor/Tamamlandı` state token is no longer required
+  (the `PENDING → ACTIVE → COMPLETED` forward-only server-reported state
+  machine is explicitly untouched), Meaning's two explicit non-claim sentences
+  are no longer required inside Meaning (the boundary they protected is named
+  as still carried by the landing Boundaries disclosure and the report
+  disclaimer, and §8.4.7's prohibitions stay in force), and the empty
+  Limitations container may be omitted. **No section set, availability state,
+  canonical ordering, evidence rule, pattern rule, selection rule or inference
+  prohibition changed.** `artifacts/` untouched.
+  Detail: [`sessions/2026-08-28-142-canonical-presentation-contract-alignment.md`](./sessions/2026-08-28-142-canonical-presentation-contract-alignment.md)
+- **Previous Session:** 141 — Human Language Copy Implementation — branch
+  `session/141-human-language-copy`, session base `1268671`
+  (`main`/`origin/main`/`HEAD` verified equal), route Opus / high,
+  **PASS WITH FINDINGS — implementation, tests and independent review complete;
+  integration is user-owned**.
+  Implements the approved contract package
+  `docs/product/session-141-human-language-copy/` (README + `00`–`17`) in the
+  **Web and Application presentation layers only** — **zero Domain and zero
+  Infrastructure diff**, every presentation resource **key** byte-identical,
+  canonical report section order untouched. Two copy-driven logic sites are
+  gone: the Identity card's `"Güçlü"`/`"Strong"` substring search now reads a
+  typed `ScoreEvidenceStrength` derived from the canonical
+  `ScoreBreakdown.LabelKey` (behavior-preserving — the old search matched
+  exactly the strong and very-strong bands), and the Uncertainty section's
+  `Distinct(StringComparer.Ordinal)` over localized messages is replaced by
+  `RepositoryReportNotesPresentation`, which collapses by canonical identity
+  and applies the **one** authorized warning/limitation suppression (contract
+  14 §12, NotApplicable only — the unavailable-evidence and
+  requires-human-review pairs stay deliberately distinct). To make that
+  possible the projection stopped discarding identity:
+  `RepositoryReportWarning` gained `PresentationKey` and `Limitations` became
+  `RepositoryReportLimitation` (Key + Message). Progress stages now carry one
+  sentence per `PENDING`/`ACTIVE`/`COMPLETED` and the separate
+  `Bekliyor/Sürüyor/Tamamlandı` token span is removed; stage identities, order,
+  the three runtime states, polling and the live region are unchanged. Profile
+  Limitations renders **no section** when the canonical collection is empty.
+  One deliberate copy deviation: `RepositoryEligibilityUndetermined` does not
+  use contract 10 §3's suggested "enough data could not be obtained", because
+  that state also arises from `EligibilityReason.IndependenceUndetermined`
+  where the analysis succeeded — §3's own implementation caution authorizes
+  adjusting the wording instead. Validation: build **0 warnings**, solution
+  **2453/2453** (Domain 842 and Infrastructure 636 unchanged from base),
+  `git diff --check` clean, plus a local Development render smoke of the
+  landing, the full Repository Proof in TR and EN, and the progress markup.
+  **Independent review** (forked cold context, Opus / high) returned **PASS
+  WITH FINDINGS** — BLOCKER 0, HIGH 0, MEDIUM 1, LOW 6 — after independently
+  re-deriving the behavior-preservation of both refactors, reverse-checking 196
+  changed string literals against the approved files and confirming no test was
+  weakened; **all four actionable findings were closed in-session**.
+  **`p10-presentation-language-contract.md` was NOT amended** — by explicit
+  user decision — so its §8.3/§8.3.1/§8.3.2/§8.3.3/§8.3.6, §8.4.4, §8.5,
+  §8.6.1b, §8.6.6, §8.6.7 and §8.7.1 locked copy now contradicts shipped code.
+  The review found a **second canonical owner of the same decision**: not
+  rendering an empty Limitations section also collides with
+  `docs/architecture/public-profile-evidence-report-contract.md` §6.5 and with
+  p10 §8.5's named *Empty Limitations Presentation Contract Gap*. Both need one
+  owner decision; no canonical data is dropped and contract 10 §7 authorizes
+  the behavior at product level. **No Milestone B completion is claimed.**
+  `artifacts/` untouched.
+  Detail: [`sessions/2026-08-28-141-human-language-copy.md`](./sessions/2026-08-28-141-human-language-copy.md)
+- **Previous Session:** 140 — Prevent Language Switch From Cancelling Active
   Analysis — branch `session/140-language-switch-analysis-guard`, session base
   `d4963ac` (`main`/`origin/main`/`HEAD` verified equal), route Sonnet / high,
   **PASS — implementation, tests and independent review complete; integration is
@@ -534,13 +622,16 @@ carries product, domain or architecture truth.
   proposed R5 from that evidence, but Session 133 itself left production
   configuration unchanged; it was Session 134 that actually selected R5 in
   configuration, still without deployment or remote verification.
-- **Last remote-verified `main`:** `d4963ac` — `main` == `origin/main` ==
-  `HEAD` verified equal at Session 140 start. Session 139's live analysis
-  progress Web **implementation** is integrated there as
-  `feat(web): add truthful live analysis progress`. Session 140's language-guard
-  fix is on branch `session/140-language-switch-analysis-guard`, not yet
-  integrated.
+- **Last remote-verified `main`:** `1268671` — `main` == `origin/main` ==
+  `HEAD` verified equal at Session 141 start. Session 140's language-guard fix
+  is integrated there as
+  `fix(web): protect active analysis from language navigation`. Session 141's
+  human-language copy work is on branch `session/141-human-language-copy`, not
+  yet integrated.
 - `?? artifacts/` is user-owned, read-only and out of scope.
+- `?? docs/product/session-141-human-language-copy/` is the user-supplied
+  approved contract package for Session 141; it is read-only input, not
+  authored by any session.
 
 ## Position
 
@@ -880,9 +971,30 @@ reuses the existing `data-submitting` state as the single busy signal; no new
 flag, no synchronous-POST change, no progress-semantics change. Implementation,
 +10 tests, live browser verification and independent review are done (Web
 641/641, solution 2395/2395, build 0 warnings, `git diff --check` clean; review
-**PASS**, no findings). **Immediate next action is user-owned:** review the
-Session 140 diff and, if accepted, commit
-`fix(web): protect active analysis from language navigation` and integrate.
+**PASS**, no findings). It is integrated as `1268671`
+(`fix(web): protect active analysis from language navigation`).
+
+**Session 141 implemented the approved human-language copy package** across the
+Web and Application presentation layers, with zero Domain and zero
+Infrastructure change and both localized-string-driven logic sites moved onto
+typed canonical identities. Implementation, +58 tests, a local render smoke and
+independent review are done (solution 2453/2453, build 0 warnings, `git diff
+--check` clean; review **PASS WITH FINDINGS**, all actionable findings closed).
+
+**Session 142 closed that canonical-docs decision.** Both contracts are now
+realigned with the shipped Session 141 behavior, documentation-only, with every
+superseded rule retained as labelled history. The **Empty Limitations
+Presentation Contract Gap is CLOSED**; no other gap was closed and none was
+opened.
+
+**Immediate next action is user-owned:** review the combined working tree —
+Session 141 under `src/` and `tests/`, Session 142 under `docs/` and
+`worklog/` — and, if accepted, commit them separately:
+
+~~~text
+feat(web): simplify user-facing language without changing analysis truth
+docs: realign presentation contracts with Session 141 language
+~~~
 
 The other independent next steps remain available, and the architecture owner
 chooses the order:

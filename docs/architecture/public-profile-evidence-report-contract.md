@@ -13,6 +13,20 @@ Milestone B report does not render an `Unsupported` ProblemArea section),
 and adds the structured-truth-is-never-dropped and never-a-negative-finding
 rules. No section set, availability state, ordering rule or prohibited
 semantic changed
+**Amended:** 2026-08-28 / Session 141, recorded by Session 142 — §6.5 only.
+Separates **canonical omission** (a section leaving the typed report — still
+prohibited, now stated explicitly and in more detail than before) from
+**presentation omission** (a rendering declining to draw the visual container
+of a section that has no user-facing content — now permitted, per section,
+only under an explicit product-contract sanction). The single sentence
+"Omission is never permitted for a `Supported` section on the grounds that its
+content is empty" is replaced by that distinction; its intent is preserved and
+the five `Supported + empty` sections that report a real analytical result
+about the developer's visible work are explicitly unaffected. `Limitations` in
+its empty state is the one `Supported` section sanctioned, and a sanction table
+is added. **No section set, availability state, ordering rule, evidence rule or
+prohibited semantic changed**, and no `ProfileReport` field, type or projector
+behavior changed
 **Production Code:** NOT IN SCOPE
 
 ## 1. Purpose
@@ -215,8 +229,72 @@ is not the hiding of canonical evidence: the capability state remains part of
 the typed report contract and remains available to any consumer that chooses
 to surface it.
 
-Omission is never permitted for a `Supported` section on the grounds that its
-content is empty, because its emptiness is a real analytical result.
+#### Canonical Omission vs Presentation Omission
+
+**Amended 2026-08-28 / Session 141.** This subsection previously read, in
+full:
+
+> Omission is never permitted for a `Supported` section on the grounds that
+> its content is empty, because its emptiness is a real analytical result.
+
+That sentence conflated two different things, and the sentence is now replaced
+by the explicit distinction below. Its protective intent is preserved
+completely: nothing that follows permits a canonical section, availability
+state or item to be dropped, and no analytical result may be erased.
+
+**Canonical omission — PROHIBITED.**
+
+    A `Supported` section may never be removed from the canonical report.
+
+- The section stays in the typed `ProfileReport` at its canonical position
+  (§7).
+- Its `Availability` stays `Supported` and may not be downgraded, recomputed
+  or swapped for another state because it happened to be empty.
+- Its `Items` collection is carried as-is, including as `[]`.
+- No data is lost, merged, reordered or substituted.
+- Every structured/API consumer continues to see the section exactly as
+  composed.
+
+**Presentation omission — PERMITTED, bounded.**
+
+    Web presentation may omit the visual container of a `Supported` section
+    when that section has no user-facing content, and this is not a canonical
+    omission.
+
+- It removes a **container** — a heading, a card, a disclosure control — and
+  nothing else.
+- It requires the section to have no user-facing content in that render;
+  a section with items always renders.
+- It requires an explicit product-contract sanction naming that section, in
+  the same way the `Unsupported`/`Deferred` omissions above do. The sanction
+  is not general: it is granted per section, and it must state why the empty
+  container communicates less accurately than its absence.
+- It may never be used to avoid reporting a real analytical result about the
+  developer's visible work. Where a `Supported + empty` section *is* such a
+  result — no recurring technical direction, no recurring working method, no
+  selected starting point, no recurring conclusion, no inspectable repository
+  — the section must keep rendering its neutral empty copy. Those five
+  sections are unaffected by this amendment.
+
+The distinction is therefore between **what the report contains** and **what
+one rendering of it chooses to show**. This contract governs the first and is
+unchanged by Session 141; it governs the second only to the extent of setting
+the boundary above.
+
+#### Sanctioned Presentation Omissions
+
+| Section | Availability | Sanction |
+|---|---|---|
+| `ProblemAreaPatterns` | `Unsupported` | `docs/product/public-profile-evidence-product-contract.md` §24 |
+| `RoleEvidenceAlignment` | `Deferred` | `docs/product/public-profile-evidence-product-contract.md` §24 |
+| `Limitations` | `Supported`, `Items = []` only | `docs/product/session-141-human-language-copy/10-limits-warnings-empty-states.md` §7, recorded in `docs/product/p10-presentation-language-contract.md` §8.5.1 |
+
+`Limitations` is the only `Supported` section carrying this sanction. Its empty
+state is the **absence of a caveat**, not the absence of a finding about the
+developer's work: a heading that promises a constraint and then withdraws it
+communicates less accurately than no section at all. A non-empty `Limitations`
+section always renders. Any future request to omit another `Supported` section
+requires its own product-level sanction and its own entry in this table.
 
 #### Product-Level Sanction
 
@@ -234,6 +312,11 @@ Both non-supported V1 sections are now sanctioned for omission:
   default Milestone B user-facing report does not render this section while
   its availability is `Unsupported`.
 
+One `Supported` section is additionally sanctioned for **presentation**
+omission in its empty state only — `Limitations`, under Session 141; see the
+sanction table above. That sanction is product-owned in the same way, and it
+removes a container, never a section.
+
 #### Structured Truth Is Never Dropped
 
 Omission is a rendering decision in the default user-facing report only. The
@@ -249,10 +332,17 @@ and
     Availability = Deferred
     Items = []
 
+and, for the Session 141 presentation sanction:
+
+    Limitations
+    Availability = Supported
+    Items = []
+
 A consumer reading the structured report must still be able to see that the
-product version does not produce ProblemArea and that RoleEvidenceAlignment
-is deferred. Presentation may decline to render a section; it may never
-delete the capability state.
+product version does not produce ProblemArea, that RoleEvidenceAlignment is
+deferred, and that `Limitations` was composed and recorded no limitation.
+Presentation may decline to render a section; it may never delete the
+capability state.
 
 `Unsupported` and `Deferred` must not be collapsed into one state, in the
 typed contract or in any presentation, because they answer different
@@ -289,9 +379,11 @@ Locale may change labels and text.
 
 Locale may not change semantic ordering.
 
-Omitting an `Unsupported` or `Deferred` section under §6.5 does not reorder
+Omitting a section's presentation under §6.5 — whether an `Unsupported` /
+`Deferred` section or the sanctioned empty `Supported` one — does not reorder
 the remaining sections; the surviving sections keep their relative canonical
-order.
+order, and the canonical report itself still carries every section at its
+canonical position.
 
 ### 7.1 Item Ordering
 

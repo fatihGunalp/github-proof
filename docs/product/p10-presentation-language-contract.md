@@ -148,6 +148,9 @@ The identity header is visually grouped without adding data. Starting Point is
 not silently capped: the canonical selection has no global bounded priority.
 Empty Limitations remains rendered because the canonical report contract does
 not permit omitting a `Supported` section solely because it is empty.
+*(Superseded 2026-08-28 by Session 141 — the empty Limitations presentation
+container may now be omitted; see the Session 141 amendment note above and
+§8.5. The canonical section itself is still never dropped.)*
 
 **Amended:** 2026-08-23 / Session 111 approved mockup implementation — the
 approved dark first-read mockup is the visual target for §8.7 and the Profile
@@ -156,7 +159,9 @@ Profile field, alter canonical report order, change a selection rule or
 authorize Web inference. Its explicit truth-preserving deviations are locked
 in §8.7.6: no avatar/recency/share row, no project-type inference, no bounded
 Starting Point subset or description, and no omission of canonical Supported
-Limitations solely because it is empty.
+Limitations solely because it is empty. *(That last deviation is superseded
+2026-08-28 by Session 141 for the presentation container only; the canonical
+Supported section is still never dropped. See §8.5.)*
 
 **Amended:** 2026-08-23 / Session 111 STEP 2 — bounded Starting Point rail +
 canonical avatar. Live review of real executions (up to 57 admitted
@@ -220,6 +225,45 @@ outcome-level first-read *priority* owned by
 `docs/product/profile-proof-distinctive-outcomes-contract.md` §8. No section,
 availability state, canonical report ordering, evidence rule, pattern rule or
 inference prohibition was added, removed or weakened.
+
+**Amended:** 2026-08-28 / Session 141 human language copy, recorded by Session
+142 — this is a **presentation-language supersession**, and it is the largest
+one this document has taken. Session 141 implemented the approved contract
+package `docs/product/session-141-human-language-copy/` (README + `00`–`17`)
+across the Web and Application presentation layers. **No canonical analysis
+truth changed**: that session's diff touched no Domain and no Infrastructure
+file, every presentation resource **key** stayed byte-identical (only values
+changed), the canonical report section order, the `ScoreBreakdown` label bands
+and `ProductBoundaryPolicyVersion` are untouched, and its independent review
+re-derived those facts from source. What changed is the wording the visitor
+reads, and — in three places named below — the presentation *shape* around it.
+
+The sections superseded here are §8.3, §8.3.1, §8.3.2, §8.3.3, §8.3.6, §8.4.4,
+§8.5, §8.6.1b, §8.6.6, §8.6.7 and §8.7.1. Each carries its own in-place
+supersession note; the earlier copy is kept as history, never as an active
+rule. The three shape changes, as opposed to pure copy changes, are:
+
+1. **A separate stage state token is no longer required** (§8.3.2/§8.3.3). The
+   runtime state machine is unchanged — `PENDING → ACTIVE → COMPLETED`,
+   server-reported and forward-only — but the state may now be carried by a
+   state-aware sentence instead of a `Bekliyor / Sürüyor / Tamamlandı` token
+   beside a workflow-noun label.
+2. **Meaning's two explicit non-claim sentences are no longer required inside
+   Meaning** (§8.4.4). The product boundary they protected is not lost: it
+   remains on the landing Boundaries surface and in the report disclaimer.
+3. **An empty `Limitations` presentation container may be omitted** (§8.5).
+   This closes the **Empty Limitations Presentation Contract Gap** through the
+   separately approved presentation exception that gap always required, and
+   `docs/architecture/public-profile-evidence-report-contract.md` §6.5 is
+   amended in the same decision to separate canonical omission (still
+   prohibited) from presentation-container omission (now permitted). No
+   canonical section, availability state or item is dropped.
+
+Session 141 also removed two localized-string-driven program decisions, which
+this document had never authorized and never described; they are recorded in
+§8.2 for completeness. No concept, section, availability state, canonical
+ordering, evidence rule, pattern rule, selection rule or inference prohibition
+was added, removed or weakened by Session 141 or by this amendment.
 
 ------------------------------------------------------------------------
 
@@ -424,11 +468,24 @@ when they want deeper inspection.
 | Signal | Trace | İz |
 | Pattern | Recurring trace | Tekrar eden iz |
 | Representative Repository | Starting point | Başlangıç noktası |
-| TechnicalFocusAreas | Visible technical direction | Görünen teknik yön |
+| TechnicalFocusAreas | Technical direction | Teknik yön |
 | EngineeringPracticePatterns | Working style | Çalışma biçimi |
 | WhyThisConclusion | What is this based on? | Bunu neye dayanarak söylüyoruz? |
+| Limitations | Limits of this analysis | Bu analizin sınırları |
 | Role Evidence Alignment (Deferred --- not active in V1) | No active V1 user language; future direction only | Aktif V1 kullanıcı dili yok; yalnız gelecek yönü |
-| Profile Report | Profile view | Profil görünümü |
+| Profile Report | *(no user-facing label — see note)* | *(kullanıcıya görünen karşılığı yok — nota bakın)* |
+
+**Session 141 dictionary amendment (2026-08-28).** Three rows changed and one
+was added. `TechnicalFocusAreas` drops the `Visible` / `Görünen` qualifier: the
+whole product is already bounded to observable public evidence, so repeating it
+in a section label added length without adding truth. `Limitations` gains an
+explicit row, `Limits of this analysis` / `Bu analizin sınırları`, replacing the
+former `Limits of this view` / `Bu görünümün sınırları`. The `Profile Report`
+row no longer carries a user-facing label at all: `Profile view` / `Profil
+görünümü` is presentation-object language, §8.7.1 had already removed it as an
+eyebrow, and Session 141 removed its last remaining rendering. The concept
+still exists internally; it simply has no user-facing name, and `bu görünüm` /
+`this view` is prohibited from ordinary user copy across the Web surface.
 
 **Terminology note (vocabulary simplification only):** This dictionary is a
 presentation-layer simplification. `Evidence`, `Signal` and `Pattern` remain
@@ -545,14 +602,58 @@ Literal evidence is never translated: repository names, GitHub usernames,
 URLs, paths, branches, SHAs, tags, raw evidence values, or programming/GitHub
 language identities such as C#, JavaScript and Python.
 
+### 8.2.1 Presentation text is never a source of program behavior
+
+> **Added 2026-08-28 / Session 141.** This rule was always implied by the
+> ownership boundary above but was never stated, and two delivered surfaces had
+> violated it.
+
+Localized presentation text is an **output** of a canonical state. It may never
+be an **input** to a decision. Program logic must never parse, search, compare
+or match rendered copy in order to determine a semantic state; it reads the
+typed canonical identity instead — an enum, a stable presentation key, the
+canonical score `LabelKey`, or a warning/limitation identity.
+
+The two violations Session 141 removed are recorded here so the pattern is
+recognizable rather than repeated:
+
+- the Repository Proof identity card decided whether evidence was "strong" by
+  searching the **localized** score label for `Güçlü` / `Strong`. It now reads
+  a typed evidence-strength identity derived from the canonical
+  `ScoreBreakdown.LabelKey`;
+- the Repository Proof uncertainty section collapsed repeated warnings and
+  limitations with a `Distinct` over their **localized messages**. It now
+  collapses by canonical warning/limitation identity.
+
+Both replacements are behavior-preserving and test-covered. The consequence for
+this document is that changing any string it locks can never change program
+behavior — which is what makes a copy-only amendment such as Session 141
+possible at all.
+
+A presentation-level decision may reduce duplicate user-facing messages only
+when two canonical identities are declared to carry the same fact; it may never
+infer that from similar wording, and it may never remove, reorder or empty a
+canonical collection.
+
 ## 8.3 Truthful Analysis-Running Language
+
+> **Session 141 supersession (2026-08-28).** The canonical indeterminate
+> sentence below is superseded; the active copy is locked in §8.3.6. The
+> *rule* it states is unchanged and still canonical: an indeterminate sentence
+> is what the visitor sees whenever live stage state is unavailable for any
+> reason, and it needs no error surface of its own. Only the wording moved.
 
 The unified landing input may immediately announce an indeterminate state
 after native form constraint validation succeeds:
 
 ```text
+SUPERSEDED — historical Session 101/138 copy, kept for traceability:
 EN: GitHub Proof is processing your request…
 TR: GitHub Proof isteğinizi işliyor…
+
+ACTIVE — Session 141:
+EN: Starting the analysis…
+TR: Analiz başlıyor…
 ```
 
 A neutral explanation headed `What this analysis includes` / `Bu analiz
@@ -603,22 +704,36 @@ The neutral `What this analysis includes` explanation above remains available
 unchanged as a *description*. It is a separate thing from the stage list below
 and it never acquires stage state.
 
-The two are **mutually exclusive in one view**: three of its **English** lines
-are also stage labels (§8.3.2), so rendering both would show the same sentence
+The two are **mutually exclusive in one view**. *(Session 141 supersession:
+the reasoning below is historical — it rested on the §8.3.2 label table and on
+the TR verbal-noun rule, both of which Session 141 replaced. The exclusivity
+rule itself stands, on the simpler ground that two lists describing the same
+phases is duplication regardless of wording.)* Three of its **English** lines
+were also stage labels (§8.3.2), so rendering both would show the same sentence
 twice, once with state and once without. The Turkish columns no longer coincide
-— the stage labels are verbal nouns, the description lines present-continuous
-(§8.3.2) — but the rule is the same in both languages, because two lists
-describing the same phases is duplication regardless of wording. When the stage
+— the stage labels were verbal nouns, the description lines present-continuous
+(§8.3.2) — but the rule was the same in both languages. When the stage
 list renders, the description list does not.
 
 ### 8.3.2 Locked stage copy
 
-The stage identities and their order are the runtime contract's §4 and §5. The
-copy for each is locked here. The label describes the work; the **state** is
-carried by the state token (§8.3.3), never by the label, so one label serves all
-three states.
+> **Session 141 supersession (2026-08-28).** The single-label-per-stage model
+> below is superseded, and with it both label tables. Its governing rule — "the
+> label describes the work; the state is carried by the state token, never by
+> the label, so one label serves all three states" — is **inverted**: each
+> stage now carries **one sentence per state**, and the state is carried by the
+> sentence. The active copy is the table further down this subsection.
+>
+> What did **not** change: the stage identities, their order and their source
+> (`docs/architecture/live-analysis-progress-runtime-contract.md` §4/§5); the
+> rule that a stage may carry a state only when the server reported it; the
+> prohibition on naming an analyzer, evaluator, rule version, policy, signal
+> key, evidence key or collector in any stage sentence; and the requirement
+> that every stage sentence come from `WebPresentationLocalizer` (§8.2) so that
+> no progress string originates in JavaScript or in a transport payload.
 
-Repository Proof — four stages, in order:
+**Superseded — historical Session 138 copy, kept for traceability.** Repository
+Proof — four stages, in order:
 
 | Stage identity | English | Turkish |
 |---|---|---|
@@ -635,42 +750,97 @@ Profile Proof — three stages, in order:
 | `profile-public-surface-read` | Reading the public repositories | Herkese açık repository'lerin okunması |
 | `profile-evidence-examined` | Examining repository evidence and recurring traces | Repository kanıtlarının ve tekrar eden izlerin incelenmesi |
 
-The Turkish labels are deliberately **verbal nouns** (`doğrulanması`), not the
-present-continuous `doğrulanıyor` used by the description list above. A stage
-label must serve all three states, and Turkish `-iyor` is a finite verb: pairing
-it with a state token would produce `GitHub hedefi doğrulanıyor · Tamamlandı` —
-"is being validated · Completed" — which contradicts itself. English gerund
-phrases carry no such tense, so the EN column needs no equivalent change. This
-is why the TR stage labels differ from the TR description lines even where the
-EN ones coincide; the two lists never render together anyway (§8.3.1).
+The Turkish labels were deliberately **verbal nouns** (`doğrulanması`), not the
+present-continuous `doğrulanıyor` used by the description list above, because a
+single label had to serve all three states and Turkish `-iyor` is a finite verb:
+pairing it with a state token produced `GitHub hedefi doğrulanıyor · Tamamlandı`
+— "is being validated · Completed" — which contradicts itself. Session 141
+removed the cause rather than working around it: with one sentence per state,
+each sentence can use its natural tense in both languages.
 
-`Trace` and `Evidence` are used in their §7 Core Concept sense. No stage label
-may name an analyzer, an evaluator, a rule version, a policy, a signal key, an
-evidence key, a collector or any other internal.
+#### Active stage copy (Session 141)
 
-`profile-evidence-examined` describes one bounded phase in which both repository
-evidence and recurring traces are worked on. It is deliberately **not** worded
-as two sequential claims, and it never says traces were *found*: a valid run may
-promote no pattern at all, and the wording stays true for a `Supported + empty`
-outcome.
+Each stage carries exactly three sentences, one per canonical runtime state.
+Exactly one is presented at a time, selected by the state the server reported.
 
-Every stage label carries only EN/TR copy from `WebPresentationLocalizer`
+Repository Proof — four stages, in order:
+
+| Stage identity | State | English | Turkish |
+|---|---|---|---|
+| `repository-target-validated` | `PENDING` | Repository check | Repository kontrol edilecek |
+| `repository-target-validated` | `ACTIVE` | Checking the repository | Repository'yi kontrol ediyoruz |
+| `repository-target-validated` | `COMPLETED` | Repository checked | Repository kontrol edildi |
+| `repository-public-data-read` | `PENDING` | Public repository data | Public repository verilerine bakılacak |
+| `repository-public-data-read` | `ACTIVE` | Looking through public repository data | Repository'deki public verilere bakıyoruz |
+| `repository-public-data-read` | `COMPLETED` | Public repository data reviewed | Public repository verileri incelendi |
+| `repository-traces-analyzed` | `PENDING` | Trace review | İzler değerlendirilecek |
+| `repository-traces-analyzed` | `ACTIVE` | Reviewing the traces | İzleri değerlendiriyoruz |
+| `repository-traces-analyzed` | `COMPLETED` | Traces reviewed | İzler değerlendirildi |
+| `repository-proof-prepared` | `PENDING` | Repository Proof | Repository Proof hazırlanacak |
+| `repository-proof-prepared` | `ACTIVE` | Preparing Repository Proof | Repository Proof'u hazırlıyoruz |
+| `repository-proof-prepared` | `COMPLETED` | Repository Proof ready | Repository Proof hazır |
+
+Profile Proof — three stages, in order:
+
+| Stage identity | State | English | Turkish |
+|---|---|---|---|
+| `profile-target-validated` | `PENDING` | GitHub profile check | GitHub profili kontrol edilecek |
+| `profile-target-validated` | `ACTIVE` | Checking the GitHub profile | GitHub profilini kontrol ediyoruz |
+| `profile-target-validated` | `COMPLETED` | GitHub profile checked | GitHub profili kontrol edildi |
+| `profile-public-surface-read` | `PENDING` | Public repositories | Public repository'lere bakılacak |
+| `profile-public-surface-read` | `ACTIVE` | Looking through public repositories | Public repository'lere bakıyoruz |
+| `profile-public-surface-read` | `COMPLETED` | Public repositories reviewed | Public repository'lere bakıldı |
+| `profile-evidence-examined` | `PENDING` | Recurring traces | Tekrar eden izlere bakılacak |
+| `profile-evidence-examined` | `ACTIVE` | Looking for recurring traces | Tekrar eden izlere bakıyoruz |
+| `profile-evidence-examined` | `COMPLETED` | Recurring traces reviewed | Tekrar eden izler incelendi |
+
+`Trace` and `Evidence` keep their §7 Core Concept sense. `profile-evidence-
+examined` still describes one bounded phase in which both repository evidence
+and recurring traces are worked on: it is deliberately not worded as two
+sequential claims, and no state of it says traces were *found*, so the wording
+stays true for a `Supported + empty` outcome.
+
+The three sentences of one stage must remain distinguishable from each other,
+because the state is now readable only from the sentence.
+
+No stage sentence may name an analyzer, an evaluator, a rule version, a policy,
+a signal key, an evidence key, a collector or any other internal.
+
+Every stage sentence carries only EN/TR copy from `WebPresentationLocalizer`
 (§8.2). No progress string may originate in JavaScript or in a transport
 payload.
 
 ### 8.3.3 Stage state presentation
 
+> **Session 141 supersession (2026-08-28).** A separate user-facing state
+> token is **no longer required**. The state names below are superseded as
+> rendered copy; the state may be carried by the state-aware sentence of
+> §8.3.2 instead. Everything else in this subsection stands unchanged,
+> including the requirement that the state be readable as text.
+>
+> The **canonical runtime state machine is untouched**: exactly three states,
+> `PENDING → ACTIVE → COMPLETED`, forward-only, server-reported, owned by
+> `docs/architecture/live-analysis-progress-runtime-contract.md` §7. This
+> amendment changes how a state is *worded*, never what a state *is*, when it
+> may be entered, or who decides it.
+
 Exactly three states, matching the runtime contract's §7 state machine:
 
-| State | English | Turkish |
+| State | Superseded token — English | Superseded token — Turkish |
 |---|---|---|
 | `PENDING` | Pending | Bekliyor |
 | `ACTIVE` | In progress | Sürüyor |
 | `COMPLETED` | Completed | Tamamlandı |
 
-- State must never be conveyed by colour alone. Each stage renders a state
-  token, and the state name above is exposed to assistive technology as text;
-  decorative glyphs are `aria-hidden`.
+- State must never be conveyed by colour alone, and must always be available to
+  assistive technology **as text**. This may be satisfied either by a separate
+  state token beside the stage label, or — the active Session 141 shape — by a
+  state-aware stage sentence that states the state itself. Decorative glyphs
+  are `aria-hidden` under either shape.
+- A workflow-noun label combined with a state token, such as `GitHub
+  profilinin doğrulanması · Tamamlandı`, is **prohibited**. Where a state-aware
+  sentence is used, appending a state token to it is likewise prohibited as
+  redundant.
 - **A checkmark glyph is authorized for `COMPLETED`**, and this section is its
   only owner. The pre-Session-138 prohibition on checkmarks meant a checkmark
   not backed by server state; a `COMPLETED` state that came from the server is
@@ -734,18 +904,27 @@ delivered shape and is accurate as such; it does not constrain this one.
 
 ### 8.3.6 Announcement policy
 
+> **Session 141 supersession (2026-08-28).** Two wording updates, no policy
+> change: the canonical indeterminate sentence is now `Starting the analysis…`
+> / `Analiz başlıyor…` (superseding `GitHub Proof is processing your request…`
+> / `GitHub Proof isteğinizi işliyor…`), and what the live region carries from
+> the first snapshot on is the active stage's **`ACTIVE` sentence** (§8.3.2)
+> rather than a single state-neutral label. The announcement *policy* below —
+> one region, one sentence, at most one change per stage transition, silence at
+> terminal — is unchanged.
+
 - The visible stage list is ordinary content, not a live region.
 - One polite, atomic live region carries exactly one sentence. Until the first
   server snapshot arrives it carries the canonical indeterminate sentence
-  (`GitHub Proof is processing your request…` / `GitHub Proof isteğinizi
-  işliyor…`), exactly as it does today; from the first snapshot on it carries
-  the label of the currently active stage. If no snapshot ever arrives it keeps
-  the indeterminate sentence and nothing is ever announced for progress.
+  (`Starting the analysis…` / `Analiz başlıyor…`); from the first snapshot on
+  it carries the `ACTIVE` sentence of the currently active stage. If no
+  snapshot ever arrives it keeps the indeterminate sentence and nothing is ever
+  announced for progress.
 - It changes at most once per stage transition — at most four times per run,
   plus the one switch away from the indeterminate sentence.
 - When the run reports its terminal snapshot — every stage completed and no
   active stage — the live region **does not change**. It keeps the last stage
-  label it announced. Nothing is announced for "finished": the result page is
+  sentence it announced. Nothing is announced for "finished": the result page is
   about to replace the whole view and is itself the announcement, and a final
   sentence would be a fifth announcement for a state the visitor sees for at
   most one poll.
@@ -862,13 +1041,41 @@ heuristic.
 
 ### 8.4.4 Four-State Human Narrative
 
+> **Session 141 supersession (2026-08-28).** The four-state *model* below is
+> canonical and unchanged — selection is still keyed only by whether each of
+> the two Supported pattern sections has items, and Meaning still consumes only
+> the accepted identity plus those two ordered sections. What is superseded is
+> the **copy**: the long templates and per-item explanation clauses are
+> replaced by the roughly-half-length Session 141 copy locked at the end of
+> this subsection.
+>
+> **One requirement is explicitly lifted.** The state-2 and state-4 rows below
+> required Meaning to carry two explicit non-claim sentences — "explicitly
+> saying this is not a claim that any practice is absent" and "this is not an
+> assessment of the person". Those sentences are **no longer required inside
+> Meaning**, because Session 141's copy is too short to carry them without
+> reintroducing the length it removed.
+>
+> **The product boundary they protected is not lost.** It is carried by two
+> surfaces that every visitor of a Profile result has already passed or can
+> reach in one interaction: the landing **Boundaries** disclosure (no developer
+> ranking, no seniority judgment, no AI-authorship claim, no hire/no-hire
+> verdict) and the Repository Proof **disclaimer** section, both of which state
+> the exclusions explicitly and neither of which Session 141 weakened. The
+> prohibitions of §8.4.7 also remain fully in force on Meaning itself: it still
+> may not infer role, seniority, capability, quality or a strength/weakness
+> axis, and an empty state is still an observation outcome, never a developer
+> deficit. What changed is that Meaning states the observation and stops,
+> rather than also arguing against a reading it never made.
+
 Let `{technical-labels}` mean every TechnicalFocus label in existing report
 order. For present practices, `{practice-explanations}` means the ordered,
 typed explanation sentence for every current practice item, and
 `{working-methods}` means each corresponding ordinary-language method phrase
 in the same order, joined as §8.4.5 prescribes.
 
-The exhaustive state rules are:
+The exhaustive state rules — **superseded as copy requirements, retained as the
+historical Session 111 record** — were:
 
 | State | Required human explanation |
 |---|---|
@@ -877,7 +1084,7 @@ The exhaustive state rules are:
 | Technical empty; practices present | The username-led first block says no one recurring technical direction is visible. The second block renders every `{practice-explanations}`, then says the public traces make `{working-methods}` visible rather than one recurring technical direction. |
 | Technical empty; practices empty | The username-led first block says no recurring technical direction or working practice is visible. The second block says this is not an assessment of the person; it only describes what the currently visible public work does not make repeat across repositories. |
 
-The fixed first-block templates are:
+The fixed first-block templates — **superseded, historical** — were:
 
 | Condition | English (`en`) | Turkish (`tr`) |
 |---|---|---|
@@ -886,21 +1093,44 @@ The fixed first-block templates are:
 | no technical labels, practices present | `{username}'s GitHub work does not currently make one recurring technical direction visible across public repositories.` | `{username} GitHub çalışmalarında repository'ler arasında tekrar eden tek bir teknik yön şu anda görünür hâle gelmiyor.` |
 | no technical labels, practices empty | `{username}'s GitHub work does not currently make a recurring technical direction or working practice visible across public repositories.` | `{username} için herkese açık GitHub çalışmalarında şu anda repository'ler arasında tekrar eden belirgin bir teknik yön veya üretim pratiği görünmüyor.` |
 
-For present practices, the fixed second-block opener is `Looking at ways of
-working, there are recurring public traces as well.` / `Çalışma biçimine
-baktığımızda da bazı tekrarlar var.` when technical labels are present, and
+For present practices, the superseded second-block opener was `Looking at ways
+of working, there are recurring public traces as well.` / `Çalışma biçimine
+baktığımızda da bazı tekrarlar var.` when technical labels were present, and
 `Looking at ways of working, recurring public traces are visible.` / `Çalışma
-biçimine baktığımızda ise bazı tekrarlar görünür hâle geliyor.` otherwise. It
-renders every ordered per-item clause, then the fixed synthesis says that the
-combined traces make `{working-methods}` visible across different repositories.
+biçimine baktığımızda ise bazı tekrarlar görünür hâle geliyor.` otherwise.
+
+#### Active Meaning copy (Session 141)
+
+Two short paragraphs plus the provenance sentence. Selection is still keyed
+only by the two presence bits, and every canonical label is still named in
+report order with no cap, using the §8.4.5 locale-aware join. `{identity}` is
+the literal accepted username, `{technical-list}` the joined
+`TechnicalFocusAreas` labels, `{practice-list}` the joined §8.4.8 Working Style
+labels.
+
+| State | Paragraph | English (`en`) | Turkish (`tr`) |
+|---|---|---|---|
+| technical present, practices present | technical | `{identity}'s GitHub work shows {technical-list} recurring across different repositories.` | `{identity} GitHub çalışmalarında {technical-list} farklı repository'lerde tekrar ediyor.` |
+| technical present, practices present | working style | `Working methods such as {practice-list} also recur across multiple repositories.` | `{practice-list} gibi çalışma biçimleri de birden fazla repository'de tekrar görülüyor.` |
+| technical present, practices empty | technical | `{identity}'s GitHub work shows {technical-list} recurring across different repositories.` | `{identity} GitHub çalışmalarında {technical-list} farklı repository'lerde tekrar ediyor.` |
+| technical present, practices empty | working style | `No clear working method recurs across the repositories.` | `Repository'ler arasında tekrar eden belirgin bir çalışma biçimi görünmüyor.` |
+| technical empty, practices present | technical | `No clear technical direction recurs across the repositories.` | `Repository'ler arasında tekrar eden belirgin bir teknik yön görünmüyor.` |
+| technical empty, practices present | working style | `Working methods such as {practice-list} do recur across multiple repositories.` | `Buna karşılık {practice-list} gibi çalışma biçimleri birden fazla repository'de tekrar görülüyor.` |
+| technical empty, practices empty | technical | `No clear technical direction or working method recurs across the public repositories.` | `Public repository'ler arasında belirgin biçimde tekrar eden bir teknik yön veya çalışma biçimi görünmüyor.` |
+| technical empty, practices empty | working style | `No additional recurring working method is visible.` | `Çalışma biçimi için de ek bir tekrar görünmüyor.` |
+
+In the both-empty state the second paragraph must not restate the absence the
+first paragraph already stated; the shortest non-repeating fallback above is
+what it renders instead.
 
 The Turkish and English templates must be natural prose, remain byte-identical
-for the same input and culture, and preserve the exact semantic constraints
-above. The final, always-present provenance block is exactly:
+for the same input and culture, and preserve the exact semantic constraints of
+§8.4.7. The final, always-present provenance block is exactly:
 
-| English (`en`) | Turkish (`tr`) |
-|---|---|
-| `This summary is based only on traces visible in public GitHub work under the current analysis rules.` | `Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.` |
+| | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| superseded | `This summary is based only on traces visible in public GitHub work under the current analysis rules.` | `Bu anlatım yalnızca herkese açık GitHub çalışmalarında görülebilen izlere dayanıyor.` |
+| **active (Session 141)** | `This summary is based only on traces visible in public GitHub work.` | `Bu anlatım yalnızca public GitHub çalışmalarında görülebilen izlere dayanıyor.` |
 
 The empty states are observation outcomes under the current rules, never a
 developer deficit. The provenance sentence communicates scope only: it does
@@ -1000,6 +1230,27 @@ items into one short human synthesis and does not redefine them.
 
 ### 8.4.9 Active First-Read Clarity Supersession
 
+> **Session 141 amendment (2026-08-28).** This subsection remains the active
+> Meaning *shape* rule and is not superseded as a whole — Session 141 went in
+> the same direction, further. Its shape (two short paragraphs plus one quiet
+> evidence-boundary sentence), its completeness rule (every canonical item, in
+> report order, no cap) and its prohibitions all stand. Three statements in it
+> are superseded by the §8.4.4 active copy table, which is now the single
+> owner of the exact sentences:
+>
+> - the "multiple items state that the Profile shows technical work spanning
+>   more than one technology" clause — the active technical paragraph uses one
+>   template regardless of how many labels there are;
+> - the requirement that the first paragraph always begin with the literal
+>   accepted username — it does so whenever a technical direction recurs, but
+>   the two technical-empty states lead with the absence itself rather than
+>   attaching the username to it;
+> - the technical-present/practices-empty wording ("no equally recurring
+>   working method ... more limited traces of how the work was carried out").
+>
+> Where this subsection and §8.4.4's active table disagree on wording, §8.4.4
+> wins. Where they disagree on nothing else, both stand.
+
 This subsection is the active Meaning presentation rule. It explicitly
 supersedes every conflicting requirement in §8.4.2–§8.4.7 that requires
 per-practice definitions, explanatory clauses or a glossary-like expansion.
@@ -1030,11 +1281,11 @@ tests, CI, pull requests, documentation, releases or issues work. The compact
 Working Style card remains the structured scan surface for those same items.
 
 For `TechnicalFocusAreas` present plus `EngineeringPracticePatterns` empty,
-the second paragraph says only that no equally recurring working method is
-visible across repositories and that the current GitHub view offers more
-limited traces of how the work was carried out. This is an evidence-surface
-observation, never a developer deficit, absence-of-practice claim or quality
-judgment.
+the second paragraph says only that no clear working method recurs across the
+repositories (§8.4.4 active copy; the longer Session 111 wording about "more
+limited traces of how the work was carried out" is superseded). This is an
+evidence-surface observation, never a developer deficit, absence-of-practice
+claim or quality judgment.
 
 All other §8.4 boundaries remain active: only the accepted username and the two
 Supported ordered pattern sections participate; there is no raw-data analysis,
@@ -1051,6 +1302,16 @@ across P10-I3 and P10-I4 --- the three first-read sections locked by P10-I3
 `RepresentativeRepositories`) and the two evidence-layer sections locked by
 P10-I4 (`WhyThisConclusion`, `RepositoryDrillDown`, §8.6):
 
+> **Session 141 supersession (2026-08-28).** The copy in the first table below
+> is superseded by the second; the **rules** underneath are unchanged except
+> where a rule is explicitly amended. Every superseded line is kept for
+> traceability. The active table carries a sixth row, `Limitations`, which the
+> five-section framing above predates: that row exists so a surface which
+> chooses to render the empty Limitations section has approved copy for it, and
+> it is **not** a requirement to render — see §8.5.1.
+
+**Superseded — historical Session 103/104 copy:**
+
 | Section | English (`en`) | Turkish (`tr`) |
 |---|---|---|
 | `TechnicalFocusAreas` | The visible public evidence did not establish a repeated technical direction under the current analysis rules. | Görünen herkese açık kanıtlar, mevcut analiz kuralları altında tekrar eden bir teknik yön ortaya koymadı. |
@@ -1058,6 +1319,17 @@ P10-I4 (`WhyThisConclusion`, `RepositoryDrillDown`, §8.6):
 | `RepresentativeRepositories` | No starting-point repository was selected from the current visible public evidence. | Mevcut görünen herkese açık kanıtlardan bir başlangıç noktası repository'si seçilmedi. |
 | `WhyThisConclusion` | The public GitHub work did not provide a recurring conclusion to explain. | Herkese açık GitHub çalışmaları, açıklanacak tekrar eden bir sonuç ortaya koymadı. |
 | `RepositoryDrillDown` | The visible public evidence contains no public repository to inspect. | Görünen herkese açık kanıtlar, incelenebilecek herkese açık repository içermiyor. |
+
+**Active — Session 141:**
+
+| Section | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| `TechnicalFocusAreas` | No clear technical direction recurs across the public repositories. | Public repository'ler arasında tekrar eden belirgin bir teknik yön görünmüyor. |
+| `EngineeringPracticePatterns` | No clear working method recurs across the public repositories. | Farklı çalışmalarda tekrar eden belirgin bir yöntem görünmüyor. |
+| `RepresentativeRepositories` | No starting point is visible right now. | Şu anda bir başlangıç noktası görünmüyor. |
+| `WhyThisConclusion` | There is no recurring trace to explain here. | Burada açıklanacak tekrar eden bir iz yok. |
+| `RepositoryDrillDown` | No public repository is available to inspect in this analysis. | Bu analizde incelenebilecek bir public repository görünmüyor. |
+| `Limitations` (only if rendered — see below) | No additional limitations are visible for this analysis. | Bu analiz için ek bir sınırlama görünmüyor. |
 
 Rules:
 
@@ -1070,7 +1342,9 @@ Rules:
   never say best, top, strongest, highest-quality, recommended or ranked.
 - Each line is rendered by its own section, keyed by `ProfileReportSectionKey`
   and the selected request culture, when that section's `Availability` is
-  `Supported` and its `Items` collection is empty.
+  `Supported` and its `Items` collection is empty. The one exception is
+  `Limitations`, whose empty presentation container may be omitted under
+  §8.5.1; the five sections in the table above always render their empty line.
 - Sections render their own empty result independently of the Meaning state.
   When both pattern sections are Supported + empty, Meaning renders its two
   independently locked absence paragraphs and each detail section still states
@@ -1087,12 +1361,54 @@ Rules:
   `details` / `summary` control. There is nothing to disclose, so no
   disclosure affordance is offered.
 
-`Limitations` is separately the canonical `Supported` section at report
-position 7. Report contract §6.5 prohibits omitting a Supported section solely
-because its item collection is empty. The current neutral empty Limitations
-card therefore remains rendered. Omitting it for visitor value requires a
-separately approved presentation exception or a change to that canonical
-boundary: **Empty Limitations Presentation Contract Gap**.
+### 8.5.1 Empty `Limitations` — Session 141 presentation exception
+
+> **The Empty Limitations Presentation Contract Gap is CLOSED (2026-08-28).**
+
+**Superseded position (Session 111).** `Limitations` is separately the
+canonical `Supported` section at report position 7. Report contract §6.5 was
+read as prohibiting omission of a Supported section solely because its item
+collection is empty, so the neutral empty Limitations card remained rendered,
+and omitting it was recorded as requiring "a separately approved presentation
+exception or a change to that canonical boundary".
+
+**Active position.** Session 141 contract `10-limits-warnings-empty-states.md`
+§7 is that separately approved presentation exception, and
+`docs/architecture/public-profile-evidence-report-contract.md` §6.5 is amended
+in the same decision to state the distinction it had left implicit. The active
+rule is:
+
+> A `Supported` section always remains part of the canonical report and model
+> contract. Web presentation **may** omit the visual container of that section
+> when it carries no user-facing content, and doing so is **not** a canonical
+> omission.
+
+Concretely, for `Limitations`:
+
+- when `Items` is non-empty, the section renders exactly as before;
+- when `Items` is empty, the presentation container — heading, card and the
+  neutral paragraph — **may be omitted entirely**, and the delivered Web
+  implementation omits it;
+- the canonical `Limitations` section is still projected, still `Supported`,
+  still at report position 7, still carries `Items = []`, and is still
+  available unchanged to every structured/API consumer.
+
+The neutral Limitations line stays locked in §8.5's active table so that any
+surface which *does* choose to render the empty section has approved copy for
+it. Its presence there is not a requirement to render.
+
+**Why this is not the negative-finding risk §6.5 guards against.** §6.5's
+prohibition exists so that a real analytical result is not silently erased. An
+empty `Limitations` collection is a real result — *no limitation was recorded*
+— but unlike an empty `TechnicalFocusAreas` or `RepresentativeRepositories`, it
+is the **absence of a caveat**, not the absence of a finding about the
+developer's work. Rendering "no limits were recorded" gives the visitor a
+heading that promises a constraint and then withdraws it; omitting the
+container communicates the same truth more accurately, because a result with no
+caveats simply has no caveat section. Nothing a reader could interpret as a
+negative developer finding is hidden, and no other `Supported + empty` section
+gains this exception: the five sections in §8.5's table each report a real
+outcome about the work and continue to render their locked empty copy.
 
 ## 8.6 P10-I4 Why + Repository Evidence Presentation Contract
 
@@ -1108,7 +1424,7 @@ after the first-read layer locked in §8.4/§8.5 and must never dilute it:
 
 ```text
 Meaning
-    → Visible technical direction
+    → Technical direction
     → Working style
     → Starting point          (first read — quiet, compact action)
     → What is this based on?  (evidence layer — collapsed by default)
@@ -1124,8 +1440,10 @@ order, it renders exactly:
    was selected for (§8.6.1b);
 3. one short description line, sourced only from GitHub's own provider-returned
    repository Description (§8.6.1a);
-4. the existing localized Repository Proof action (`Analyze this repository` /
-   `Bu repository'yi analiz et`).
+4. the existing localized Repository Proof action (`View Repository Proof` /
+   `Repository Proof'u gör` — superseding Session 111's `Analyze this
+   repository` / `Bu repository'yi analiz et`; see §8.6.7. The action's
+   behavior is unchanged).
 
 The action reuses the existing repository-analysis form contract: a POST to
 the existing `/Index` entry with the canonical `Repository.Url` as
@@ -1229,25 +1547,41 @@ reorder, filter or "first pattern only" shortcut inside an item. The §8.6.1a
 max-3 bound applies to presented **repositories** and is untouched by this
 subsection.
 
-**Locked EN/TR copy.** Selection is keyed only by whether the item represents
-one or more than one pattern, plus the selected request culture:
+**Locked EN/TR copy.**
+
+> **Session 141 supersession (2026-08-28).** The copy is superseded and the
+> singular/plural split is **removed**. Session 141 contract
+> `07-starting-point.md` takes the internal phrase "recurring result" off the
+> user surface, and once the sentence names the pattern labels directly it no
+> longer needs a plural variant, so selection is now keyed by culture alone.
+> Every other rule in this subsection — source, labels, completeness, the
+> ProblemArea failure rule, the no-count constraint and the prohibitions —
+> stands unchanged.
+
+Superseded, keyed by whether the item represented one or more than one pattern:
 
 | Condition | English (`en`) | Turkish (`tr`) |
 |---|---|---|
 | one represented pattern (`{0}` = its localized label) | Starting point for this recurring result: {0} | Bu tekrar eden sonuç için başlangıç noktası: {0} |
 | more than one represented pattern (`{0}` = joined localized labels) | Starting point for these recurring results: {0} | Bu tekrar eden sonuçlar için başlangıç noktası: {0} |
 
+Active, keyed only by the selected request culture (`{0}` = the localized
+label, or the §8.4.5 join of all of them):
+
+| English (`en`) | Turkish (`tr`) |
+|---|---|
+| Starting point for {0} | {0} için başlangıç noktası |
+
 This copy lives in its own narrow, explicitly named
 `ProfileWebPresentationLocalizer` method under the §8.6.7 keying rule. No new
 analysis, Domain or Application semantic identity, enum or value is created to
 key it.
 
-The singular/plural pair is **grammatical agreement, not a count**. It renders
-no number, and the pattern labels it names are identities that the first-read
-pattern cards already render. The broad first-read no-count constraint
-(`profile-proof-distinctive-outcomes-contract.md` §8.2/§8.3) is therefore
-satisfied, and this line remains subject to it: neither the supporting-
-repository count nor any other counter may be added to it.
+The line renders **no number**, and the pattern labels it names are identities
+that the first-read pattern cards already render. The broad first-read no-count
+constraint (`profile-proof-distinctive-outcomes-contract.md` §8.2/§8.3) is
+therefore satisfied, and this line remains subject to it: neither the
+supporting-repository count nor any other counter may be added to it.
 
 **Prohibitions.** This line must never be rendered or reworded as best, top,
 strongest, highest-quality, most important, most professional, recommended,
@@ -1285,14 +1619,17 @@ One Why entry shows exactly three things:
    TechnicalFocus uses its literal language identity and EngineeringPractice
    uses the concise §8.4.8 Working Style label; the format is
    `Why is {label} here?` / `{label} neden burada?`;
-2. one deterministic family-bounded explanation: a TechnicalFocus item appears
-   because it is visible again across different public repositories and is
-   therefore shown as a recurring technical direction; an EngineeringPractice
-   item appears for the same canonical repetition reason and is therefore shown
-   as a recurring way of working;
+2. one deterministic family-bounded explanation: the item is shown because it
+   appears across multiple repositories. Session 141 shortened both family
+   sentences to that one reason (§8.6.7); they remain two separately keyed
+   family mappings, and the earlier longer wording — TechnicalFocus "shown as
+   one of the profile's recurring technical directions", EngineeringPractice
+   "shown as one of the recurring ways of working" — is superseded;
 3. the pattern's supporting public repositories, rendered as literal
    repository full names in the canonical order the pattern already provides,
-   under `Supporting repositories` / `Destekleyen repository'ler`.
+   under `Repositories where it appears` / `Görüldüğü repository'ler`
+   (superseding Session 104's `Supporting repositories` / `Destekleyen
+   repository'ler`; see §8.6.7).
 
 The question and reason translate the existing `WhyThisConclusion` trace into
 normal visitor language. They add no evidence relationship, count, promotion
@@ -1393,7 +1730,16 @@ remaining two statuses the reference would expose only whether a repository
 analysis happened to run --- internal execution mechanics, which report
 contract §11 does not require presentation to surface.
 
-The mapping is exhaustive over the enum; there is no fifth state:
+The mapping is exhaustive over the enum; there is no fifth state.
+
+> **Session 141 supersession (2026-08-28).** The copy is superseded; the
+> mapping, its exhaustiveness and the read-only-`RepositoryEligibilityStatus`
+> rule above are unchanged. The visitor-facing phrase `this view` is replaced
+> by `the profile analysis` — Session 141 removes presentation-object language
+> such as `bu görünüm` / `profil görünümü` from ordinary copy — and each line
+> is worded to state exactly what its canonical status asserts and no more.
+
+**Superseded — historical Session 104 copy:**
 
 | `RepositoryEligibilityStatus` | English (`en`) | Turkish (`tr`) |
 |---|---|---|
@@ -1402,10 +1748,33 @@ The mapping is exhaustive over the enum; there is no fifth state:
 | `NonContributing` | Did not contribute evidence to this view | Bu görünüme kanıt sağlamadı |
 | `Undetermined` | Its contribution to this view could not be determined | Bu görünüme katkısı belirlenemedi |
 
+**Active — Session 141:**
+
+| `RepositoryEligibilityStatus` | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| `Contributing` | Contributed evidence to the profile analysis | Profil analizine kanıt sağladı |
+| `Restricted` | Contributed evidence to the profile analysis with some restrictions | Profil analizine bazı kısıtlamalarla kanıt sağladı |
+| `NonContributing` | Did not contribute evidence to the profile analysis | Profil analizine kanıt sağlamadı |
+| `Undetermined` | It could not be determined whether this repository contributed evidence to the profile analysis. | Profil analizine kanıt sağlayıp sağlamadığı belirlenemedi |
+
 `Restricted` is **not** an evidence-quantity statement. It means at least one
 evidence-bearing purpose is allowed and at least one applicable
 evidence-bearing purpose is not allowed, with no undetermined purpose. Copy
-implying "less evidence" is therefore prohibited for this status.
+implying "less evidence" is therefore prohibited for this status — which is why
+the active line says "with some restrictions" and not "limited evidence".
+
+`Undetermined` says only that the contribution could not be determined. It may
+never be shortened into a stronger cause such as "not enough data" or
+"the repository could not be analyzed": the canonical state is reached both
+from `EligibilityReason.RequiredInputUnavailable` **and** from
+`EligibilityReason.IndependenceUndetermined`, and in the second case the
+repository analysis succeeded and only the fork/template lineage stayed
+inconclusive.
+
+The same canonical state is also surfaced in aggregate by the
+`RepositoryEligibilityUndetermined` profile warning, whose copy is bound by the
+identical constraint and is worded to match this row rather than to assert a
+data-availability cause.
 
 Every line above describes only that repository's contribution to **this
 analysis**. None of them is a statement about repository quality, developer
@@ -1420,22 +1789,56 @@ The active `WhyThisConclusion` section label is "What is this based on?" /
 label. The
 `RepositoryDrillDown` stays "Repository evidence" / "Repository kanıtı".
 
+> **Session 141 supersession (2026-08-28).** Six of the seven rows are
+> superseded; the Why entry question is unchanged. The two Why reasons collapse
+> to one short `Because …` sentence per family (the two families keep separate
+> mappings, and an unsupported family still fails loudly), and the repository
+> action is reworded from `Analyze this repository` to `View Repository Proof`.
+> **The action's behavior is unchanged**: it still POSTs the repository URL
+> through the existing analysis entry and starts a *fresh* Repository Proof
+> analysis; it is still never a direct GitHub navigation. Session 141 contract
+> `11-repository-evidence.md` §8 additionally requires Starting Point (§8.6.1b)
+> and Repository Evidence to show the **same** action language, because both
+> invoke the same flow.
+
+**Superseded — historical Session 104/111 copy:**
+
 | Identity | English (`en`) | Turkish (`tr`) |
 |---|---|---|
-| Why — entry question (`{0}` = localized canonical label) | Why is {0} here? | {0} neden burada? |
 | Why — TechnicalFocus reason (`{0}` = localized canonical label) | {0} appears again across different public repositories, so it is shown as one of the profile's recurring technical directions. | {0} farklı herkese açık repository'lerde yeniden görüldüğü için profilin tekrar eden teknik yönlerinden biri olarak gösteriliyor. |
 | Why — EngineeringPractice reason (`{0}` = localized canonical label) | {0} appears again across different public repositories, so it is shown as one of the recurring ways of working. | {0} farklı herkese açık repository'lerde yeniden görüldüğü için çalışma biçiminde tekrar eden yöntemlerden biri olarak gösteriliyor. |
 | Why — supporting repositories lead-in | Supporting repositories | Destekleyen repository'ler |
-| Repository evidence --- fresh-analysis lead-in | Selecting a repository runs a fresh Repository Proof analysis. | Bir repository seçmek yeni bir Repository Proof analizi başlatır. |
-| Repository action --- visible label | Analyze this repository | Bu repository'yi analiz et |
-| Repository action --- accessible name (`{0}` = repository full name) | Analyze repository {0} | {0} repository'sini analiz et |
+| Why — disclosure description | Each observation is explained with the repositories that support it. | Gözlemler hangi repository'lere dayandığıyla birlikte açıklanır. |
+| Repository evidence — disclosure description | The public repositories examined for this view appear here. | İncelenen herkese açık repository'ler burada görülür. |
+| Repository evidence — fresh-analysis lead-in | Selecting a repository runs a fresh Repository Proof analysis. | Bir repository seçmek yeni bir Repository Proof analizi başlatır. |
+| Repository action — visible label | Analyze this repository | Bu repository'yi analiz et |
+| Repository action — accessible name (`{0}` = repository full name) | Analyze repository {0} | {0} repository'sini analiz et |
+
+**Active — Session 141:**
+
+| Identity | English (`en`) | Turkish (`tr`) |
+|---|---|---|
+| Why — entry question (`{0}` = localized canonical label) — **unchanged** | Why is {0} here? | {0} neden burada? |
+| Why — TechnicalFocus reason (`{0}` = localized canonical label) | Because {0} appears across multiple repositories. | Çünkü {0} birden fazla repository'de tekrar görülüyor. |
+| Why — EngineeringPractice reason (`{0}` = localized canonical label) | Because {0} appears across multiple repositories. | Çünkü {0} birden fazla repository'de tekrar görülüyor. |
+| Why — supporting repositories lead-in | Repositories where it appears | Görüldüğü repository'ler |
+| Why — disclosure description | See which repositories each statement is based on. | Buradaki ifadelerin hangi repository'lere dayandığını görebilirsiniz. |
+| Repository evidence — disclosure description | See the public repositories examined in this analysis. | Analizde incelenen public repository'leri burada görebilirsiniz. |
+| Repository evidence — fresh-analysis lead-in | Selecting a repository starts a new Repository Proof analysis. | Bir repository seçtiğinizde yeni bir Repository Proof analizi başlar. |
+| Repository action — visible label | View Repository Proof | Repository Proof'u gör |
+| Repository action — accessible name (`{0}` = repository full name) | View Repository Proof for {0} | {0} için Repository Proof'u gör |
+
+The two Why reasons are now the same sentence, but they remain **two separate
+keyed mappings** over `ProfilePatternFamily`. Presentation must still resolve
+the family explicitly and fail loudly for a family with no active mapping; the
+identical wording is a copy outcome, not a merged identity.
 
 Row status copy is locked in §8.6.6. `Supported`-but-empty copy for both
 sections is locked in §8.5.
 
-The Why reason says that the item appears again **across different public
-repositories**. It never asserts that evidence repeats inside any single
-repository and never exposes the promotion mechanism.
+The Why reason says that the item appears **across multiple repositories**. It
+never asserts that evidence repeats inside any single repository and never
+exposes the promotion mechanism.
 
 Literal identities are never translated: repository full names, GitHub
 usernames, URLs, and programming/GitHub language identities.
@@ -1518,6 +1921,18 @@ The successful Profile page begins with the public GitHub identity, not an
 analysis-dashboard taxonomy label. The former visible `Profile view` / `Profil
 görünümü` eyebrow is not rendered and is not replaced with another eyebrow.
 
+> **Session 141 supersession (2026-08-28).** The former third element — the
+> identity context line `View of public GitHub work` / `Herkese açık GitHub
+> çalışmalarının görünümü` — is **removed and not replaced**, and the list
+> below is renumbered accordingly. It carried no information beyond the
+> username and URL already shown directly above it, it read as an internal
+> presentation-object label, and it stepped into Meaning's job. The header's
+> purpose narrows to exactly what Session 141 contract `03-profile-header.md`
+> states: **the header fixes identity; interpretation begins at Meaning.** The
+> identity, the canonical GitHub URL and the secondary external action are all
+> unchanged, as are the avatar and external-action accessible names of
+> §8.7.2/§8.7.3.
+
 The active compact header contains, in priority order:
 
 1. the literal canonical `DeveloperPublicEvidenceProfile.ProfileIdentity.Login`
@@ -1525,8 +1940,10 @@ The active compact header contains, in priority order:
 2. the visible canonical GitHub identity `github.com/{login}`, projected from
    `DeveloperPublicEvidenceProfile.ProfileIdentity.Url` rather than reconstructed
    from the posted string;
-3. `View of public GitHub work` / `Herkese açık GitHub çalışmalarının görünümü`;
-4. the secondary GitHub external action of §8.7.3.
+3. the secondary GitHub external action of §8.7.3.
+
+*(Superseded element: an identity context line between 2 and 3, removed by
+Session 141 as described above.)*
 
 The header contains no technology/practice item, repository count, score,
 percentage, metric tile, activity classification or report summary. Meaning
@@ -1654,12 +2071,15 @@ description and a visual chevron, but no raw evidence term, count, status,
 selection mechanism, custom ARIA state or JavaScript. Opening behavior and
 their canonical body content are unchanged.
 
-The mockup does not show Limitations, but its omission is not authorized here.
-Limitations remains a canonical Supported section in its existing report order,
-including when empty, under the Empty Limitations Presentation Contract Gap.
-The mockup's Share action likewise remains absent under the Shareable Profile
-URL Contract Gap; no disabled/dead control is a substitute for a real share
-flow.
+The mockup does not show Limitations. *(Amended 2026-08-28 / Session 141: the
+mockup's omission is now authorized for the **empty** case only, by §8.5.1 —
+which is exactly what closed the Empty Limitations Presentation Contract Gap.
+A non-empty Limitations section still renders.)* Limitations remains a
+canonical Supported section in its existing report order in every case; only
+its empty presentation container may be omitted, and the canonical section is
+never dropped. The mockup's Share action likewise remains absent under the
+Shareable Profile URL Contract Gap; no disabled/dead control is a substitute
+for a real share flow.
 
 ## 8.8 Profile First-Read Information Depth Contract (Session 136)
 
@@ -1846,12 +2266,17 @@ empty-state illustration, retry prompt or encouragement copy is introduced.
 
 **Recorded gap — empty-result first-read repetition.** In this case the reader
 receives the same absence statement several times in a row (Meaning's two
-paragraphs, then each section's own §8.5 line, then an empty Limitations card).
-§8.5 calls this repetition deliberate so that a canonical section never fails
-to report its own result, and the empty Limitations card is held open as the
-**Empty Limitations Presentation Contract Gap**. Reducing the repetition would
-require amending §8.5 and is **not authorized here**: **Empty-Result First-Read
-Repetition Contract Gap**.
+paragraphs, then each section's own §8.5 line). §8.5 calls this repetition
+deliberate so that a canonical section never fails to report its own result.
+Reducing it further would require amending §8.5 and is **not authorized here**:
+**Empty-Result First-Read Repetition Contract Gap**.
+
+*(Amended 2026-08-28 / Session 141: the empty Limitations card is no longer
+part of this repetition — §8.5.1 lets its container be omitted, which removes
+one of the repeated absence statements and closes the Empty Limitations
+Presentation Contract Gap. Session 141 also roughly halved Meaning's two
+paragraphs, so the remaining repetition is shorter than when this gap was
+recorded. The gap itself stays open: the per-section §8.5 lines are unchanged.)*
 
 **CASE C — evidence surface incomplete or narrowed.** Distinct from CASE B and
 never merged into it. The truthful Partial notice leads the status area above
@@ -2011,7 +2436,7 @@ First — EN / TR:
 
 Then — EN / TR:
 
-> Visible technical direction / Görünen teknik yön
+> Technical direction / Teknik yön
 
 Then — EN / TR:
 
