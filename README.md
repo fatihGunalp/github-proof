@@ -1,393 +1,283 @@
 # GitHub Proof
 
-> **GitHub reponuz yalnızca kod içermez.**
->
-> Dışarıdan bakıldığında hangi mühendislik kanıtlarının görünür olduğunu da gösterir.
+**Evidence, not verdicts.** — Kanıt sunar, hüküm vermez.
 
-GitHub Proof, public bir GitHub repository'sini analiz ederek dışarıdan gözlemlenebilen mühendislik kanıtlarını açıklanabilir sinyaller hâlinde görünür kılan açık kaynak bir analiz platformudur.
+GitHub Proof, public GitHub repository ve profillerindeki gözlemlenebilir mühendislik kanıtlarını analiz eden, açıklayan ve kaynağına kadar izlenebilir hâle getiren bir web uygulamasıdır.
 
-Projenin amacı geliştiricileri puanlamak değildir.
+![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+![C%23](https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-Razor_Pages-512BD4)
+![GitHub API](https://img.shields.io/badge/GitHub-API-181717?logo=github&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-xUnit-555555)
 
-Amaç, **analiz edilen repository'nin hangi kanıtları görünür biçimde taşıdığını ve hangi alanların geliştirilebileceğini göstermektir.**
+## İçindekiler
 
-Aynı görünür kanıt, repository'yi dışarıdan inceleyen bir kişi tarafından da okunabilir. Her sonuç dayandığı kanıta kadar izlenebilir ve kanıtın sınırı açıkça belirtilir.
+- [Neden GitHub Proof?](#neden-github-proof)
+- [Özellikler](#özellikler)
+- [Nasıl çalışır?](#nasıl-çalışır)
+- [Kurulum](#kurulum)
+- [Kullanım](#kullanım)
+- [Mimari](#mimari)
+- [Testler](#testler)
+- [Proje durumu ve yol haritası](#proje-durumu-ve-yol-haritası)
+- [Dokümantasyon](#dokümantasyon)
+- [Katkı ve lisans](#katkı-ve-lisans)
 
-Ürün konumlandırması ve epistemik sınır için:
+## Neden GitHub Proof?
 
-> [GitHub Proof Product Positioning](docs/product/product-positioning.md)
+Bir GitHub repository'sinde testler, CI yapılandırmaları, bağımlılıklar ve düzenli commit geçmişi bulunabilir. Ancak bu artefaktların varlığı, tek başına geliştiricinin kodu yazdığını, anladığını veya belirli bir yetkinlik seviyesinde olduğunu kanıtlamaz.
 
----
+AI coding agent'larının gelişmesiyle bu ayrım daha da önemli hâle gelmiştir.
 
-## Problem
+GitHub Proof, geliştiriciyi değerlendirmek yerine public GitHub üzerinde gerçekten hangi kanıtların görünür olduğunu ve bu kanıtların sınırlarını gösterir.
 
-Bir geliştirici GitHub üzerinde proje yayınlamış olabilir; ancak repository dışarıdan incelendiğinde şu soruların cevapları görünmeyebilir:
-
-- Projenin amacı, kurulumu ve kullanım biçimi anlaşılabiliyor mu?
-- Commit, issue, pull request ve release gibi geliştirme süreci kanıtları görünür mü?
-- Test ve Continuous Integration yapısı görünür mü?
-- Repository topics, homepage/demo ve temel sunum parçalarıyla anlaşılır biçimde sunulmuş mu?
-
-GitHub Proof bu sorulara yalnızca repository içerisinde gözlemlenebilen kanıtlar üzerinden cevap vermeyi amaçlar.
-
----
-
-## Temel İlke
-
-> **Çalışan kod, tek başına mühendisliği kanıtlamaz.**
-
-GitHub Proof geliştiriciyi değerlendirmez.
-
-Yalnızca repository içerisinde dışarıdan gözlemlenebilen kanıtları değerlendirir.
-
-Bir geliştiricinin seviyesi tek bir repository'ye veya skora indirgenemez. Bu nedenle üretilen sonuçlar karar vermek için nihai hüküm değil, repository'yi geliştirmek için açıklanabilir bir rehberdir.
-
-Kısaca: **kanıt sunar, hüküm vermez.**
-
-### AI coding çağındaki sınır
-
-AI coding agent'ları, sofistike görünen repository çıktısı üretmenin maliyetini düşürmüştür. Bir kişi, yazılım bilgisi çok sınırlı olsa bile bir AI coding agent'ından güçlü görünen mühendislik yapısı taşıyan bir repository üretmesini isteyebilir.
-
-Bu nedenle repository çıktısı; insan authorship'inin, insan anlayışının veya insan yetkinliğinin kanıtı olarak ele alınamaz.
-
-Şu çıkarım zinciri public GitHub evidence'ından güvenilir biçimde kurulamaz; ilk geçiş bile garanti değildir:
+- Geliştiriciler, public çalışmalarındaki görünür kanıtları ve geliştirilebilir alanları inceleyebilir.
+- Teknik değerlendiriciler, public artefaktları kaynaklarına kadar takip edebilir.
+- Kanıt eksikliği, yetkinlik eksikliği olarak yorumlanmaz.
 
 ```text
-kod var
-→ geliştirici yazdı
-→ geliştirici anlıyor
-→ geliştirici bu konuda yetkin
+Repository Evidence ≠ Human Capability
+Repository Evidence ≠ Human Authorship
+Repository Evidence ≠ Human Understanding
 ```
 
-Temel sınır:
+## Özellikler
+
+### Repository Proof
+
+Tek bir public repository'nin görünür mühendislik kanıtlarını 15 tanımlı sinyal ve dört analiz kategorisi üzerinden değerlendirir.
+
+| Kategori | İncelenen kanıtlar |
+| --- | --- |
+| Repository anlaşılabilirliği | README, açıklama, kurulum, lisans, kullanım örneği veya demo |
+| Geliştirme süreci görünürlüğü | Commit geçmişi ve zamana yayılımı, issue, pull request, release |
+| Doğrulama ve kullanılabilirlik | Test yapısı ve Continuous Integration |
+| Portföy sunumu | Topics, homepage/demo ve sunum bütünlüğü |
+
+Rapor; gözlemlenen kanıtları, sınırlılıkları, belirsizlikleri ve öncelikli iyileştirme önerilerini sunar. Kategori ve toplam skorlar ikincil göstergelerdir; geliştirici puanı değildir. Sunum bütünlüğü bileşik sinyali toplam skora ikinci kez eklenmez.
+
+### Profile Proof
+
+Public bir GitHub profilindeki uygun repository'leri inceleyerek tekil proje analizinin ötesinde, repository'ler arasında gözlemlenebilen kanıtları bir araya getirir.
+
+- Repository uygunluğu ve temsilî repository seçimi
+- Repository'ler arasında tekrar eden mühendislik kanıtları
+- Teknoloji, bağımlılık ve kaynak referansı gözlemleri (tanımlı kapsama göre)
+- Kaynağına kadar izlenebilir sonuçlar ve repository detaylarına geçiş
+- Kısmi, erişilemeyen veya yetersiz kanıtın açık biçimde sunulması
+
+Profile Proof'un web akışı uygulanmıştır; public beta için production doğrulaması henüz tamamlanmamıştır.
+
+### Web deneyimi
+
+- Repository ve profil hedefleri için ortak giriş noktası
+- Sunucu tarafından raporlanan canlı analiz aşamaları
+- Türkçe ve İngilizce arayüz
+- Açık ve koyu tema
+- Responsive Razor Pages arayüzü
+
+### Analiz sınırları
+
+GitHub Proof bir AI dedektörü, aday sıralama sistemi, kıdem belirleme aracı, güvenlik denetimi veya işe alım karar motoru değildir. Kodun özgünlüğünü, insan tarafından yazıldığını ya da anlaşıldığını doğrulamaz. Private repository'ler, şirket içi çalışmalar ve GitHub dışında kalan üretim hakkında çıkarım yapmaz.
+
+## Nasıl çalışır?
+
+```mermaid
+flowchart TD
+    A[GitHub hedefi] --> B{Hedef türü}
+    B -->|Repository| C[Repository snapshot]
+    B -->|Profil| D[Profil ve uygun repository snapshot'ları]
+    C --> E[Kural tabanlı repository analizi]
+    D --> F[Repository analizleri ve profil kompozisyonu]
+    E --> G[Repository raporu]
+    F --> H[Profil raporu]
+    G --> I[Kanıt, kaynak ve sınırlılıklar]
+    H --> I
+```
+
+Analiz çekirdeği deterministik kurallara dayanır; aynı girdiler ve analiz sürümleri için tekrarlanabilir sonuçlar hedeflenir. Canlı GitHub verilerinin değişmesi farklı snapshot'lar üretebilir.
+
+Her anlamlı sonuç aşağıdaki izlenebilirlik ilkesine bağlıdır:
 
 ```text
-Repository Evidence
-!= Human Capability
-!= Human Authorship
-!= Human Understanding
+Claim → Evidence → Evidence Reference → Observable Source
 ```
 
-GitHub Proof gözlemlenebilir kanıtı ve bu kanıtın sınırını gösterir. Kanıtın arkasındaki insan anlayışını repository'den çıkarsamaz.
+Kanıtın bulunamaması ile otomatik analizin güvenilir bir sonuç üretememesi aynı durum değildir.
 
----
+## Kurulum
 
-## MVP
+### Gereksinimler
 
-İlk sürümün temel kullanıcı akışı:
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Git](https://git-scm.com/downloads)
+- GitHub API erişimi için internet bağlantısı
+- GitHub access token (önerilir; özellikle profil analizlerinde API limitleri nedeniyle)
 
-```text
-Public repository URL'si gir
-        ↓
-Repository verilerini topla
-        ↓
-Açıklanabilir sinyalleri analiz et
-        ↓
-Dört kategoride sonuç üret
-        ↓
-Üç öncelikli geliştirme önerisi göster
+Repository private olduğu için clone işlemi erişim yetkisi gerektirir.
+
+### 1. Repository'yi klonlayın
+
+```bash
+git clone https://github.com/fatihGunalp/github-proof.git
+cd github-proof
 ```
 
-MVP tamamlandığında sistem:
+### 2. GitHub API token'ını yapılandırın
 
-- Public GitHub repository URL'si kabul edecek.
-- 15 açıklanabilir MVP sinyalini analiz edecek.
-- Sonuçları dört kategori altında gösterecek.
-- Her puanın dayandığı kanıtı açıklayacak.
-- Üç öncelikli geliştirme önerisi sunacak.
-- Web raporu ve Markdown çıktısı üretecek.
+Uygulama `GITHUB_TOKEN` ortam değişkenini okur. Token isteğe bağlıdır; token olmadan anonim API isteklerinin limitleri geçerlidir. Yalnız gerekli en düşük izinleri kullanın ve token'ı kaynak koda veya Git geçmişine eklemeyin.
 
-MVP fazlarının ayrıntıları için:
+**macOS / Linux (Bash veya Zsh)**
 
-> [GitHub Proof — MVP Fazları](docs/roadmap/mvp-phases.md)
+```bash
+export GITHUB_TOKEN="YOUR_GITHUB_TOKEN"
+```
 
----
+**Windows (PowerShell)**
 
-## Ürün Belgeleri
+```powershell
+$env:GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"
+```
 
-MVP'nin ürün sınırları, analiz kuralları ve raporlama yaklaşımı aşağıdaki belgelerde tanımlanmıştır:
+Token'ı kendi güvenli secret yönetiminiz üzerinden ortam değişkenine aktarmanız önerilir.
 
-- [Ürün Konumlandırması](docs/product/product-positioning.md)
-- [MVP Ürün Sözleşmesi](docs/product/mvp-product-contract.md)
-- [Analiz Kategorileri ve Sinyal Sınırları](docs/product/analysis-categories-and-signal-boundaries.md)
-- [Puanlama ve Rapor Sözleşmesi](docs/product/scoring-and-report-contract.md)
-- [Örnek MVP Analiz Raporu](docs/product/sample-analysis-report.md)
-- [Doğrulama Repository Seti](docs/product/validation-repository-set.md)
+### 3. Restore ve build
 
----
+```bash
+dotnet restore GitHubProof.slnx
+dotnet build GitHubProof.slnx --no-restore
+```
 
+### 4. Web uygulamasını çalıştırın
 
-## Analiz Alanları
+```bash
+dotnet run --project src/GitHubProof.Web
+```
 
-### 1. Repository Anlaşılabilirliği
+Terminaldeki `Now listening on` adresini tarayıcıda açın. Uygulamanın bu çalışma akışı için ayrı bir veritabanı veya LLM API anahtarı gerekmez.
 
-Repository ilk bakışta anlaşılabiliyor mu?
+## Kullanım
 
-MVP sinyalleri:
+Ana sayfadaki GitHub hedefi alanına bir public repository URL'si veya public profil URL'si girin.
 
-- README varlığı
-- Proje açıklaması
-- Kurulum talimatı
-- Lisans
-- Kullanım örneği veya demo
+| Analiz | Örnek girdi |
+| --- | --- |
+| Repository Proof | `https://github.com/dotnet/runtime` |
+| Profile Proof | `https://github.com/torvalds` |
 
-### 2. Geliştirme Süreci Görünürlüğü
+Örnek URL'ler giriş biçimini göstermek içindir; profil uygunluğu, API erişimi ve rapor kapsamı çalışma zamanında belirlenir.
 
-Geliştirme sürecine ait gözlemlenebilir kanıtlar repository üzerinde görülebiliyor mu?
+Analizi başlattıktan sonra ilerleme aşamalarını takip edin. Sonuç raporunda önce görünür kanıtları, ardından bu kanıtların kaynaklarını ve sınırlılıklarını inceleyin.
 
-MVP sinyalleri:
+Repository raporu örneği: [Örnek analiz raporu](docs/product/sample-analysis-report.md). Bu belge temsilî bir örnektir, canlı analiz sonucu değildir.
 
-- Commit geçmişi
-- Commitlerin zamana yayılımı
-- Issue kullanımı
-- Pull request kullanımı
-- Release kullanımı
+## Mimari
 
-### 3. Doğrulama ve Kullanılabilirlik
-
-Kod davranışlarının otomatik olarak doğrulanmasına yönelik görünür yapı bulunuyor mu?
-
-MVP sinyalleri:
-
-- Test yapısı
-- Continuous Integration
-
-### 4. Portföy Sunumu
-
-Repository, yapılan üretimi dışarıdan inceleyen bir kişiye açık ve anlamlı biçimde sunabiliyor mu?
-
-MVP sinyalleri:
-
-- GitHub Topics
-- Homepage veya canlı demo bağlantısı
-- Repository sunum bütünlüğü
-
-`Repository sunum bütünlüğü` bileşik bir sinyaldir ve toplam görünür kanıt skoruna yeniden dahil edilmez.
-
-## AI Hakkındaki Yaklaşım
-
-GitHub Proof:
-
-> “Bu kod AI tarafından yazılmıştır.”
-
-iddiasında bulunmaz.
-
-MVP yalnızca tanımlı repository sinyallerini değerlendirir; örneğin:
-
-- Commit geçmişi ve zamana yayılımı
-- Dokümantasyon ve kullanım kanıtları
-- Test ve Continuous Integration yapısı
-- Issue, pull request ve release kullanımı
-- Topics, homepage/demo ve repository sunum bütünlüğü
-
-Bu sinyallerin hiçbiri tek başına veya birlikte AI kullanıldığını, kodun kopyalandığını ya da geliştiricinin yetkinlik seviyesini kanıtlamaz.
-
-AI kullanımı olumlu veya olumsuz bir bulgu değildir.
-
-GitHub Proof aşağıdakileri belirlemeye çalışmaz:
-
-- kodu AI'ın yazıp yazmadığı,
-- hangi oranda AI tarafından yazıldığı,
-- kesin insan authorship'i,
-- özgünlük,
-- repository sahibinin implementasyonu anlayıp anlamadığı.
-
-Public repository kanıtı tek başına bu sonuçları kuramaz.
-
----
-
-## Örnek Rapor
-
-~~~text
-Repository Kanıt Profili
-
-Bu repository neyi kanıtlıyor?
-
-✓ Commit geçmişi geliştirme sürecini görünür kılıyor.
-✓ Repository üzerinde test yapısı gözlemleniyor.
-
-Kanıtı ne zayıflatıyor?
-
-△ Kurulum ve kullanım kanıtı sınırlı.
-✗ CI doğrulaması görünür değil.
-✗ Release süreci görünür değil.
-
-Önce bunları yap
-
-1. Kurulum sürecini belgeleyin.
-2. Test doğrulamasını CI ile otomatikleştirin.
-3. İlk anlamlı release'i yayınlayın.
-
-Kategori özeti — ikincil
-
-Repository anlaşılabilirliği: 59 / 100
-Geliştirme süreci görünürlüğü: 66 / 100
-Doğrulama ve kullanılabilirlik: 44 / 100
-Portföy sunumu: 57 / 100
-
-Toplam görünür kanıt — ikincil: 56 / 100
-Etiket: Gelişen görünür kanıt
-~~~
-
-Bu örnek temsilîdir ve [Örnek MVP Analiz Raporu](docs/product/sample-analysis-report.md) ile aynı puanlama sözleşmesini kullanır.
-
-Toplam skor karşılaştırma veya geliştirici sıralaması için kullanılmamalıdır.
-
-Her skor, gözlemlenebilir kanıt ve açıklamayla birlikte gösterilmelidir.
-
----
-
-## Proje Yapısı
+GitHub Proof, C# ve .NET 10 ile geliştirilmiş katmanlı bir solution'dır. Domain ve Application katmanları analiz semantiğini; Infrastructure dış veri erişimini; Web katmanı kullanıcı deneyimini yönetir.
 
 ```text
 github-proof/
-
+├── src/
+│   ├── GitHubProof.Domain/
+│   ├── GitHubProof.Application/
+│   ├── GitHubProof.Infrastructure/
+│   └── GitHubProof.Web/
+├── tests/
+│   ├── GitHubProof.Domain.Tests/
+│   ├── GitHubProof.Application.Tests/
+│   ├── GitHubProof.Infrastructure.Tests/
+│   └── GitHubProof.Web.Tests/
 ├── docs/
 │   ├── architecture/
 │   ├── decisions/
-│   ├── roadmap/
-│   │   └── mvp-phases.md
-│   └── screenshots/
-│
-├── src/
-│   ├── GitHubProof.Api/
-│   ├── GitHubProof.Application/
-│   │   ├── Analysis/
-│   │   ├── Portfolio/
-│   │   ├── Recommendations/
-│   │   ├── Reports/
-│   │   └── Scoring/
-│   │
-│   ├── GitHubProof.Domain/
-│   │   ├── Portfolio/
-│   │   ├── Reports/
-│   │   ├── Rules/
-│   │   └── Signals/
-│   │
-│   ├── GitHubProof.Infrastructure/
-│   │   ├── Caching/
-│   │   ├── GitHub/
-│   │   ├── Markdown/
-│   │   └── Persistence/
-│   │
-│   └── GitHubProof.Web/
-│       ├── Assets/
-│       ├── Components/
-│       ├── Layout/
-│       └── Pages/
-│
-├── tests/
-│   ├── GitHubProof.UnitTests/
-│   ├── GitHubProof.IntegrationTests/
-│   └── GitHubProof.SnapshotTests/
-│
+│   ├── product/
+│   └── roadmap/
 ├── samples/
-│   ├── Reports/
-│   └── Repositories/
-│
-├── .github/
-├── LICENSE
+│   └── validation/
+├── agents/
+├── worklog/
+├── AGENTS.md
+├── CLAUDE.md
+├── GitHubProof.slnx
 └── README.md
 ```
 
----
+| Katman | Sorumluluk |
+| --- | --- |
+| [Domain](src/GitHubProof.Domain/) | Analiz modelleri, value object'ler, sinyaller, kurallar ve profil politikaları |
+| [Application](src/GitHubProof.Application/) | Analiz orkestrasyonu, repository ve profil kompozisyonu, rapor projeksiyonu |
+| [Infrastructure](src/GitHubProof.Infrastructure/) | GitHub REST veri toplama, profil için kontrollü GraphQL desteği, snapshot ve manifest işlemleri |
+| [Web](src/GitHubProof.Web/) | ASP.NET Core Razor Pages, giriş sınıflandırma, sunum, localization ve analiz ilerlemesi |
 
-## Tasarım İlkeleri
+### Teknoloji yığını
 
-GitHub Proof aşağıdaki ilkelerle geliştirilecektir:
+| Teknoloji | Kullanım |
+| --- | --- |
+| C# / .NET 10 | Uygulama ve analiz çekirdeği |
+| ASP.NET Core Razor Pages | Web arayüzü ve HTTP akışları |
+| GitHub REST API | Public GitHub verilerinin toplanması |
+| GitHub GraphQL API | Profile Proof için kontrollü, yapılandırılabilir toplama desteği |
+| HTML, CSS, JavaScript | Responsive arayüz, tema ve ilerleme göstergesi |
+| xUnit | Otomatik testler |
 
-- Açıklanabilir analiz
-- Şeffaf puanlama
-- Tekrarlanabilir sonuçlar
-- Gözlemlenebilir kanıtlar
-- Küçük ve doğrulanabilir MVP
-- Kural tabanlı çekirdek
-- Genişletilebilir sinyal altyapısı
-- Kara kutu karar mekanizmalarından kaçınma
+LLM, deterministik analiz çekirdeğinin zorunlu bir bağımlılığı değildir.
 
----
+## Testler
 
-## MVP Kapsamı Dışında Kalanlar
+Tüm solution testlerini çalıştırmak için:
 
-İlk sürümde aşağıdaki özellikler bulunmayacaktır:
+```bash
+dotnet test GitHubProof.slnx
+```
 
-- Private repository analizi
-- Kullanıcı hesabı
-- Analiz geçmişi
-- Repository karşılaştırması
-- Recruiter puanlaması
-- Takım raporları
-- Ödeme
-- AI kullanım tespiti
-- Kod kalitesinin bütünüyle değerlendirilmesi
-- Mimari olgunluk hakkında kesin hüküm
+Tek bir katmanı test etmek için:
 
----
+```bash
+dotnet test tests/GitHubProof.Domain.Tests
+dotnet test tests/GitHubProof.Application.Tests
+dotnet test tests/GitHubProof.Infrastructure.Tests
+dotnet test tests/GitHubProof.Web.Tests
+```
 
-## Yol Haritası
+Test kapsamı; domain kuralları, analiz ve kompozisyon, GitHub veri toplama davranışları, rapor sözleşmeleri ve web davranışlarını içerir. Gerçek repository doğrulama örnekleri [samples/validation](samples/validation/) altında tutulur.
 
-### MVP
+## Proje durumu ve yol haritası
 
-- Ürün sınırları
-- Analiz modeli
-- GitHub veri toplama
-- Kural tabanlı Signal Engine
-- Rapor üretimi
-- Minimal web arayüzü
-- Gerçek repository doğrulaması
-- LinkedIn pilot lansmanı
+Geliştirme tamamlanması ile production release birbirinden ayrı değerlendirilir.
 
-### MVP Sonrası
+| Yetkinlik | Durum |
+| --- | --- |
+| Repository Proof | Uygulanmış repository analiz ve web raporu |
+| Profile Proof | Web akışı uygulanmış (P10 COMPLETE); Milestone B production gate devam ediyor |
+| Job Proof | Ürün sözleşmesi ve yol haritası mevcut; teslim edilmiş özellik olarak sunulmaz |
+| Recruiter Evidence View | Gelecek kontrollü pilot yönü |
+| LLM destekli anlatım | Gelecek, isteğe bağlı iyileştirme |
 
-- Analiz geçmişi
-- Repository gelişim zaman çizelgesi
-- LinkedIn paylaşım kartı
-- GitHub badge
-- Public rapor bağlantısı
-- Recruiter görünümü
-- Derin teknik analiz
-- LLM destekli açıklama katmanı
+Job Proof'un hedefi, iş ilanındaki gereksinimler ile public GitHub üzerinde görünür kanıt arasındaki ilişkiyi izlenebilir biçimde sunmaktır; adayın işe uygunluğunu veya yetkinliğini belirlemek değildir.
 
-Ayrıntılı yol haritası:
+Güncel durum: [CURRENT.md](worklog/CURRENT.md) · [Geliştirme fazları](docs/roadmap/mvp-phases.md) · [Deployment milestones](docs/roadmap/deployment-milestones.md).
 
-> [GitHub Proof — MVP Fazları](docs/roadmap/mvp-phases.md)
+## Dokümantasyon
 
----
+Ürün ve mimari sözleşmelerinin kaynak doğrusu `docs/` dizinidir.
 
-## Planlanan Teknolojiler
+| Belge | İçerik |
+| --- | --- |
+| [Product Positioning](docs/product/product-positioning.md) | Ürün amacı ve çıkarım sınırları |
+| [MVP Product Contract](docs/product/mvp-product-contract.md) | Repository Proof kapsamı |
+| [Scoring and Report Contract](docs/product/scoring-and-report-contract.md) | Sinyal durumları, puanlama ve rapor |
+| [MVP Signal Definitions](docs/architecture/mvp-signal-definitions.md) | Analiz sinyallerinin teknik kuralları |
+| [Public Profile Evidence](docs/product/public-profile-evidence-product-contract.md) | Profil analizi kapsamı |
+| [Profile Report Contract](docs/architecture/public-profile-evidence-report-contract.md) | Profil raporu ve izlenebilirlik |
+| [Job Evidence Alignment](docs/product/job-evidence-alignment-product-contract.md) | Gelecek Job Proof ürün sözleşmesi |
+| [Deployment Milestones](docs/roadmap/deployment-milestones.md) | Production yayın kriterleri |
 
-Teknoloji tercihleri ürün ihtiyaçları doğrulandıktan sonra kesinleştirilecektir.
+## Katkı ve lisans
 
-İlk teknik yönelim:
+Repository'ye erişimi olan geliştiriciler, değişiklik yapmadan önce [AGENTS.md](AGENTS.md) ve [agents/](agents/) altındaki çalışma sözleşmelerini incelemelidir. Değişiklikler odaklı tutulmalı, ilgili testlerle doğrulanmalı ve ürün sözleşmelerini korumalıdır.
 
-- C#
-- ASP.NET Core
-- GitHub REST API
-- Blazor veya ASP.NET Core tabanlı minimal web arayüzü
-
-PostgreSQL, Docker ve LLM desteği yalnızca gerçek ihtiyaç oluştuğunda projeye dahil edilmelidir.
-
----
-
-## Katkıda Bulunma
-
-GitHub Proof açık kaynak olarak geliştirilecektir.
-
-Bug bildirimleri, sinyal önerileri, test repository'leri ve kod katkıları memnuniyetle karşılanır.
-
-Katkı kuralları proje geliştikçe `.github/CONTRIBUTING.md` altında yayınlanacaktır.
+Repository şu anda private durumdadır. MIT lisansı önceki README'de planlanmış olsa da mevcut repository'de bir `LICENSE` dosyası bulunmamaktadır. Açık kaynak lisansı veya yeniden dağıtım izni, resmi lisans yayımlanana kadar varsayılmamalıdır.
 
 ---
 
-## Lisans
-
-Bu projenin MIT lisansı altında yayınlanması planlanmaktadır.
-
----
-
-## Son Söz
-
-GitHub Proof'un amacı çalışan yazılımları ödüllendiren yeni bir skor üretmek değildir.
-
-Amaç:
-
-> **Repository içerisinde zaten bulunan mühendislik kanıtlarını görünür, açıklanabilir ve geliştirilebilir hâle getirmektir.**
+GitHub Proof — Kanıt izlenebilir. Sınır görünür.
